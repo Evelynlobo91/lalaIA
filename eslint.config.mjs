@@ -4,7 +4,7 @@ import nextTs from "eslint-config-next/typescript";
 import boundaries from "eslint-plugin-boundaries";
 
 // Fronteiras do monólito modular (ADR 0001 — docs/adr/0001-monolito-modular.md).
-// - app/      → pode usar shared/ e a API pública (index.ts) de qualquer módulo
+// - app/ e bootstrap/ (composição no boot) → pode usar shared/ e a API pública (index.ts) de qualquer módulo
 // - modules/X → pode usar tudo do próprio módulo, shared/ e o index.ts de outros módulos
 // - shared/   → só pode usar shared/ (kernel não conhece módulos)
 const architecture = {
@@ -14,6 +14,7 @@ const architecture = {
     "import/resolver": { typescript: { alwaysTryTypes: true } },
     "boundaries/elements": [
       { type: "app", pattern: "src/app" },
+      { type: "app", pattern: "src/bootstrap" },
       { type: "module", pattern: "src/modules/*", capture: ["name"] },
       { type: "shared", pattern: "src/shared" },
     ],
