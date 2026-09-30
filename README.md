@@ -29,6 +29,7 @@ npm run check      # lint (inclui fronteiras entre módulos) + typecheck + teste
 npm run test:int   # testes de integração (precisa do db:start)
 npm run db:reset   # recria o banco do zero a partir das migrations
 npm run test:e2e   # testes E2E (Playwright) no build de produção, em 360/768/1280 px
+npm run role -- grant admin voce@exemplo.com   # concede papel (partner/admin) a uma conta
 ```
 
 Veja também [convenções do banco](docs/database.md), [observabilidade](docs/observability.md) e [CI/CD e deploy](docs/deploy.md).

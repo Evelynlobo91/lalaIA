@@ -10,7 +10,7 @@ import { EditProfile, editProfileSchema } from "./edit-profile";
 const handle = formAction(
   editProfileSchema,
   withUser((input, user) => new EditProfile(new PostgresProfileRepository(sql())).execute(user.id, input)),
-  { keepValues: ["displayName"] },
+  { name: "identity.edit-profile", keepValues: ["displayName"] },
 );
 
 export async function editProfileAction(previous: FormState<{ displayName: string }>, formData: FormData) {

@@ -14,7 +14,7 @@ const handle = formAction(
     const useCase = new RegisterUser(new SupabaseSignUpGateway(await createSupabaseServerClient()), domainEvents());
     return useCase.execute(input, `${publicEnv().NEXT_PUBLIC_SITE_URL}/auth/confirm`);
   },
-  { keepValues: ["displayName", "email"] },
+  { name: "identity.register", keepValues: ["displayName", "email"] },
 );
 
 export async function registerAction(previous: FormState<RegisterResult>, formData: FormData): Promise<FormState<RegisterResult>> {

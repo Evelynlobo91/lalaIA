@@ -11,6 +11,8 @@ export type { FieldErrors, FormState } from "./form-state";
 export { idleFormState } from "./form-state";
 
 type Options = {
+  /** Nome da ação no log (ex.: "identity.login"). */
+  name?: string;
   /** Campos devolvidos ao formulário em caso de erro para não perder o que foi digitado. Nunca inclua senhas. */
   keepValues?: string[];
   /** Campos que podem se repetir (ex.: checkboxes com o mesmo name) e devem virar lista. */
@@ -30,22 +32,31 @@ function formDataToObject(formData: FormData, arrays: string[] = []): Record<str
 export function formAction<S extends z.ZodType, T>(schema: S, handler: (input: z.infer<S>) => Promise<Result<T, DomainError>>, options: Options = {}) {
   return async (_previous: FormState<T>, formData: FormData): Promise<FormState<T>> =>
     runWithRequestContext({ requestId: crypto.randomUUID() }, async () => {
-      const raw = formDataToObject(formData, options.arrays);
-      const values = Object.fromEntries((options.keepValues ?? []).map((key) => [key, String(raw[key] ?? "")]));
-
-      const parsed = schema.safeParse(raw);
-      if (!parsed.success) {
-        return { status: "error", fieldErrors: z.flattenError(parsed.error).fieldErrors as FieldErrors, values };
-      }
-
-      try {
-        const result = await handler(parsed.data);
-        if (result.ok) return { status: "success", data: result.value };
-        return { status: "error", message: result.error.message, values };
-      } catch (error) {
-        logger().error("erro inesperado em server action", { err: error });
-        errorReporter().capture(error);
-        return { status: "error", message: "Algo deu errado. Tente novamente em instantes.", values };
-      }
+      const startedAt = performance.now();
+      const state = await run(formData);
+      // Log de acesso das actions (equivalente ao das rotas): resultado e duração, sem dados do formulário.
+      const fields = { action: options.name ?? "server-action", outcome: state.status, durationMs: Math.round(performance.now() - startedAt) };
+      logger().info("server action", fields);
+      return state;
     });
+
+  async function run(formData: FormData): Promise<FormState<T>> {
+    const raw = formDataToObject(formData, options.arrays);
+    const values = Object.fromEntries((options.keepValues ?? []).map((key) => [key, String(raw[key] ?? "")]));
+
+    const parsed = schema.safeParse(raw);
+    if (!parsed.success) {
+      return { status: "error", fieldErrors: z.flattenError(parsed.error).fieldErrors as FieldErrors, values };
+    }
+
+    try {
+      const result = await handler(parsed.data);
+      if (result.ok) return { status: "success", data: result.value };
+      return { status: "error", message: result.error.message, values };
+    } catch (error) {
+      logger().error("erro inesperado em server action", { err: error });
+      errorReporter().capture(error);
+      return { status: "error", message: "Algo deu errado. Tente novamente em instantes.", values };
+    }
+  }
 }

@@ -70,24 +70,28 @@ describe("SupabaseSessionGateway.signIn", () => {
 describe("resolveCurrentUser", () => {
   const profiles = (profile: { displayName: string; avatarPath: string | null } | null) => ({ find: vi.fn().mockResolvedValue(profile) });
   const url = (path: string) => `https://cdn/avatars/${path}`;
+  const roles = (list: Array<"partner" | "admin"> = []) => ({ rolesOf: vi.fn().mockResolvedValue(list) });
   const logged = () => sessions({ currentUserId: vi.fn().mockResolvedValue({ id: "u1", email: "lala@b.com" }) });
 
-  it("sem sessão → null, sem consultar o perfil", async () => {
+  it("sem sessão → null, sem consultar perfil nem papéis", async () => {
     const reader = profiles({ displayName: "Lala", avatarPath: null });
-    expect(await resolveCurrentUser(sessions(), reader, url)).toBeNull();
+    const roleRepo = roles();
+    expect(await resolveCurrentUser(sessions(), reader, roleRepo, url)).toBeNull();
     expect(reader.find).not.toHaveBeenCalled();
+    expect(roleRepo.rolesOf).not.toHaveBeenCalled();
   });
 
-  it("com sessão → usuário com nome e URL da foto do perfil", async () => {
-    expect(await resolveCurrentUser(logged(), profiles({ displayName: "Lala", avatarPath: "u1/1.png" }), url)).toEqual({
+  it("com sessão → usuário com nome, URL da foto e papéis", async () => {
+    expect(await resolveCurrentUser(logged(), profiles({ displayName: "Lala", avatarPath: "u1/1.png" }), roles(["partner"]), url)).toEqual({
       id: "u1",
       email: "lala@b.com",
       displayName: "Lala",
       avatarUrl: "https://cdn/avatars/u1/1.png",
+      roles: ["partner"],
     });
   });
 
-  it("perfil ausente → usa o início do e-mail e sem foto", async () => {
-    expect(await resolveCurrentUser(logged(), profiles(null), url)).toMatchObject({ displayName: "lala", avatarUrl: null });
+  it("perfil ausente → usa o início do e-mail, sem foto e sem papéis", async () => {
+    expect(await resolveCurrentUser(logged(), profiles(null), roles(), url)).toMatchObject({ displayName: "lala", avatarUrl: null, roles: [] });
   });
 });

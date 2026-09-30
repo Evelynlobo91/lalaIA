@@ -20,6 +20,7 @@ const handle = formAction(
     );
     return useCase.execute(user.id, new Uint8Array(await input.avatar.arrayBuffer()));
   }),
+  { name: "identity.upload-avatar" },
 );
 
 export async function uploadAvatarAction(previous: FormState<{ avatarUrl: string }>, formData: FormData) {

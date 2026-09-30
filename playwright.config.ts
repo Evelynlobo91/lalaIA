@@ -9,6 +9,10 @@ export default defineConfig({
   globalSetup: "./e2e/global-setup.ts",
   outputDir: "./e2e/.results",
   fullyParallel: true,
+  // Localmente o Supabase completo roda no Docker junto do app e dos navegadores. Em máquinas com
+  // pouca RAM, mais de 2 navegadores simultâneos causava travadas de segundos (troca de memória
+  // com o disco) e testes instáveis. No CI (recursos dedicados) o Playwright decide sozinho.
+  workers: CI ? undefined : 2,
   forbidOnly: CI,
   retries: CI ? 1 : 0,
   reporter: CI ? [["github"], ["html", { open: "never", outputFolder: "e2e/.report" }]] : "list",
@@ -33,5 +37,7 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !CI,
     timeout: 120_000,
+    // E2E_SERVER_LOGS=1 mostra os logs do servidor junto dos testes (útil para investigar lentidão).
+    stdout: process.env.E2E_SERVER_LOGS ? "pipe" : "ignore",
   },
 });
