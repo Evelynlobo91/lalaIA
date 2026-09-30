@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it, vi } from "vitest";
 import { BusinessRuleError, err, ok } from "@/shared/kernel";
-import type { ProfileReader, SessionGateway } from "../../domain/session";
+import type { SessionGateway } from "../../domain/session";
 import { SupabaseSessionGateway } from "../../infra/supabase-session-gateway";
 import { resolveCurrentUser } from "../session/current-user";
 import { loginSchema } from "./login.schema";
@@ -68,21 +68,26 @@ describe("SupabaseSessionGateway.signIn", () => {
 });
 
 describe("resolveCurrentUser", () => {
-  const profiles = (name: string | null): ProfileReader => ({ displayNameOf: vi.fn().mockResolvedValue(name) });
+  const profiles = (profile: { displayName: string; avatarPath: string | null } | null) => ({ find: vi.fn().mockResolvedValue(profile) });
+  const url = (path: string) => `https://cdn/avatars/${path}`;
+  const logged = () => sessions({ currentUserId: vi.fn().mockResolvedValue({ id: "u1", email: "lala@b.com" }) });
 
   it("sem sessão → null, sem consultar o perfil", async () => {
-    const reader = profiles("Lala");
-    expect(await resolveCurrentUser(sessions(), reader)).toBeNull();
-    expect(reader.displayNameOf).not.toHaveBeenCalled();
+    const reader = profiles({ displayName: "Lala", avatarPath: null });
+    expect(await resolveCurrentUser(sessions(), reader, url)).toBeNull();
+    expect(reader.find).not.toHaveBeenCalled();
   });
 
-  it("com sessão → usuário com nome do perfil", async () => {
-    const s = sessions({ currentUserId: vi.fn().mockResolvedValue({ id: "u1", email: "lala@b.com" }) });
-    expect(await resolveCurrentUser(s, profiles("Lala"))).toEqual({ id: "u1", email: "lala@b.com", displayName: "Lala" });
+  it("com sessão → usuário com nome e URL da foto do perfil", async () => {
+    expect(await resolveCurrentUser(logged(), profiles({ displayName: "Lala", avatarPath: "u1/1.png" }), url)).toEqual({
+      id: "u1",
+      email: "lala@b.com",
+      displayName: "Lala",
+      avatarUrl: "https://cdn/avatars/u1/1.png",
+    });
   });
 
-  it("perfil ausente → usa o início do e-mail", async () => {
-    const s = sessions({ currentUserId: vi.fn().mockResolvedValue({ id: "u1", email: "lala@b.com" }) });
-    expect((await resolveCurrentUser(s, profiles(null)))?.displayName).toBe("lala");
+  it("perfil ausente → usa o início do e-mail e sem foto", async () => {
+    expect(await resolveCurrentUser(logged(), profiles(null), url)).toMatchObject({ displayName: "lala", avatarUrl: null });
   });
 });

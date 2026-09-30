@@ -40,6 +40,15 @@ describe("formAction", () => {
     expect(handler).not.toHaveBeenCalled();
   });
 
+  it("campos em `arrays` viram lista (checkboxes com o mesmo name)", async () => {
+    const action = formAction(z.object({ tags: z.array(z.string()) }), async (input) => ok(input.tags), { arrays: ["tags"] });
+    const fd = new FormData();
+    fd.append("tags", "a");
+    fd.append("tags", "b");
+    expect(await action(idleFormState, fd)).toEqual({ status: "success", data: ["a", "b"] });
+    expect(await action(idleFormState, new FormData())).toEqual({ status: "success", data: [] });
+  });
+
   it("erro de domínio vira mensagem para o usuário", async () => {
     const action = formAction(schema, async () => err(new ConflictError("Já existe.")));
     expect(await action(idleFormState, form({ email: "a@b.com", password: "12345678" }))).toMatchObject({ status: "error", message: "Já existe." });

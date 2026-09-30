@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   turbopack: { root: __dirname },
   // No canto inferior o indicador de dev cobre a barra de navegação do celular.
   devIndicators: { position: "top-right" },
+  // Foto de perfil até 2 MB (o limite real é validado no caso de uso); o padrão do Next é 1 MB.
+  experimental: { serverActions: { bodySizeLimit: "3mb" } },
 };
 
 export default withSentryConfig(nextConfig, {

@@ -57,8 +57,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      # Supabase com Auth, API e Mailpit (fluxos de conta); serviços que não usamos ficam de fora.
-      - run: npx supabase start -x realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      # Supabase com Auth, API, Storage (fotos) e Mailpit; serviços que não usamos ficam de fora.
+      - run: npx supabase start -x realtime,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
       - name: Exporta a configuração do Supabase local para o build
         run: |
           npx supabase status -o env > /tmp/sb.env
