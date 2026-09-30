@@ -110,3 +110,18 @@ Para reagir a algo que acontece em outro módulo, **assine um evento de domínio
 | `npm run dev` | Sobe o app em http://localhost:3000 |
 | `npm run check` | Roda lint (inclui fronteiras), typecheck e testes |
 | `npm test` | Roda os testes (Vitest) |
+
+## Identidade e sessão
+
+- Autenticação pelo **Supabase Auth** (senha com hash no Supabase: RNF04). O cliente por
+  requisição fica em `modules/identity/infra/supabase-server-client.ts`.
+- **Cadastro** (`/cadastro`): Server Action + `useActionState`, via o adaptador `formAction`
+  (`shared/http/form-action.ts`). Os tipos seguros para o navegador ficam em `shared/http/form-state.ts`.
+- **Aceite dos termos** é gravado por trigger no banco, na mesma transação do signup, e a conta é
+  recusada sem aceite, mesmo se alguém chamar a API do Supabase direto.
+- **Anti-enumeração:** e-mail já cadastrado, ou pendente de confirmação, recebe a mesma resposta
+  de um cadastro novo.
+- **Confirmação de e-mail** por `token_hash` (`/auth/confirm`), que funciona mesmo abrindo o link
+  em outro navegador. Redirecionamentos passam por `safeRedirectPath` (sem open redirect).
+- Template do e-mail em `supabase/templates/confirmation.html`. Localmente, os e-mails chegam no
+  Mailpit (http://127.0.0.1:54324).

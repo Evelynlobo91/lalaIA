@@ -1,9 +1,13 @@
 import { CalendarDays, MapPin, Sparkles } from "lucide-react";
-import { ButtonLink, Card, CardDescription, CardTitle, EmptyState } from "@/shared/ui";
+import { ButtonLink, Card, CardDescription, CardTitle, EmptyState, FormAlert } from "@/shared/ui";
 
-export default function ExplorarPage() {
+export default async function ExplorarPage({ searchParams }: PageProps<"/">) {
+  const { "bem-vindo": bemVindo } = await searchParams;
+
   return (
     <div className="flex flex-col gap-8">
+      {bemVindo && <FormAlert variant="success">E-mail confirmado! Sua conta está ativa. Bem-vindo(a) ao LalaIA.</FormAlert>}
+
       <section className="flex flex-col gap-2">
         <p className="text-sm font-medium text-muted">Joinville agora</p>
         <h1 className="text-3xl font-bold leading-tight md:text-4xl">O que você quer fazer hoje?</h1>
