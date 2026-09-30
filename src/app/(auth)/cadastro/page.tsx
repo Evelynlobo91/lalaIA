@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { RegisterForm } from "@/modules/identity";
 import { FormAlert } from "@/shared/ui";
 
@@ -17,6 +18,13 @@ export default async function CadastroPage({ searchParams }: PageProps<"/cadastr
       {erro === "link-invalido" && <FormAlert>O link de confirmação é inválido ou expirou. Cadastre-se novamente para receber um novo link.</FormAlert>}
 
       <RegisterForm />
+
+      <p className="text-center text-sm text-muted">
+        Já tem conta?{" "}
+        <Link href="/entrar" className="font-semibold text-brand underline">
+          Entrar
+        </Link>
+      </p>
     </div>
   );
 }

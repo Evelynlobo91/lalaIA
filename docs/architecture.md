@@ -123,5 +123,13 @@ Para reagir a algo que acontece em outro módulo, **assine um evento de domínio
   de um cadastro novo.
 - **Confirmação de e-mail** por `token_hash` (`/auth/confirm`), que funciona mesmo abrindo o link
   em outro navegador. Redirecionamentos passam por `safeRedirectPath` (sem open redirect).
+- **Login/logout** (`/entrar`): Server Actions; erro genérico "E-mail ou senha incorretos" (não
+  revela se o e-mail existe). Logout é POST (CSRF protegido pelo Next).
+- **Sessão em cookie `httpOnly` + `SameSite=Lax`**: o token não é acessível ao JavaScript da página.
+  `src/proxy.ts` renova a sessão a cada requisição com `getClaims()`, que valida o JWT (nunca use
+  `getSession()` no servidor). O proxy importa `@/modules/identity/proxy`, uma entrada enxuta do módulo.
+- **Proteger uma página:** `const user = await requireUser("/rota")`. Sem sessão, o usuário vai para
+  `/entrar?next=/rota` e volta depois do login. Para leitura opcional, use `getCurrentUser()`
+  (memoizado por requisição).
 - Template do e-mail em `supabase/templates/confirmation.html`. Localmente, os e-mails chegam no
   Mailpit (http://127.0.0.1:54324).
