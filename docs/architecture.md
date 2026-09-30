@@ -48,6 +48,7 @@ Para reagir a algo que acontece em outro módulo, **assine um evento de domínio
 | Event bus | `shared/events/` | `DomainEventPublisher` (casos de uso) e `DomainEventSubscriber` (composição); `domainEvents()` é a instância do processo |
 | `lazy` | `shared/kernel/lazy.ts` | Cria dependências no primeiro uso, na composição do módulo |
 | `sql()` | `shared/db/sql.ts` | Conexão Postgres (somente servidor, somente em `infra/`) |
+| `logger()`, `errorReporter()` | `shared/observability/` | Logs JSON com requestId e redação de PII; envio de erros ao Sentry. Veja [observabilidade](observability.md) |
 
 ### Eventos de domínio
 

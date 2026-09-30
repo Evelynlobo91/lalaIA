@@ -8,8 +8,11 @@ import {
   ValidationError,
 } from "../kernel/errors";
 import type { Result } from "../kernel/result";
+import { errorReporter } from "../observability/error-reporter";
+import { logger } from "../observability/logger";
+import { currentRequestContext } from "../observability/request-context";
 
-export type ErrorBody = { error: { code: string; message: string; details?: unknown } };
+export type ErrorBody = { error: { code: string; message: string; details?: unknown; requestId?: string } };
 
 // Único ponto que conhece a tradução erro de domínio → status HTTP (OCP: novo erro = nova linha).
 const statusByError: ReadonlyArray<[abstract new (...args: never[]) => DomainError, number]> = [
@@ -30,9 +33,12 @@ export function errorResponse(error: unknown): Response {
     const body: ErrorBody = { error: { code: error.code, message: error.message, details: error.details } };
     return Response.json(body, { status: statusFor(error) });
   }
-  // Inesperado: não vaza detalhes para o cliente. O log estruturado chega no slice de observabilidade (#18).
-  console.error(error);
-  const body: ErrorBody = { error: { code: "internal_error", message: "Algo deu errado. Tente novamente." } };
+  // Inesperado: registra e reporta com contexto, mas não vaza detalhes para o cliente.
+  // O requestId volta na resposta para o suporte localizar o erro nos logs/Sentry.
+  logger().error("erro inesperado", { err: error });
+  errorReporter().capture(error);
+  const requestId = currentRequestContext()?.requestId;
+  const body: ErrorBody = { error: { code: "internal_error", message: "Algo deu errado. Tente novamente.", requestId } };
   return Response.json(body, { status: 500 });
 }
 
