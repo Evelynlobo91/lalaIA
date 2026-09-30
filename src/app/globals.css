@@ -1,30 +1,97 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens do LalaIA. Cores são semânticas (papel, não tom): use `bg-surface`, `text-muted`,
+ * `bg-brand text-brand-fg`... Cada par cor/texto é verificado para contraste AA em
+ * src/shared/ui/tokens.test.ts, nos dois temas.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #ffffff;
+  --fg: #1a1530;
+  --surface: #f6f4fb;
+  --surface-2: #ece8f7;
+  --muted: #5b5670;
+  --border: #dcd6ea;
   --brand: #3b1d8f;
+  --brand-fg: #ffffff;
   --accent: #ffc94d;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-brand: var(--brand);
-  --color-accent: var(--accent);
-  --font-sans: var(--font-geist-sans);
+  --accent-fg: #1a1530;
+  --success: #0f7a3d;
+  --success-fg: #ffffff;
+  --warning: #8a5a00;
+  --warning-fg: #ffffff;
+  --danger: #b42318;
+  --danger-fg: #ffffff;
+  --live: #d92d20;
+  --live-fg: #ffffff;
+  --focus: #3b1d8f;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #0f0c1a;
+    --fg: #f3f1fa;
+    --surface: #1a1629;
+    --surface-2: #241f36;
+    --muted: #a9a3bd;
+    --border: #342d4a;
     --brand: #b9a4ff;
+    --brand-fg: #1a1530;
+    --accent: #ffc94d;
+    --accent-fg: #1a1530;
+    --success: #4ade80;
+    --success-fg: #0f0c1a;
+    --warning: #fbbf24;
+    --warning-fg: #0f0c1a;
+    --danger: #f87171;
+    --danger-fg: #0f0c1a;
+    --live: #ff6b5e;
+    --live-fg: #0f0c1a;
+    --focus: #ffc94d;
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-success: var(--success);
+  --color-success-fg: var(--success-fg);
+  --color-warning: var(--warning);
+  --color-warning-fg: var(--warning-fg);
+  --color-danger: var(--danger);
+  --color-danger-fg: var(--danger-fg);
+  --color-live: var(--live);
+  --color-live-fg: var(--live-fg);
+  --color-focus: var(--focus);
+  --font-sans: var(--font-geist-sans);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--fg);
   font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Foco visível para navegação por teclado em todo elemento interativo. */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

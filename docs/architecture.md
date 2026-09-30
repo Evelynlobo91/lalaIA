@@ -50,6 +50,19 @@ Para reagir a algo que acontece em outro módulo, **assine um evento de domínio
 | `sql()` | `shared/db/sql.ts` | Conexão Postgres (somente servidor, somente em `infra/`) |
 | `logger()`, `errorReporter()` | `shared/observability/` | Logs JSON com requestId e redação de PII; envio de erros ao Sentry. Veja [observabilidade](observability.md) |
 
+### Interface (design system)
+
+- **Tokens de cor** em `src/app/globals.css`, com nomes semânticos (`bg`, `fg`, `surface`, `muted`,
+  `brand`, `accent`, `success`, `warning`, `danger`, `live`), tema claro e escuro. O teste
+  `src/shared/ui/tokens.test.ts` garante contraste **WCAG AA** em todos os pares cor/texto.
+- **Componentes base** em `src/shared/ui/`: `Button`/`ButtonLink`, `Card`, `Badge`/`LiveBadge`,
+  `EmptyState` e `Sheet` (painel modal com `<dialog>` nativo). Use `cn()` para combinar classes:
+  conflitos do Tailwind são resolvidos com a última classe vencendo.
+- **Shell do app** em `src/app/(app)/`: barra inferior no celular e barra lateral a partir do tablet.
+  Destinos em `_components/nav-items.ts`.
+- **Catálogo** em http://localhost:3000/design (somente em desenvolvimento).
+- **E2E** (`npm run test:e2e`, Playwright) roda contra o build de produção em 360, 768 e 1280 px.
+
 ### Eventos de domínio
 
 1. Declare os eventos do módulo em `domain/events.ts` (nome `<modulo>.<Evento>`):

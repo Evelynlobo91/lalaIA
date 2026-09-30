@@ -45,6 +45,30 @@ jobs:
       - run: npx supabase db start
       - run: npm run test:int
 
+  e2e:
+    name: Testes E2E (celular, tablet, desktop)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            e2e/.report
+            e2e/.results
+          retention-days: 7
+
   build:
     name: Build de produção
     runs-on: ubuntu-latest
