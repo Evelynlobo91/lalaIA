@@ -34,6 +34,12 @@ export function missionsByOwner(ownerId: string): Promise<MissionRecord[]> {
   return missionRepository().listByOwner(ownerId);
 }
 
+/** Título de uma missão (ex.: histórico de XP do módulo progression); null se não existir. */
+export async function missionTitle(missionId: string): Promise<string | null> {
+  if (!UUID.test(missionId)) return null;
+  return (await missionRepository().findById(missionId))?.title ?? null;
+}
+
 /** Lugares que o parceiro pode usar nas etapas (os que ele administra), já como opções do formulário. */
 export async function missionPlaceOptions(userId: string): Promise<PlaceOption[]> {
   const places = await missionPlaces.managedBy(userId);

@@ -4,6 +4,7 @@ import { domainEvents, type ModuleSubscriptions } from "@/shared/events";
 //   () => import("@/modules/progression").then((m) => m.subscriptions),
 const modulesWithSubscriptions: Array<() => Promise<ModuleSubscriptions>> = [
   () => import("@/modules/places").then((m) => m.subscriptions),
+  () => import("@/modules/progression").then((m) => m.subscriptions),
 ];
 
 export async function registerSubscriptions(): Promise<void> {

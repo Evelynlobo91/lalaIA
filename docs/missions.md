@@ -105,3 +105,25 @@ No CI de E2E é gerada aleatoriamente a cada execução.
 - `missions.MissionCompleted { userId, missionId, xp }`: bônus de conclusão (só na primeira vez).
 
 Publicados **depois** de gravar. Missões não concedem XP: quem credita é o módulo `progression`.
+
+## Livro-razão de XP (#65, RF31) — módulo `progression`
+
+- `progression.xp_transactions` é **append-only**: um trigger recusa `UPDATE`, `DELETE` e `TRUNCATE`
+  para qualquer papel (inclusive o backend). A única exceção é a exclusão em cascata da conta (LGPD),
+  que chega por trigger de FK (`pg_trigger_depth() > 1`).
+- **Escrita só pelo backend**, pela assinatura de eventos: `progression` exporta `subscriptions`
+  (registradas em `src/bootstrap/register-subscriptions.ts`) e reage a `missions.StepCompleted` e
+  `missions.MissionCompleted`. O payload é validado com zod; o módulo `missions` não conhece `progression`.
+- **Idempotência em duas chaves `unique`** + `on conflict do nothing`:
+  - `event_id`: reprocessar o mesmo evento não credita de novo;
+  - `(user_id, reason, source_id)` (chave natural: a etapa ou a missão): mesmo que o fato seja
+    republicado com outro id de evento, a mesma etapa/missão credita uma vez só.
+- A descrição ("Etapa concluída · Rota do Café") é **congelada** no crédito (título via API pública
+  de `missions`); se o título não vier, fica só o rótulo.
+- **Saldo = soma do livro**: view `progression.xp_balances` com `security_invoker`, então a RLS da
+  tabela vale também na view. **RLS:** cada pessoa lê só as próprias transações; `authenticated` não
+  tem grant de escrita.
+- `/perfil` ganhou a seção **"Seu XP"**: saldo e as últimas 10 transações.
+
+> O bus é in-process: se o processo cair entre gravar a etapa e o handler gravar o XP, o crédito se
+> perde. A evolução prevista (docs/architecture.md) é um outbox, sem mudar as portas.
