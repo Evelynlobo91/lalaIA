@@ -9,7 +9,7 @@ fontes de candidatos ──► filtros duros ──► score ponderado ──►
 ```
 
 O módulo não tem tabelas. Ele lê tudo pelas APIs públicas (`index.ts`) de `places`, `events`, `missions`,
-`identity` e `favorites`, sem join entre schemas.
+`identity`, `favorites` e `live`, sem join entre schemas.
 
 ## Camada 1: candidatos e filtros duros (#71, RF39, RF43)
 
@@ -51,7 +51,7 @@ O módulo não tem tabelas. Ele lê tudo pelas APIs públicas (`index.ts`) de `p
   |--------------|:-----------:|---------------|----------------|
   | `preference` | 3 | categoria entre as preferidas do perfil | "Porque você curte Shows e música" |
   | `happeningNow` | 2,5 | evento acontecendo (1), começando no tempo disponível (0,6), lugar aberto (0,3) | "Acontecendo agora", "Começa em 40 min", "Aberto agora" |
-  | `live` | 3 | live ativa (porta `LiveStatusReader`; hoje o stub `NoLiveYet` não tem nenhuma) | "Com live agora" |
+  | `live` | 3 | live ativa (porta `LiveStatusReader`, ligada a `listActiveStreams()` do módulo Live por `LiveStreamsStatus`) | "Com live agora" |
   | `novelty` | 1,5 | publicado/cadastrado há menos de 14 dias (decai até zero) | "Novidade na agenda", "Novo no LalaIA", "Missão nova" |
   | `favorite` | 2 | está nos favoritos | "Está nos seus favoritos" |
   | `proximity` | 1,5 | com localização: 1 no ponto, 0 na distância máxima | "A 300 m de você" |
@@ -100,8 +100,9 @@ O módulo não tem tabelas. Ele lê tudo pelas APIs públicas (`index.ts`) de `p
 - Usa os padrões do perfil (orçamento, raio, com quem sai). Sem localização: "Agora em Joinville", sem distância, com
   o botão "Ver o que está perto" (`NearMeButton` com `target="/"`). Localização inválida → aviso, feed sem distância.
 - **Atualização em tempo real:** `FeedAutoRefresh` faz `router.refresh()` a cada minuto com a aba visível (e ao voltar
-  para a aba), atualizando tempos, aberturas/fechamentos e lives. Quando o módulo Live existir, o status pode chegar por
-  Supabase Realtime e disparar o mesmo `refresh` na hora; a porta `LiveStatusReader` já está no motor.
+  para a aba), atualizando tempos, aberturas/fechamentos e lives. As lives vêm do módulo Live
+  (`LiveStreamsStatus` → `listActiveStreams()`); a evolução é o status chegar por Supabase Realtime e disparar o
+  mesmo `refresh` na hora (veja [live](live.md)).
 - "Ajustar tempo e orçamento" leva a `/sugestoes` (preservando a localização).
 - **API:** `GET /api/recommendations/now?lat=&lon=`.
 

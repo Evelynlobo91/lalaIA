@@ -3,7 +3,7 @@
 import { CalendarX, ChevronRight, MapPin } from "lucide-react";
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { Badge, Button, Card, EmptyState, FormAlert, LiveBadge } from "@/shared/ui";
+import { Badge, Button, Card, EmptyState, FormAlert, LiveBadge, LiveNowBadge } from "@/shared/ui";
 import type { EventListItem, EventListPage } from "../list-events";
 
 export function EventListCard({ event }: { event: EventListItem }) {
@@ -14,7 +14,11 @@ export function EventListCard({ event }: { event: EventListItem }) {
       <Card as="div" className="flex flex-col gap-2">
       <div className="flex items-start justify-between gap-3">
         <h2 className="text-base font-semibold leading-snug">{event.title}</h2>
-        {event.happeningNow ? <LiveBadge>Acontecendo</LiveBadge> : <Badge>{event.priceLabel}</Badge>}
+        <div className="flex shrink-0 flex-wrap justify-end gap-1">
+          {/* Selo da Live: aparece quando a página fornece o conjunto de lives no ar (LiveNowContext). */}
+          <LiveNowBadge entityType="event" entityId={event.id} />
+          {event.happeningNow ? <LiveBadge>Acontecendo</LiveBadge> : <Badge>{event.priceLabel}</Badge>}
+        </div>
       </div>
       <p className="text-sm font-medium">{event.whenLabel}</p>
       <p className="flex flex-wrap items-center gap-x-2 text-sm text-muted">

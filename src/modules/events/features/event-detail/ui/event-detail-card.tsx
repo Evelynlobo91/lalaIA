@@ -1,7 +1,7 @@
 import { CalendarDays, MapPin, Navigation, Ticket } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Badge, Card, FormAlert, LiveBadge, buttonClasses } from "@/shared/ui";
+import { Badge, Card, FormAlert, LiveBadge, LiveNowBadge, buttonClasses } from "@/shared/ui";
 import type { EventDetailView } from "../event-detail";
 
 /**
@@ -15,6 +15,7 @@ export function EventDetailCard({ event, extras, directions }: { event: EventDet
     <article className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
+          <LiveNowBadge entityType="event" entityId={event.id} />
           <Badge variant="brand">{event.categoryLabel}</Badge>
           {event.phase === "happening" && <LiveBadge>Acontecendo agora</LiveBadge>}
           {event.phase === "finished" && <Badge>Encerrado</Badge>}

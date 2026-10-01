@@ -1,7 +1,7 @@
 import { Clock, ExternalLink, Globe, MapPin, Navigation, Phone } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Badge, Card, OsmAttribution, buttonClasses, cn } from "@/shared/ui";
+import { Badge, Card, LiveNowBadge, OsmAttribution, buttonClasses, cn } from "@/shared/ui";
 import type { PlaceDetailView } from "../place-detail.use-case";
 
 /**
@@ -14,6 +14,7 @@ export function PlaceDetailCard({ place, extras, directions }: { place: PlaceDet
     <article className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
+          <LiveNowBadge entityType="place" entityId={place.id} />
           <Badge variant="brand">{place.categoryLabel}</Badge>
           {place.openNow !== null && <Badge variant={place.openNow ? "success" : "neutral"}>{place.openNow ? "Aberto agora" : "Fechado agora"}</Badge>}
         </div>

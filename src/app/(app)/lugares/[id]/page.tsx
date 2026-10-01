@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { TrackView } from "@/modules/analytics";
-import { LivePlayerFor } from "@/modules/live";
+import { LiveNowProvider, LivePlayerFor, liveNowKeys } from "@/modules/live";
 import { FavoriteToggle, WantToGoButton } from "@/modules/favorites";
 import { PlaceDetailCard, getPlaceDetail } from "@/modules/places";
 
@@ -35,27 +35,30 @@ export async function generateMetadata({ params }: PageProps<"/lugares/[id]">): 
 
 export default async function LugarPage({ params }: PageProps<"/lugares/[id]">) {
   const { id } = await params;
-  const place = await getPlaceDetail(id);
+  const [place, live] = await Promise.all([getPlaceDetail(id), liveNowKeys()]);
   if (!place) notFound();
 
   return (
-    <div className="flex flex-col gap-4">
-      <Link href="/lugares" className="inline-flex items-center gap-1 self-start text-sm font-medium text-muted hover:text-fg">
-        <ArrowLeft aria-hidden className="size-4" /> Onde ir
-      </Link>
-      <PlaceDetailCard
-        place={place}
-        extras={
-          <>
-            <Suspense fallback={null}>
-              <LivePlayerFor entityType="place" entityId={place.id} title={place.name} />
-            </Suspense>
-            <FavoriteToggle entityType="place" entityId={place.id} className="sm:self-start" />
-          </>
-        }
-        directions={<WantToGoButton href={place.directionsUrl} entityType="place" entityId={place.id} className="sm:w-auto sm:self-start" />}
-      />
-      <TrackView entityType="place" entityId={place.id} />
-    </div>
+    // Selo "Ao vivo" no cabeçalho (PlaceDetailCard só lê o LiveNowContext; não conhece o módulo live).
+    <LiveNowProvider initial={live}>
+      <div className="flex flex-col gap-4">
+        <Link href="/lugares" className="inline-flex items-center gap-1 self-start text-sm font-medium text-muted hover:text-fg">
+          <ArrowLeft aria-hidden className="size-4" /> Onde ir
+        </Link>
+        <PlaceDetailCard
+          place={place}
+          extras={
+            <>
+              <Suspense fallback={null}>
+                <LivePlayerFor entityType="place" entityId={place.id} title={place.name} />
+              </Suspense>
+              <FavoriteToggle entityType="place" entityId={place.id} className="sm:self-start" />
+            </>
+          }
+          directions={<WantToGoButton href={place.directionsUrl} entityType="place" entityId={place.id} className="sm:w-auto sm:self-start" />}
+        />
+        <TrackView entityType="place" entityId={place.id} />
+      </div>
+    </LiveNowProvider>
   );
 }

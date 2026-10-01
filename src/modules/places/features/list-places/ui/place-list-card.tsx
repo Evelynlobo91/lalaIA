@@ -1,6 +1,6 @@
 import { ChevronRight, MapPin } from "lucide-react";
 import Link from "next/link";
-import { Badge, Card } from "@/shared/ui";
+import { Badge, Card, LiveNowBadge } from "@/shared/ui";
 import type { PlaceListItem } from "../list-places.use-case";
 
 export function PlaceListCard({ place }: { place: PlaceListItem & { distanceLabel?: string } }) {
@@ -12,7 +12,11 @@ export function PlaceListCard({ place }: { place: PlaceListItem & { distanceLabe
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <div className="flex items-start justify-between gap-3">
             <h2 className="text-base font-semibold leading-snug">{place.name}</h2>
-            {place.openNow !== null && <Badge variant={place.openNow ? "success" : "neutral"}>{place.openNow ? "Aberto agora" : "Fechado"}</Badge>}
+            <div className="flex shrink-0 flex-wrap justify-end gap-1">
+              {/* Selo da Live: aparece quando a página fornece o conjunto de lives no ar (LiveNowContext). */}
+              <LiveNowBadge entityType="place" entityId={place.id} />
+              {place.openNow !== null && <Badge variant={place.openNow ? "success" : "neutral"}>{place.openNow ? "Aberto agora" : "Fechado"}</Badge>}
+            </div>
           </div>
           <p className="flex flex-wrap items-center gap-x-2 text-sm text-muted">
             {place.distanceLabel && <span className="font-semibold text-fg">{place.distanceLabel}</span>}

@@ -121,3 +121,23 @@ export interface StreamTargets {
   /** Opções para o portal, com nome e link da página pública. */
   optionsFor(userId: string): Promise<Array<StreamTarget & { label: string; href: string }>>;
 }
+
+/** O que a Live mostra de um lugar/evento (vem das APIs públicas de places e events). */
+export type LiveTargetInfo = StreamTarget & {
+  /** Nome do lugar ou título do evento. */
+  title: string;
+  /** Lugar do evento, ou bairro do lugar. */
+  subtitle: string | null;
+  /** Horário do evento (ex.: "sáb., 10 de out., 20:00 – 23:30"); null para lugares. */
+  whenLabel: string | null;
+  href: string;
+  /** Coordenadas (o evento usa as do lugar); null se não houver. */
+  location: { lat: number; lon: number } | null;
+};
+
+/** Dados de vários lugares/eventos em lote (poucas consultas, qualquer que seja a quantidade). */
+export interface LiveTargetDirectory {
+  describe(targets: StreamTarget[]): Promise<LiveTargetInfo[]>;
+}
+
+export const targetKey = (t: StreamTarget) => `${t.entityType}:${t.entityId}`;

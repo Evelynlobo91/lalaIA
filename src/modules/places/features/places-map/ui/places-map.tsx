@@ -44,6 +44,8 @@ export function PlacesMap({ focus }: { focus?: SelectedPlace | null }) {
 
   const onReady = useCallback((map: MapLibreMap) => {
     map.on("click", (e) => {
+      // Toque já tratado por outra camada (ex.: marcador da Live).
+      if (e.defaultPrevented) return;
       // Toque num lugar/cluster é tratado pela camada de lugares.
       if (map.queryRenderedFeatures(e.point, { layers: PLACES_CLICKABLE_LAYERS }).length > 0) return;
       const point = { lat: e.lngLat.lat, lon: e.lngLat.lng };

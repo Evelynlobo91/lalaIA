@@ -112,7 +112,7 @@ Botões no card de cada transmissão em `/parceiro/live` (`features/stream-contr
   entityId={streamId}>` (módulo analytics), passado pelo server component.
 - A URL HLS só é entregue quando o status é `live` (pausada/encerrada não expõe a URL).
 - **Para Recomendação e Mapa:** `listActiveStreams(limit?)` devolve `{ streamId, entityType, entityId }`
-  das lives no ar (só ids; quem chama busca os próprios dados).
+  das lives no ar (só ids; quem chama busca os próprios dados). Veja o #52 abaixo.
 
 ## Estados da live (#51, RNF20)
 
@@ -144,6 +144,29 @@ O polling fica atrás do hook `useLiveStatus` (fachada). Para trocar por push:
    (ex.: a cada 60 s) para reconexões.
 
 Ficou para depois porque o Realtime está desligado no CI de E2E (`supabase start -x realtime`).
+
+## Selo "Ao vivo", lista e mapa (#52, RF20/RF24)
+
+`features/live-badge`. As consultas leem `live.streams` pelo índice parcial `streams_live_idx`
+(`status = 'live'`) e buscam nome, lugar, horário e coordenadas pelas APIs públicas de places
+(`placeSummaries`, `placePoints`) e events (`eventSummaries`), no adaptador `ModuleLiveTargetDirectory`.
+Assim são no máximo quatro consultas, qualquer que seja a quantidade de lives.
+
+| Onde | Como |
+|------|------|
+| Cards de lugares e eventos (`/lugares`, `/eventos`) | Os cards renderizam `<LiveNowBadge>` (shared/ui), que lê o `LiveNowContext`. A página envolve a lista com `<LiveNowProvider initial={await liveNowKeys()}>` (módulo live). **places e events não importam live.** Sem provider, nenhum selo aparece. |
+| Detalhe do lugar/evento | Selo no cabeçalho (mesmo `LiveNowBadge`) + o selo do player (`LiveStage`, #51). |
+| Mapa (`/mapa`) | Camada `MapLayer` "lives" (`liveMapLayer`), somada por `<LiveMapLayers>` em volta do `PlacesMap` via `MapLayersContext` (shared/ui/map). Marcador vermelho com "AO VIVO"; o toque abre um resumo com "Ver a live". Dados de `GET /api/live/map` (GeoJSON). |
+| Lista "Com live agora" (`/ao-vivo`) | `liveNow()` → `<LiveNowList>`. Links nas listas de lugares e eventos e no mapa (alternativa acessível ao mapa). |
+| Recomendação | A porta `LiveStatusReader` usa `LiveStreamsStatus` → `listActiveStreams()` (o stub `NoLiveYet` foi removido). |
+
+**Atualização na POC:** polling leve de `GET /api/live/active` (`{ streams: [{ entityType, entityId }] }`)
+a cada **30 s** (`LIVE_NOW_POLL_MS`), só com a aba visível (`pollWhileVisible`, o mesmo do #51). O mapa
+recarrega o GeoJSON no mesmo ritmo. As duas respostas são públicas, iguais para todo mundo e com cache curto
+na CDN (`s-maxage=10`): mil pessoas na lista não viram mil consultas ao banco.
+
+**Evolução: Supabase Realtime.** O `LiveNowProvider` é a fachada: basta assinar mudanças de uma tabela/canal
+público de status (veja "Evolução" no #51) e aplicar no mesmo conjunto, mantendo o polling como reserva.
 
 ## Configurar o Mux
 
