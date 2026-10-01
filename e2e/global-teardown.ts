@@ -9,6 +9,11 @@ import postgres from "postgres";
 export default async function globalTeardown() {
   const sql = postgres(process.env.DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres", { max: 1 });
   try {
+    // Interações dos lugares e eventos de teste (sem FK entre schemas: apaga antes das entidades).
+    await sql`delete from analytics.events where entity_id in (
+      select id from places.places where source = 'osm' and source_id like 'e2e/%'
+      union all
+      select e.id from events.events e join auth.users u on u.id = e.owner_id where u.email like 'e2e-%@lalaia.test')`;
     await sql`delete from places.places where source = 'osm' and source_id like 'e2e/%'`;
     await sql`delete from auth.users where email like 'e2e-%@lalaia.test'`;
   } catch (error) {
