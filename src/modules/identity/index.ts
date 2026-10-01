@@ -4,6 +4,8 @@ import { lazy } from "@/shared/kernel";
 import type { UserPreferencesReader } from "./domain/preferences";
 import type { CurrentUser } from "./domain/session";
 import { ListUsersForModeration } from "./features/moderation/list-users";
+import { GrantRole } from "./features/roles/grant-role";
+import type { Role } from "./domain/roles";
 import { DefaultingPreferencesReader } from "./features/preferences-reader/preferences-reader";
 import { PostgresPreferencesRepository } from "./infra/postgres-preferences-repository";
 import { PostgresRoleRepository } from "./infra/postgres-role-repository";
@@ -30,4 +32,18 @@ const listUsers = lazy(() => new ListUsersForModeration(new PostgresRoleReposito
 /** Moderação (admin): usuários mais recentes com seus papéis. */
 export function listUsersForModeration(actor: CurrentUser, limit?: number) {
   return listUsers().execute(actor, limit);
+}
+
+const grantRoleUseCase = lazy(() => new GrantRole(sql()));
+
+/** Concede um papel a um usuário (idempotente). Ex.: o módulo partners, ao aprovar um parceiro. */
+export function grantRole(userId: string, role: Role, grantedBy: string | null) {
+  return grantRoleUseCase().execute(userId, role, grantedBy);
+}
+
+const directory = lazy(() => new PostgresRoleRepository(sql()));
+
+/** Nome e e-mail de usuários por id (ex.: fila de revisão de parceiros). Uso restrito a telas de admin/dono. */
+export function usersByIds(ids: string[]) {
+  return directory().byIds([...new Set(ids)]);
 }

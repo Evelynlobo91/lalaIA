@@ -9,6 +9,16 @@ export class PostgresRoleRepository implements RoleRepository, UserDirectory {
     return rows.map((r) => r.role).filter(isRole);
   }
 
+  /** Nome e e-mail de vários usuários (para outros módulos exibirem quem fez o quê). */
+  async byIds(ids: string[]): Promise<Array<{ id: string; displayName: string; email: string }>> {
+    if (ids.length === 0) return [];
+    const rows = await this.sql<{ id: string; display_name: string; email: string }[]>`
+      select u.id, p.display_name, u.email
+      from auth.users u join identity.profiles p on p.user_id = u.id
+      where u.id in ${this.sql(ids)}`;
+    return rows.map((r) => ({ id: r.id, displayName: r.display_name, email: r.email }));
+  }
+
   async listRecent(limit: number): Promise<UserSummary[]> {
     const rows = await this.sql<{ id: string; display_name: string; email: string; roles: string[]; created_at: Date }[]>`
       select u.id, p.display_name, u.email, u.created_at,
