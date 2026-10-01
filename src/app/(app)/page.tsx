@@ -1,6 +1,5 @@
 import { CalendarDays, MapPin, Sparkles } from "lucide-react";
 import { SearchBox } from "@/modules/discovery";
-import { ButtonLink, Card, CardDescription, CardTitle, EmptyState, FormAlert } from "@/shared/ui";
 import { RealtimeFeedSection, realtimeFeedView } from "@/modules/recommendation";
 import { ButtonLink, Card, CardDescription, CardTitle, EmptyState, FormAlert, OsmAttribution } from "@/shared/ui";
 
