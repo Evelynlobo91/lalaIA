@@ -185,6 +185,9 @@ export function recordInteractions(entityType: "place" | "event" | "mission" | "
     (sql) => sql`
       insert into analytics.events (kind, entity_type, entity_id, source)
       select ${kind}, ${entityType}, ${entityId}, 'ui' from generate_series(1, ${count})`,
+  );
+}
+
 /**
  * Crédito de XP direto no livro-razão (progression), como se viesse de uma etapa de missão.
  * Não publica eventos: serve para testar o que é derivado do saldo (ex.: nível).

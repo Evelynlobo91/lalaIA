@@ -28,6 +28,8 @@ test.describe("conquistas no perfil", () => {
     await loginAs(page, user, `/lugares/${quinto}`);
     await page.getByRole("button", { name: "Favoritar" }).click();
     await expect(page.getByRole("button", { name: "Remover dos favoritos" })).toHaveAttribute("aria-pressed", "true");
+    // O botão é otimista: espera a action (que publica o FavoriteAdded) terminar antes de sair da página.
+    await page.waitForLoadState("networkidle");
 
     await page.goto("/perfil");
     const galeria = page.getByRole("article", { name: "Conquistas" });
