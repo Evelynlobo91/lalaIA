@@ -124,3 +124,14 @@ depois de gravar.
 - Legenda com cor + texto + quantidade, e **liga/desliga** por camada (uma camada MapLibre por estado); a
   escolha fica na URL (`?camadas=missao,evento,live`). Toque num ponto abre nome, situação e link (montado
   com `textContent`). Como o mapa é visual, há **"Ver em lista"** com os lugares que têm alguma situação.
+
+## Compartilhar conquista (#70, RF38)
+
+- Cada conquista desbloqueada no perfil tem **"Compartilhar"**: no celular abre o menu nativo (Web Share API:
+  Instagram, WhatsApp...) com texto e link; sem ele, copia o link.
+- O link abre **`/conquistas/[id]`** (id do desbloqueio, uuid aleatório), página pública renderizada no
+  servidor com **imagem gerada** da conquista (`opengraph-image.tsx`, 1200×630) e o convite **"Desbloqueie
+  essa experiência no LalaIA"**, que leva direto para onde começar (lugares ou missões) e para o cadastro.
+- **Privacidade:** a página mostra só o **primeiro nome** (API pública `usersByIds` do identity), a conquista e a
+  data; fica fora dos buscadores (`noindex`). O link só circula se a pessoa compartilhar e **para de funcionar
+  se ela excluir a conta** (o desbloqueio sai em cascata).

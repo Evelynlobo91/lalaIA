@@ -64,6 +64,8 @@ export type AchievementView = {
   hint: string;
   bonusXp: number;
   unlockedAt: Date | null;
+  /** Id do desbloqueio (link de compartilhamento, #70); null se bloqueada. */
+  unlockId: string | null;
 };
 
 export type AchievementsOverview = { unlocked: AchievementView[]; locked: AchievementView[]; total: number };
@@ -77,8 +79,16 @@ export class GetAchievements {
 
   async execute(userId: string): Promise<AchievementsOverview> {
     const { userId: id } = achievementTriggerSchema.parse({ userId });
-    const dates = new Map((await this.repo.listUnlocked(id)).map((u) => [u.achievementId, u.unlockedAt]));
-    const views = this.rules.map((r) => ({ id: r.id, title: r.title, description: r.description, hint: r.hint, bonusXp: r.bonusXp, unlockedAt: dates.get(r.id) ?? null }));
+    const unlocked = new Map((await this.repo.listUnlocked(id)).map((u) => [u.achievementId, u]));
+    const views = this.rules.map((r) => ({
+      id: r.id,
+      title: r.title,
+      description: r.description,
+      hint: r.hint,
+      bonusXp: r.bonusXp,
+      unlockedAt: unlocked.get(r.id)?.unlockedAt ?? null,
+      unlockId: unlocked.get(r.id)?.unlockId ?? null,
+    }));
     return {
       unlocked: views.filter((v) => v.unlockedAt).sort((a, b) => b.unlockedAt!.getTime() - a.unlockedAt!.getTime()),
       locked: views.filter((v) => !v.unlockedAt),
