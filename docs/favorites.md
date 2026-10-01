@@ -20,6 +20,22 @@ Módulo `favorites` (epic #7): lugares e eventos salvos pelo usuário.
 - **Evento de domínio:** `favorites.FavoriteAdded { userId, entityType, entityId }`, publicado só quando
   o favorito é novo (para o Analytics).
 
+## Meus favoritos (#45, RF08)
+
+- **`/perfil/favoritos`** (protegida com `requireUser`; sem sessão vai ao login e volta), com link
+  "Meus favoritos" no `/perfil`.
+- **Abas Lugares / Eventos** como links (`?aba=lugares|eventos`, validado com zod; valor desconhecido
+  volta para "lugares"), com `aria-current` e contagem. Funcionam sem JavaScript.
+- **Lugares:** do favoritado mais recente para o mais antigo.
+- **Eventos:** primeiro os que ainda vão acontecer (por início), depois os encerrados e cancelados
+  (mais recentes primeiro), marcados com o selo "Encerrado" ou "Cancelado"; o que está rolando tem
+  "Acontecendo". O link do evento aponta para `/eventos/<id>` (página de detalhe da #38).
+- **Remover:** botão "Remover" em cada item (rótulo acessível "Remover <nome> dos favoritos"); usa o mesmo
+  caso de uso do botão de favoritar, com o estado "não favorito", e atualiza a página (`revalidatePath`).
+- **Estado vazio** por aba, com atalho para "Onde ir" ou "O que fazer".
+- **Sem N+1:** os dados vêm em lote das APIs públicas, uma consulta por tipo: `placeSummaries(ids)` e
+  `eventSummaries(ids)`. Item que não existe mais some da lista.
+
 ## Modelo de dados
 
 `favorites.favorites` (schema próprio):

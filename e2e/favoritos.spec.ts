@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createTestPlace } from "./support/db";
+import { addFavorite, createTestEvent, createTestPlace } from "./support/db";
 import { loginAs } from "./support/session";
 import { createConfirmedUser } from "./support/users";
 
@@ -52,5 +52,71 @@ test.describe("favoritar lugar (#44)", () => {
     await page.waitForLoadState("networkidle");
     await page.reload();
     await expect(page.getByRole("button", { name: "Remover dos favoritos" })).toHaveAttribute("aria-pressed", "true");
+  });
+});
+
+test.describe("meus favoritos (#45)", () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(testInfo.project.name !== "celular-360", "fluxo de conta roda só no celular");
+  });
+
+  test("lista por tipo, marca evento encerrado e remove da lista", async ({ page }) => {
+    const sufixo = Date.now();
+    const lugar = `Museu Favorito E2E ${sufixo}`;
+    const placeId = await createTestPlace(lugar);
+    const pessoa = await createConfirmedUser("Quem Guarda");
+    const futuro = `Show Favorito E2E ${sufixo}`;
+    const passado = `Feira Encerrada E2E ${sufixo}`;
+    await addFavorite(pessoa, "event", await createTestEvent({ ownerEmail: pessoa.email, placeId, title: futuro, startsInHours: 24, durationHours: 3 }));
+    await addFavorite(pessoa, "event", await createTestEvent({ ownerEmail: pessoa.email, placeId, title: passado, startsInHours: -30, durationHours: 3 }));
+
+    // Favorita o lugar pela página dele.
+    await loginAs(page, pessoa, `/lugares/${placeId}`);
+    await page.getByRole("button", { name: "Favoritar" }).click();
+    await expect(page.getByRole("button", { name: "Remover dos favoritos" })).toHaveAttribute("aria-pressed", "true");
+    await page.waitForLoadState("networkidle");
+
+    // Chega pelo perfil.
+    await page.goto("/perfil");
+    await page.getByRole("link", { name: "Meus favoritos" }).click();
+    await expect(page).toHaveURL(/\/perfil\/favoritos$/);
+    await expect(page.getByRole("heading", { level: 1, name: "Meus favoritos" })).toBeVisible();
+
+    // Aba Lugares (padrão).
+    const abas = page.getByRole("navigation", { name: "Tipo de favorito" });
+    await expect(abas.getByRole("link", { name: /Lugares/ })).toHaveAttribute("aria-current", "page");
+    await expect(page.getByRole("list", { name: "Lugares favoritos" }).getByRole("link", { name: lugar })).toBeVisible();
+
+    // Aba Eventos: o próximo primeiro, o encerrado marcado.
+    await abas.getByRole("link", { name: /Eventos/ }).click();
+    await expect(page).toHaveURL(/aba=eventos$/);
+    const eventos = page.getByRole("list", { name: "Eventos favoritos" }).getByRole("listitem");
+    await expect(eventos).toHaveCount(2);
+    await expect(eventos.nth(0)).toContainText(futuro);
+    await expect(eventos.nth(1)).toContainText(passado);
+    await expect(eventos.nth(1).getByText("Encerrado")).toBeVisible();
+    await expect(eventos.nth(0).getByText("Encerrado")).toHaveCount(0);
+
+    // Remove o encerrado.
+    await page.getByRole("button", { name: `Remover ${passado} dos favoritos` }).click();
+    await expect(eventos).toHaveCount(1);
+    await expect(eventos.first()).toContainText(futuro);
+
+    // Remove o lugar: estado vazio.
+    await abas.getByRole("link", { name: /Lugares/ }).click();
+    await page.getByRole("button", { name: `Remover ${lugar} dos favoritos` }).click();
+    await expect(page.getByText("Nenhum lugar favorito ainda")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Explorar lugares" })).toBeVisible();
+  });
+
+  test("sem login leva ao login e volta para a lista", async ({ page }) => {
+    const pessoa = await createConfirmedUser();
+    await page.goto("/perfil/favoritos");
+    await expect(page).toHaveURL(/\/entrar\?next=%2Fperfil%2Ffavoritos$/);
+    await page.getByLabel("E-mail").fill(pessoa.email);
+    await page.getByLabel("Senha", { exact: true }).fill(pessoa.password);
+    await page.getByRole("button", { name: "Entrar" }).click();
+    await expect(page).toHaveURL(/\/perfil\/favoritos$/);
+    await expect(page.getByText("Nenhum lugar favorito ainda")).toBeVisible();
   });
 });
