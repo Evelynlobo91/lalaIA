@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createApprovedPartner, createTestEvent, createTestPlace } from "./support/db";
+import { findInPagedList } from "./support/lists";
 import { createConfirmedUser } from "./support/users";
 
 test.describe("lista pública de eventos (#37)", () => {
@@ -19,13 +20,17 @@ test.describe("lista pública de eventos (#37)", () => {
     await expect(page.getByRole("heading", { level: 1, name: "O que fazer" })).toBeVisible();
     const lista = page.getByRole("list", { name: "Eventos" });
 
-    const agora = lista.getByRole("listitem").filter({ hasText: `Agora ${tag}` });
+    const agora = await findInPagedList(page, lista, `Agora ${tag}`);
     await expect(agora.getByText("Acontecendo")).toBeVisible();
     await expect(agora.getByText(lugar)).toBeVisible();
 
-    const depois = lista.getByRole("listitem").filter({ hasText: `Depois ${tag}` });
+    const depois = await findInPagedList(page, lista, `Depois ${tag}`);
     await expect(depois.getByText(/A partir de R\$\s?40,00/)).toBeVisible();
+    // O card leva à página do evento (#38).
+    await expect(depois.getByRole("link")).toHaveAttribute("href", /^\/eventos\/[0-9a-f-]{36}$/);
 
+    // Percorre a lista toda: terminados e cancelados não podem aparecer em página nenhuma.
+    await findInPagedList(page, lista, "__nunca__", 50);
     await expect(lista.getByText(`Terminou ${tag}`)).toHaveCount(0);
     await expect(lista.getByText(`Cancelado ${tag}`)).toHaveCount(0);
   });

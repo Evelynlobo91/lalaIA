@@ -21,6 +21,15 @@
   `starts_at, id`), com "Acontecendo" para quem já começou. Terminados e cancelados não aparecem.
 - Nome e bairro dos lugares vêm de `placeSummaries` (API pública de places), numa consulta só por página.
 
+## Página do evento (#38)
+
+- `/eventos/[id]`: quando, onde (com link para o lugar e endereço), valor, descrição e "Como chegar".
+- Fases: **acontecendo agora**, **encerrado** e **cancelado** (com aviso); encerrado e cancelado não
+  mostram "Como chegar". Os links já compartilhados continuam funcionando.
+- Open Graph com imagem gerada por evento (título, data e lugar) para Instagram e WhatsApp; cancelados
+  ficam fora dos buscadores (`noindex`). 404 real para id inexistente ou inválido.
+- `EventDetailCard` recebe `extras` (favoritar, Live...) sem conhecer esses módulos.
+
 ## Segurança
 
 - **RLS em `events.events`:** todos leem; só o papel `partner` cria, sempre em nome próprio; só o dono
