@@ -32,7 +32,7 @@ test.describe("papéis e autorização (RNF05)", () => {
     await page.goto("/perfil");
     await page.getByRole("link", { name: "Portal do parceiro" }).click();
     await expect(page).toHaveURL(/\/parceiro\/inicio$/);
-    await expect(page.getByText("Olá, Bar do Parceiro!")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Olá, Bar do Parceiro!" })).toBeVisible();
 
     expect((await page.goto("/admin"))?.status()).toBe(404);
   });
