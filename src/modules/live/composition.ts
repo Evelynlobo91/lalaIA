@@ -3,6 +3,7 @@ import { sql } from "@/shared/db/sql";
 import { domainEvents } from "@/shared/events";
 import { lazy } from "@/shared/kernel";
 import { ListLiveTargets, ProvisionStream, RevealStreamKey, RotateStreamKey } from "./features/stream-key/stream-key.use-case";
+import { ControlStream, EndStreamOfCancelledEvent } from "./features/stream-control/stream-control.use-case";
 import { HandleProviderWebhook } from "./features/webhooks/webhooks.use-case";
 import { streamingProviderFrom } from "./infra/live-config";
 import { PostgresStreamLifecycleLog } from "./infra/postgres-stream-lifecycle-log";
@@ -22,3 +23,6 @@ export const listLiveTargets = lazy(() => new ListLiveTargets(streamRepository()
 
 export const lifecycleLog = lazy(() => new PostgresStreamLifecycleLog(sql()));
 export const handleProviderWebhook = lazy(() => new HandleProviderWebhook(streamingProvider, lifecycleLog(), domainEvents()));
+
+export const controlStream = lazy(() => new ControlStream(streamRepository(), streamRepository(), streamingProvider, domainEvents()));
+export const endStreamOfCancelledEvent = lazy(() => new EndStreamOfCancelledEvent(streamRepository(), streamRepository(), streamingProvider, domainEvents()));

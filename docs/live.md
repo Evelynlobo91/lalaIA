@@ -78,6 +78,25 @@ O status exibido é uma coluna **gerada** a partir do controle do parceiro e do 
 
 Webhook nunca muda o controle: uma live pausada continua pausada quando o sinal volta.
 
+## Ativar, pausar e encerrar (#49, RF23/RNF15)
+
+Botões no card de cada transmissão em `/parceiro/live` (`features/stream-control`):
+
+| Ação | Efeito | Provedor |
+|------|--------|----------|
+| **Pausar** | Status `paused`: o player some da página, mas o OBS/Larix continua conectado | nada (ingestão continua) |
+| **Ativar** | Volta a `on`: ao vivo de novo na hora se o sinal estiver chegando | `enable` se estava encerrada |
+| **Encerrar** (com confirmação) | Status `ended` | `disable` **antes** de gravar: a ingestão cai na hora |
+
+- **Quem:** só o dono ou admin (caso de uso + RLS em `live.streams`, que só libera a coluna `control`).
+  Cada ação vai para o log de ciclo de vida com quem agiu, na mesma transação. Rotacionar a chave também
+  fica no log (sem a chave).
+- **Idempotente:** repetir a ação não chama o provedor nem publica de novo. Se o banco falhar depois do
+  `disable`, repetir "Encerrar" completa.
+- **Evento cancelado** (`events.EventCancelled`, assinado em `src/bootstrap`) encerra a live do evento
+  automaticamente (registrado no log como `system`).
+- O player some "em segundos": a página do público consulta o status a cada ~12 s (veja #51).
+
 ## Configurar o Mux
 
 1. Crie uma conta em [mux.com](https://mux.com) e um **Environment** (ex.: Production).

@@ -73,6 +73,24 @@ export interface StreamRepository {
   keyFor(ownerId: string, streamId: string): Promise<string | null>;
 }
 
+/** Ações do parceiro no portal (#49). */
+export const STREAM_ACTIONS = ["activate", "pause", "end"] as const;
+export type StreamAction = (typeof STREAM_ACTIONS)[number];
+
+export const CONTROL_BY_ACTION: Record<StreamAction, { control: StreamControl; kind: "activated" | "paused" | "ended" }> = {
+  activate: { control: "on", kind: "activated" },
+  pause: { control: "paused", kind: "paused" },
+  end: { control: "ended", kind: "ended" },
+};
+
+/** Muda o controle e registra a ação no log de ciclo de vida, na mesma transação. */
+export interface StreamControlStore {
+  /** Como o usuário (RLS: dono ou admin). null se o banco não permitir. */
+  setControl(actorId: string, streamId: string, change: { control: StreamControl; kind: string }): Promise<StreamRecord | null>;
+  /** Pelo sistema (ex.: evento cancelado), sem usuário. */
+  endBySystem(streamId: string): Promise<StreamRecord | null>;
+}
+
 export type RecordedProviderEvent =
   | { outcome: "applied"; before: StreamRecord; after: StreamRecord }
   | { outcome: "duplicate" }

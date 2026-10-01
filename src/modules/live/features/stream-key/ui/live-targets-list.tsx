@@ -4,6 +4,7 @@ import { Badge, Card, EmptyState, LiveBadge } from "@/shared/ui";
 import { STATUS_LABELS, type StreamStatus } from "../../../domain/stream";
 import type { LiveTargetView } from "../stream-key.use-case";
 import { ProvisionStreamButton } from "./provision-stream-button";
+import { StreamControls } from "../../stream-control/ui/stream-controls";
 import { StreamKeyField } from "./stream-key-field";
 
 export function StreamStatusBadge({ status }: { status: StreamStatus }) {
@@ -42,7 +43,14 @@ export function LiveTargetsList({ targets }: { targets: LiveTargetView[] }) {
               </div>
               {t.stream && <StreamStatusBadge status={t.stream.status} />}
             </div>
-            {t.stream ? <StreamKeyField streamId={t.stream.id} /> : <ProvisionStreamButton entityType={t.entityType} entityId={t.entityId} label={t.label} />}
+            {t.stream ? (
+              <>
+                <StreamControls streamId={t.stream.id} status={t.stream.status} label={t.label} />
+                <StreamKeyField streamId={t.stream.id} />
+              </>
+            ) : (
+              <ProvisionStreamButton entityType={t.entityType} entityId={t.entityId} label={t.label} />
+            )}
           </Card>
         </li>
       ))}

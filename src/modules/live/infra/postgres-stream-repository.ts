@@ -1,6 +1,6 @@
 import { asUser } from "@/shared/db/as-user";
 import type { Sql } from "@/shared/db/sql";
-import type { NewStream, PublicStreamReader, StreamControl, StreamEntityType, StreamRecord, StreamRepository, StreamSignal, StreamStatus, StreamTarget } from "../domain/stream";
+import type { NewStream, PublicStreamReader, StreamControl, StreamControlStore, StreamEntityType, StreamRecord, StreamRepository, StreamSignal, StreamStatus, StreamTarget } from "../domain/stream";
 
 type StreamRow = {
   id: string;
@@ -39,7 +39,7 @@ export type { StreamRow };
 
 const UNIQUE_VIOLATION = "23505";
 
-export class PostgresStreamRepository implements StreamRepository, PublicStreamReader {
+export class PostgresStreamRepository implements StreamRepository, PublicStreamReader, StreamControlStore {
   constructor(private readonly sql: Sql) {}
 
   async findById(id: string): Promise<StreamRecord | null> {
@@ -85,12 +85,43 @@ export class PostgresStreamRepository implements StreamRepository, PublicStreamR
   }
 
   async saveKey(actorId: string, streamId: string, streamKey: string): Promise<boolean> {
-    const rows = await asUser(
+    return asUser(
       actorId,
-      (tx) => tx`update live.stream_credentials set stream_key = ${streamKey}, rotated_at = now() where stream_id = ${streamId} returning stream_id`,
+      async (tx) => {
+        const rows = await tx`update live.stream_credentials set stream_key = ${streamKey}, rotated_at = now() where stream_id = ${streamId} returning stream_id`;
+        if (rows.length !== 1) return false;
+        // Auditoria (RNF18): quando a chave mudou e quem mudou. Nunca a chave.
+        await tx`insert into live.stream_lifecycle_events (stream_id, source, kind, actor_id, status_after, occurred_at)
+                 select id, 'partner', 'key_rotated', ${actorId}, status, now() from live.streams where id = ${streamId}`;
+        return true;
+      },
       this.sql,
     );
-    return rows.length === 1;
+  }
+
+  async setControl(actorId: string, streamId: string, change: { control: StreamControl; kind: string }): Promise<StreamRecord | null> {
+    return asUser(
+      actorId,
+      async (tx) => {
+        // RLS: só o dono ou admin altera (e só a coluna `control`).
+        const [row] = await tx.unsafe<StreamRow[]>(`update live.streams set control = $2 where id = $1 returning ${STREAM_COLUMNS}`, [streamId, change.control]);
+        if (!row) return null;
+        await tx`insert into live.stream_lifecycle_events (stream_id, source, kind, actor_id, status_after, occurred_at)
+                 values (${streamId}, 'partner', ${change.kind}, ${actorId}, ${row.status}, now())`;
+        return toStream(row);
+      },
+      this.sql,
+    );
+  }
+
+  async endBySystem(streamId: string): Promise<StreamRecord | null> {
+    return this.sql.begin(async (tx) => {
+      const [row] = await tx.unsafe<StreamRow[]>(`update live.streams set control = 'ended' where id = $1 returning ${STREAM_COLUMNS}`, [streamId]);
+      if (!row) return null;
+      await tx`insert into live.stream_lifecycle_events (stream_id, source, kind, status_after, occurred_at)
+               values (${streamId}, 'system', 'ended', 'ended', now())`;
+      return toStream(row);
+    }) as Promise<StreamRecord | null>;
   }
 
   async keyFor(ownerId: string, streamId: string): Promise<string | null> {

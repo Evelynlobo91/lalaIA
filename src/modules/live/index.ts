@@ -1,6 +1,8 @@
 // API pública do módulo live (transmissões ao vivo de lugares e eventos).
 import { hasRole, type CurrentUser } from "@/modules/identity";
-import { handleProviderWebhook, listLiveTargets } from "./composition";
+import type { ModuleSubscriptions } from "@/shared/events";
+import { endStreamOfCancelledEvent, handleProviderWebhook, listLiveTargets } from "./composition";
+import { eventCancelledSchema } from "./features/stream-control/stream-control.schema";
 import { webhooksRoute } from "./features/webhooks/webhooks.route";
 import "./domain/events";
 import type { LivePortalView } from "./features/stream-key/stream-key.use-case";
@@ -19,4 +21,15 @@ export function livePortal(user: CurrentUser): Promise<LivePortalView> {
 export const liveApi = {
   /** POST /api/live/webhooks — webhooks assinados do provedor (Mux ou simulado). */
   webhooks: webhooksRoute(handleProviderWebhook),
+};
+
+/**
+ * Reações a eventos de outros módulos (registradas no boot, em src/bootstrap).
+ * Evento cancelado → a live dele é encerrada (chave desativada no provedor).
+ */
+export const subscriptions: ModuleSubscriptions = (bus) => {
+  bus.subscribe("events.EventCancelled", async (event) => {
+    const parsed = eventCancelledSchema.safeParse(event.payload);
+    if (parsed.success) await endStreamOfCancelledEvent().execute(parsed.data.eventId);
+  });
 };

@@ -69,6 +69,35 @@ test.describe("Live: chave de transmissão (#47)", () => {
     await expect(card.getByText("Ao vivo")).toBeVisible();
   });
 
+  test("parceiro pausa, ativa e encerra a transmissão no portal (#49)", async ({ page, request }, testInfo) => {
+    test.skip(testInfo.project.name !== "celular-360", "fluxo não depende da largura da tela");
+    const placeName = `Bar Controle ${Date.now()}`;
+    const placeId = await createTestPlace(placeName);
+    const dono = await createConfirmedUser();
+    await createApprovedPartner(dono);
+    await assignPlaceTo(dono, placeId);
+    await loginAs(page, dono, "/parceiro/live");
+    const card = page.getByRole("listitem").filter({ hasText: placeName });
+    await card.getByRole("button", { name: `Gerar chave de transmissão para ${placeName}` }).click();
+    await expect(card.getByText("Aguardando sinal")).toBeVisible();
+    const stream = (await liveStreamOf(placeId))!;
+    await sendLiveWebhook(request, stream.providerStreamId, "video.live_stream.active");
+    await page.reload();
+    await expect(card.getByText("Ao vivo")).toBeVisible();
+
+    await card.getByRole("button", { name: `Pausar a transmissão de ${placeName}` }).click();
+    await expect(card.getByText("Pausada", { exact: true })).toBeVisible();
+    await card.getByRole("button", { name: `Ativar a transmissão de ${placeName}` }).click();
+    await expect(card.getByText("Ao vivo")).toBeVisible();
+
+    await card.getByRole("button", { name: `Encerrar a transmissão de ${placeName}` }).click();
+    await card.getByRole("button", { name: "Sim, encerrar" }).click();
+    await expect(card.getByText("Encerrada")).toBeVisible();
+    expect((await liveStreamOf(placeId))!.status).toBe("ended");
+    // Log de ciclo de vida: active (provedor) + paused, activated, ended (parceiro).
+    expect(await lifecycleCount(stream.id)).toBe(4);
+  });
+
   test("outro parceiro não vê o lugar alheio no portal", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "celular-360", "fluxo não depende da largura da tela");
     const placeName = `Bar Alheio ${Date.now()}`;
