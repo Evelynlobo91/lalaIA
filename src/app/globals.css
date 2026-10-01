@@ -259,7 +259,7 @@ button, input, textarea, select { font: inherit; }
 .big-photo {
   height: 108px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(62, 76, 109, 0.72), rgba(124, 132, 150, 0.46)), url("https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=800&q=80") center/cover;
+  background: #fff url("/icons/Logos-%20lalaIA.png") center / auto 180% no-repeat;
 }
 
 .event-row {
@@ -377,7 +377,7 @@ button, input, textarea, select { font: inherit; }
 .media-card {
   height: 110px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(42, 58, 94, 0.72), rgba(150, 155, 168, 0.5)), url("https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80") center/cover;
+  background: #fff url("/icons/Logos-%20lalaIA.png") center / auto 180% no-repeat;
   margin-bottom: 10px;
 }
 
@@ -410,7 +410,7 @@ button, input, textarea, select { font: inherit; }
 .detail-photo {
   height: 100px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(63, 72, 89, 0.65), rgba(152, 160, 172, 0.32)), url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80") center/cover;
+  background: #fff url("/icons/Logos-%20lalaIA.png") center / auto 180% no-repeat;
 }
 
 .info-block { margin-top: 9px; }
