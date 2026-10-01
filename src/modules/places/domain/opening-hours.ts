@@ -76,6 +76,25 @@ export function parseOpeningHours(value: string | null | undefined): Rule[] | nu
   return rules.length ? rules : null;
 }
 
+const DAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+const hhmm = (minutes: number) => `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+
+/**
+ * Horário legível em português, um item por dia da semana (segunda a domingo).
+ * Ex.: [{ day: "Seg", hours: "11:00–14:30" }, ..., { day: "Dom", hours: "Fechado" }]. `null` se não reconhecido.
+ */
+export function describeOpeningHours(value: string | null | undefined): Array<{ day: string; hours: string }> | null {
+  const rules = parseOpeningHours(value);
+  if (!rules) return null;
+  return [1, 2, 3, 4, 5, 6, 0].map((day) => {
+    const rule = rules.filter((r) => r.days.has(day)).at(-1);
+    if (!rule || rule.ranges === "off") return { day: DAY_LABELS[day], hours: "Fechado" };
+    if (rule.ranges.length === 1 && rule.ranges[0][0] === 0 && rule.ranges[0][1] === 24 * 60) return { day: DAY_LABELS[day], hours: "24 horas" };
+    return { day: DAY_LABELS[day], hours: rule.ranges.map(([s, e]) => `${hhmm(s)}–${hhmm(e === 24 * 60 ? 0 : e)}`).join(", ") };
+  });
+}
+
 /** Dia da semana (0 = domingo) e minuto do dia no fuso de Joinville. */
 function localTime(date: Date): { day: number; minute: number } {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: TIMEZONE, weekday: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(date);

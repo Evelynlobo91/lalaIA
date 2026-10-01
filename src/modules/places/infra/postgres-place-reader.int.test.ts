@@ -57,6 +57,12 @@ describe("PostgresPlaceReader.listAfter", () => {
     expect(ours).toEqual(["abacaxi Café", "Açaí da Praça", "Árvore Restaurante", "Bar do Zé", "Zebra Bar"]);
   });
 
+  it("findById traz todos os campos e a coordenada; id inexistente → null", async () => {
+    const [{ id }] = await db<{ id: string }[]>`select id from places.places where source_id = ${`${prefix}/0`}`;
+    expect(await reader.findById(id)).toMatchObject({ id, name: "Zebra Bar", category: "bares", source: "osm", location: { lat: -26.3, lon: -48.84 } });
+    expect(await reader.findById("00000000-0000-4000-8000-000000000000")).toBeNull();
+  });
+
   it("usa o índice (não varre a tabela) para a página", async () => {
     const plan = await db.unsafe(`explain (format json) select id from places.places order by (name collate places.pt_br), id limit 21`);
     expect(JSON.stringify(plan)).toContain("places_name_id_idx");
