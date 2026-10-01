@@ -131,6 +131,14 @@ export function liveStreamOf(entityId: string): Promise<{ id: string; providerSt
   });
 }
 
+/** Quantos eventos de ciclo de vida a transmissão tem (log append-only do módulo live). */
+export function lifecycleCount(streamId: string): Promise<number> {
+  return withDb(async (sql) => {
+    const [row] = await sql<{ n: number }[]>`select count(*)::int as n from live.stream_lifecycle_events where stream_id = ${streamId}`;
+    return row.n;
+  });
+}
+
 /** Interações registradas pelo Analytics para uma entidade (contagem por tipo). */
 export function interactionCounts(entityId: string): Promise<Record<string, number>> {
   return withDb(async (sql) => {

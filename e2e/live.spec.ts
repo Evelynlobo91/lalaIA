@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { assignPlaceTo, createApprovedPartner, createTestPlace, liveStreamOf } from "./support/db";
+import { assignPlaceTo, createApprovedPartner, createTestPlace, lifecycleCount, liveStreamOf } from "./support/db";
+import { sendLiveWebhook } from "./support/live";
 import { loginAs } from "./support/session";
 import { createConfirmedUser } from "./support/users";
 
@@ -41,6 +42,31 @@ test.describe("Live: chave de transmissão (#47)", () => {
     const rotated = await liveStreamOf(placeId);
     expect(rotated!.streamKey).not.toBe(stream!.streamKey);
     await expect(key).toHaveText(/^•+$/);
+  });
+
+  test("webhook assinado muda o status no portal; assinatura inválida é recusada; reenvio é idempotente (#48)", async ({ page, request }, testInfo) => {
+    test.skip(testInfo.project.name !== "celular-360", "fluxo não depende da largura da tela");
+    const placeName = `Bar Webhook ${Date.now()}`;
+    const placeId = await createTestPlace(placeName);
+    const dono = await createConfirmedUser();
+    await createApprovedPartner(dono);
+    await assignPlaceTo(dono, placeId);
+    await loginAs(page, dono, "/parceiro/live");
+    const card = page.getByRole("listitem").filter({ hasText: placeName });
+    await card.getByRole("button", { name: `Gerar chave de transmissão para ${placeName}` }).click();
+    await expect(card.getByText("Aguardando sinal")).toBeVisible();
+    const stream = (await liveStreamOf(placeId))!;
+
+    const forged = await sendLiveWebhook(request, stream.providerStreamId, "video.live_stream.active", { secret: "segredo-errado-de-quem-tenta-forjar-o-webhook" });
+    expect(forged.status()).toBe(401);
+    expect((await liveStreamOf(placeId))!.status).toBe("waiting");
+
+    const eventId = crypto.randomUUID();
+    expect((await sendLiveWebhook(request, stream.providerStreamId, "video.live_stream.active", { eventId })).status()).toBe(200);
+    expect((await sendLiveWebhook(request, stream.providerStreamId, "video.live_stream.active", { eventId })).status()).toBe(200);
+    expect(await lifecycleCount(stream.id)).toBe(1);
+    await page.reload();
+    await expect(card.getByText("Ao vivo")).toBeVisible();
   });
 
   test("outro parceiro não vê o lugar alheio no portal", async ({ page }, testInfo) => {

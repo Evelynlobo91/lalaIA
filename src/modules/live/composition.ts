@@ -1,8 +1,11 @@
 // Composição do módulo live (interna): usada pelas actions, rotas e pelo index.ts.
 import { sql } from "@/shared/db/sql";
+import { domainEvents } from "@/shared/events";
 import { lazy } from "@/shared/kernel";
 import { ListLiveTargets, ProvisionStream, RevealStreamKey, RotateStreamKey } from "./features/stream-key/stream-key.use-case";
+import { HandleProviderWebhook } from "./features/webhooks/webhooks.use-case";
 import { streamingProviderFrom } from "./infra/live-config";
+import { PostgresStreamLifecycleLog } from "./infra/postgres-stream-lifecycle-log";
 import { PostgresStreamRepository } from "./infra/postgres-stream-repository";
 import { ModuleStreamTargets } from "./infra/stream-targets";
 
@@ -16,3 +19,6 @@ export const provisionStream = lazy(() => new ProvisionStream(streamRepository()
 export const rotateStreamKey = lazy(() => new RotateStreamKey(streamRepository(), streamingProvider));
 export const revealStreamKey = lazy(() => new RevealStreamKey(streamRepository()));
 export const listLiveTargets = lazy(() => new ListLiveTargets(streamRepository(), streamTargets, streamingProvider));
+
+export const lifecycleLog = lazy(() => new PostgresStreamLifecycleLog(sql()));
+export const handleProviderWebhook = lazy(() => new HandleProviderWebhook(streamingProvider, lifecycleLog(), domainEvents()));

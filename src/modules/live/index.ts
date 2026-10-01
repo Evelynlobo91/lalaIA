@@ -1,6 +1,8 @@
 // API pública do módulo live (transmissões ao vivo de lugares e eventos).
 import { hasRole, type CurrentUser } from "@/modules/identity";
-import { listLiveTargets } from "./composition";
+import { handleProviderWebhook, listLiveTargets } from "./composition";
+import { webhooksRoute } from "./features/webhooks/webhooks.route";
+import "./domain/events";
 import type { LivePortalView } from "./features/stream-key/stream-key.use-case";
 
 export { LiveTargetsList, StreamStatusBadge } from "./features/stream-key/ui/live-targets-list";
@@ -13,3 +15,8 @@ export { STATUS_LABELS, type StreamStatus, type StreamEntityType } from "./domai
 export function livePortal(user: CurrentUser): Promise<LivePortalView> {
   return listLiveTargets().execute({ id: user.id, isPartner: hasRole(user, "partner"), isAdmin: hasRole(user, "admin") });
 }
+
+export const liveApi = {
+  /** POST /api/live/webhooks — webhooks assinados do provedor (Mux ou simulado). */
+  webhooks: webhooksRoute(handleProviderWebhook),
+};

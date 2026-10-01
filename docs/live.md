@@ -45,6 +45,39 @@ nenhum ambiente. Páginas sem live não exigem a configuração.
 | Banco | A chave fica em `live.stream_credentials`, separada de `live.streams`. RLS: **só o dono** lê e rotaciona; o backend lê com `asUser`. A leitura pública nunca toca nessa tabela. |
 | Column grants | Como usuário, em `live.streams` só a coluna `control` é alterável: dono, vínculo, provedor e sinal não. |
 
+## Webhooks e ciclo de vida (#48, RNF18)
+
+`POST /api/live/webhooks` (`features/webhooks`):
+
+1. Lê o **corpo cru** (até 64 KB; acima disso, 413 sem verificar) e confere o header
+   `mux-signature: t=<ts>,v1=<hex>` = HMAC-SHA256 de `"<ts>.<corpo>"` com `MUX_WEBHOOK_SECRET`
+   (ou `LIVE_FAKE_WEBHOOK_SECRET` no simulado). Comparação em **tempo constante** e **tolerância de 5 min**
+   (anti-replay). Assinatura inválida, ausente ou fora da janela → **401**, sem gravar nada.
+2. Normaliza os eventos `video.live_stream.*` (`connected`, `active`, `disconnected`, `idle`, `enabled`,
+   `disabled`); outros tipos (assets etc.) são aceitos e ignorados (200, para o Mux não reenviar).
+3. Numa **transação**, com a transmissão travada (`for update`): grava em
+   `live.stream_lifecycle_events` e aplica o novo sinal.
+4. Publica `live.StreamStatusChanged { streamId, entityType, entityId, status }` **depois de gravar** e
+   só quando o status muda.
+
+| Garantia | Como |
+|----------|------|
+| Idempotência | `provider_event_id` único + `on conflict do nothing`: reenvio do mesmo evento não grava nem publica de novo |
+| Ordem | Webhooks podem chegar fora de ordem: evento mais antigo que a última mudança de sinal é registrado, mas não muda o status (`signalAfter`) |
+| Append-only | Trigger recusa `UPDATE`, `DELETE` e `TRUNCATE` para qualquer papel; só a exclusão em cascata da conta (LGPD) passa |
+| Quem grava | Eventos do provedor: só o backend (a autenticação do webhook é a assinatura). Ações do parceiro: o próprio dono/admin, com `asUser` e RLS |
+| Transmissão desconhecida | Ignorada com log de aviso (200) |
+
+O status exibido é uma coluna **gerada** a partir do controle do parceiro e do sinal:
+
+| Controle \ Sinal | `offline` | `live` |
+|------------------|-----------|--------|
+| `on` | `waiting` (aguardando sinal) | `live` (ao vivo) |
+| `paused` | `paused` | `paused` |
+| `ended` | `ended` | `ended` |
+
+Webhook nunca muda o controle: uma live pausada continua pausada quando o sinal volta.
+
 ## Configurar o Mux
 
 1. Crie uma conta em [mux.com](https://mux.com) e um **Environment** (ex.: Production).

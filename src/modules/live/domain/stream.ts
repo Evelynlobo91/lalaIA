@@ -24,6 +24,22 @@ export const STATUS_LABELS: Record<StreamStatus, string> = {
   ended: "Encerrada",
 };
 
+export type SignalState = { signal: StreamSignal; signalChangedAt: Date };
+
+/**
+ * Sinal depois de um evento do provedor. `active` = recebendo vídeo; `idle`/`disconnected`/`disabled` =
+ * sem vídeo; `connected`/`enabled` não mudam o que o público vê. Webhooks podem chegar fora de ordem:
+ * evento mais antigo que a última mudança de sinal é registrado no log, mas não muda o status.
+ * O controle do parceiro (pausar/encerrar) nunca muda por webhook.
+ */
+export function signalAfter(current: SignalState, event: { kind: string; occurredAt: Date }): SignalState {
+  const next: StreamSignal | null =
+    event.kind === "active" ? "live" : event.kind === "idle" || event.kind === "disconnected" || event.kind === "disabled" ? "offline" : null;
+  if (!next || event.occurredAt < current.signalChangedAt) return current;
+  if (next === current.signal) return current;
+  return { signal: next, signalChangedAt: event.occurredAt };
+}
+
 export type StreamTarget = { entityType: StreamEntityType; entityId: string };
 
 export type StreamRecord = StreamTarget & {
@@ -55,6 +71,23 @@ export interface StreamRepository {
   saveKey(actorId: string, streamId: string, streamKey: string): Promise<boolean>;
   /** A chave da transmissão, só para o dono (RLS); null para qualquer outra pessoa. */
   keyFor(ownerId: string, streamId: string): Promise<string | null>;
+}
+
+export type RecordedProviderEvent =
+  | { outcome: "applied"; before: StreamRecord; after: StreamRecord }
+  | { outcome: "duplicate" }
+  | { outcome: "unknown_stream" };
+
+/** Log de ciclo de vida (append-only) + status, gravados juntos numa transação. */
+export interface StreamLifecycleLog {
+  /**
+   * Registra o evento do provedor (idempotente pelo id do evento) e aplica o novo sinal calculado por
+   * `next` sobre o estado atual da transmissão (lido com lock).
+   */
+  recordProviderEvent(
+    event: { eventId: string; providerStreamId: string; kind: string; occurredAt: Date },
+    next: (current: SignalState) => SignalState,
+  ): Promise<RecordedProviderEvent>;
 }
 
 /** Leitura pública (página do lugar/evento, Recomendação, Mapa): nunca inclui a chave. */
