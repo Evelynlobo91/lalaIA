@@ -2,16 +2,19 @@
 import { toLocalInput } from "@/shared/time/joinville-time";
 import { queryRoute } from "@/shared/http/json-route";
 import { cache } from "react";
-import { eventRepository, getEventDetail as eventDetailUseCase, getEventSummaries, happeningNow, listEvents, placesLookup } from "./composition";
+import { eventRepository, findEventCandidates, getEventDetail as eventDetailUseCase, getEventSummaries, happeningNow, listEvents, placesLookup } from "./composition";
 import { DEFAULT_PAGE_SIZE, listEventsSchema } from "./features/list-events/list-events";
 import { eventListQuery, noEventFilters } from "./features/list-events/list-filters";
 import { happeningNowSchema } from "./features/happening-now/happening-now.schema";
 import type { EventRecord } from "./domain/event";
 import type { EventSummary } from "./features/event-summaries/event-summaries";
+import type { EventCandidate, EventCandidatesQuery } from "./features/event-candidates/event-candidates";
 
 export type { EventSummary } from "./features/event-summaries/event-summaries";
 import { searchEvents as searchEventsUseCase } from "./composition";
 import type { EventSearchCriteria } from "./features/search-events/search-events";
+export type { EventCandidate, EventCandidatesQuery } from "./features/event-candidates/event-candidates";
+export { isHappeningAt, startsSoon, startedLabel, startsInLabel, SOON_WINDOW_MS } from "./domain/happening";
 
 export { EventForm, type EventFormValues } from "./features/manage-events/ui/event-form";
 export { CancelEventButton } from "./features/manage-events/ui/cancel-event-button";
@@ -97,6 +100,14 @@ const list = (v: string | string[] | undefined) => (Array.isArray(v) ? v.join(",
  */
 export function eventSummaries(ids: string[]): Promise<EventSummary[]> {
   return getEventSummaries().execute(ids);
+}
+
+/**
+ * Eventos agendados que acontecem em algum momento de [from, to), com o lugar e a data de publicação.
+ * Usado pela Recomendação (candidatos "acontecendo agora" e "em breve"). Duas consultas no total.
+ */
+export function eventCandidates(query: EventCandidatesQuery): Promise<EventCandidate[]> {
+  return findEventCandidates().execute(query);
 }
 
 export const eventsApi = {

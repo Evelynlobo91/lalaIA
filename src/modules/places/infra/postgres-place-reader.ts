@@ -5,6 +5,7 @@ import type { PlaceDetails, PlaceDetailsReader } from "../domain/place-details";
 import type { PlacePoint, PlacePointsReader } from "../features/places-map/places-geo";
 import type { NearbyPlace, NearbyPlacesReader, PlaceDistanceReader } from "../features/nearby-places/nearby-places.use-case";
 import type { Coordinates } from "../domain/place";
+import type { PlaceCandidate, PlaceCandidateReader, PlaceCandidatesQuery } from "../features/place-candidates/place-candidates";
 
 type Row = { id: string; name: string; category: string; neighborhood: string | null; opening_hours: string | null };
 
@@ -22,7 +23,7 @@ type DetailsRow = Row & {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export class PostgresPlaceReader implements PlaceReader, PlaceDetailsReader, PlacePointsReader, NearbyPlacesReader, PlaceDistanceReader {
+export class PostgresPlaceReader implements PlaceReader, PlaceDetailsReader, PlacePointsReader, NearbyPlacesReader, PlaceDistanceReader, PlaceCandidateReader {
   constructor(private readonly sql: Sql) {}
 
   async distancesFrom(origin: Coordinates, ids: string[]): Promise<Map<string, number>> {
@@ -34,6 +35,39 @@ export class PostgresPlaceReader implements PlaceReader, PlaceDetailsReader, Pla
       from places.places
       where id in ${this.sql(valid)}`;
     return new Map(rows.map((r) => [r.id, Number(r.distance)]));
+  }
+
+  async candidates(q: PlaceCandidatesQuery): Promise<PlaceCandidate[]> {
+    type CandidateRow = Row & { source: "osm" | "partner"; created_at: Date; distance: number | null };
+    const byCategory = q.categories ? this.sql`and p.category in ${this.sql(q.categories)}` : this.sql``;
+    const rows = q.origin
+      ? await this.sql<CandidateRow[]>`
+          with origem as (
+            select extensions.st_setsrid(extensions.st_makepoint(${q.origin.lon}, ${q.origin.lat}), 4326)::extensions.geography as ponto
+          )
+          select p.id, p.name, p.category, p.neighborhood, p.opening_hours, p.source, p.created_at,
+                 extensions.st_distance(p.location, origem.ponto) as distance
+          from places.places p, origem
+          where extensions.st_dwithin(p.location, origem.ponto, ${q.radiusMeters}) ${byCategory}
+          order by distance, p.id
+          limit ${q.limit}`
+      : await this.sql<CandidateRow[]>`
+          select p.id, p.name, p.category, p.neighborhood, p.opening_hours, p.source, p.created_at, null::float8 as distance
+          from places.places p
+          where true ${byCategory}
+          order by p.created_at desc, p.id
+          limit ${q.limit}`;
+    return rows
+      .filter((r) => isCategoryId(r.category))
+      .map((r) => ({
+        id: r.id,
+        name: r.name,
+        category: r.category as CategoryId,
+        neighborhood: r.neighborhood,
+        openingHours: r.opening_hours,
+        distanceMeters: r.distance === null ? null : Number(r.distance),
+        newSince: r.source === "partner" ? r.created_at : null,
+      }));
   }
 
   async nearby(origin: Coordinates, radiusMeters: number, limit: number): Promise<NearbyPlace[]> {
