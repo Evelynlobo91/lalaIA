@@ -178,3 +178,12 @@ export function interactionCounts(entityId: string): Promise<Record<string, numb
     return Object.fromEntries(rows.map((r) => [r.kind, r.total]));
   });
 }
+
+/** Interações de teste direto no Analytics (ex.: N visualizações de um lugar hoje). */
+export function recordInteractions(entityType: "place" | "event" | "mission" | "live", entityId: string, kind: string, count: number) {
+  return withDb(
+    (sql) => sql`
+      insert into analytics.events (kind, entity_type, entity_id, source)
+      select ${kind}, ${entityType}, ${entityId}, 'ui' from generate_series(1, ${count})`,
+  );
+}

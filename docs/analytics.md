@@ -47,6 +47,34 @@ registrados de forma uniforme numa tabela só.
 - Entrada validada com zod (tipo, até 200 ids, data). Só contagens: nada de quem fez.
 - Usada pelas métricas da Live no portal do parceiro ([live](live.md)).
 
+## Métricas diárias (#77)
+
+- Materialized view `analytics.daily_metrics`: total por **dia de Joinville**, entidade e tipo. Índice único
+  `(entity_type, entity_id, day, kind)`, que permite `refresh ... concurrently` (leituras não bloqueiam).
+- **Refresh a cada 10 min pelo `pg_cron`** (job `analytics-daily-metrics`, criado na migration; chama
+  `analytics.refresh_daily_metrics()`). No Supabase hospedado, o pg_cron já vem disponível.
+- `dailyMetricsOf({ refs, from, to })` (API pública): dias fechados vêm da view; **hoje vem direto de
+  `analytics.events`** pelo índice por entidade, então o número de hoje nunca fica atrasado pelo refresh.
+  Uma consulta só (`union all`). Entrada com zod: até 500 ids por tipo, período de até 366 dias.
+- A view segue fechada para `anon`/`authenticated`, como a tabela.
+
+## Painel do promotor (#78)
+
+- `/parceiro/dados` (e `GET /api/partner/dashboard?periodo=&recurso=`, só para parceiros: 401 sem sessão,
+  403 sem o papel). Filtros na URL: período (7, 30 ou 90 dias), recurso (lugar, evento ou missão) e a
+  métrica do gráfico.
+- **As 6 métricas:** visualizações, favoritos, "Quero ir", acessos à live, check-ins e conversão
+  (("Quero ir" + check-ins) ÷ visualizações). Cada uma com o total, a variação contra o período anterior
+  (em texto + ícone) e a série diária. Detalhamento por recurso numa tabela.
+- **Isolamento entre parceiros:** o schema `analytics` não é acessível pela API; o que entra no painel são só
+  os recursos do próprio parceiro, resolvidos no servidor a partir do id da sessão pelas APIs públicas
+  dos módulos donos (lugares que ele gerencia, eventos e missões que criou, transmissões dele), que já
+  respeitam a RLS de cada módulo. Recurso de outro parceiro na URL → 404. Essa porta (`PartnerResources`)
+  é montada em `src/bootstrap/partner-resources.ts`, para o analytics não depender de live (que depende dele).
+- Gráfico: barras diárias de uma métrica por vez (uma série, sem legenda; o título nomeia), tooltip por dia,
+  alvo de toque maior que a barra e **"Ver em tabela"** como alternativa acessível.
+- "Visualizações" contam uma vez por aba aberta; não há contagem de pessoas únicas (não guardamos quem fez).
+
 ## Limitações conhecidas (POC)
 
 - O endpoint de view é público e sem limite de taxa: alguém pode inflar visualizações com requisições
