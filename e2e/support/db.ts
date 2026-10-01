@@ -147,6 +147,11 @@ export function createLiveStream(owner: Pick<TestUser, "email">, entityType: "pl
   );
 }
 
+/** Muda o controle da transmissão direto no banco (como se o dono tivesse pausado/encerrado no portal). */
+export function setLiveControl(streamId: string, control: "on" | "paused" | "ended") {
+  return withDb((sql) => sql`update live.streams set control = ${control} where id = ${streamId}`);
+}
+
 /** Quantos eventos de ciclo de vida a transmissão tem (log append-only do módulo live). */
 export function lifecycleCount(streamId: string): Promise<number> {
   return withDb(async (sql) => {

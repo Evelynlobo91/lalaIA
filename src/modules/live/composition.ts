@@ -4,6 +4,7 @@ import { domainEvents } from "@/shared/events";
 import { lazy } from "@/shared/kernel";
 import { ListLiveTargets, ProvisionStream, RevealStreamKey, RotateStreamKey } from "./features/stream-key/stream-key.use-case";
 import { GetLivePlayback, ListActiveStreams } from "./features/player/player.use-case";
+import { GetLiveStatus } from "./features/stream-states/stream-states.use-case";
 import { ControlStream, EndStreamOfCancelledEvent } from "./features/stream-control/stream-control.use-case";
 import { HandleProviderWebhook } from "./features/webhooks/webhooks.use-case";
 import { streamingProviderFrom } from "./infra/live-config";
@@ -30,3 +31,4 @@ export const endStreamOfCancelledEvent = lazy(() => new EndStreamOfCancelledEven
 
 export const getLivePlayback = lazy(() => new GetLivePlayback(streamRepository(), streamingProvider));
 export const listActiveStreamsUseCase = lazy(() => new ListActiveStreams(streamRepository()));
+export const getLiveStatus = lazy(() => new GetLiveStatus(getLivePlayback()));

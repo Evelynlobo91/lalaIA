@@ -114,6 +114,37 @@ Botões no card de cada transmissão em `/parceiro/live` (`features/stream-contr
 - **Para Recomendação e Mapa:** `listActiveStreams(limit?)` devolve `{ streamId, entityType, entityId }`
   das lives no ar (só ids; quem chama busca os próprios dados).
 
+## Estados da live (#51, RNF20)
+
+`LiveStage` (`features/stream-states/ui`) mostra uma mensagem clara para cada estado, com `role="status"`
+(leitores de tela anunciam a troca):
+
+| Estado | Quando | O que aparece |
+|--------|--------|---------------|
+| Aguardando sinal | Chave gerada, sem vídeo chegando | "A transmissão começa em instantes. Esta área se atualiza sozinha." |
+| Ao vivo | Sinal chegando e controle `on` | Selo "Ao vivo" + player mudo |
+| Pausada | Parceiro pausou | "O responsável pausou a live..." (sem player) |
+| Encerrada | Parceiro encerrou (ou evento cancelado) | "A live terminou..." (só para quem estava na página; quem chega depois não vê o bloco) |
+| Indisponível | Erro irrecuperável do player (rede, stream fora do ar) | Mensagem + **Tentar de novo** |
+
+**Transição sem recarregar (POC):** polling leve de
+`GET /api/live/status?entityType=place|event&entityId=<uuid>` a cada **12 s** (`LIVE_STATUS_POLL_MS`),
+**só com a aba visível** (`visibilitychange`: aba em segundo plano não consulta; ao voltar, consulta na
+hora). A resposta é pública e mínima (`status`, `streamId` e a URL HLS só quando ao vivo), validada com
+zod e com `Cache-Control: no-store`. Mesmo status e URL não remontam o player.
+
+### Evolução: Supabase Realtime
+
+O polling fica atrás do hook `useLiveStatus` (fachada). Para trocar por push:
+
+1. Publicar o status numa tabela/canal de leitura pública (ex.: `live.stream_status` só com
+   `entity_type`, `entity_id`, `status`, sem chave nem dono) e adicioná-la à publication `supabase_realtime`,
+   ou usar *Broadcast* a partir de um assinante de `live.StreamStatusChanged`.
+2. No hook, assinar `postgres_changes`/broadcast filtrando por `entity_id` e manter o polling como reserva
+   (ex.: a cada 60 s) para reconexões.
+
+Ficou para depois porque o Realtime está desligado no CI de E2E (`supabase start -x realtime`).
+
 ## Configurar o Mux
 
 1. Crie uma conta em [mux.com](https://mux.com) e um **Environment** (ex.: Production).

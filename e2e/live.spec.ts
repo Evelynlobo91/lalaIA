@@ -1,5 +1,15 @@
 import { expect, test } from "@playwright/test";
-import { assignPlaceTo, createApprovedPartner, createLiveStream, createTestEvent, createTestPlace, interactionCounts, lifecycleCount, liveStreamOf } from "./support/db";
+import {
+  assignPlaceTo,
+  createApprovedPartner,
+  createLiveStream,
+  createTestEvent,
+  createTestPlace,
+  interactionCounts,
+  lifecycleCount,
+  liveStreamOf,
+  setLiveControl,
+} from "./support/db";
 import { sendLiveWebhook } from "./support/live";
 import { loginAs } from "./support/session";
 import { createConfirmedUser } from "./support/users";
@@ -158,5 +168,64 @@ test.describe("Live: player na página do lugar e do evento (#50)", () => {
 
     await page.goto(`/eventos/${eventId}`);
     await expect(page.getByRole("region", { name: "Transmissão ao vivo" }).locator("video")).toBeVisible();
+  });
+});
+
+test.describe("Live: estados sem recarregar a página (#51)", () => {
+  // O polling roda a cada ~12 s: cada transição pode levar até um ciclo.
+  const cycle = { timeout: 20_000 };
+
+  test("aguardando sinal → ao vivo → pausada → ao vivo → encerrada, sem recarregar", async ({ page, request }, testInfo) => {
+    test.skip(testInfo.project.name !== "celular-360", "transições não dependem da largura da tela");
+    test.setTimeout(120_000);
+    const placeName = `Bar Estados ${Date.now()}`;
+    const placeId = await createTestPlace(placeName);
+    const dono = await createConfirmedUser();
+    await createApprovedPartner(dono);
+    const stream = await createLiveStream(dono, "place", placeId);
+
+    await page.goto(`/lugares/${placeId}`);
+    const live = page.getByRole("region", { name: "Transmissão ao vivo" });
+    await expect(live.getByText("Aguardando sinal")).toBeVisible();
+
+    await sendLiveWebhook(request, stream.providerStreamId, "video.live_stream.active");
+    await expect(live.locator("video")).toBeVisible(cycle);
+    await expect(live.getByText("Ao vivo")).toBeVisible();
+
+    await setLiveControl(stream.id, "paused");
+    await expect(live.getByText("Transmissão pausada")).toBeVisible(cycle);
+    await expect(live.locator("video")).toHaveCount(0);
+
+    await setLiveControl(stream.id, "on");
+    await expect(live.locator("video")).toBeVisible(cycle);
+
+    await setLiveControl(stream.id, "ended");
+    await expect(live.getByText("Transmissão encerrada")).toBeVisible(cycle);
+    await expect(live.locator("video")).toHaveCount(0);
+
+    // Quem chega depois do fim não vê o bloco da live.
+    await page.reload();
+    await expect(page.getByRole("heading", { level: 1, name: placeName })).toBeVisible();
+    await expect(live).toHaveCount(0);
+  });
+
+  test("erro do player mostra 'indisponível' com opção de tentar de novo", async ({ page, request }, testInfo) => {
+    test.skip(testInfo.project.name !== "celular-360", "estado não depende da largura da tela");
+    const placeId = await createTestPlace(`Bar Sem Sinal ${Date.now()}`);
+    const dono = await createConfirmedUser();
+    await createApprovedPartner(dono);
+    const stream = await createLiveStream(dono, "place", placeId);
+    await sendLiveWebhook(request, stream.providerStreamId, "video.live_stream.active");
+
+    // Simula a stream HLS fora do ar.
+    await page.route(/\.m3u8(\?.*)?$/, (route) => route.abort());
+    await page.goto(`/lugares/${placeId}`);
+    const live = page.getByRole("region", { name: "Transmissão ao vivo" });
+    await expect(live.getByText("Transmissão indisponível")).toBeVisible(cycle);
+    await expect(live.getByRole("button", { name: "Tentar de novo" })).toBeVisible();
+
+    await page.unroute(/\.m3u8(\?.*)?$/);
+    await live.getByRole("button", { name: "Tentar de novo" }).click();
+    await expect(live.locator("video")).toBeVisible();
   });
 });

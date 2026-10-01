@@ -1,0 +1,88 @@
+"use client";
+
+import { CircleSlash, PauseCircle, RadioTower, WifiOff } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useState, type ReactNode } from "react";
+import { Button, LiveBadge } from "@/shared/ui";
+import { liveViewState, type LiveStatusView, type LiveViewKind } from "../stream-states.use-case";
+import { useLiveStatus } from "./use-live-status";
+
+// O player (e o hls.js, quando preciso) só é baixado quando a live está no ar: não pesa a página.
+const HlsPlayer = dynamic(() => import("../../player/ui/hls-player"), {
+  ssr: false,
+  loading: () => <div aria-hidden className="aspect-video w-full animate-pulse rounded-2xl bg-surface-2" />,
+});
+
+const icons: Partial<Record<LiveViewKind, ReactNode>> = {
+  waiting: <RadioTower aria-hidden className="size-6" />,
+  paused: <PauseCircle aria-hidden className="size-6" />,
+  ended: <CircleSlash aria-hidden className="size-6" />,
+  unavailable: <WifiOff aria-hidden className="size-6" />,
+};
+
+type Props = {
+  entityType: "place" | "event";
+  entityId: string;
+  initial: LiveStatusView;
+  /** Nome do lugar/evento (título acessível do vídeo). */
+  title: string;
+  /** Renderizado quando o vídeo começa a tocar (ex.: TrackView de live_view, do módulo analytics). */
+  onWatch?: ReactNode;
+};
+
+/**
+ * Live na página do lugar/evento com estados claros (RNF20): aguardando sinal, ao vivo, pausada,
+ * encerrada e indisponível (erro do player). Troca de estado sozinha, sem recarregar a página.
+ */
+export function LiveStage({ entityType, entityId, initial, title, onWatch }: Props) {
+  const status = useLiveStatus(entityType, entityId, initial);
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const [watching, setWatching] = useState(false);
+
+  // O erro vale para a URL que falhou: se a live voltar com outra URL, tenta de novo sozinho.
+  const view = liveViewState(status.status, failedUrl !== null && failedUrl === status.playbackUrl);
+  if (view.kind === "hidden") return null;
+
+  return (
+    <section aria-label="Transmissão ao vivo" className="flex flex-col gap-2">
+      {view.kind === "live" && status.playbackUrl ? (
+        <>
+          <div className="flex flex-wrap items-center gap-2">
+            <LiveBadge />
+            <span className="text-sm text-muted">{view.message}</span>
+          </div>
+          <HlsPlayer
+            key={`${status.playbackUrl}#${attempt}`}
+            src={status.playbackUrl}
+            title={`Ao vivo: ${title}`}
+            onPlaying={() => setWatching(true)}
+            onError={() => setFailedUrl(status.playbackUrl)}
+          />
+        </>
+      ) : (
+        <div role="status" className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-4">
+          {icons[view.kind]}
+          <div className="flex min-w-0 flex-col gap-1">
+            <p className="font-semibold">{view.title}</p>
+            <p className="text-sm text-muted">{view.message}</p>
+            {view.kind === "unavailable" && (
+              <Button
+                size="sm"
+                variant="secondary"
+                className="mt-1 self-start"
+                onClick={() => {
+                  setFailedUrl(null);
+                  setAttempt((n) => n + 1);
+                }}
+              >
+                Tentar de novo
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+      {watching && onWatch}
+    </section>
+  );
+}
