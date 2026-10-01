@@ -2,14 +2,15 @@ import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireRole } from "@/modules/identity";
-import { ReviewQueue, partnerApplicationsForReview } from "@/modules/partners";
+import { ClaimReviewQueue, ReviewQueue, partnerApplicationsForReview, placeClaimsForReview } from "@/modules/partners";
 
 export const metadata: Metadata = { title: "Cadastros de parceiros", robots: { index: false } };
 
 export default async function AdminParceirosPage() {
   const admin = await requireRole("admin", "/admin/parceiros");
-  const result = await partnerApplicationsForReview(admin);
+  const [result, claimsResult] = await Promise.all([partnerApplicationsForReview(admin), placeClaimsForReview(admin)]);
   const items = result.ok ? result.value : [];
+  const claims = claimsResult.ok ? claimsResult.value : [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -23,6 +24,13 @@ export default async function AdminParceirosPage() {
         </p>
       </header>
       <ReviewQueue items={items} />
+
+      <section className="flex flex-col gap-3" aria-labelledby="vinculos">
+        <h2 id="vinculos" className="text-xl font-semibold">
+          Pedidos de vínculo com lugares ({claims.length})
+        </h2>
+        <ClaimReviewQueue items={claims} />
+      </section>
     </div>
   );
 }

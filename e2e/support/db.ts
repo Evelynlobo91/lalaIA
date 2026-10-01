@@ -21,6 +21,17 @@ export function grantRole(user: Pick<TestUser, "email">, role: "partner" | "admi
   );
 }
 
+/** Lugar exclusivo do teste (nome único), no centro de Joinville. Devolve o id. */
+export function createTestPlace(name: string): Promise<string> {
+  return withDb(async (sql) => {
+    const [row] = await sql<{ id: string }[]>`
+      insert into places.places (source, source_id, name, category, opening_hours, location)
+      values ('osm', ${`e2e/${name}`}, ${name}, 'cafes', 'Mo-Fr 08:00-18:00', extensions.st_makepoint(-48.8456, -26.3045)::extensions.geography)
+      returning id`;
+    return row.id;
+  });
+}
+
 /** Parceiro já aprovado (cadastro + papel), para testes do portal. */
 export async function createApprovedPartner(user: Pick<TestUser, "email">, businessName = "Bar do Teste") {
   await withDb(
