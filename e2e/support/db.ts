@@ -64,6 +64,35 @@ export function createTestEvent(opts: {
   });
 }
 
+/** Missão de teste já publicada (janela relativa a agora, em horas). Devolve o id da missão e das etapas, em ordem. */
+export function createTestMission(opts: {
+  ownerEmail: string;
+  title: string;
+  xp?: number;
+  steps: Array<{ title: string; placeId: string }>;
+  startsInHours?: number;
+  endsInHours?: number;
+}): Promise<{ missionId: string; stepIds: string[] }> {
+  return withDb((sql) =>
+    sql.begin(async (tx) => {
+      const [mission] = await tx<{ id: string }[]>`
+        insert into missions.missions (owner_id, title, description, xp, starts_at, ends_at)
+        select id, ${opts.title}, 'Missão criada pelos testes automatizados.', ${opts.xp ?? 100},
+               now() + make_interval(mins => ${Math.round((opts.startsInHours ?? -1) * 60)}),
+               now() + make_interval(mins => ${Math.round((opts.endsInHours ?? 72) * 60)})
+        from auth.users where lower(email) = ${opts.ownerEmail.toLowerCase()}
+        returning id`;
+      const stepIds: string[] = [];
+      for (const [i, step] of opts.steps.entries()) {
+        const [row] = await tx<{ id: string }[]>`
+          insert into missions.mission_steps (mission_id, position, title, place_id) values (${mission.id}, ${i + 1}, ${step.title}, ${step.placeId}) returning id`;
+        stepIds.push(row.id);
+      }
+      return { missionId: mission.id, stepIds };
+    }),
+  );
+}
+
 /** Torna o usuário responsável pelo lugar (como se o vínculo tivesse sido aprovado). */
 export function assignPlaceTo(user: Pick<TestUser, "email">, placeId: string) {
   return withDb(

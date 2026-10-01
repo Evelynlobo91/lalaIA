@@ -21,7 +21,7 @@ export default async function EditarMissaoPage({ params }: PageProps<"/parceiro/
         <ArrowLeft aria-hidden className="size-4" /> Missões
       </Link>
       <h1 className="text-2xl font-bold">Editar missão</h1>
-      <MissionForm initial={data.values} placeOptions={placeOptions} submitLabel="Salvar alterações" />
+      <MissionForm initial={data.values} placeOptions={placeOptions} stepsLocked={data.stepsLocked} submitLabel="Salvar alterações" />
     </div>
   );
 }

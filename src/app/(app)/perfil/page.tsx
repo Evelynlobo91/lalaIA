@@ -1,6 +1,7 @@
 import { Heart, Pencil, ShieldCheck, Store } from "lucide-react";
 import type { Metadata } from "next";
 import { LogoutButton, budgetOptions, groupSizes, hasRole, requireUser, userPreferences } from "@/modules/identity";
+import { ActiveMissionsCard, myMissions } from "@/modules/missions";
 import { categories } from "@/shared/catalog/categories";
 import { Avatar, Badge, ButtonLink, Card, CardDescription, CardTitle } from "@/shared/ui";
 
@@ -8,7 +9,7 @@ export const metadata: Metadata = { title: "Perfil" };
 
 export default async function PerfilPage() {
   const user = await requireUser("/perfil");
-  const prefs = await userPreferences().preferencesOf(user.id);
+  const [prefs, missions] = await Promise.all([userPreferences().preferencesOf(user.id), myMissions(user.id)]);
 
   const labels = prefs.categories.map((id) => categories.find((c) => c.id === id)?.label ?? id);
   const budget = prefs.budgetMax === null ? "Sem limite definido" : budgetOptions.find((b) => b.value === prefs.budgetMax)?.label;
@@ -46,6 +47,8 @@ export default async function PerfilPage() {
           <LogoutButton />
         </div>
       </Card>
+
+      <ActiveMissionsCard missions={missions} />
 
       <Card className="flex flex-col gap-3">
         <CardTitle>Suas preferências</CardTitle>

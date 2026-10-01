@@ -81,6 +81,8 @@ describe("SaveMission / ArchiveMission", () => {
   const repo = (patch: Partial<MissionRepository> = {}): MissionRepository => ({
     findById: vi.fn().mockResolvedValue(record()),
     listByOwner: vi.fn(),
+    listAvailable: vi.fn(),
+    findByIds: vi.fn(),
     create: vi.fn().mockResolvedValue(record()),
     update: vi.fn().mockResolvedValue(record()),
     archive: vi.fn().mockResolvedValue(record({ status: "archived" })),
@@ -91,19 +93,21 @@ describe("SaveMission / ArchiveMission", () => {
     summaries: vi.fn(async (ids: string[]) => ids.filter((id) => [CAFE, BAR, ALHEIO].includes(id)).map(place)),
     managedBy: vi.fn().mockResolvedValue(managed.map(place)),
   });
+  const free = { hasParticipants: vi.fn().mockResolvedValue(false) };
+  const locked = { hasParticipants: vi.fn().mockResolvedValue(true) };
   const parceiro = { id: "dono", isPartner: true, isAdmin: false };
   const admin = { id: "admin", isPartner: false, isAdmin: true };
 
   it("parceiro cria missão com etapas nos lugares que administra", async () => {
     const missions = repo();
-    const res = await new SaveMission(missions, places(), now).execute(parceiro, undefined, draft);
+    const res = await new SaveMission(missions, places(), free, now).execute(parceiro, undefined, draft);
     expect(res.ok).toBe(true);
     expect(missions.create).toHaveBeenCalledWith("dono", draft);
   });
 
   it("parceiro não cria etapa em lugar que não administra", async () => {
     const missions = repo();
-    const res = await new SaveMission(missions, places([CAFE]), now).execute(parceiro, undefined, draft);
+    const res = await new SaveMission(missions, places([CAFE]), free, now).execute(parceiro, undefined, draft);
     expect(!res.ok && res.error.details).toEqual([{ path: ["steps"], message: "Etapa 2: escolha um lugar que você administra." }]);
     expect(missions.create).not.toHaveBeenCalled();
   });
@@ -111,24 +115,24 @@ describe("SaveMission / ArchiveMission", () => {
   it("admin cria em qualquer lugar existente (não consulta lugares administrados)", async () => {
     const p = places([]);
     const withForeign = { ...draft, steps: [{ title: "Visite", placeId: ALHEIO, validation: "qr" as const }] };
-    expect((await new SaveMission(repo(), p, now).execute(admin, undefined, withForeign)).ok).toBe(true);
+    expect((await new SaveMission(repo(), p, free, now).execute(admin, undefined, withForeign)).ok).toBe(true);
     expect(p.managedBy).not.toHaveBeenCalled();
   });
 
   it("lugar inexistente é recusado na etapa certa", async () => {
     const ghost = { ...draft, steps: [draft.steps[0], { title: "Visite", placeId: "00000000-0000-4000-8000-000000000000", validation: "qr" as const }] };
-    const res = await new SaveMission(repo(), places(), now).execute(admin, undefined, ghost);
+    const res = await new SaveMission(repo(), places(), free, now).execute(admin, undefined, ghost);
     expect(!res.ok && res.error.details).toEqual([{ path: ["steps"], message: "Etapa 2: lugar não encontrado." }]);
   });
 
   it("usuário comum não cria missão", async () => {
-    const res = await new SaveMission(repo(), places(), now).execute({ id: "x", isPartner: false, isAdmin: false }, undefined, draft);
+    const res = await new SaveMission(repo(), places(), free, now).execute({ id: "x", isPartner: false, isAdmin: false }, undefined, draft);
     expect(!res.ok && res.error.code).toBe("forbidden");
   });
 
   it("não cria missão que já terminou", async () => {
     const late = () => new Date("2026-12-01T00:00:00Z");
-    const res = await new SaveMission(repo(), places(), late).execute(parceiro, undefined, draft);
+    const res = await new SaveMission(repo(), places(), free, late).execute(parceiro, undefined, draft);
     expect(!res.ok && res.error.details).toEqual([{ path: ["endsAt"], message: "O fim da missão precisa estar no futuro." }]);
   });
 
@@ -137,9 +141,28 @@ describe("SaveMission / ArchiveMission", () => {
     ["encerrada", record({ status: "archived" }), "mission_archived"],
   ])("não edita missão %s", async (_, current, code) => {
     const missions = repo({ findById: vi.fn().mockResolvedValue(current) });
-    const res = await new SaveMission(missions, places(), now).execute(parceiro, "m1", draft);
+    const res = await new SaveMission(missions, places(), free, now).execute(parceiro, "m1", draft);
     expect(!res.ok && res.error.code).toBe(code);
     expect(missions.update).not.toHaveBeenCalled();
+  });
+
+  it("edita etapas enquanto ninguém aceitou", async () => {
+    const missions = repo();
+    expect((await new SaveMission(missions, places(), free, now).execute(parceiro, "m1", { ...draft, xp: 200 })).ok).toBe(true);
+    expect(missions.update).toHaveBeenCalledWith("dono", "m1", { ...draft, xp: 200 }, { saveSteps: true });
+  });
+
+  it("depois do primeiro aceite, etapas e XP travam; título e janela ainda mudam", async () => {
+    const missions = repo();
+    const save = new SaveMission(missions, places(), locked, now);
+    const xp = await save.execute(parceiro, "m1", { ...draft, xp: 200 });
+    expect(!xp.ok && xp.error.code).toBe("mission_locked");
+    const steps = await save.execute(parceiro, "m1", { ...draft, steps: [draft.steps[1], draft.steps[0]] });
+    expect(!steps.ok && steps.error.code).toBe("mission_locked");
+    expect(missions.update).not.toHaveBeenCalled();
+
+    expect((await save.execute(parceiro, "m1", { ...draft, title: "Rota do Café II" })).ok).toBe(true);
+    expect(missions.update).toHaveBeenCalledWith("dono", "m1", { ...draft, title: "Rota do Café II" }, { saveSteps: false });
   });
 
   it("encerrar: só o dono (ou admin); é idempotente", async () => {

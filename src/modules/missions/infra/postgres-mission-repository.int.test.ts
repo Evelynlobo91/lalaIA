@@ -64,13 +64,13 @@ describe("PostgresMissionRepository (com RLS)", () => {
       [2, "Prove o chope"],
     ]);
 
-    const updated = await repo.update(parceiro, created.id, draft({ title: "Rota do Café e do Chope", steps: [{ title: "Peça um cappuccino", placeId: meuCafe, validation: "qr" }] }));
+    const updated = await repo.update(parceiro, created.id, draft({ title: "Rota do Café e do Chope", steps: [{ title: "Peça um cappuccino", placeId: meuCafe, validation: "qr" }] }), { saveSteps: true });
     expect(updated?.title).toBe("Rota do Café e do Chope");
     expect(updated?.steps).toHaveLength(1);
     expect(updated?.steps[0]).toMatchObject({ id: created.steps[0].id, title: "Peça um cappuccino" });
 
     expect(await repo.archive(parceiro, created.id)).toMatchObject({ status: "archived" });
-    expect(await repo.update(parceiro, created.id, draft())).toBeNull();
+    expect(await repo.update(parceiro, created.id, draft(), { saveSteps: true })).toBeNull();
   });
 
   it("usuário comum não cria missão (só parceiro ou admin)", async () => {
@@ -79,7 +79,7 @@ describe("PostgresMissionRepository (com RLS)", () => {
 
   it("outro parceiro não edita, não encerra nem mexe nas etapas; admin modera", async () => {
     const created = await repo.create(parceiro, draft());
-    expect(await repo.update(outroParceiro, created.id, draft({ title: "Hackeada" }))).toBeNull();
+    expect(await repo.update(outroParceiro, created.id, draft({ title: "Hackeada" }), { saveSteps: true })).toBeNull();
     expect(await repo.archive(outroParceiro, created.id)).toBeNull();
     const del = await asUser(outroParceiro, (tx) => tx`delete from missions.mission_steps where mission_id = ${created.id}`, db);
     expect(del.count).toBe(0);
@@ -100,7 +100,7 @@ describe("PostgresMissionRepository (com RLS)", () => {
   });
 
   it("caso de uso com a API real de places: parceiro não cria missão em lugar que não administra", async () => {
-    const save = new SaveMission(repo, { summaries: placeSummaries, managedBy: placesManagedBy });
+    const save = new SaveMission(repo, { summaries: placeSummaries, managedBy: placesManagedBy }, { hasParticipants: async () => false });
     const author = { id: parceiro, isPartner: true, isAdmin: false };
     const res = await save.execute(author, undefined, draft({ steps: [{ title: "Peça um café", placeId: cafeAlheio, validation: "qr" }] }));
     expect(!res.ok && res.error.details).toEqual([{ path: ["steps"], message: "Etapa 1: escolha um lugar que você administra." }]);

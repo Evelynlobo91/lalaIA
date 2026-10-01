@@ -53,9 +53,13 @@ export function xpSplit(total: number, stepCount: number): { perStep: number; co
 export interface MissionRepository {
   findById(id: string): Promise<MissionRecord | null>;
   listByOwner(ownerId: string): Promise<MissionRecord[]>;
+  /** Ativas e dentro da janela em `now`, das que terminam antes para as que terminam depois. */
+  listAvailable(now: Date, limit: number): Promise<MissionRecord[]>;
+  findByIds(ids: string[]): Promise<MissionRecord[]>;
   /** Escritas rodam como o usuário (asUser): RLS garante dono/papel no banco. */
   create(actorId: string, draft: MissionDraft): Promise<MissionRecord>;
-  update(actorId: string, id: string, draft: MissionDraft): Promise<MissionRecord | null>;
+  /** `saveSteps: false` mantém as etapas como estão (missão que já tem participantes). */
+  update(actorId: string, id: string, draft: MissionDraft, options: { saveSteps: boolean }): Promise<MissionRecord | null>;
   archive(actorId: string, id: string): Promise<MissionRecord | null>;
 }
 

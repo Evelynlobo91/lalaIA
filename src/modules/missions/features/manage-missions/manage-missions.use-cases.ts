@@ -1,5 +1,6 @@
 import { BusinessRuleError, ForbiddenError, NotFoundError, ValidationError, err, ok, type DomainError, type Result } from "@/shared/kernel";
 import type { MissionDraft, MissionPlaces, MissionRecord, MissionRepository } from "../../domain/mission";
+import type { MissionParticipation } from "../../domain/user-mission";
 
 /** Quem cria: o id vem da sessão; `isPartner`/`isAdmin` são conferidos aqui também (não só na action). */
 export type MissionAuthor = { id: string; isPartner: boolean; isAdmin: boolean };
@@ -12,6 +13,7 @@ export class SaveMission {
   constructor(
     private readonly missions: MissionRepository,
     private readonly places: MissionPlaces,
+    private readonly participation: MissionParticipation,
     private readonly now: () => Date = () => new Date(),
   ) {}
 
@@ -31,7 +33,13 @@ export class SaveMission {
     if (current.ownerId !== author.id && !author.isAdmin) return err(new ForbiddenError("Só quem criou pode editar esta missão."));
     if (current.status === "archived") return err(new BusinessRuleError("mission_archived", "Missão encerrada não pode ser editada."));
 
-    const updated = await this.missions.update(author.id, missionId, draft);
+    // Depois do primeiro aceite, quem aceitou joga a missão que viu: etapas e XP não mudam.
+    const locked = await this.participation.hasParticipants(missionId);
+    if (locked && (draft.xp !== current.xp || !sameSteps(current, draft))) {
+      return err(new BusinessRuleError("mission_locked", "Esta missão já foi aceita por exploradores: as etapas e o XP não podem mais mudar."));
+    }
+
+    const updated = await this.missions.update(author.id, missionId, draft, { saveSteps: !locked });
     return updated ? ok(updated) : err(new ForbiddenError("Só quem criou pode editar esta missão."));
   }
 
@@ -47,6 +55,13 @@ export class SaveMission {
     const foreign = draft.steps.flatMap((s, i) => (managed.has(s.placeId) ? [] : [`Etapa ${i + 1}: escolha um lugar que você administra.`]));
     return foreign.length ? stepsError(foreign) : null;
   }
+}
+
+function sameSteps(current: MissionRecord, draft: MissionDraft): boolean {
+  return (
+    current.steps.length === draft.steps.length &&
+    current.steps.every((s, i) => s.title === draft.steps[i].title && s.placeId === draft.steps[i].placeId && s.validation === draft.steps[i].validation)
+  );
 }
 
 /** Encerrar tira a missão da lista pública; quem já aceitou não consegue mais concluir etapas. Idempotente. */

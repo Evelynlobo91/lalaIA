@@ -26,3 +26,19 @@ acontece num lugar e é comprovada por um **tipo de validação** (na POC, QR co
   criam, sempre em nome próprio; só o dono ou o admin editam/encerram; o dono não transfere a missão
   (`owner_id` fora do grant de UPDATE); etapas só na própria missão.
 - Se o lugar é do parceiro, quem confere é o caso de uso: a RLS não consulta `places` (sem junção entre schemas).
+
+## Aceitar missão (#58, RF28)
+
+- `/missoes` (pública): missões **disponíveis agora** (ativas e dentro da janela), com XP, etapas,
+  lugares e prazo. Visitante vê "Entre para aceitar"; logado, "Aceitar missão".
+- Aceitar cria uma instância em `missions.user_missions` (**uma por usuário e missão**, `unique`).
+  Aceitar de novo é idempotente. Regras (`AcceptMission`):
+  - só missão disponível (fora da janela ou encerrada → recusada; a RLS confere de novo);
+  - **até 5 missões em andamento** ao mesmo tempo (`MAX_ACTIVE_MISSIONS`);
+  - quem criou a missão não pode jogá-la (tem os QR codes em mãos).
+- As missões ativas aparecem em `/missoes` ("Suas missões ativas") e no `/perfil`.
+- **Depois do primeiro aceite, etapas e XP travam** (quem aceitou joga a missão que viu): o caso de
+  uso recusa a mudança, a RLS de `mission_steps` bloqueia via `missions.has_participants()` (security
+  definer: o dono não lê os aceites alheios) e um trigger impede mudar o XP. Título, descrição e
+  janela continuam editáveis.
+- **RLS:** cada pessoa só lê e cria os próprios aceites, sempre como `active`.

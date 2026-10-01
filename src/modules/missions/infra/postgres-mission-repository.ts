@@ -68,6 +68,20 @@ export class PostgresMissionRepository implements MissionRepository {
     return withSteps(this.sql, rows);
   }
 
+  async listAvailable(now: Date, limit: number): Promise<MissionRecord[]> {
+    const rows = await this.sql.unsafe<MissionRow[]>(
+      `select ${COLUMNS} from missions.missions where status = 'active' and starts_at <= $1 and ends_at > $1 order by ends_at, id limit $2`,
+      [now, limit],
+    );
+    return withSteps(this.sql, rows);
+  }
+
+  async findByIds(ids: string[]): Promise<MissionRecord[]> {
+    if (ids.length === 0) return [];
+    const rows = await this.sql.unsafe<MissionRow[]>(`select ${COLUMNS} from missions.missions where id = any($1::uuid[])`, [ids]);
+    return withSteps(this.sql, rows);
+  }
+
   async create(actorId: string, d: MissionDraft): Promise<MissionRecord> {
     return asUser(
       actorId,
@@ -84,7 +98,7 @@ export class PostgresMissionRepository implements MissionRepository {
     );
   }
 
-  async update(actorId: string, id: string, d: MissionDraft): Promise<MissionRecord | null> {
+  async update(actorId: string, id: string, d: MissionDraft, options: { saveSteps: boolean }): Promise<MissionRecord | null> {
     return asUser(
       actorId,
       async (tx) => {
@@ -94,7 +108,7 @@ export class PostgresMissionRepository implements MissionRepository {
           [id, d.title, d.description, d.xp, d.startsAt, d.endsAt],
         );
         if (rows.length === 0) return null;
-        await saveSteps(tx, id, d);
+        if (options.saveSteps) await saveSteps(tx, id, d);
         return (await withSteps(tx, rows))[0];
       },
       this.sql,
