@@ -105,6 +105,30 @@ O módulo não tem tabelas. Ele lê tudo pelas APIs públicas (`index.ts`) de `p
 - "Ajustar tempo e orçamento" leva a `/sugestoes` (preservando a localização).
 - **API:** `GET /api/recommendations/now?lat=&lon=`.
 
+## ME SURPREENDA (#74, RF42)
+
+- `/surpreenda` (e `GET /api/recommendations/surprise`) recebe as mesmas restrições de `/sugestoes`
+  (tempo, orçamento, pessoas, tipo, localização opcional) e devolve um **roteiro**: paradas em ordem, com
+  deslocamento, justificativa e custo estimado do grupo, mais o custo total. O card da home leva para
+  `?tempo=120&orcamento=70`.
+- **Duas camadas:** o motor escolhe e ranqueia até 15 candidatos (camada 1 + score); o planejador só monta o
+  roteiro com eles. Porta `ItineraryPlanner` (DIP):
+  - `ClaudeItineraryPlanner`: Messages API com ferramenta obrigatória (`tool_choice`), saída estruturada
+    validada com zod, timeout de 7 s. Modelo padrão `claude-haiku-4-5-20251001` (rápido), trocável por
+    `SURPRISE_MODEL`. Usado só quando há `ANTHROPIC_API_KEY`.
+  - `LocalItineraryPlanner` (fallback): pega na ordem do ranking o que cabe no tempo (≈ 60 min por parada,
+    até 3) e no orçamento, e ordena pelo horário de início.
+- **Validação anti-alucinação** (`validateItinerary`), aplicada a qualquer planejador: de 1 a 4 paradas, sem
+  repetir, **toda parada precisa ser um dos candidatos**, custo de item com preço conhecido é recalculado
+  (preço × pessoas, nunca o valor do LLM) e a soma precisa caber no orçamento. Se o Claude falhar, demorar
+  ou for recusado, o roteiro sai do motor local e o motivo é logado (sem dados da pessoa).
+- **Prompt injection:** títulos e nomes de candidatos vêm de parceiros; vão como dados (JSON) e o prompt de
+  sistema manda ignorar instruções neles. Mesmo assim, a validação acima limita o estrago a textos curtos.
+- **Privacidade:** o Claude recebe só os candidatos e as restrições (tempo, orçamento, nº de pessoas e se há
+  localização). Nunca recebe a coordenada, o id ou dados da pessoa.
+- Deslocamento no fallback: estimado pela distância até a parada (a pé até 1,5 km, ~80 m/min; depois carro
+  ou app). Sem localização, aponta o "Como chegar".
+
 ## E2E
 
 `e2e/recomendacao.spec.ts`: feed da home com GPS (distância, "Começou há", motivo), localização fora da área,

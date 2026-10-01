@@ -1,6 +1,8 @@
 // API pública do módulo recommendation (motor de recomendação, epic #11).
 import { getCurrentUser } from "@/modules/identity";
-import { findCandidates, realtimeFeed, recommendationEngine, recommendNow, recommendWithConstraints } from "./composition";
+import { findCandidates, realtimeFeed, recommendationEngine, recommendNow, recommendWithConstraints, surpriseMe } from "./composition";
+import { surpriseMeRoute } from "./features/surprise-me/surprise-me.route";
+import { parseSurpriseParams } from "./features/surprise-me/surprise-me.schema";
 import { realtimeFeedRoute } from "./features/realtime-feed/realtime-feed.route";
 import { realtimeFeedSchema } from "./features/realtime-feed/realtime-feed.schema";
 import { CONSTRAINED_LIMIT, recConstraintsRoute } from "./features/rec-constraints/rec-constraints.route";
@@ -18,6 +20,8 @@ export { ConstraintsForm, constraintsSummary } from "./features/rec-constraints/
 export { RealtimeFeedSection } from "./features/realtime-feed/ui/realtime-feed-section";
 export type { RealtimeFeedView } from "./features/realtime-feed/realtime-feed.use-case";
 export type { ConstraintState } from "./features/rec-constraints/rec-constraints.use-case";
+export type { Itinerary, ItineraryStop } from "./features/surprise-me/surprise-me.use-case";
+export { ItineraryView } from "./features/surprise-me/ui/itinerary-view";
 
 /**
  * Motor determinístico (candidatos + filtros + score). Porta para o "ME SURPREENDA" (#74):
@@ -51,7 +55,17 @@ export async function realtimeFeedView(params: Record<string, string | string[] 
   return { invalid: parsed.success ? null : (parsed.error.issues[0]?.message ?? "Localização inválida."), view: result.value, origin };
 }
 
+/** RF42 — "ME SURPREENDA": roteiro com as restrições da URL (/surpreenda); inválido cai nos padrões do perfil. */
+export async function surpriseItinerary(params: Record<string, string | string[] | undefined>) {
+  const { params: parsed, invalid } = parseSurpriseParams(params);
+  const result = await surpriseMe().execute({ userId: await currentUserId(), params: parsed });
+  if (!result.ok) throw result.error;
+  return { invalid, itinerary: result.value };
+}
+
 export const recommendationApi = {
+  /** GET /api/recommendations/surprise — roteiro "ME SURPREENDA". */
+  surprise: surpriseMeRoute(surpriseMe, currentUserId),
   /** GET /api/recommendations/candidates — candidatos viáveis agora (camada 1, sem ranking). */
   candidates: recCandidatesRoute(findCandidates),
   /** GET /api/recommendations — sugestões ranqueadas, com motivos. */
