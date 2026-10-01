@@ -3,6 +3,7 @@ import { categories, type CategoryId } from "@/shared/catalog/categories";
 import { ok, type DomainError, type Result } from "@/shared/kernel";
 import { formatDateTime, formatTime, sameLocalDay } from "@/shared/time/joinville-time";
 import { formatPrice } from "../../domain/event";
+import { dateFilterParam, dateWindow } from "../../domain/date-window";
 import type { EventCursor, EventPlaceNames, EventReader } from "../../domain/event-card";
 
 export const DEFAULT_PAGE_SIZE = 20;
@@ -37,6 +38,7 @@ export const listEventsSchema = z.object({
       return cursor;
     }),
   limit: z.coerce.number().int().min(1).max(50).default(DEFAULT_PAGE_SIZE),
+  quando: dateFilterParam,
 });
 
 export type ListEventsInput = z.infer<typeof listEventsSchema>;
@@ -74,7 +76,8 @@ export class ListEvents {
 
   async execute(input: ListEventsInput): Promise<Result<EventListPage, DomainError>> {
     const now = this.now();
-    const rows = await this.reader.listUpcoming({ now, cursor: input.cursor, limit: input.limit + 1 });
+    const window = input.quando ? dateWindow(input.quando, now) : undefined;
+    const rows = await this.reader.listUpcoming({ now, cursor: input.cursor, limit: input.limit + 1, ...(window && { window }) });
     const page = rows.slice(0, input.limit);
     const places = new Map((await this.places.summaries(page.map((e) => e.placeId))).map((p) => [p.id, p]));
     const last = page.at(-1);
