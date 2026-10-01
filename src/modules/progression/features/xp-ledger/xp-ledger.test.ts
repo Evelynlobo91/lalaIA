@@ -58,6 +58,18 @@ describe("GrantXp", () => {
     expect(bus.publish).toHaveBeenCalledWith("progression.XpGranted", { userId: ANA, amount: 30, reason: "mission_step" });
   });
 
+  it("credita o bônus da conquista com a origem no desbloqueio; sem bônus, nada", async () => {
+    const { rows, ledger } = memoryLedger();
+    const grant = new GrantXp(ledger, titles, events());
+    const unlockId = crypto.randomUUID();
+    const payload = { userId: ANA, achievementId: "primeira-missao", unlockId, title: "Primeira missão", bonusXp: 25 };
+    expect(await grant.onAchievementUnlocked({ id: EVT, payload })).toBe(true);
+    expect(await grant.onAchievementUnlocked({ id: crypto.randomUUID(), payload })).toBe(false);
+    expect(await grant.onAchievementUnlocked({ id: crypto.randomUUID(), payload: { ...payload, unlockId: crypto.randomUUID(), bonusXp: 0 } })).toBe(false);
+    expect(rows).toEqual([{ eventId: EVT, userId: ANA, reason: "achievement", sourceId: unlockId, amount: 25, description: "Conquista · Primeira missão" }]);
+    expect(titles.titleOf).not.toHaveBeenCalledWith(unlockId);
+  });
+
   it("sem título da missão, usa só o rótulo", async () => {
     const { rows, ledger } = memoryLedger();
     await new GrantXp(ledger, { titleOf: vi.fn().mockRejectedValue(new Error("fora do ar")) }, events()).onMissionCompleted({ id: EVT, payload: { userId: ANA, missionId: MISSAO, xp: 25 } });

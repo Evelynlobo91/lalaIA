@@ -6,6 +6,8 @@ Módulo `progression` (epic #10). Reage a eventos de outros módulos e nunca é 
 missions.StepCompleted / MissionCompleted ──► GrantXp ──► xp_transactions (livro-razão)
                                                   └──► progression.XpGranted ──► TrackLevelUp ──► level_ups
                                                                                        └──► progression.LevelReached
+missions.* / favorites.FavoriteAdded / progression.LevelReached ──► UnlockAchievements ──► achievements
+                                                                        └──► progression.AchievementUnlocked ──► GrantXp (bônus)
 ```
 
 ## Livro-razão de XP (#65, RF31)
@@ -43,3 +45,45 @@ depois de gravar.
 - `level_ups` é append-only (trigger `progression.forbid_history_changes`, com a mesma exceção da exclusão em
   cascata da conta), com RLS: cada pessoa só lê os próprios níveis e ninguém grava como usuário.
 - Sem rota HTTP: o perfil é renderizado no servidor (`levelOverviewOf(userId)`, id sempre da sessão).
+
+## Conquistas (#67, RF32)
+
+- **Cada conquista é uma regra** (`AchievementRule`, estratégia) com id estável, título, descrição, dica e
+  XP bônus. O catálogo fica em `features/achievements/achievement-catalog.ts`; **nova conquista = nova regra
+  na lista** (OCP), sem mexer nos casos de uso. Os ids são gravados no banco: não renomeie um já publicado.
+
+  | Id | Conquista | Regra | Bônus |
+  |----|-----------|-------|------:|
+  | `primeiro-check-in` | Primeiro check-in | 1 etapa validada no balcão | 10 XP |
+  | `primeira-missao` | Primeira missão | 1 missão concluída | 25 XP |
+  | `favoritou-5-lugares` | Colecionador de lugares | 5 lugares favoritados | 15 XP |
+  | `explorou-3-categorias` | Curiosidade sem fim | 3 categorias diferentes (lugares favoritados ou visitados e eventos favoritados) | 20 XP |
+  | `nivel-3` | Florista da Festa das Flores | chegar ao nível 3 | — |
+
+- **Desbloqueio automático:** `UnlockAchievements` assina `missions.StepCompleted`, `missions.MissionCompleted`,
+  `favorites.FavoriteAdded` e `progression.LevelReached`. A cada fato, valida o `userId` com zod, monta os
+  fatos da pessoa (`ExplorerAchievementFacts`: atividade pelas APIs públicas + nível pelo saldo) e grava as
+  regras atendidas que ainda faltam. Avaliar o estado (e não o evento) torna as conquistas retroativas e
+  tolerantes à ordem dos eventos.
+- **Idempotente:** `progression.achievements` é append-only com `unique (user_id, achievement_id)` e
+  `on conflict do nothing`. Só um desbloqueio **novo** publica `progression.AchievementUnlocked
+  { userId, achievementId, unlockId, title, bonusXp }`.
+- **Bônus pelo livro-razão:** `GrantXp` assina `AchievementUnlocked` e credita com `reason = 'achievement'`
+  (migration ajusta o `check`) e `source_id = unlockId`: o bônus entra uma vez só, com a descrição
+  "Conquista · <título>", e pode subir o nível (que pode desbloquear a conquista de nível: a cadeia termina
+  porque cada desbloqueio é único).
+- **Perfil:** a seção **"Conquistas"** (`AchievementsCard`) mostra "N de M desbloqueadas", as desbloqueadas
+  (mais recentes primeiro, com a data) e as bloqueadas com a dica de como conseguir. Cada item tem rótulo
+  acessível "<título>: desbloqueada|bloqueada".
+- **RLS:** cada pessoa só lê as próprias conquistas; ninguém grava como usuário (só o backend, pelos eventos).
+
+### Atividade do explorador (APIs públicas, sem join entre schemas)
+
+`PublicApiExplorerActivity` (`infra/`) monta a atividade com uma chamada por módulo, injetadas na composição:
+
+| Módulo | API pública | O que devolve |
+|--------|-------------|---------------|
+| missions | `missionExplorationOf(userId)` (**nova**, slice `features/exploration`) | missões concluídas, check-ins e ids dos lugares das etapas concluídas (uma consulta, `asUser`) |
+| favorites | `favoriteKeysOf(user)` | chaves dos lugares e eventos favoritados |
+| places | `placeFacets(ids)` (**nova**, slice `features/place-facets`) | categoria e bairro de cada lugar (uma consulta, até 500 ids) |
+| events | `eventSummaries(ids)` | categoria e bairro dos eventos favoritados |

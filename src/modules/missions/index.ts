@@ -1,7 +1,7 @@
 // API pública do módulo missions (missões urbanas).
 import { cache } from "react";
 import { toLocalInput } from "@/shared/time/joinville-time";
-import { getMissionProgress, listAvailableMissions, listMyMissions, missionPlaces, missionRepository, qrStepValidation, stepQrCodes, userMissionRepository } from "./composition";
+import { getMissionProgress, listAvailableMissions, missionExploration, listMyMissions, missionPlaces, missionRepository, qrStepValidation, stepQrCodes, userMissionRepository } from "./composition";
 import { qrModeSchema, qrTokenSchema } from "./features/qr-validation/qr-validation.schema";
 import "./domain/events";
 import { missionIdSchema } from "./features/mission-progress/mission-progress.schema";
@@ -26,6 +26,7 @@ export { PrintButton } from "./features/qr-validation/ui/print-button";
 export { QR_ROTATION_SECONDS } from "./domain/step-validation";
 export type { MissionQrCodes, QrMode } from "./features/qr-validation/step-qr-codes.use-case";
 export type { StepCheck, StepCompleted } from "./features/qr-validation/complete-step.use-case";
+export type { MissionExploration } from "./features/exploration/exploration";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -49,6 +50,14 @@ export async function missionPlaceOptions(userId: string): Promise<PlaceOption[]
 /** Missões disponíveis agora (ativas e dentro da janela), para a lista pública. */
 export function availableMissions() {
   return listAvailableMissions().execute();
+}
+
+/**
+ * O que o usuário já explorou pelas missões: missões concluídas, check-ins (etapas) e ids dos lugares
+ * visitados. Uma consulta, como o próprio usuário (RLS). O id vem sempre da sessão (ou de um evento de domínio).
+ */
+export function missionExplorationOf(userId: string) {
+  return missionExploration().execute(userId);
 }
 
 /** Missões aceitas pelo usuário (ativas e concluídas). O id vem sempre da sessão. */

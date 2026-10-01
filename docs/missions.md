@@ -127,3 +127,8 @@ Publicados **depois** de gravar. Missões não concedem XP: quem credita é o m�
 
 > O bus é in-process: se o processo cair entre gravar a etapa e o handler gravar o XP, o crédito se
 > perde. A evolução prevista (docs/architecture.md) é um outbox, sem mudar as portas.
+
+## Para outros módulos
+
+- `missionExplorationOf(userId)`: missões concluídas, etapas concluídas (check-ins) e ids dos lugares das
+  etapas concluídas, numa consulta como o próprio usuário (RLS). Usado pelo [progression](progression.md).
