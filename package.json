@@ -18,9 +18,9 @@
     "db:new": "supabase migration new",
     "db:status": "supabase status",
     "test:e2e": "next build && playwright test",
-    "role": "node --env-file=.env.local scripts/role.mjs",
-    "places:seed": "tsx --conditions=react-server --env-file=.env.local src/modules/places/features/import-osm/import-osm.cli.ts",
-    "places:import": "tsx --conditions=react-server --env-file=.env.local src/modules/places/features/import-osm/import-osm.cli.ts --live"
+    "role": "node --env-file-if-exists=.env.local scripts/role.mjs",
+    "places:seed": "tsx --conditions=react-server --env-file-if-exists=.env.local src/modules/places/features/import-osm/import-osm.cli.ts",
+    "places:import": "tsx --conditions=react-server --env-file-if-exists=.env.local src/modules/places/features/import-osm/import-osm.cli.ts --live"
   },
   "dependencies": {
     "@sentry/nextjs": "^11.1.0",
