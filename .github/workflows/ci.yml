@@ -70,7 +70,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium firefox webkit
       # Supabase com Auth, API, Storage (fotos) e Mailpit; serviços que não usamos ficam de fora.
       - run: npx supabase start -x realtime,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
       - name: Exporta a configuração do Supabase local para o build

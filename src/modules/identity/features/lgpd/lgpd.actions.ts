@@ -9,6 +9,7 @@ import { formAction, type FormState } from "@/shared/http/form-action";
 import { logger } from "@/shared/observability";
 import { CONSENT_COOKIES, type Consents } from "../../domain/consents";
 import { PostgresConsentRepository } from "../../infra/postgres-consent-repository";
+import { secureCookies } from "../../infra/session-cookies";
 import { PostgresProfileRepository } from "../../infra/postgres-profile-repository";
 import { PostgresAccountDeleter } from "../../infra/lgpd-adapters";
 import { SupabaseAvatarStorage } from "../../infra/supabase-avatar-storage";
@@ -24,7 +25,7 @@ const ONE_YEAR = 60 * 60 * 24 * 365;
 async function mirrorToCookies(consents: Consents) {
   const jar = await cookies();
   for (const [kind, name] of Object.entries(CONSENT_COOKIES) as Array<[keyof Consents, string]>) {
-    jar.set(name, consents[kind] ? "1" : "0", { path: "/", maxAge: ONE_YEAR, sameSite: "lax", secure: process.env.NODE_ENV === "production" });
+    jar.set(name, consents[kind] ? "1" : "0", { path: "/", maxAge: ONE_YEAR, sameSite: "lax", secure: secureCookies() });
   }
 }
 

@@ -25,7 +25,7 @@ export default async function ExplorarPage({ searchParams }: PageProps<"/">) {
 
       <Card className="flex flex-col gap-4 border-none bg-brand text-brand-fg md:flex-row md:items-center md:justify-between">
         <div className="flex flex-col gap-1">
-          <CardTitle className="text-xl">Tem 2 horas e R$70?</CardTitle>
+          <CardTitle as="h2" className="text-xl">Tem 2 horas e R$70?</CardTitle>
           <CardDescription className="text-brand-fg/85">Deixa com a gente: montamos um roteiro com o que está rolando agora.</CardDescription>
         </div>
         <ButtonLink href="/surpreenda?tempo=120&orcamento=70" prefetch={false} className="bg-accent text-accent-fg hover:opacity-90" size="lg">
