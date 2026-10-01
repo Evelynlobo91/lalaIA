@@ -54,3 +54,61 @@ Tudo isso é coberto por testes de integração (`postgres-partner-repository.in
   ou admin altera, e só as colunas liberadas (localização, origem e `managed_by` não podem ser alteradas).
   Salvar marca `edited_by_partner_at`, e a reimportação do OSM nunca sobrescreve.
 - Lugar com responsável aparece como "Já tem responsável", sem revelar quem é.
+
+## Descontos e promoções (#30)
+
+```
+Portal /parceiro/ofertas → "Nova oferta" (lugar que gerencia ou evento que criou)
+   → página do lugar/evento: "Ofertas" → explorador logado toca "Resgatar" → código ABCD-EFGH
+   → fica em "Meus resgates" (/perfil) → no balcão, o parceiro digita o código em "Validar código"
+```
+
+- **Oferta** (`partners.offers`): título, descrição/regras, validade (início e fim no horário de Joinville,
+  até 1 ano), limite total de resgates (opcional) e **1 resgate por pessoa**. Vale num lugar (`target_type = 'place'`)
+  ou evento (`'event'`), guardado só pelo id (sem FK entre schemas).
+- **Posse:** o caso de uso (`SaveOffer`) confere pelas APIs públicas: `placesManagedBy` (lugares) e `eventsByOwner`
+  (eventos agendados que ainda não terminaram). A RLS não consulta outros schemas.
+- **Editar** só enquanto ninguém resgatou (caso de uso + trigger `lock_offer_after_redemption`); depois, só **encerrar**.
+  Encerrar é definitivo e para novos resgates; **códigos já emitidos continuam valendo até o fim da validade**
+  (quem resgatou não perde o direito).
+- **Na página do lugar/evento** (`OffersSection`, no slot `extras` dos cards de detalhe): ofertas ativas que ainda não
+  terminaram, com "N restantes". Ainda não começou ("Em breve") ou esgotada → **indisponível**, sem botão.
+  Visitante vê "Entre para resgatar"; o parceiro dono vê "Esta oferta é sua" (não resgata a própria).
+
+### Código de resgate
+
+- 8 símbolos de `23456789ABCDEFGHJKMNPQRSTUVWXYZ` (sem 0/O, 1/I/L), mostrado como `ABCD-EFGH`; sorteio com
+  `crypto.getRandomValues` sem viés (rejeição). ≈ 8,5 × 10¹¹ combinações; `unique` no banco (colisão → sorteia outro).
+- A digitação é normalizada (maiúsculas, sem espaço/hífen).
+
+### Garantias (banco + caso de uso)
+
+| Regra | Como |
+|-------|------|
+| 1 resgate por pessoa, idempotente | `unique (offer_id, user_id)` + `on conflict do nothing`; resgatar de novo devolve o mesmo código e **não publica evento** |
+| Limite total sob concorrência | Trigger `AFTER INSERT` (`count_redemption`, security definer) faz `update ... set redeemed_count = redeemed_count + 1 where redeemed_count < max`: o lock na linha da oferta serializa os resgates; sem linha atualizada → erro `LAESG` e o resgate é desfeito. `check (redeemed_count <= max_redemptions)` como rede de segurança. Teste de integração com 12 resgates simultâneos e limite 5 |
+| Só na validade, oferta ativa, nunca a própria | Caso de uso **e** RLS do insert em `offer_redemptions` |
+| Contador e dono imutáveis | Column grants: `redeemed_count` e `partner_id` fora do UPDATE; insert de resgate só com `offer_id, user_id, code` |
+| Validar: só o dono da oferta, uma vez só | `findForPartner` com RLS (`partners.owns_offer`) + filtro por parceiro; `update ... where validated_at is null`; política de UPDATE só nas colunas `validated_at`/`validated_by`, com `validated_by = auth.uid()` |
+| Não vazar códigos de outras ofertas | Código de outro parceiro e código inexistente recebem a mesma resposta: **"Código inválido."** |
+
+- Validar grava **quem validou e quando**. Código já usado → "já foi usado em ..."; depois do fim da validade → "não vale mais".
+- O id de quem resgata/valida vem sempre da sessão (`withUser` / `withRole("partner")` + cadastro aprovado).
+
+### Eventos e analytics
+
+- `partners.OfferRedeemed { offerId, redemptionId, userId, targetType, targetId }` (só no primeiro resgate).
+- `partners.OfferValidated { offerId, redemptionId, userId, validatedBy, targetType, targetId }`.
+- O analytics registra a **validação** como `checkin` no lugar/evento (a pessoa esteve lá), sem tipo novo nem
+  migration; entra nos check-ins e na conversão do painel (#78). O resgate em si não vira métrica.
+
+### LGPD
+
+- Exportação: `ofertasResgatadas` (código, oferta, onde vale, datas) e `ofertasQueCriei`.
+- Exclusão da conta: resgates saem em **cascata** (`user_id ... on delete cascade`); as ofertas saem com o
+  cadastro de parceiro. Se quem validou excluir a conta, `validated_by` vira `null` (a data fica).
+
+### API pública
+
+`OffersSection`, `MyRedemptionsCard`, `OfferForm`, `EndOfferButton`, `ValidateCodeForm`, `myRedemptions(userId)`,
+`myOffers(session)`, `offersCreatedBy(userId)`, `offerTargetChoices(session)`, `editableOffer(session, id)`.

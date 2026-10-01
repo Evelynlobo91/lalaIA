@@ -7,6 +7,7 @@ import { TrackView } from "@/modules/analytics";
 import { LiveNowProvider, LivePlayerFor, liveNowKeys } from "@/modules/live";
 import { EventDetailCard, getEventDetail } from "@/modules/events";
 import { FavoriteToggle, WantToGoButton } from "@/modules/favorites";
+import { OffersSection } from "@/modules/partners";
 
 // A fase do evento (acontecendo/encerrado) depende da hora da visita.
 export const dynamic = "force-dynamic";
@@ -46,6 +47,9 @@ export default async function EventoPage({ params }: PageProps<"/eventos/[id]">)
                 <LivePlayerFor entityType="event" entityId={event.id} title={event.title} />
               </Suspense>
               <FavoriteToggle entityType="event" entityId={event.id} className="sm:self-start" />
+              <Suspense fallback={null}>
+                <OffersSection targetType="event" targetId={event.id} returnTo={`/eventos/${event.id}`} />
+              </Suspense>
             </>
           }
           directions={event.place && <WantToGoButton href={event.place.directionsUrl} entityType="event" entityId={event.id} className="sm:w-auto sm:self-start" />}

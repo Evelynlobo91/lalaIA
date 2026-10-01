@@ -35,6 +35,11 @@ describe("TrackInteraction", () => {
     ["favorites.FavoriteAdded", { userId: "u", entityType: "event", entityId: placeId }, { kind: "favorite", entityType: "event", entityId: placeId }],
     ["favorites.WantToGoClicked", { userId: null, entityType: "place", entityId: placeId }, { kind: "quero_ir", entityType: "place", entityId: placeId }],
     ["missions.StepCompleted", { userId: "u", missionId: placeId, stepId: "s", xp: 10 }, { kind: "checkin", entityType: "mission", entityId: placeId }],
+    [
+      "partners.OfferValidated",
+      { offerId: "o", redemptionId: "r", userId: "u", validatedBy: "p", targetType: "place", targetId: placeId },
+      { kind: "checkin", entityType: "place", entityId: placeId },
+    ],
   ] as const)("evento de domínio %s vira interação sem o usuário", async (type, payload, expected) => {
     const { store, bg, useCase } = setup();
     const occurredAt = new Date("2026-10-10T19:00:00Z");

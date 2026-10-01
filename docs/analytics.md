@@ -11,7 +11,7 @@ registrados de forma uniforme numa tabela só.
 | `live_view` | Tela: o player da Live renderiza `<TrackView kind="live_view" entityType="live">` quando o vídeo começa a tocar ([live](live.md)) | `live` (id da transmissão) |
 | `favorite` | Evento de domínio `favorites.FavoriteAdded` | `place`, `event` |
 | `quero_ir` | Evento de domínio `favorites.WantToGoClicked` | `place`, `event` |
-| `checkin` | Evento de domínio `missions.StepCompleted` (QR validado no balcão) | `mission` |
+| `checkin` | Eventos de domínio `missions.StepCompleted` (QR validado no balcão) e `partners.OfferValidated` (código de oferta validado no balcão) | `mission`; `place`, `event` |
 
 - **Os módulos não chamam o Analytics:** ele assina os eventos de domínio deles (`subscriptions` no
   `index.ts`, registrado em `src/bootstrap`). Rastrear um novo evento é uma linha em `domainInteractions`

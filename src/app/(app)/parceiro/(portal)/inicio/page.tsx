@@ -11,6 +11,7 @@ const descriptions: Record<string, string> = {
   "/parceiro/eventos": "Publique o que está acontecendo e o que vem por aí.",
   "/parceiro/live": "Mostre o ambiente ao vivo para quem está decidindo.",
   "/parceiro/missoes": "Crie missões e recompensas para atrair exploradores.",
+  "/parceiro/ofertas": "Ofereça descontos e valide os códigos no balcão.",
   "/parceiro/dados": "Veja quem se interessou pelo que você publica.",
 };
 
