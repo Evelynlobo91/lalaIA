@@ -1,0 +1,64 @@
+name: Monitor de disponibilidade
+
+# Monitor externo (#81): consulta o /api/health de produção a cada 10 minutos.
+# Fora do ar (503, erro ou sem resposta em 15 s) → abre/atualiza uma issue "incidente" (o GitHub notifica
+# quem acompanha o repositório). Voltou → comenta e fecha a issue.
+# Configure a variável do repositório HEALTHCHECK_URL (ex.: https://lalaia.app/api/health).
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Verificar /api/health
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: ${{ vars.HEALTHCHECK_URL != '' }}
+    env:
+      URL: ${{ vars.HEALTHCHECK_URL }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Consultar
+        id: probe
+        run: |
+          # Duas tentativas, para um soluço de rede não abrir incidente.
+          for tentativa in 1 2; do
+            code=$(curl -s -o body.json -w '%{http_code}' --max-time 15 "$URL" || echo 000)
+            [ "$code" = "200" ] && break
+            sleep 20
+          done
+          status=$(jq -r '.status // "sem resposta"' body.json 2>/dev/null || echo "sem resposta")
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          echo "HTTP $code · $status"
+
+      - name: Abrir ou atualizar incidente
+        if: steps.probe.outputs.code != '200'
+        run: |
+          gh label create incidente --color B60205 --description "Indisponibilidade detectada pelo monitor" 2>/dev/null || true
+          aberta=$(gh issue list --label incidente --state open --json number --jq '.[0].number')
+          msg="Monitor: \`$URL\` respondeu HTTP ${{ steps.probe.outputs.code }} (status: ${{ steps.probe.outputs.status }}) em $(date -u +'%Y-%m-%d %H:%M UTC'). Execução: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          if [ -n "$aberta" ]; then
+            gh issue comment "$aberta" --body "$msg"
+          else
+            gh issue create --label incidente --title "🔴 LalaIA fora do ar" --body "$msg
+
+          Veja a página /status e os erros no Sentry. Esta issue fecha sozinha quando o serviço voltar."
+          fi
+          exit 1
+
+      - name: Fechar incidente
+        if: steps.probe.outputs.code == '200'
+        run: |
+          for n in $(gh issue list --label incidente --state open --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "✅ Serviço de volta (status: ${{ steps.probe.outputs.status }}) em $(date -u +'%Y-%m-%d %H:%M UTC')."
+          done
