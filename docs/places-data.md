@@ -77,6 +77,26 @@ Para mapear uma nova tag, adicione uma linha em `src/modules/places/domain/osm/o
   no servidor (10–20 consultas só por abrir a lista). O detalhe abre em ~340ms após o toque.
 - **Ponto de extensão:** `PlaceDetailCard` recebe `extras` (ex.: selo e player da Live, eventos do lugar).
 
+## Mapa
+
+- **`MapView`** (`src/shared/ui/map`) é genérico e **não conhece módulos**: recebe **camadas plugáveis**
+  (`MapLayer`, com `id` e `add(map)`). Cada módulo fornece a sua (lugares agora; eventos, missões e Live
+  depois), e o "mapa como jogo" será a soma delas, sem alterar o componente (OCP).
+- **Camada de lugares:** GeoJSON de `GET /api/places/geo` (cache de 5 min), com **clusters** (tocar
+  aproxima) e marcadores (tocar abre o resumo com "Ver detalhes" e "Como chegar").
+- **`/mapa?lugar=<id>`** abre centralizado no lugar com o resumo aberto ("Ver no mapa" do detalhe e
+  links compartilhados).
+- **Mapa base:** sem `NEXT_PUBLIC_MAP_STYLE_URL`, usa os tiles raster públicos do OpenStreetMap. Bons
+  para a POC, mas a [política de uso](https://operations.osmfoundation.org/policies/tiles/) deles não
+  comporta tráfego de produção. **Em produção**, defina `NEXT_PUBLIC_MAP_STYLE_URL` com um estilo
+  vetorial de um provedor (MapTiler, Stadia, Protomaps…). Os textos do mapa (ex.: contagem dos clusters)
+  usam as fontes públicas da MapLibre (`demotiles.maplibre.org`).
+- **Worker do MapLibre:** a v6 usa um Web Worker em módulo ES que o bundler do Next não resolve.
+  `scripts/copy-maplibre-worker.mjs` copia o worker para `public/vendor/maplibre/<versão>/` antes de
+  `dev` e `build` (fora do Git), e o `MapView` aponta para ele com `setWorkerUrl`.
+- **Acessibilidade:** o mapa é visual. Sempre há "Ver em lista" como alternativa, e o resumo é anunciado
+  (`aria-live`). Sem WebGL, aparece uma mensagem no lugar do mapa.
+
 ## Licença e atribuição (obrigatória)
 
 Os dados do OpenStreetMap são © OpenStreetMap contributors, sob a licença

@@ -63,6 +63,13 @@ describe("PostgresPlaceReader.listAfter", () => {
     expect(await reader.findById("00000000-0000-4000-8000-000000000000")).toBeNull();
   });
 
+  it("allPoints traz todos os lugares com coordenadas", async () => {
+    const [{ total }] = await db<{ total: number }[]>`select count(*)::int as total from places.places`;
+    const points = await reader.allPoints();
+    expect(points).toHaveLength(total);
+    expect(points.find((p) => p.name === "Zebra Bar")).toMatchObject({ lat: -26.3, lon: -48.84, category: "bares" });
+  });
+
   it("usa o índice (não varre a tabela) para a página", async () => {
     const plan = await db.unsafe(`explain (format json) select id from places.places order by (name collate places.pt_br), id limit 21`);
     expect(JSON.stringify(plan)).toContain("places_name_id_idx");
