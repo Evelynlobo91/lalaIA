@@ -1,0 +1,18 @@
+// Composição do módulo live (interna): usada pelas actions, rotas e pelo index.ts.
+import { sql } from "@/shared/db/sql";
+import { lazy } from "@/shared/kernel";
+import { ListLiveTargets, ProvisionStream, RevealStreamKey, RotateStreamKey } from "./features/stream-key/stream-key.use-case";
+import { streamingProviderFrom } from "./infra/live-config";
+import { PostgresStreamRepository } from "./infra/postgres-stream-repository";
+import { ModuleStreamTargets } from "./infra/stream-targets";
+
+/** Mux com MUX_TOKEN_ID; senão, o simulado. Criado no primeiro uso (páginas sem live não exigem a configuração). */
+export const streamingProvider = lazy(() => streamingProviderFrom(process.env));
+
+export const streamRepository = lazy(() => new PostgresStreamRepository(sql()));
+const streamTargets = new ModuleStreamTargets();
+
+export const provisionStream = lazy(() => new ProvisionStream(streamRepository(), streamTargets, streamingProvider));
+export const rotateStreamKey = lazy(() => new RotateStreamKey(streamRepository(), streamingProvider));
+export const revealStreamKey = lazy(() => new RevealStreamKey(streamRepository()));
+export const listLiveTargets = lazy(() => new ListLiveTargets(streamRepository(), streamTargets, streamingProvider));

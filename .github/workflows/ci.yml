@@ -73,6 +73,8 @@ jobs:
             echo "E2E_SUPABASE_SECRET_KEY=$SECRET_KEY"
             # Segredo dos QR codes das missões: aleatório a cada execução (nunca fica no repositório).
             echo "MISSIONS_QR_SECRET=$(openssl rand -hex 32)"
+            # Live com o provedor simulado (sem Mux no CI): segredo dos webhooks, aleatório a cada execução.
+            echo "LIVE_FAKE_WEBHOOK_SECRET=$(openssl rand -hex 32)"
           } >> "$GITHUB_ENV"
       # Lugares reais de Joinville (snapshot do OpenStreetMap) para as telas de "Onde ir".
       - run: npm run places:seed

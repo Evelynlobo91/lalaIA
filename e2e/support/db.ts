@@ -120,6 +120,17 @@ export function addFavorite(user: Pick<TestUser, "email">, entityType: "place" |
   );
 }
 
+/** Transmissão ao vivo de um lugar/evento (módulo live), ou null se ainda não foi gerada. */
+export function liveStreamOf(entityId: string): Promise<{ id: string; providerStreamId: string; status: string; streamKey: string } | null> {
+  return withDb(async (sql) => {
+    const [row] = await sql<{ id: string; provider_stream_id: string; status: string; stream_key: string }[]>`
+      select s.id, s.provider_stream_id, s.status, c.stream_key
+      from live.streams s join live.stream_credentials c on c.stream_id = s.id
+      where s.entity_id = ${entityId}`;
+    return row ? { id: row.id, providerStreamId: row.provider_stream_id, status: row.status, streamKey: row.stream_key } : null;
+  });
+}
+
 /** Interações registradas pelo Analytics para uma entidade (contagem por tipo). */
 export function interactionCounts(entityId: string): Promise<Record<string, number>> {
   return withDb(async (sql) => {

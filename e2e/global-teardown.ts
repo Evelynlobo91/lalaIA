@@ -13,7 +13,9 @@ export default async function globalTeardown() {
     await sql`delete from analytics.events where entity_id in (
       select id from places.places where source = 'osm' and source_id like 'e2e/%'
       union all
-      select e.id from events.events e join auth.users u on u.id = e.owner_id where u.email like 'e2e-%@lalaia.test')`;
+      select e.id from events.events e join auth.users u on u.id = e.owner_id where u.email like 'e2e-%@lalaia.test'
+      union all
+      select s.id from live.streams s join auth.users u on u.id = s.owner_id where u.email like 'e2e-%@lalaia.test')`;
     await sql`delete from places.places where source = 'osm' and source_id like 'e2e/%'`;
     await sql`delete from auth.users where email like 'e2e-%@lalaia.test'`;
   } catch (error) {

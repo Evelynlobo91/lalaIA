@@ -28,6 +28,10 @@ A integração da Vercel com o GitHub gera um **preview por PR** e publica a `ma
 2. Em **Settings → Environment Variables**, cadastre as variáveis do `.env.example`
    para *Production* e *Preview*. O `DATABASE_URL` e as chaves do Supabase apontam para o projeto
    Supabase na nuvem (o banco local não é acessível pela Vercel).
+   - **Live:** em produção, cadastre `MUX_TOKEN_ID`, `MUX_TOKEN_SECRET` e `MUX_WEBHOOK_SECRET` e aponte o
+     webhook do Mux para `https://<domínio>/api/live/webhooks` ([passo a passo](live.md#configurar-o-mux)).
+     Em previews sem Mux, defina só `LIVE_FAKE_WEBHOOK_SECRET` (provedor simulado). Nenhum dos segredos tem
+     valor padrão: sem eles, as telas de Live falham com uma mensagem clara.
 3. Pronto: cada PR ganha um comentário com a URL de preview, e merge na `main` publica em produção.
 
 > Segredos (`DATABASE_URL`, `SENTRY_AUTH_TOKEN`, chaves `secret`/`service_role`) só existem nas
