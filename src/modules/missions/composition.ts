@@ -8,15 +8,19 @@ import { ListAvailableMissions, ListMyMissions } from "./features/accept-mission
 import { ArchiveMission, SaveMission } from "./features/manage-missions/manage-missions.use-cases";
 import { PostgresMissionRepository } from "./infra/postgres-mission-repository";
 import { PostgresUserMissionRepository } from "./infra/postgres-user-mission-repository";
+import { PostgresStepCompletionRepository } from "./infra/postgres-step-completion-repository";
+import { GetMissionProgress } from "./features/mission-progress/mission-progress.use-case";
 
 export const missionPlaces: MissionPlaces = { summaries: placeSummaries, managedBy: placesManagedBy };
 
 export const missionRepository = lazy(() => new PostgresMissionRepository(sql()));
 export const userMissionRepository = lazy(() => new PostgresUserMissionRepository(sql()));
+export const stepCompletionRepository = lazy(() => new PostgresStepCompletionRepository(sql()));
 
 export const saveMission = lazy(() => new SaveMission(missionRepository(), missionPlaces, userMissionRepository()));
 export const archiveMission = lazy(() => new ArchiveMission(missionRepository()));
 
 export const acceptMission = lazy(() => new AcceptMission(missionRepository(), userMissionRepository()));
 export const listAvailableMissions = lazy(() => new ListAvailableMissions(missionRepository(), missionPlaces));
-export const listMyMissions = lazy(() => new ListMyMissions(missionRepository(), userMissionRepository(), missionPlaces));
+export const listMyMissions = lazy(() => new ListMyMissions(missionRepository(), userMissionRepository(), stepCompletionRepository(), missionPlaces));
+export const getMissionProgress = lazy(() => new GetMissionProgress(missionRepository(), userMissionRepository(), stepCompletionRepository(), missionPlaces));

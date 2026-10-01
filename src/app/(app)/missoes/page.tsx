@@ -2,14 +2,13 @@ import { Target } from "lucide-react";
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/modules/identity";
 import { AcceptMissionButton, MissionCardView, availableMissions, myMissions, type MyMission } from "@/modules/missions";
-import { Badge, ButtonLink, EmptyState, FormAlert } from "@/shared/ui";
+import { Badge, ButtonLink, EmptyState } from "@/shared/ui";
 
 export const metadata: Metadata = { title: "Missões", description: "Missões urbanas para explorar Joinville e ganhar XP." };
 // Depende do momento (janela de validade) e de quem está logado.
 export const dynamic = "force-dynamic";
 
-export default async function MissoesPage({ searchParams }: PageProps<"/missoes">) {
-  const { aceita } = await searchParams;
+export default async function MissoesPage() {
   const user = await getCurrentUser();
   const [available, mine] = await Promise.all([availableMissions(), user ? myMissions(user.id) : Promise.resolve([] as MyMission[])]);
   const accepted = new Set(mine.map((m) => m.id));
@@ -21,7 +20,6 @@ export default async function MissoesPage({ searchParams }: PageProps<"/missoes"
         <h1 className="text-2xl font-bold md:text-3xl">Missões</h1>
         <p className="text-muted">Explore Joinville, complete etapas nos lugares parceiros e ganhe XP.</p>
       </header>
-      {aceita && <FormAlert variant="success">Missão aceita! Boa exploração.</FormAlert>}
 
       {active.length > 0 && (
         <section className="flex flex-col gap-3" aria-label="Suas missões ativas">
@@ -29,7 +27,7 @@ export default async function MissoesPage({ searchParams }: PageProps<"/missoes"
           <ul className="grid gap-3 md:grid-cols-2">
             {active.map((m) => (
               <li key={m.id}>
-                <MissionCardView mission={m} badge={<Badge variant="accent">Em andamento</Badge>} />
+                <MissionCardView mission={m} badge={<Badge variant="accent">{m.progress.percent}% concluída</Badge>} />
               </li>
             ))}
           </ul>

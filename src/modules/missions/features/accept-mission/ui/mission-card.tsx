@@ -1,4 +1,5 @@
 import { CalendarClock, MapPin } from "lucide-react";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { formatDateTime } from "@/shared/time/joinville-time";
 import { Badge, Card } from "@/shared/ui";
@@ -9,7 +10,11 @@ export function MissionCardView({ mission, footer, badge }: { mission: MissionCa
   return (
     <Card className="flex flex-col gap-3">
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <h3 className="text-lg font-semibold leading-tight">{mission.title}</h3>
+        <h3 className="text-lg font-semibold leading-tight">
+          <Link href={`/missoes/${mission.id}`} className="hover:underline">
+            {mission.title}
+          </Link>
+        </h3>
         {badge ?? <Badge variant="brand">{mission.xp} XP</Badge>}
       </div>
       <p className="line-clamp-3 text-sm">{mission.description}</p>

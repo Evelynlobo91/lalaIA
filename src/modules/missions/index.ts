@@ -1,6 +1,8 @@
 // API pública do módulo missions (missões urbanas).
+import { cache } from "react";
 import { toLocalInput } from "@/shared/time/joinville-time";
-import { listAvailableMissions, listMyMissions, missionPlaces, missionRepository, userMissionRepository } from "./composition";
+import { getMissionProgress, listAvailableMissions, listMyMissions, missionPlaces, missionRepository, userMissionRepository } from "./composition";
+import { missionIdSchema } from "./features/mission-progress/mission-progress.schema";
 import { xpSplit, type MissionRecord } from "./domain/mission";
 import type { MissionFormValues, PlaceOption } from "./features/manage-missions/ui/mission-form";
 
@@ -12,6 +14,9 @@ export type { MissionCard, MyMission } from "./features/accept-mission/mission-c
 export { MissionCardView } from "./features/accept-mission/ui/mission-card";
 export { AcceptMissionButton } from "./features/accept-mission/ui/accept-mission-button";
 export { ActiveMissionsCard } from "./features/accept-mission/ui/active-missions-card";
+export { MissionProgressPanel } from "./features/mission-progress/ui/mission-progress-view";
+export type { MissionProgressView, StepProgressView } from "./features/mission-progress/mission-progress.use-case";
+export type { Progress, StepState } from "./domain/progress";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -35,6 +40,16 @@ export function availableMissions() {
 export function myMissions(userId: string) {
   return listMyMissions().execute(userId);
 }
+
+/**
+ * Tela da missão (/missoes/[id]): etapas, status e percentual. null para id inválido ou missão que a pessoa não pode ver.
+ * Memoizado por requisição (página e metadados fazem uma consulta só).
+ */
+export const missionProgress = cache(async (userId: string | null, missionId: string) => {
+  if (!missionIdSchema.safeParse(missionId).success) return null;
+  const result = await getMissionProgress().execute(userId, missionId);
+  return result.ok ? result.value : null;
+});
 
 /** Missão para o formulário de edição: só para o dono (ou admin) e enquanto ativa; null para os demais. */
 export async function editableMission(editor: { id: string; isAdmin: boolean }, missionId: string): Promise<{ mission: MissionRecord; stepsLocked: boolean; values: MissionFormValues } | null> {

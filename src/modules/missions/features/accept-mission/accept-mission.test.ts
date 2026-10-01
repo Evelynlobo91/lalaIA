@@ -84,9 +84,14 @@ describe("ListAvailableMissions / ListMyMissions", () => {
     expect(places.summaries).toHaveBeenCalledTimes(1);
   });
 
-  it("lista as missões aceitas com o aceite", async () => {
-    const mine = new ListMyMissions({ findByIds: vi.fn().mockResolvedValue([mission()]) }, { listByUser: vi.fn().mockResolvedValue([accepted()]) }, places);
+  it("lista as missões aceitas com o aceite e o progresso", async () => {
+    const mine = new ListMyMissions(
+      { findByIds: vi.fn().mockResolvedValue([mission()]) },
+      { listByUser: vi.fn().mockResolvedValue([accepted()]) },
+      { countsByUserMission: vi.fn().mockResolvedValue(new Map([["um1", 1]])) },
+      places,
+    );
     const [item] = await mine.execute("ana");
-    expect(item).toMatchObject({ id: "m1", userMission: { id: "um1", status: "active" } });
+    expect(item).toMatchObject({ id: "m1", userMission: { id: "um1", status: "active" }, progress: { done: 1, total: 3, percent: 33 } });
   });
 });

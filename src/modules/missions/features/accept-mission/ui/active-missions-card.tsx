@@ -23,10 +23,10 @@ export function ActiveMissionsCard({ missions }: { missions: MyMission[] }) {
         <ul className="flex flex-col divide-y divide-border">
           {active.map((m) => (
             <li key={m.id} className="flex items-center justify-between gap-3 py-2">
-              <Link href={`/missoes`} className="min-w-0 truncate font-medium hover:underline">
+              <Link href={`/missoes/${m.id}`} className="min-w-0 truncate font-medium hover:underline">
                 {m.title}
               </Link>
-              <span className="shrink-0 text-sm text-muted">{m.xp} XP</span>
+              <span className="shrink-0 text-sm text-muted">{m.progress.percent}% concluída</span>
             </li>
           ))}
         </ul>

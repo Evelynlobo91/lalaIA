@@ -1,0 +1,46 @@
+import { ArrowLeft } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getCurrentUser } from "@/modules/identity";
+import { AcceptMissionButton, MissionProgressPanel, missionProgress } from "@/modules/missions";
+import { ButtonLink, Card, FormAlert } from "@/shared/ui";
+
+// Progresso pessoal e janela de validade: sempre na hora.
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: PageProps<"/missoes/[id]">): Promise<Metadata> {
+  const { id } = await params;
+  const user = await getCurrentUser();
+  const view = await missionProgress(user?.id ?? null, id);
+  return { title: view ? `${view.mission.title} · Missões` : "Missão" };
+}
+
+export default async function MissaoPage({ params, searchParams }: PageProps<"/missoes/[id]">) {
+  const { id } = await params;
+  const { aceita } = await searchParams;
+  const user = await getCurrentUser();
+  const view = await missionProgress(user?.id ?? null, id);
+  if (!view) notFound();
+
+  const action = !view.mission.available ? null : user ? (
+    <Card className="flex flex-col gap-3">
+      <p>Aceite a missão para começar. Depois é só ir aos lugares e escanear o QR code no balcão de cada etapa.</p>
+      <AcceptMissionButton missionId={view.mission.id} title={view.mission.title} />
+    </Card>
+  ) : (
+    <ButtonLink href={`/entrar?next=${encodeURIComponent(`/missoes/${view.mission.id}`)}`} className="self-start">
+      Entre para aceitar
+    </ButtonLink>
+  );
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Link href="/missoes" className="inline-flex items-center gap-1 self-start text-sm font-medium text-muted hover:text-fg">
+        <ArrowLeft aria-hidden className="size-4" /> Missões
+      </Link>
+      {aceita && view.userMission && <FormAlert variant="success">Missão aceita! Boa exploração.</FormAlert>}
+      <MissionProgressPanel view={view} action={action} />
+    </div>
+  );
+}

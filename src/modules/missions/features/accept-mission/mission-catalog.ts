@@ -1,4 +1,5 @@
 import type { MissionPlace, MissionPlaces, MissionRecord, MissionRepository } from "../../domain/mission";
+import type { Progress, StepCompletionReader } from "../../domain/progress";
 import type { UserMission, UserMissionRepository } from "../../domain/user-mission";
 
 /** Card de missão para listas públicas: dados da missão + lugares das etapas (sem repetir). */
@@ -13,7 +14,7 @@ export type MissionCard = {
   places: MissionPlace[];
 };
 
-export type MyMission = MissionCard & { userMission: UserMission };
+export type MyMission = MissionCard & { userMission: UserMission; progress: Progress };
 
 const MAX_LISTED = 50;
 
@@ -51,15 +52,18 @@ export class ListMyMissions {
   constructor(
     private readonly missions: Pick<MissionRepository, "findByIds">,
     private readonly userMissions: Pick<UserMissionRepository, "listByUser">,
+    private readonly completions: Pick<StepCompletionReader, "countsByUserMission">,
     private readonly places: Pick<MissionPlaces, "summaries">,
   ) {}
 
   async execute(userId: string): Promise<MyMission[]> {
-    const accepted = await this.userMissions.listByUser(userId);
+    const [accepted, counts] = await Promise.all([this.userMissions.listByUser(userId), this.completions.countsByUserMission(userId)]);
     const cards = new Map((await toCards(await this.missions.findByIds(accepted.map((a) => a.missionId)), this.places)).map((c) => [c.id, c]));
     return accepted.flatMap((userMission) => {
       const card = cards.get(userMission.missionId);
-      return card ? [{ ...card, userMission }] : [];
+      if (!card) return [];
+      const done = Math.min(counts.get(userMission.id) ?? 0, card.stepCount);
+      return [{ ...card, userMission, progress: { done, total: card.stepCount, percent: card.stepCount ? Math.round((done / card.stepCount) * 100) : 0 } }];
     });
   }
 }

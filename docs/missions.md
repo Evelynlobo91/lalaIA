@@ -42,3 +42,17 @@ acontece num lugar e é comprovada por um **tipo de validação** (na POC, QR co
   definer: o dono não lê os aceites alheios) e um trigger impede mudar o XP. Título, descrição e
   janela continuam editáveis.
 - **RLS:** cada pessoa só lê e cria os próprios aceites, sempre como `active`.
+
+## Progresso da missão (#59, RF29)
+
+- `/missoes/<id>`: descrição, prazo, XP por etapa e bônus, **barra de progresso** (`role="progressbar"`)
+  e as etapas em ordem com status **Concluída / Próxima / Pendente**, a data de conclusão e o lugar de
+  cada etapa (link para `/lugares/<id>`; nome e bairro pela API pública de places, numa consulta só).
+- Visitante e quem não aceitou veem as etapas e o botão de aceitar. Missão fora do prazo ou encerrada
+  só aparece para quem já a aceitou; id inválido ou inexistente → 404.
+- O progresso é **derivado** de `missions.step_completions` (nunca um número guardado):
+  `progressOf` e `stepStates` são funções puras e testadas. O percentual também aparece em
+  "Suas missões ativas" e no perfil.
+- **`missions.step_completions` é append-only** (sem UPDATE/DELETE) com `unique (user_mission_id, step_id)`.
+  A RLS só deixa a pessoa gravar conclusões na **própria missão aceita e ativa**, com uma etapa **dessa
+  missão**, e só deixa marcar a missão como concluída quando **todas** as etapas foram concluídas.

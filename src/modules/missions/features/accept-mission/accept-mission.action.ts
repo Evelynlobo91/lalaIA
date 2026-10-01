@@ -18,9 +18,9 @@ const accept = formAction(
 export async function acceptMissionAction(previous: FormState<UserMission>, formData: FormData) {
   const state = await accept(previous, formData);
   if (state.status === "success") {
-    revalidatePath("/missoes");
+    revalidatePath("/missoes", "layout");
     revalidatePath("/perfil");
-    redirect(`/missoes?aceita=${state.data.missionId}`);
+    redirect(`/missoes/${state.data.missionId}?aceita=1`);
   }
   return state;
 }
