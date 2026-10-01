@@ -93,6 +93,23 @@ O módulo não tem tabelas. Ele lê tudo pelas APIs públicas (`index.ts`) de `p
   motor** e devolve o estado efetivo para marcar os chips.
 - **API:** `GET /api/recommendations/for-me` com os mesmos parâmetros (400 se inválidos), usando o perfil da sessão.
 
+## "Agora perto de você" (#75, RF37, RF40)
+
+- Seção na **home** (`/`): o que está acontecendo ou abre nas **próximas 3 horas**, ordenado pelo score, até 6 itens.
+  Cada card mostra tipo, distância, **há quanto tempo começou** ("Começou há 25 min"), selo **Live** e os motivos.
+- Usa os padrões do perfil (orçamento, raio, com quem sai). Sem localização: "Agora em Joinville", sem distância, com
+  o botão "Ver o que está perto" (`NearMeButton` com `target="/"`). Localização inválida → aviso, feed sem distância.
+- **Atualização em tempo real:** `FeedAutoRefresh` faz `router.refresh()` a cada minuto com a aba visível (e ao voltar
+  para a aba), atualizando tempos, aberturas/fechamentos e lives. Quando o módulo Live existir, o status pode chegar por
+  Supabase Realtime e disparar o mesmo `refresh` na hora; a porta `LiveStatusReader` já está no motor.
+- "Ajustar tempo e orçamento" leva a `/sugestoes` (preservando a localização).
+- **API:** `GET /api/recommendations/now?lat=&lon=`.
+
+## E2E
+
+`e2e/recomendacao.spec.ts`: feed da home com GPS (distância, "Começou há", motivo), localização fora da área,
+restrições em 3 toques com o estado na URL e validação das APIs.
+
 ## Privacidade (LGPD)
 
 A localização é opcional, pedida **só no toque** (`NearMeButton` de places), arredondada para 4 casas (~10 m)

@@ -1,9 +1,16 @@
 import { CalendarDays, MapPin, Sparkles } from "lucide-react";
 import { SearchBox } from "@/modules/discovery";
 import { ButtonLink, Card, CardDescription, CardTitle, EmptyState, FormAlert } from "@/shared/ui";
+import { RealtimeFeedSection, realtimeFeedView } from "@/modules/recommendation";
+import { ButtonLink, Card, CardDescription, CardTitle, EmptyState, FormAlert, OsmAttribution } from "@/shared/ui";
+
+// Feed "Agora perto de você": muda com a hora, a sessão e a localização.
+export const dynamic = "force-dynamic";
 
 export default async function ExplorarPage({ searchParams }: PageProps<"/">) {
-  const { "bem-vindo": bemVindo } = await searchParams;
+  const params = await searchParams;
+  const { "bem-vindo": bemVindo } = params;
+  const feed = await realtimeFeedView(params);
 
   return (
     <div className="flex flex-col gap-8">
@@ -27,6 +34,8 @@ export default async function ExplorarPage({ searchParams }: PageProps<"/">) {
         </ButtonLink>
       </Card>
 
+      <RealtimeFeedSection view={feed.view} invalid={feed.invalid} origin={feed.origin} />
+
       <section className="grid gap-4 md:grid-cols-2">
         <EmptyState
           icon={CalendarDays}
@@ -49,6 +58,7 @@ export default async function ExplorarPage({ searchParams }: PageProps<"/">) {
           }
         />
       </section>
+      <OsmAttribution className="text-center" />
     </div>
   );
 }

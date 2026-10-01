@@ -1,6 +1,8 @@
 // API pública do módulo recommendation (motor de recomendação, epic #11).
 import { getCurrentUser } from "@/modules/identity";
-import { findCandidates, recommendationEngine, recommendNow, recommendWithConstraints } from "./composition";
+import { findCandidates, realtimeFeed, recommendationEngine, recommendNow, recommendWithConstraints } from "./composition";
+import { realtimeFeedRoute } from "./features/realtime-feed/realtime-feed.route";
+import { realtimeFeedSchema } from "./features/realtime-feed/realtime-feed.schema";
 import { CONSTRAINED_LIMIT, recConstraintsRoute } from "./features/rec-constraints/rec-constraints.route";
 import { parseConstraintParams } from "./features/rec-constraints/rec-constraints.schema";
 import { recCandidatesRoute } from "./features/rec-candidates/rec-candidates.route";
@@ -13,6 +15,8 @@ export type { TasteProfile } from "./domain/taste-profile";
 export type { RecommendationItem } from "./features/rec-score/recommendation-item";
 export { RecommendationCard, RecommendationList } from "./features/rec-score/ui/recommendation-card";
 export { ConstraintsForm, constraintsSummary } from "./features/rec-constraints/ui/constraints-form";
+export { RealtimeFeedSection } from "./features/realtime-feed/ui/realtime-feed-section";
+export type { RealtimeFeedView } from "./features/realtime-feed/realtime-feed.use-case";
 export type { ConstraintState } from "./features/rec-constraints/rec-constraints.use-case";
 
 /**
@@ -34,6 +38,19 @@ export async function constrainedRecommendations(params: Record<string, string |
   return { invalid, ...result.value };
 }
 
+/**
+ * RF37/RF40 — Feed "Agora perto de você" (home), com lat/lon opcionais da URL.
+ * Localização inválida ou fora de Joinville → `invalid` com a mensagem, e o feed segue sem distância.
+ */
+export async function realtimeFeedView(params: Record<string, string | string[] | undefined>) {
+  const single = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
+  const parsed = realtimeFeedSchema.safeParse({ lat: single(params.lat), lon: single(params.lon) });
+  const origin = parsed.success ? parsed.data.origin : null;
+  const result = await realtimeFeed().execute({ userId: await currentUserId(), origin });
+  if (!result.ok) throw result.error;
+  return { invalid: parsed.success ? null : (parsed.error.issues[0]?.message ?? "Localização inválida."), view: result.value, origin };
+}
+
 export const recommendationApi = {
   /** GET /api/recommendations/candidates — candidatos viáveis agora (camada 1, sem ranking). */
   candidates: recCandidatesRoute(findCandidates),
@@ -41,4 +58,6 @@ export const recommendationApi = {
   recommendations: recScoreRoute(recommendNow, currentUserId),
   /** GET /api/recommendations/for-me — com as restrições do formulário e os padrões do perfil. */
   forMe: recConstraintsRoute(recommendWithConstraints, currentUserId),
+  /** GET /api/recommendations/now?lat=&lon= — feed "Agora perto de você". */
+  now: realtimeFeedRoute(realtimeFeed, currentUserId),
 };

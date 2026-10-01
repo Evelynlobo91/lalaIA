@@ -10,6 +10,7 @@ import type { CandidateSource } from "./domain/candidate-source";
 import { Ranker } from "./domain/score";
 import { resolveWeights } from "./domain/score-weights";
 import { defaultSignals } from "./domain/signals";
+import { RealtimeFeed } from "./features/realtime-feed/realtime-feed.use-case";
 import { FindCandidates } from "./features/rec-candidates/rec-candidates.use-case";
 import { RecommendWithConstraints } from "./features/rec-constraints/rec-constraints.use-case";
 import { RecommendNow } from "./features/rec-score/rec-score.use-case";
@@ -46,3 +47,5 @@ export const recommendationEngine = lazy(() => new RecommendationEngine(findCand
 export const recommendNow = lazy(() => new RecommendNow(tasteProfiles(), recommendationEngine()));
 
 export const recommendWithConstraints = lazy(() => new RecommendWithConstraints(recommendNow()));
+
+export const realtimeFeed = lazy(() => new RealtimeFeed(recommendNow()));
