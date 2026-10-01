@@ -3,7 +3,7 @@
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { startTransition, useActionState, useId, useState, type FormEvent, type ReactNode } from "react";
 import { idleFormState, type FormState } from "@/shared/http/form-state";
-import { Button, FormAlert, TextField } from "@/shared/ui";
+import { Button, Checkbox, FormAlert, TextField } from "@/shared/ui";
 import { DWELL_MINUTES, GEOFENCE_RADIUS_METERS } from "../../../domain/geofence";
 import { MAX_STEPS, MAX_XP, MIN_XP, validationKinds, type MissionRecord, type ValidationKind } from "../../../domain/mission";
 import { saveMissionAction } from "../manage-missions.actions";
@@ -30,6 +30,8 @@ export type MissionFormValues = {
   startsAt: string;
   endsAt: string;
   steps: MissionFormStep[];
+  /** Missão surpresa (#63). Vem como "on" do formulário quando marcada. */
+  surprise?: boolean | string;
 };
 export type PlaceOption = { id: string; label: string };
 
@@ -116,6 +118,12 @@ export function MissionForm({ initial, placeOptions, submitLabel, stepsLocked = 
         <TextField label="Termina em" name="endsAt" type="datetime-local" required defaultValue={values.endsAt} errors={errors.endsAt} />
       </div>
       <p className="-mt-3 text-sm text-muted">Horário de Joinville.</p>
+
+      <Checkbox
+        name="surprise"
+        label="Missão surpresa: não aparece na lista; é oferecida a quem estiver a até 1 km da primeira etapa, vale por 30 minutos e revela as etapas uma por vez."
+        defaultChecked={values.surprise === true || values.surprise === "on"}
+      />
 
       <fieldset className="flex flex-col gap-3" aria-describedby={errors.steps ? `${id}-erros-etapas` : undefined}>
         <legend className="mb-1 text-lg font-semibold">Etapas</legend>

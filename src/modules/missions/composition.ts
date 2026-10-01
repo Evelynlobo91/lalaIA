@@ -5,6 +5,8 @@ import type { GeolocationConsent, PlaceDistance } from "./domain/geofence";
 import { GeofenceCheck, GeofenceValidator, QrAndGeofenceValidator } from "./features/geofence-validation/geofence-validator";
 import { GeofenceCheckIn } from "./features/geofence-validation/geofence-validation.use-case";
 import { PostgresGeofenceAttemptLog } from "./infra/postgres-geofence-attempt-log";
+import { OfferSurpriseMission, RespondSurpriseOffer } from "./features/surprise-missions/surprise-missions.use-case";
+import { PostgresSurpriseOfferRepository } from "./infra/postgres-surprise-offer-repository";
 import { publicEnv } from "@/shared/config/public-env";
 import { sql } from "@/shared/db/sql";
 import { domainEvents } from "@/shared/events";
@@ -40,7 +42,14 @@ export const acceptMission = lazy(() => new AcceptMission(missionRepository(), u
 export const listAvailableMissions = lazy(() => new ListAvailableMissions(missionRepository(), missionPlaces));
 export const listMyMissions = lazy(() => new ListMyMissions(missionRepository(), userMissionRepository(), stepCompletionRepository(), missionPlaces));
 export const missionExploration = lazy(() => new GetMissionExploration(new PostgresMissionExplorationReader(sql())));
-export const getMissionProgress = lazy(() => new GetMissionProgress(missionRepository(), userMissionRepository(), stepCompletionRepository(), missionPlaces));
+export const surpriseOfferRepository = lazy(() => new PostgresSurpriseOfferRepository(sql()));
+export const getMissionProgress = lazy(
+  () => new GetMissionProgress(missionRepository(), userMissionRepository(), stepCompletionRepository(), missionPlaces, surpriseOfferRepository()),
+);
+
+// Missões surpresa (#63): gatilho por proximidade (PostGIS via places) e horário; aceitar ou ignorar.
+export const offerSurpriseMission = lazy(() => new OfferSurpriseMission(missionRepository(), surpriseOfferRepository(), userMissionRepository(), placeDistances));
+export const respondSurpriseOffer = lazy(() => new RespondSurpriseOffer(missionRepository(), surpriseOfferRepository(), userMissionRepository()));
 
 // Validação de etapa: uma estratégia por tipo (OCP): QR, GPS (#61) e QR + GPS.
 export const stepTokens = lazy(() => new HmacStepTokens(missionsQrSecret()));

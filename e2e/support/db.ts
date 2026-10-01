@@ -73,14 +73,17 @@ export function createTestMission(opts: {
   steps: Array<{ title: string; placeId: string; validation?: "qr" | "gps" | "qr_gps"; radiusMeters?: number; dwellMinutes?: number }>;
   startsInHours?: number;
   endsInHours?: number;
+  /** Missão surpresa (#63): fora da lista, oferecida por proximidade. */
+  surprise?: boolean;
 }): Promise<{ missionId: string; stepIds: string[] }> {
   return withDb((sql) =>
     sql.begin(async (tx) => {
       const [mission] = await tx<{ id: string }[]>`
-        insert into missions.missions (owner_id, title, description, xp, starts_at, ends_at)
+        insert into missions.missions (owner_id, title, description, xp, starts_at, ends_at, surprise)
         select id, ${opts.title}, 'Missão criada pelos testes automatizados.', ${opts.xp ?? 100},
                now() + make_interval(mins => ${Math.round((opts.startsInHours ?? -1) * 60)}),
-               now() + make_interval(mins => ${Math.round((opts.endsInHours ?? 72) * 60)})
+               now() + make_interval(mins => ${Math.round((opts.endsInHours ?? 72) * 60)}),
+               ${opts.surprise ?? false}
         from auth.users where lower(email) = ${opts.ownerEmail.toLowerCase()}
         returning id`;
       const stepIds: string[] = [];

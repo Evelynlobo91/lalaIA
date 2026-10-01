@@ -1,4 +1,4 @@
-import { CalendarClock, MapPin } from "lucide-react";
+import { CalendarClock, MapPin, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { formatDateTime } from "@/shared/time/joinville-time";
@@ -19,9 +19,10 @@ export function MissionCardView({ mission, footer, badge }: { mission: MissionCa
       </div>
       <p className="line-clamp-3 text-sm">{mission.description}</p>
       <p className="flex items-start gap-1.5 text-sm text-muted">
-        <MapPin aria-hidden className="mt-0.5 size-4 shrink-0" />
+        {mission.surprise ? <Sparkles aria-hidden className="mt-0.5 size-4 shrink-0" /> : <MapPin aria-hidden className="mt-0.5 size-4 shrink-0" />}
         <span>
-          {mission.stepCount} {mission.stepCount === 1 ? "etapa" : "etapas"}: {mission.places.map((p) => p.name).join(", ")}
+          {mission.stepCount} {mission.stepCount === 1 ? "etapa" : "etapas"}
+          {mission.surprise ? " surpresa: reveladas uma por vez" : `: ${mission.places.map((p) => p.name).join(", ")}`}
         </span>
       </p>
       <p className="flex items-center gap-1.5 text-sm text-muted">

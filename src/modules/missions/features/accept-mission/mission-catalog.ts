@@ -11,7 +11,9 @@ export type MissionCard = {
   startsAt: Date;
   endsAt: Date;
   stepCount: number;
+  /** Lugares das etapas, sem repetir. Vazio nas missões surpresa (#63): as etapas se revelam na tela da missão. */
   places: MissionPlace[];
+  surprise: boolean;
 };
 
 export type MyMission = MissionCard & { userMission: UserMission; progress: Progress };
@@ -20,9 +22,10 @@ const MAX_LISTED = 50;
 
 /** Monta os cards buscando os lugares de todas as missões numa consulta só. */
 export async function toCards(missions: MissionRecord[], places: Pick<MissionPlaces, "summaries">): Promise<MissionCard[]> {
-  const found = await places.summaries([...new Set(missions.flatMap((m) => m.steps.map((s) => s.placeId)))]);
+  const found = await places.summaries([...new Set(missions.filter((m) => !m.surprise).flatMap((m) => m.steps.map((s) => s.placeId)))]);
   const byId = new Map(found.map((p) => [p.id, { id: p.id, name: p.name, neighborhood: p.neighborhood }]));
   return missions.map((m) => ({
+    surprise: m.surprise ?? false,
     id: m.id,
     title: m.title,
     description: m.description,
@@ -30,7 +33,7 @@ export async function toCards(missions: MissionRecord[], places: Pick<MissionPla
     startsAt: m.startsAt,
     endsAt: m.endsAt,
     stepCount: m.steps.length,
-    places: [...new Set(m.steps.map((s) => s.placeId))].flatMap((id) => byId.get(id) ?? []),
+    places: m.surprise ? [] : [...new Set(m.steps.map((s) => s.placeId))].flatMap((id) => byId.get(id) ?? []),
   }));
 }
 

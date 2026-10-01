@@ -78,6 +78,11 @@ export const missionSchema = z
     startsAt: localDateTime("quando a missão começa"),
     endsAt: localDateTime("quando a missão termina"),
     steps,
+    /** Checkbox: "on" quando marcada, ausente quando não (#63). */
+    surprise: z
+      .string()
+      .optional()
+      .transform((v) => v === "on" || v === "true"),
   })
   .superRefine((v, ctx) => {
     if (v.endsAt <= v.startsAt) ctx.addIssue({ code: "custom", path: ["endsAt"], message: "O fim precisa ser depois do início." });

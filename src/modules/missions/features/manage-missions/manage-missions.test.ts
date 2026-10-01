@@ -103,6 +103,7 @@ describe("SaveMission / ArchiveMission", () => {
     findById: vi.fn().mockResolvedValue(record()),
     listByOwner: vi.fn(),
     listAvailable: vi.fn(),
+    listAvailableSurprises: vi.fn(),
     findByIds: vi.fn(),
     findByStepId: vi.fn(),
     create: vi.fn().mockResolvedValue(record()),

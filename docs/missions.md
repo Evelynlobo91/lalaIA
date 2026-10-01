@@ -150,6 +150,38 @@ No CI de E2E é gerada aleatoriamente a cada execução.
 
 Publicados **depois** de gravar. Missões não concedem XP: quem credita é o módulo `progression`.
 
+## Missões surpresa (#63, RF35)
+
+```
+/missoes ─► "Procurar missão surpresa por perto" (GPS só no toque; respeita lalaia-geo)
+   ► POST { lat, lon } ► OfferSurpriseMission.findNear
+        surpresas no prazo ► tira as já oferecidas/aceitas, as próprias e as que acabam em < 1 h
+        ► distância PostGIS até a 1ª etapa (placeDistances) ≤ 1 km ► a mais perto
+   ► surprise_offers (vale 30 min) ► card "Aceite até 15:40" com Aceitar surpresa / Ignorar
+   ► Aceitar ► user_missions + oferta "accepted" (mesma transação) ► /missoes/<id>: etapas uma por vez
+```
+
+- **O parceiro marca a missão como surpresa** no formulário (`missions.surprise`). Ela **sai da lista pública**
+  (`listAvailable` filtra; logo também sai dos candidatos da recomendação) e o link direto dá **404** para quem não
+  tem aceite nem oferta aberta (não revela que existe).
+- **Gatilho por proximidade e horário:** a primeira etapa a até **1 km** (`SURPRISE_RADIUS_METERS`), missão no prazo
+  e com pelo menos **1 h** pela frente (`SURPRISE_MIN_REMAINING_MINUTES`). Entre as elegíveis, a mais perto.
+- **Validade curta:** a oferta vale **30 min** (`SURPRISE_OFFER_MINUTES`), nunca depois do fim da missão. O banco
+  limita a 2 h e grava o `offered_at` com o horário dele.
+- **Aceitar ou ignorar:** uma oferta por pessoa e missão (`unique`); ignorada ou vencida, **não volta**. Enquanto há
+  uma oferta aberta, procurar de novo devolve a mesma. Com 5 missões em andamento, não oferece.
+- **Etapas escondidas:** antes do aceite, a tela mostra título, descrição, XP, quantas etapas e a distância até a
+  primeira, mas **nenhuma etapa nem lugar**. Depois do aceite, `revealedStepIds` revela as concluídas e **a próxima**;
+  as seguintes aparecem como "Etapa surpresa" (os lugares escondidos nem são consultados nem saem do servidor).
+  Nos cards de "Suas missões ativas" e no perfil, a surpresa não lista lugares.
+- **Segurança:** `AcceptMission` recusa missão surpresa (`surprise_requires_offer`) e a **RLS de `user_missions`**
+  só aceita missão surpresa com uma oferta aberta da própria pessoa. `surprise_offers` tem RLS (só a própria; não
+  recebe oferta da própria missão nem de missão comum; aceitar só antes de expirar; resposta não volta a "offered").
+  Actions com `withUser`; a posição vive só na requisição (não é gravada nem logada).
+- **Motor de recomendação:** o módulo `recommendation` depende de `missions` (fonte de candidatos), então `missions`
+  não pode chamar o motor sem criar um ciclo. A surpresa usa os mesmos sinais objetivos (proximidade por PostGIS e
+  disponibilidade no horário); as missões comuns seguem ranqueadas pelo motor (#64).
+
 ## Livro-razão de XP (#65, RF31) — módulo `progression`
 
 - `progression.xp_transactions` é **append-only**: um trigger recusa `UPDATE`, `DELETE` e `TRUNCATE`

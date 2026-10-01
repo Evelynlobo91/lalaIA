@@ -1,4 +1,4 @@
-import { CalendarClock, CheckCircle2, Circle, CircleDot, LocateFixed, MapPin, QrCode } from "lucide-react";
+import { CalendarClock, CheckCircle2, Circle, CircleDot, LocateFixed, MapPin, QrCode, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { formatDateTime } from "@/shared/time/joinville-time";
@@ -22,6 +22,11 @@ export function MissionProgressPanel({ view, action }: { view: MissionProgressVi
       <header className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="brand">{mission.xp} XP</Badge>
+          {mission.surprise && (
+            <Badge variant="accent">
+              <Sparkles aria-hidden className="size-3.5" /> Missão surpresa
+            </Badge>
+          )}
           {completed ? <Badge variant="success">Missão concluída</Badge> : userMission ? <Badge variant="accent">Em andamento</Badge> : null}
           {!mission.available && !completed && <Badge variant="danger">Fora do prazo</Badge>}
         </div>
@@ -75,7 +80,11 @@ export function MissionProgressPanel({ view, action }: { view: MissionProgressVi
                     </h3>
                     {userMission && <Badge variant={step.state === "done" ? "success" : step.state === "next" ? "accent" : "neutral"}>{stateLabel[step.state]}</Badge>}
                   </div>
-                  {step.place ? (
+                  {step.hidden ? (
+                    <span className="flex items-center gap-1.5 text-sm text-muted">
+                      <Sparkles aria-hidden className="size-4 shrink-0" /> {userMission ? "Revelada quando chegar a vez dela." : "Revelada depois do aceite."}
+                    </span>
+                  ) : step.place ? (
                     <Link href={`/lugares/${step.place.id}`} className="flex items-center gap-1.5 text-sm font-medium text-brand underline">
                       <MapPin aria-hidden className="size-4 shrink-0" />
                       {step.place.name}
@@ -84,12 +93,12 @@ export function MissionProgressPanel({ view, action }: { view: MissionProgressVi
                   ) : (
                     <span className="text-sm text-muted">Lugar indisponível</span>
                   )}
-                  {step.completedAt ? (
+                  {step.hidden ? null : step.completedAt ? (
                     <span className="text-sm text-muted">Concluída em {formatDateTime(step.completedAt)}</span>
                   ) : (
                     <StepHint step={step} />
                   )}
-                  {canCheckIn && step.state === "next" && step.validation === "gps" && (
+                  {canCheckIn && !step.hidden && step.state === "next" && step.validation === "gps" && (
                     <div className="mt-2">
                       <GeofenceCheckInButton stepId={step.id} radiusMeters={step.geofence?.radiusMeters ?? GEOFENCE_RADIUS_METERS.default} />
                     </div>

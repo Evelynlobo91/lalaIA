@@ -40,6 +40,11 @@ export type MissionDraft = {
   startsAt: Date;
   endsAt: Date;
   steps: StepDraft[];
+  /**
+   * Missão surpresa (#63): fora da lista pública; oferecida a quem está perto, com validade curta.
+   * As etapas só se revelam depois do aceite, uma por vez. Ausente = false.
+   */
+  surprise?: boolean;
 };
 
 export type MissionStep = StepDraft & { id: string; missionId: string; position: number };
@@ -78,8 +83,10 @@ export function xpSplit(total: number, stepCount: number): { perStep: number; co
 export interface MissionRepository {
   findById(id: string): Promise<MissionRecord | null>;
   listByOwner(ownerId: string): Promise<MissionRecord[]>;
-  /** Ativas e dentro da janela em `now`, das que terminam antes para as que terminam depois. */
+  /** Ativas, dentro da janela em `now` e NÃO surpresa, das que terminam antes para as que terminam depois. */
   listAvailable(now: Date, limit: number): Promise<MissionRecord[]>;
+  /** Missões surpresa ativas e dentro da janela em `now` (#63). */
+  listAvailableSurprises(now: Date, limit: number): Promise<MissionRecord[]>;
   findByIds(ids: string[]): Promise<MissionRecord[]>;
   /** Missão (com todas as etapas) à qual a etapa pertence. */
   findByStepId(stepId: string): Promise<MissionRecord | null>;

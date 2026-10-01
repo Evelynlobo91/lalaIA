@@ -1,7 +1,7 @@
 // API pública do módulo missions (missões urbanas).
 import { cache } from "react";
 import { toLocalInput } from "@/shared/time/joinville-time";
-import { geofenceAttempts, getMissionProgress, listAvailableMissions, missionExploration, listMyMissions, missionPlaces, missionRepository, qrStepValidation, stepQrCodes, userMissionRepository } from "./composition";
+import { geofenceAttempts, getMissionProgress, listAvailableMissions, offerSurpriseMission, missionExploration, listMyMissions, missionPlaces, missionRepository, qrStepValidation, stepQrCodes, userMissionRepository } from "./composition";
 import { qrModeSchema, qrTokenSchema } from "./features/qr-validation/qr-validation.schema";
 import "./domain/events";
 import { missionIdSchema } from "./features/mission-progress/mission-progress.schema";
@@ -12,6 +12,11 @@ export { MissionForm, type MissionFormValues, type PlaceOption } from "./feature
 export { ArchiveMissionButton } from "./features/manage-missions/ui/archive-mission-button";
 export { allowsRealReward, isAvailable, xpSplit, type MissionRecord, type MissionStatus, type MissionStep, type StepGeofence, type ValidationKind } from "./domain/mission";
 export { GEOFENCE_RADIUS_METERS, MAX_ACCURACY_METERS } from "./domain/geofence";
+export { SURPRISE_OFFER_MINUTES, SURPRISE_RADIUS_METERS } from "./domain/surprise";
+export type { SurpriseTeaser } from "./features/surprise-missions/surprise-missions.use-case";
+export { SurpriseFinder } from "./features/surprise-missions/ui/surprise-finder";
+export { SurpriseOfferCard } from "./features/surprise-missions/ui/surprise-offer-card";
+export { SurpriseOfferButtons } from "./features/surprise-missions/ui/surprise-offer-buttons";
 export { MAX_ACTIVE_MISSIONS, type UserMission, type UserMissionStatus } from "./domain/user-mission";
 export type { MissionCard, MyMission } from "./features/accept-mission/mission-catalog";
 export { MissionCardView } from "./features/accept-mission/ui/mission-card";
@@ -67,6 +72,11 @@ export function missionExplorationOf(userId: string) {
  */
 export function myGeofenceCheckIns(userId: string) {
   return geofenceAttempts().listByUser(userId);
+}
+
+/** Missões surpresa oferecidas à pessoa e ainda abertas (#63). Só leitura: a oferta nasce no POST "Procurar". */
+export function openSurpriseOffers(userId: string) {
+  return offerSurpriseMission().listOpen(userId);
 }
 
 /** Missões aceitas pelo usuário (ativas e concluídas). O id vem sempre da sessão. */
@@ -131,6 +141,7 @@ export async function editableMission(editor: { id: string; isAdmin: boolean }, 
       xp: String(mission.xp),
       startsAt: toLocalInput(mission.startsAt),
       endsAt: toLocalInput(mission.endsAt),
+      surprise: mission.surprise ?? false,
       steps: mission.steps.map((s) => ({
         title: s.title,
         placeId: s.placeId,
