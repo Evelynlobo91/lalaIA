@@ -64,6 +64,13 @@ export function createTestEvent(opts: {
   });
 }
 
+/** Torna o usuário responsável pelo lugar (como se o vínculo tivesse sido aprovado). */
+export function assignPlaceTo(user: Pick<TestUser, "email">, placeId: string) {
+  return withDb(
+    (sql) => sql`update places.places set managed_by = (select id from auth.users where lower(email) = ${user.email.toLowerCase()}) where id = ${placeId}`,
+  );
+}
+
 /** Parceiro já aprovado (cadastro + papel), para testes do portal. */
 export async function createApprovedPartner(user: Pick<TestUser, "email">, businessName = "Bar do Teste") {
   await withDb(
