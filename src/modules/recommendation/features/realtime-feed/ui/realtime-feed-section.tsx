@@ -39,7 +39,7 @@ export function RealtimeFeedSection({ view, invalid, origin }: { view: RealtimeF
           description="Veja a agenda completa ou ajuste o tempo e o orçamento."
           action={
             <ButtonLink href="/eventos" variant="secondary" size="sm">
-              Ver eventos
+              Ver a agenda
             </ButtonLink>
           }
         />
