@@ -1,4 +1,5 @@
 import { CalendarDays, MapPin, Sparkles } from "lucide-react";
+import { SearchBox } from "@/modules/discovery";
 import { ButtonLink, Card, CardDescription, CardTitle, EmptyState, FormAlert } from "@/shared/ui";
 
 export default async function ExplorarPage({ searchParams }: PageProps<"/">) {
@@ -12,6 +13,7 @@ export default async function ExplorarPage({ searchParams }: PageProps<"/">) {
         <p className="text-sm font-medium text-muted">Joinville agora</p>
         <h1 className="text-3xl font-bold leading-tight md:text-4xl">O que você quer fazer hoje?</h1>
         <p className="max-w-xl text-muted">Descubra lugares, eventos e experiências que combinam com você. Descobrir → Ver → Decidir → Viver.</p>
+        <SearchBox className="mt-2 max-w-xl" />
       </section>
 
       <Card className="flex flex-col gap-4 border-none bg-brand text-brand-fg md:flex-row md:items-center md:justify-between">

@@ -10,6 +10,8 @@ import type { EventRecord } from "./domain/event";
 import type { EventSummary } from "./features/event-summaries/event-summaries";
 
 export type { EventSummary } from "./features/event-summaries/event-summaries";
+import { searchEvents as searchEventsUseCase } from "./composition";
+import type { EventSearchCriteria } from "./features/search-events/search-events";
 
 export { EventForm, type EventFormValues } from "./features/manage-events/ui/event-form";
 export { CancelEventButton } from "./features/manage-events/ui/cancel-event-button";
@@ -109,3 +111,12 @@ export const getEventDetail = cache(async (id: string) => {
   const result = await eventDetailUseCase().execute(id);
   return result.ok ? result.value : null;
 });
+
+// Busca (RF04/RF05), consumida pelo módulo discovery.
+export type { EventSearchCriteria } from "./features/search-events/search-events";
+export { dateFilterParam, dateWindow, dateFilterLabels, dateFilterValue, type DateWindow } from "./domain/date-window";
+
+/** Busca de eventos por texto e filtros, por início e paginada por cursor opaco. */
+export function searchEvents(criteria: EventSearchCriteria) {
+  return searchEventsUseCase().execute(criteria);
+}

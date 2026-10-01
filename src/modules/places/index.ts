@@ -20,6 +20,8 @@ import { PostgresPlaceOwnershipRepository } from "./infra/postgres-place-ownersh
 import { scheduleFromOsm } from "./domain/weekly-schedule";
 import type { Coordinates } from "./domain/place";
 import { searchPlacesRoute } from "./features/search-by-name/search-by-name.route";
+import { SearchPlaces, type PlaceSearchCriteria } from "./features/search-places/search-places";
+import { PostgresPlaceSearch } from "./infra/postgres-place-search";
 
 export type { PlaceDraft, Address, Coordinates } from "./domain/place";
 export type { PlaceListItem, PlaceListPage } from "./features/list-places/list-places.use-case";
@@ -130,3 +132,12 @@ export async function editablePlace(editor: Editor, placeId: string) {
 export const subscriptions: ModuleSubscriptions = (bus) => {
   bus.subscribe("partners.PlaceClaimApproved", (event) => new AssignPlaceOwner(ownership()).execute(event.payload.placeId, event.payload.userId));
 };
+
+// Busca (RF04/RF05), consumida pelo módulo discovery.
+export type { PlaceSearchCriteria } from "./features/search-places/search-places";
+const placeSearch = lazy(() => new SearchPlaces(new PostgresPlaceSearch(sql())));
+
+/** Busca de lugares por texto e filtros, em ordem alfabética e paginada por cursor opaco. */
+export function searchPlaces(criteria: PlaceSearchCriteria) {
+  return placeSearch().execute(criteria);
+}

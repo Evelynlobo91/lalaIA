@@ -12,6 +12,8 @@ import { ListEvents } from "./features/list-events/list-events";
 import { GetEventDetail, type EventPlaceDetails } from "./features/event-detail/event-detail";
 import { GetEventSummaries } from "./features/event-summaries/event-summaries";
 import { HappeningNow, type EventPlaceDistances } from "./features/happening-now/happening-now.use-case";
+import { SearchEvents } from "./features/search-events/search-events";
+import { PostgresEventSearch } from "./infra/postgres-event-search";
 
 const placesLookup: EventPlaceLookup = { summary: placeSummary };
 
@@ -35,3 +37,6 @@ export const getEventSummaries = lazy(() => new GetEventSummaries(eventReader(),
 
 const distances: EventPlaceDistances = { distances: placeDistances, format: formatDistance };
 export const happeningNow = lazy(() => new HappeningNow(eventReader(), placeNames, distances));
+
+// Busca (RF04/RF05), consumida pelo módulo discovery.
+export const searchEvents = lazy(() => new SearchEvents(new PostgresEventSearch(sql()), placeNames));
