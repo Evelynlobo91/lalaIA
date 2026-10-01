@@ -7,14 +7,19 @@ import { ProvisionStreamButton } from "./provision-stream-button";
 import { StreamControls } from "../../stream-control/ui/stream-controls";
 import { StreamKeyField } from "./stream-key-field";
 import { StreamNoteForm } from "../../stream-context/ui/stream-note-form";
+import { StreamMetricsLine } from "../../stream-metrics/ui/stream-metrics-line";
+import type { StreamMetrics } from "../../stream-metrics/stream-metrics.use-case";
 
 export function StreamStatusBadge({ status }: { status: StreamStatus }) {
   if (status === "live") return <LiveBadge />;
   return <Badge variant={status === "ended" ? "danger" : status === "paused" ? "warning" : "neutral"}>{STATUS_LABELS[status]}</Badge>;
 }
 
-/** Lugares e eventos do parceiro, cada um com a sua transmissão (ou o botão para gerar a chave). */
-export function LiveTargetsList({ targets }: { targets: LiveTargetView[] }) {
+/**
+ * Lugares e eventos do parceiro, cada um com a sua transmissão (ou o botão para gerar a chave).
+ * `metrics` (opcional, por id da transmissão): quantas vezes assistiram e acessos à página (#54).
+ */
+export function LiveTargetsList({ targets, metrics = {} }: { targets: LiveTargetView[]; metrics?: Record<string, StreamMetrics> }) {
   if (targets.length === 0) {
     return (
       <EmptyState
@@ -48,6 +53,7 @@ export function LiveTargetsList({ targets }: { targets: LiveTargetView[] }) {
               <>
                 <StreamControls streamId={t.stream.id} status={t.stream.status} label={t.label} />
                 {t.stream.status !== "ended" && <StreamNoteForm streamId={t.stream.id} note={t.stream.note} label={t.label} />}
+                {metrics[t.stream.id] && <StreamMetricsLine metrics={metrics[t.stream.id]!} label={t.label} />}
                 <StreamKeyField streamId={t.stream.id} />
               </>
             ) : (

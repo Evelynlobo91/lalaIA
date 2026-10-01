@@ -187,6 +187,23 @@ público de status (veja "Evolução" no #51) e aplicar no mesmo conjunto, mante
   só `control`, `status_note` e `status_note_updated_at` mudam.
 - "Há quanto tempo" conta desde a última vez que o sinal entrou no ar; pausar e voltar não reinicia a contagem.
 
+## Métricas da transmissão (#54, RF25)
+
+`features/stream-metrics`. No portal (`/parceiro/live`), cada transmissão mostra:
+
+| Métrica | De onde vem |
+|---------|-------------|
+| **Assistiram** (total e últimos 7 dias) | `live_view` com `entityType: "live"` e o id da transmissão: o player registra quando o vídeo começa a tocar, uma vez por aba (#50) |
+| **Acessos à página** (total e últimos 7 dias) | `view` do lugar/evento: a página onde fica o player |
+
+- `GetStreamMetrics` lê as transmissões do próprio parceiro e chama a porta `InteractionCounter`,
+  implementada por `AnalyticsInteractionCounter` com a API pública `interactionTotals` do Analytics
+  (uma consulta agregada pelo índice por entidade). São até seis consultas, em paralelo. A resposta
+  do Analytics é validada com zod.
+- **Sem dados pessoais:** o Analytics não guarda quem fez (LGPD). O portal só mostra contagens e diz isso.
+- Se o Analytics falhar, o portal abre sem métricas (erro logado e reportado).
+- **Pendência:** pico de espectadores simultâneos via API do provedor (Mux Data). Fica para depois da POC.
+
 ## Configurar o Mux
 
 1. Crie uma conta em [mux.com](https://mux.com) e um **Environment** (ex.: Production).

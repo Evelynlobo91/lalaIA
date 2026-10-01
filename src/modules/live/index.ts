@@ -1,7 +1,7 @@
 // API pública do módulo live (transmissões ao vivo de lugares e eventos).
 import { hasRole, type CurrentUser } from "@/modules/identity";
 import type { ModuleSubscriptions } from "@/shared/events";
-import { endStreamOfCancelledEvent, getActiveStreams, getLiveNowGeo, getLiveStatus, handleProviderWebhook, listActiveStreamsUseCase, listLiveNow, listLiveTargets } from "./composition";
+import { endStreamOfCancelledEvent, getActiveStreams, getStreamMetrics, getLiveNowGeo, getLiveStatus, handleProviderWebhook, listActiveStreamsUseCase, listLiveNow, listLiveTargets } from "./composition";
 import { liveNowRoute } from "./features/live-badge/live-badge.route";
 import type { LiveNowItem } from "./features/live-badge/live-badge.use-case";
 import { errorReporter, logger } from "@/shared/observability";
@@ -11,11 +11,13 @@ import { eventCancelledSchema } from "./features/stream-control/stream-control.s
 import { webhooksRoute } from "./features/webhooks/webhooks.route";
 import "./domain/events";
 import type { LivePortalView } from "./features/stream-key/stream-key.use-case";
+import type { StreamMetrics } from "./features/stream-metrics/stream-metrics.use-case";
 
 export { LiveTargetsList, StreamStatusBadge } from "./features/stream-key/ui/live-targets-list";
 export { BroadcastInstructions } from "./features/stream-key/ui/broadcast-instructions";
 export { LivePrivacyNotice } from "./features/stream-key/ui/live-privacy-notice";
 export type { LivePortalView, LiveTargetView } from "./features/stream-key/stream-key.use-case";
+export type { StreamMetrics } from "./features/stream-metrics/stream-metrics.use-case";
 export { LivePlayerFor } from "./features/player/ui/live-player-for";
 export type { ActiveStream, LivePlayback } from "./features/player/player.use-case";
 export type { LiveStatusView } from "./features/stream-states/stream-states.use-case";
@@ -28,6 +30,20 @@ export { STATUS_LABELS, type StreamStatus, type StreamEntityType } from "./domai
 /** Portal /parceiro/live: lugares e eventos do parceiro com a transmissão de cada um (sem a chave). */
 export function livePortal(user: CurrentUser): Promise<LivePortalView> {
   return listLiveTargets().execute({ id: user.id, isPartner: hasRole(user, "partner"), isAdmin: hasRole(user, "admin") });
+}
+
+/**
+ * Métricas das transmissões do parceiro (RF25), por id da transmissão: quantas vezes assistiram e acessos à
+ * página. Só contagens (o Analytics não guarda quem). Se o Analytics falhar, o portal segue sem métricas.
+ */
+export async function liveMetrics(user: CurrentUser): Promise<Record<string, StreamMetrics>> {
+  try {
+    return await getStreamMetrics().execute({ id: user.id, isPartner: hasRole(user, "partner"), isAdmin: hasRole(user, "admin") });
+  } catch (error) {
+    logger().error("falha ao carregar as métricas da live", { err: error });
+    errorReporter().capture(error);
+    return {};
+  }
 }
 
 /** Transmissões ao vivo agora (para Recomendação e Mapa). Só ids: quem chama busca os próprios dados. */

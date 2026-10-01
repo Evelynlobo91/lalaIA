@@ -36,6 +36,17 @@ registrados de forma uniforme numa tabela só.
 - Fora da API: `anon` e `authenticated` não têm acesso ao schema; RLS ligada e sem políticas.
 - Índice `(entity_type, entity_id, kind, occurred_at desc)` para o painel do promotor (#77/#78).
 
+## Totais por entidade (#54)
+
+`interactionTotals(entityType, entityIds, since?)` (API pública, slice `features/interaction-totals`) devolve
+`{ [entityId]: { view: 12, live_view: 3, ... } }`, desde `since` ou desde sempre:
+
+- **Uma consulta agregada** (`count(*) ... group by entity_id, kind`) que filtra por `entity_type` e
+  `entity_id = any(...)` e, se houver, `occurred_at >= since`: a ordem do índice `events_entity_idx`
+  (o teste de integração confere que o plano usa o índice).
+- Entrada validada com zod (tipo, até 200 ids, data). Só contagens: nada de quem fez.
+- Usada pelas métricas da Live no portal do parceiro ([live](live.md)).
+
 ## Limitações conhecidas (POC)
 
 - O endpoint de view é público e sem limite de taxa: alguém pode inflar visualizações com requisições
