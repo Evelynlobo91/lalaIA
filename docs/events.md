@@ -52,3 +52,4 @@
 - O lugar é validado pela API pública de `places` (`placeSummary`), e o seletor de lugar é o
   `PlacePicker` de `places`, passado pela página como "slot" do formulário.
 - Eventos publicados: `events.EventPublished { eventId, placeId, ownerId }` e `events.EventCancelled { eventId }`.
+- `eventSummaries(ids)`: resumos de vários eventos (inclusive terminados e cancelados) com o nome do lugar, em lote (duas consultas no total). Usado pelos favoritos.

@@ -40,6 +40,14 @@ describe("PostgresEventReader.listUpcoming", () => {
     expect(titles).toEqual(["futuro 2", "futuro 3", "futuro 4"]);
   });
 
+  it("findByIds traz qualquer situação (terminado, cancelado) e ignora ids inexistentes ou inválidos", async () => {
+    const rows = await db<{ id: string }[]>`select id from events.events where owner_id = ${owner} and title in ('terminou', 'cancelado', 'acontecendo')`;
+    const found = await reader.findByIds([...rows.map((r) => r.id), crypto.randomUUID(), "nao-e-um-id"]);
+    expect(found.map((e) => e.title).sort()).toEqual(["acontecendo", "cancelado", "terminou"]);
+    expect(found.find((e) => e.title === "cancelado")?.status).toBe("cancelled");
+    expect(await reader.findByIds([])).toEqual([]);
+  });
+
   it("paginando pelo cursor, cada evento aparece uma vez", async () => {
     const seen: string[] = [];
     let cursor: EventCursor | null = null;
