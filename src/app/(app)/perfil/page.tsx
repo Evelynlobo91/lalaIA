@@ -1,4 +1,4 @@
-import { Heart, Lock, Pencil, ShieldCheck, Store } from "lucide-react";
+import { Heart, Lock, Map as MapIcon, Pencil, ShieldCheck, Store } from "lucide-react";
 import type { Metadata } from "next";
 import { LogoutButton, budgetOptions, groupSizes, hasRole, requireUser, userPreferences } from "@/modules/identity";
 import { ActiveMissionsCard, myMissions } from "@/modules/missions";
@@ -46,6 +46,9 @@ export default async function PerfilPage() {
               <ShieldCheck aria-hidden className="size-4" /> Moderação
             </ButtonLink>
           )}
+          <ButtonLink href="/perfil/mapa" variant="secondary">
+            <MapIcon aria-hidden className="size-4" /> Meu mapa
+          </ButtonLink>
           <ButtonLink href="/perfil/favoritos" variant="secondary">
             <Heart aria-hidden className="size-4" /> Meus favoritos
           </ButtonLink>

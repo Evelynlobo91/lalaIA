@@ -180,3 +180,8 @@ export function placeFacets(ids: string[]) {
 export function placeIdsInNeighborhood(neighborhood: string) {
   return placeSearchAdapter().placeIdsIn(neighborhood);
 }
+
+/** Todos os lugares com coordenada (id, nome, categoria), para camadas de mapa de outros módulos (ex.: mapa de exploração). */
+export function allPlacePoints() {
+  return reader().allPoints();
+}

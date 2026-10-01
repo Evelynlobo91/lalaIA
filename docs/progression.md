@@ -103,3 +103,24 @@ depois de gravar.
 - **Custo:** uma consulta por módulo (missions, favorites, places e, se houver eventos favoritados, events),
   em paralelo quando possível; places e events consultam em lote (`id = any(...)`).
 - Sem rota HTTP: o perfil é renderizado no servidor.
+
+## Mapa de exploração (#69, RF34)
+
+- `/perfil/mapa` (link "Meu mapa" no perfil; só logado). Cada lugar aparece com a **situação da pessoa**, com
+  prioridade (domínio puro `stateOf` em `domain/game-map.ts`):
+
+  | Camada | Cor | Quando |
+  |--------|-----|--------|
+  | Missão ativa | azul | etapa de uma missão que a pessoa aceitou e não concluiu |
+  | Evento acontecendo | amarelo | evento em andamento agora no lugar |
+  | Experiência especial | vermelho | lugar de uma missão disponível que ela ainda não aceitou |
+  | Conhecido | verde | favoritado ou visitado (check-in) |
+  | Não explorado | cinza (cadeado na legenda) | o resto |
+  | Live | marcador "AO VIVO" | transmissão ativa (camada do módulo live, atualização por polling) |
+
+- `GET /api/progression/game-map` (401 sem sessão, `private, no-store`): GeoJSON + contagem por estado,
+  montado pelas APIs públicas de places (`allPlacePoints`), missions (`myMissions`, `availableMissions`),
+  events (`eventCandidates`) e pela atividade do explorador. Nenhum join entre schemas.
+- Legenda com cor + texto + quantidade, e **liga/desliga** por camada (uma camada MapLibre por estado); a
+  escolha fica na URL (`?camadas=missao,evento,live`). Toque num ponto abre nome, situação e link (montado
+  com `textContent`). Como o mapa é visual, há **"Ver em lista"** com os lugares que têm alguma situação.
