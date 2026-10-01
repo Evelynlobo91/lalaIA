@@ -35,8 +35,8 @@ button, input, textarea, select { font: inherit; }
 
 .prototype-page {
   min-height: 100vh;
-  padding: 20px 18px 22px;
-  background: #1a1e24;
+  padding: 18px 12px 20px;
+  background: #1b1f25;
   overflow-x: auto;
 }
 
@@ -44,9 +44,9 @@ button, input, textarea, select { font: inherit; }
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 22px;
-  padding: 0 8px 18px;
-  min-width: 1160px;
+  gap: 20px;
+  padding: 0 6px 16px;
+  min-width: 1180px;
 }
 
 .phone-slot {
@@ -54,25 +54,25 @@ button, input, textarea, select { font: inherit; }
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  min-width: 180px;
+  min-width: 182px;
 }
 
 .phone-label {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 0.9rem;
+  font-size: 0.96rem;
   font-weight: 500;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.06em;
   text-align: center;
   white-space: nowrap;
 }
 
 .phone-card {
-  width: 190px;
-  height: 320px;
+  width: 188px;
+  height: 324px;
   padding: 8px 8px 10px;
   border-radius: 24px;
   background: linear-gradient(180deg, #f8f8fb 0%, #efedf1 100%);
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.125);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.13);
   border: 1px solid rgba(0, 0, 0, 0.04);
   overflow: hidden;
 }
@@ -111,11 +111,11 @@ button, input, textarea, select { font: inherit; }
   height: 78px;
   border-radius: 12px;
   background: linear-gradient(135deg, #dfe4ee 0%, #c7d1e8 44%, #d8dce7 100%);
-  margin: 8px 0 10px;
+  margin: 7px 0 10px;
 }
 
 .login-title {
-  font-size: 1.06rem;
+  font-size: 1.02rem;
   line-height: 1.12;
   letter-spacing: -0.07em;
   font-weight: 700;
@@ -126,7 +126,7 @@ button, input, textarea, select { font: inherit; }
 .primary-button {
   border: 0;
   border-radius: 12px;
-  background: linear-gradient(180deg, #2e7af8 0%, #1e60d6 100%);
+  background: linear-gradient(180deg, #2f7af9 0%, #1d5fdb 100%);
   color: #fff;
   font-weight: 700;
   padding: 10px 12px;
@@ -144,7 +144,7 @@ button, input, textarea, select { font: inherit; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 11px;
 }
 
 .login-item {
@@ -155,7 +155,8 @@ button, input, textarea, select { font: inherit; }
   display: flex;
   flex-direction: column;
   gap: 5px;
-  font-size: 0.6rem;
+  font-size: 0.56rem;
+  line-height: 1.2;
 }
 
 .login-item strong { font-weight: 600; }
@@ -238,8 +239,8 @@ button, input, textarea, select { font: inherit; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 6px 2px 10px;
-  font-size: 0.82rem;
+  margin: 5px 2px 8px;
+  font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: -0.05em;
 }
@@ -256,7 +257,7 @@ button, input, textarea, select { font: inherit; }
 .avatar.big { width: 42px; height: 42px; }
 
 .big-photo {
-  height: 118px;
+  height: 108px;
   border-radius: 14px;
   background: linear-gradient(135deg, rgba(62, 76, 109, 0.72), rgba(124, 132, 150, 0.46)), url("https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=800&q=80") center/cover;
 }
@@ -270,13 +271,13 @@ button, input, textarea, select { font: inherit; }
 
 .event-row h4 {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   letter-spacing: -0.05em;
 }
 
 .event-row small {
   color: var(--muted);
-  font-size: 0.52rem;
+  font-size: 0.5rem;
 }
 
 .chip {
@@ -311,12 +312,12 @@ button, input, textarea, select { font: inherit; }
 }
 
 .mini-stat strong {
-  font-size: 1rem;
+  font-size: 0.96rem;
   letter-spacing: -0.06em;
 }
 
 .mini-stat span {
-  font-size: 0.56rem;
+  font-size: 0.54rem;
   color: var(--muted);
 }
 
