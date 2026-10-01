@@ -18,6 +18,7 @@ import type { ModuleSubscriptions } from "@/shared/events";
 import { AssignPlaceOwner, placeForEdit, type Editor } from "./features/edit-place/edit-place";
 import { PostgresPlaceOwnershipRepository } from "./infra/postgres-place-ownership-repository";
 import { scheduleFromOsm } from "./domain/weekly-schedule";
+import { searchPlacesRoute } from "./features/search-by-name/search-by-name.route";
 
 export type { PlaceDraft, Address, Coordinates } from "./domain/place";
 export type { PlaceListItem, PlaceListPage } from "./features/list-places/list-places.use-case";
@@ -33,6 +34,7 @@ export { PlaceListCard } from "./features/list-places/ui/place-list-card";
 export type { NearbyPlacesResult, NearbyPlaceItem } from "./features/nearby-places/nearby-places.use-case";
 export { RADIUS_OPTIONS_M, DEFAULT_RADIUS_M } from "./features/nearby-places/nearby-places.schema";
 export { EditPlaceForm } from "./features/edit-place/ui/edit-place-form";
+export { PlacePicker, type PickedPlace } from "./features/search-by-name/ui/place-picker";
 export type { PlaceSummary } from "./domain/place-ownership";
 
 const reader = lazy(() => new PostgresPlaceReader(sql()));
@@ -81,6 +83,8 @@ export const placesApi = {
   geo: placesGeoRoute(placesGeo),
   /** GET /api/places/nearby */
   nearby: nearbyPlacesRoute(findNearby),
+  /** GET /api/places/search?q= */
+  search: searchPlacesRoute(() => ownership()),
 };
 
 const ownership = lazy(() => new PostgresPlaceOwnershipRepository(sql()));

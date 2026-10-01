@@ -67,3 +67,13 @@ describe("formAction", () => {
     expect(reporter.capture).toHaveBeenCalledWith(boom);
   });
 });
+
+describe("formAction + ValidationError do caso de uso", () => {
+  it("detalhes com path viram erro no campo", async () => {
+    const { ValidationError } = await import("../kernel");
+    const action = formAction(z.object({ x: z.string() }), async () => err(new ValidationError("Lugar não encontrado.", [{ path: ["placeId"], message: "Escolha um lugar da lista." }])));
+    const fd = new FormData();
+    fd.set("x", "1");
+    expect(await action(idleFormState, fd)).toMatchObject({ status: "error", fieldErrors: { placeId: ["Escolha um lugar da lista."] } });
+  });
+});
