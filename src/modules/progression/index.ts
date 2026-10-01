@@ -1,14 +1,17 @@
 // API pública do módulo progression (XP, níveis e conquistas).
 import type { ModuleSubscriptions } from "@/shared/events";
 import "./domain/events";
-import { achievementsOverview, grantXp, levelOverview, trackLevelUp, unlockAchievements, xpOverview } from "./composition";
+import { achievementsOverview, explorerProfile, grantXp, levelOverview, trackLevelUp, unlockAchievements, xpOverview } from "./composition";
 import type { AchievementsOverview } from "./features/achievements/achievements.use-case";
+import type { ExplorerProfile } from "./features/explorer-profile/explorer-profile.use-case";
 import type { LevelOverview } from "./features/levels/levels.use-case";
 import type { XpOverview } from "./features/xp-ledger/xp-ledger.use-case";
 
 export { XpCard } from "./features/xp-ledger/ui/xp-card";
 export { LevelCard } from "./features/levels/ui/level-card";
 export { AchievementsCard } from "./features/achievements/ui/achievements-card";
+export { ExplorerProfileCard } from "./features/explorer-profile/ui/explorer-profile-card";
+export type { ExplorerProfile, CategoryCount } from "./features/explorer-profile/explorer-profile.use-case";
 export type { AchievementsOverview, AchievementView } from "./features/achievements/achievements.use-case";
 export type { XpOverview } from "./features/xp-ledger/xp-ledger.use-case";
 export type { LevelOverview } from "./features/levels/levels.use-case";
@@ -28,6 +31,14 @@ export function levelOverviewOf(userId: string): Promise<LevelOverview> {
 /** Galeria de conquistas (desbloqueadas e bloqueadas com dica). O id vem sempre da sessão. */
 export function achievementsOf(userId: string): Promise<AchievementsOverview> {
   return achievementsOverview().execute(userId);
+}
+
+/**
+ * Perfil de explorador: o que a pessoa já descobriu (lugares, eventos, missões, categorias e bairros).
+ * Só a própria pessoa vê: o id vem SEMPRE da sessão (requireUser), nunca da URL ou do formulário.
+ */
+export function explorerProfileOf(userId: string): Promise<ExplorerProfile> {
+  return explorerProfile().execute(userId);
 }
 
 /**

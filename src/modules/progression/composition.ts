@@ -9,6 +9,7 @@ import { lazy } from "@/shared/kernel";
 import type { MissionTitles } from "./domain/xp";
 import { ACHIEVEMENTS } from "./features/achievements/achievement-catalog";
 import { ExplorerAchievementFacts, GetAchievements, UnlockAchievements } from "./features/achievements/achievements.use-case";
+import { GetExplorerProfile } from "./features/explorer-profile/explorer-profile.use-case";
 import { GetLevelOverview, TrackLevelUp } from "./features/levels/levels.use-case";
 import { GetXpOverview, GrantXp } from "./features/xp-ledger/xp-ledger.use-case";
 import { PostgresAchievementRepository } from "./infra/postgres-achievement-repository";
@@ -32,4 +33,5 @@ export const achievements = lazy(() => new PostgresAchievementRepository(sql()))
 export const unlockAchievements = lazy(
   () => new UnlockAchievements(ACHIEVEMENTS, new ExplorerAchievementFacts(explorerActivity(), xpLedger()), achievements(), domainEvents()),
 );
+export const explorerProfile = lazy(() => new GetExplorerProfile(explorerActivity()));
 export const achievementsOverview = lazy(() => new GetAchievements(ACHIEVEMENTS, achievements()));

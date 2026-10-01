@@ -87,3 +87,19 @@ depois de gravar.
 | favorites | `favoriteKeysOf(user)` | chaves dos lugares e eventos favoritados |
 | places | `placeFacets(ids)` (**nova**, slice `features/place-facets`) | categoria e bairro de cada lugar (uma consulta, até 500 ids) |
 | events | `eventSummaries(ids)` | categoria e bairro dos eventos favoritados |
+
+## Perfil de explorador (#68)
+
+- **Seção "Seu perfil de explorador"** no `/perfil` (`ExplorerProfileCard`): lugares descobertos (favoritados
+  ou visitados, sem repetição), lugares visitados (etapas de missão concluídas), eventos favoritados, missões
+  concluídas, check-ins e bairros explorados; abaixo, as **descobertas por categoria** (da mais explorada
+  para a menos, com o rótulo do catálogo `shared/catalog/categories.ts`) e a lista de bairros. Nível e XP
+  aparecem nas seções vizinhas ("Seu nível" e "Seu XP").
+- **Tudo derivado, nada guardado:** `explorerProfileFrom(activity)` é uma função pura e testada sobre a
+  atividade lida pelas APIs públicas (tabela acima). Não há tabela nem contador próprio.
+- **Só a própria pessoa vê:** `explorerProfileOf(userId)` recebe o id da sessão (`requireUser`), validado com
+  zod; missions e favorites leem com `asUser`, então a RLS garante que ninguém vê a atividade de outra pessoa
+  (coberto em `public-api-explorer-activity.int.test.ts`).
+- **Custo:** uma consulta por módulo (missions, favorites, places e, se houver eventos favoritados, events),
+  em paralelo quando possível; places e events consultam em lote (`id = any(...)`).
+- Sem rota HTTP: o perfil é renderizado no servidor.
