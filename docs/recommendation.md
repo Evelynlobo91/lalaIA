@@ -75,6 +75,24 @@ O módulo não tem tabelas. Ele lê tudo pelas APIs públicas (`index.ts`) de `p
 |--------|-------------|----------|
 | `favorites` | `favoriteKeysOf(user)` | só tipo + id dos favoritos (sinal "Está nos seus favoritos") |
 
+## Restrições: tempo, orçamento, localização e tipo (#73, RF43)
+
+- **`/sugestoes`**: "tenho 2 horas, R$70, estou no centro, quero algo diferente" em chips:
+  - **tempo:** 1, 2 (padrão), 3, 4 ou 6 h;
+  - **orçamento total do grupo:** grátis, R$ 30, 50, 70, 100, 200 ou sem limite (padrão: o do perfil);
+  - **pessoas:** 1, 2, 3, 4 ou 6 (padrão pelo "com quem sai" do perfil: casal 2, amigos/família 4);
+  - **tipo de experiência:** qualquer, comer e beber, música e festa, cultura, ar livre e esporte, com crianças,
+    compras e feiras, ou **algo diferente** (evita as categorias preferidas do perfil);
+  - **localização (opcional):** "Usar minha localização" (GPS só no toque, arredondado) e "Remover localização".
+    A distância máxima vem do perfil.
+- **Até 3 toques:** o formulário já nasce com o perfil; cada chip é um link que muda um valor e mantém os outros.
+- **Estado na URL** (`?tempo=120&orcamento=70&pessoas=2&tipo=diferente&lat=&lon=`; `orcamento=sem` = sem limite):
+  funciona sem JavaScript e pode ser compartilhado. Validado com zod (`rec-constraints.schema.ts`); valor inválido
+  mostra um aviso e a página segue com os padrões do perfil.
+- `resolveConstraints` (puro) junta URL + perfil nas restrições do motor; `RecommendWithConstraints` as **envia ao
+  motor** e devolve o estado efetivo para marcar os chips.
+- **API:** `GET /api/recommendations/for-me` com os mesmos parâmetros (400 se inválidos), usando o perfil da sessão.
+
 ## Privacidade (LGPD)
 
 A localização é opcional, pedida **só no toque** (`NearMeButton` de places), arredondada para 4 casas (~10 m)
