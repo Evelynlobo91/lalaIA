@@ -49,6 +49,18 @@ não duplica nada e só atualiza lugares que mudaram. **Lugares editados por par
 
 Para mapear uma nova tag, adicione uma linha em `src/modules/places/domain/osm/osm-category-rules.ts`.
 
+## Listagem e "aberto agora"
+
+- `/lugares` e `GET /api/places?cursor=&limit=` (padrão 20, máx. 50) listam em ordem alfabética
+  em português (collation ICU `places.pt_br`), com **paginação por cursor** (nome + id) sobre o
+  índice `places_name_id_idx`. Medido: p95 de 18ms na API e 29ms na página.
+- O cursor é opaco (base64url) e validado na volta: cursor adulterado → 400.
+- **"Aberto agora"** vem de `isOpenAt` (`src/modules/places/domain/opening-hours.ts`), que interpreta
+  o formato de horário do OSM no fuso de Joinville. Entende dias (`Mo-Fr`, `Sa,Su`, `Sa-Mo`), vários
+  intervalos, faixas que passam da meia-noite, `24/7`, `off` e textos em português ("de 06:30 às 20:00").
+  Feriados (`PH`) são ignorados. Quando não reconhece o formato, devolve `null` e a tela **não mostra**
+  nada, em vez de arriscar um "aberto" errado. Hoje reconhece 54 de 56 horários reais de Joinville.
+
 ## Licença e atribuição (obrigatória)
 
 Os dados do OpenStreetMap são © OpenStreetMap contributors, sob a licença
