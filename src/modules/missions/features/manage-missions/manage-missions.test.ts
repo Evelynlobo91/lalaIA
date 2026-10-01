@@ -31,6 +31,25 @@ describe("missionSchema", () => {
     ]);
   });
 
+  it("etapas com GPS (#61): raio e permanência; em QR + GPS a permanência é zero; QR ignora a geofence", () => {
+    const { draft } = missionSchema.parse(
+      form({
+        steps: JSON.stringify([
+          { title: "Chegue à praça", placeId: CAFE, validation: "gps", radiusMeters: 80, dwellMinutes: 5 },
+          { title: "Peça um chope", placeId: BAR, validation: "qr_gps", radiusMeters: 50, dwellMinutes: 5 },
+          { title: "Peça um café", placeId: CAFE, validation: "qr", radiusMeters: 999 },
+          { title: "Volte à praça", placeId: CAFE, validation: "gps" },
+        ]),
+      }),
+    );
+    expect(draft.steps).toEqual([
+      { title: "Chegue à praça", placeId: CAFE, validation: "gps", geofence: { radiusMeters: 80, dwellMinutes: 5 } },
+      { title: "Peça um chope", placeId: BAR, validation: "qr_gps", geofence: { radiusMeters: 50, dwellMinutes: 0 } },
+      { title: "Peça um café", placeId: CAFE, validation: "qr" },
+      { title: "Volte à praça", placeId: CAFE, validation: "gps", geofence: { radiusMeters: 100, dwellMinutes: 2 } },
+    ]);
+  });
+
   it.each([
     ["fim antes do início", { endsAt: "2026-10-09T08:00" }, "endsAt", "O fim precisa ser depois do início."],
     ["XP fora da faixa", { xp: "5000" }, "xp", "O XP máximo é 1000."],
@@ -39,6 +58,8 @@ describe("missionSchema", () => {
     ["etapa sem descrição", { steps: JSON.stringify([{ title: "", placeId: CAFE }]) }, "steps", "Etapa 1: diga o que fazer (3 a 80 caracteres)."],
     ["etapas que não são JSON", { steps: "{" }, "steps", "Etapas inválidas."],
     ["mais de 10 etapas", { steps: JSON.stringify(Array.from({ length: 11 }, () => ({ title: "Etapa", placeId: CAFE }))) }, "steps", "Use no máximo 10 etapas."],
+    ["raio do GPS fora da faixa", { steps: JSON.stringify([{ title: "Chegue à praça", placeId: CAFE, validation: "gps", radiusMeters: 1000, dwellMinutes: 2 }]) }, "steps", "Etapa 1: o raio do check-in vai de 30 a 300 m."],
+    ["permanência fora da faixa", { steps: JSON.stringify([{ title: "Chegue à praça", placeId: CAFE, validation: "gps", radiusMeters: 80, dwellMinutes: 90 }]) }, "steps", "Etapa 1: o tempo no lugar vai de 0 a 30 minutos."],
   ])("recusa %s", (_, patch, field, message) => {
     const res = missionSchema.safeParse(form(patch));
     expect(res.success).toBe(false);
@@ -160,6 +181,9 @@ describe("SaveMission / ArchiveMission", () => {
     expect(!xp.ok && xp.error.code).toBe("mission_locked");
     const steps = await save.execute(parceiro, "m1", { ...draft, steps: [draft.steps[1], draft.steps[0]] });
     expect(!steps.ok && steps.error.code).toBe("mission_locked");
+    // Trocar QR por GPS (ou mexer no raio) também muda a etapa que quem aceitou viu.
+    const gps = await save.execute(parceiro, "m1", { ...draft, steps: [{ ...draft.steps[0], validation: "gps", geofence: { radiusMeters: 300, dwellMinutes: 0 } }, draft.steps[1]] });
+    expect(!gps.ok && gps.error.code).toBe("mission_locked");
     expect(missions.update).not.toHaveBeenCalled();
 
     expect((await save.execute(parceiro, "m1", { ...draft, title: "Rota do Café II" })).ok).toBe(true);

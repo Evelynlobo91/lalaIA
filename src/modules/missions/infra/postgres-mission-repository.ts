@@ -1,5 +1,6 @@
 import { asUser, type Tx } from "@/shared/db/as-user";
 import type { Sql } from "@/shared/db/sql";
+import { geofenceFor } from "../domain/geofence";
 import type { MissionDraft, MissionRecord, MissionRepository, MissionStatus, MissionStep, ValidationKind } from "../domain/mission";
 
 type MissionRow = {
@@ -14,12 +15,29 @@ type MissionRow = {
   created_at: Date;
 };
 
-type StepRow = { id: string; mission_id: string; position: number; title: string; place_id: string; validation: ValidationKind };
+type StepRow = {
+  id: string;
+  mission_id: string;
+  position: number;
+  title: string;
+  place_id: string;
+  validation: ValidationKind;
+  geofence_radius_m: number | null;
+  dwell_minutes: number | null;
+};
 
 const COLUMNS = "id, owner_id, title, description, xp, starts_at, ends_at, status, created_at";
-const STEP_COLUMNS = "id, mission_id, position, title, place_id, validation";
+const STEP_COLUMNS = "id, mission_id, position, title, place_id, validation, geofence_radius_m, dwell_minutes";
 
-const toStep = (r: StepRow): MissionStep => ({ id: r.id, missionId: r.mission_id, position: r.position, title: r.title, placeId: r.place_id, validation: r.validation });
+const toStep = (r: StepRow): MissionStep => ({
+  id: r.id,
+  missionId: r.mission_id,
+  position: r.position,
+  title: r.title,
+  placeId: r.place_id,
+  validation: r.validation,
+  geofence: r.geofence_radius_m === null ? null : { radiusMeters: r.geofence_radius_m, dwellMinutes: r.dwell_minutes ?? 0 },
+});
 
 /** Monta missões com as etapas em ordem (duas consultas, sem N+1). */
 async function withSteps(db: Sql | Tx, rows: MissionRow[]): Promise<MissionRecord[]> {
@@ -47,10 +65,12 @@ async function withSteps(db: Sql | Tx, rows: MissionRow[]): Promise<MissionRecor
  */
 async function saveSteps(tx: Tx, missionId: string, draft: MissionDraft) {
   for (const [i, s] of draft.steps.entries()) {
+    const geofence = geofenceFor(s.validation, s.geofence);
     await tx`
-      insert into missions.mission_steps (mission_id, position, title, place_id, validation)
-      values (${missionId}, ${i + 1}, ${s.title}, ${s.placeId}, ${s.validation})
-      on conflict (mission_id, position) do update set title = excluded.title, place_id = excluded.place_id, validation = excluded.validation`;
+      insert into missions.mission_steps (mission_id, position, title, place_id, validation, geofence_radius_m, dwell_minutes)
+      values (${missionId}, ${i + 1}, ${s.title}, ${s.placeId}, ${s.validation}, ${geofence?.radiusMeters ?? null}, ${geofence?.dwellMinutes ?? null})
+      on conflict (mission_id, position) do update set title = excluded.title, place_id = excluded.place_id, validation = excluded.validation,
+        geofence_radius_m = excluded.geofence_radius_m, dwell_minutes = excluded.dwell_minutes`;
   }
   await tx`delete from missions.mission_steps where mission_id = ${missionId} and position > ${draft.steps.length}`;
 }

@@ -4,16 +4,33 @@ export type MissionStatus = "active" | "archived";
 
 /**
  * Tipos de validação de etapa. Cada tipo tem uma estratégia (`StepValidator`); um tipo novo
- * (ex.: "gps") entra aqui, no `check` do banco e como nova estratégia, sem mudar os casos de uso.
+ * entra aqui, no `check` do banco e como nova estratégia, sem mudar os casos de uso.
+ * - `qr`: QR code assinado no balcão;
+ * - `gps`: check-in por GPS dentro da geofence do lugar (#61);
+ * - `qr_gps`: os dois (QR do balcão + localização no raio).
  */
-export const validationKinds = ["qr"] as const;
+export const validationKinds = ["qr", "gps", "qr_gps"] as const;
 export type ValidationKind = (typeof validationKinds)[number];
+
+/** Geofence da etapa: raio em volta do lugar e permanência mínima no raio (só nas etapas com GPS). */
+export type StepGeofence = { radiusMeters: number; dwellMinutes: number };
+
+/** A etapa pede localização? */
+export const usesGeofence = (kind: ValidationKind) => kind === "gps" || kind === "qr_gps";
+/** A etapa pede o QR do balcão? */
+export const usesQr = (kind: ValidationKind) => kind === "qr" || kind === "qr_gps";
 
 export const MAX_STEPS = 10;
 export const MIN_XP = 10;
 export const MAX_XP = 1000;
 
-export type StepDraft = { title: string; placeId: string; validation: ValidationKind };
+export type StepDraft = {
+  title: string;
+  placeId: string;
+  validation: ValidationKind;
+  /** Obrigatória nas etapas com GPS (`gps`, `qr_gps`); ausente/null nas de QR. */
+  geofence?: StepGeofence | null;
+};
 
 export type MissionDraft = {
   title: string;
@@ -45,6 +62,14 @@ export function isAvailable(mission: Pick<MissionRecord, "status" | "startsAt" |
  * e o bônus fica com o resto, então a soma é sempre exatamente o total e o bônus nunca é menor que uma etapa.
  * Ex.: 100 XP em 3 etapas → 25 por etapa + 25 de bônus; 100 XP em 2 etapas → 33 + 33 + 34.
  */
+/**
+ * GPS é falsificável no celular: uma recompensa real (#62) só pode ser vinculada a missões em que
+ * TODA etapa exige o QR do balcão (`qr` ou `qr_gps`). Etapas só por GPS valem XP, nunca prêmio.
+ */
+export function allowsRealReward(mission: Pick<MissionRecord, "steps">): boolean {
+  return mission.steps.length > 0 && mission.steps.every((s) => usesQr(s.validation));
+}
+
 export function xpSplit(total: number, stepCount: number): { perStep: number; completionBonus: number } {
   const perStep = Math.floor(total / (stepCount + 1));
   return { perStep, completionBonus: total - perStep * stepCount };

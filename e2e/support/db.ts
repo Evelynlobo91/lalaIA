@@ -69,7 +69,8 @@ export function createTestMission(opts: {
   ownerEmail: string;
   title: string;
   xp?: number;
-  steps: Array<{ title: string; placeId: string }>;
+  /** `validation` (#61): "qr" (padrão), "gps" ou "qr_gps"; com GPS, raio (m) e permanência (min). */
+  steps: Array<{ title: string; placeId: string; validation?: "qr" | "gps" | "qr_gps"; radiusMeters?: number; dwellMinutes?: number }>;
   startsInHours?: number;
   endsInHours?: number;
 }): Promise<{ missionId: string; stepIds: string[] }> {
@@ -84,8 +85,12 @@ export function createTestMission(opts: {
         returning id`;
       const stepIds: string[] = [];
       for (const [i, step] of opts.steps.entries()) {
+        const validation = step.validation ?? "qr";
+        const radius = validation === "qr" ? null : (step.radiusMeters ?? 100);
+        const dwell = validation === "qr" ? null : validation === "qr_gps" ? 0 : (step.dwellMinutes ?? 0);
         const [row] = await tx<{ id: string }[]>`
-          insert into missions.mission_steps (mission_id, position, title, place_id) values (${mission.id}, ${i + 1}, ${step.title}, ${step.placeId}) returning id`;
+          insert into missions.mission_steps (mission_id, position, title, place_id, validation, geofence_radius_m, dwell_minutes)
+          values (${mission.id}, ${i + 1}, ${step.title}, ${step.placeId}, ${validation}, ${radius}, ${dwell}) returning id`;
         stepIds.push(row.id);
       }
       return { missionId: mission.id, stepIds };

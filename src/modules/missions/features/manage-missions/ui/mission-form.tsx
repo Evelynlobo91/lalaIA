@@ -4,10 +4,24 @@ import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { startTransition, useActionState, useId, useState, type FormEvent, type ReactNode } from "react";
 import { idleFormState, type FormState } from "@/shared/http/form-state";
 import { Button, FormAlert, TextField } from "@/shared/ui";
-import { MAX_STEPS, MAX_XP, MIN_XP, type MissionRecord } from "../../../domain/mission";
+import { DWELL_MINUTES, GEOFENCE_RADIUS_METERS } from "../../../domain/geofence";
+import { MAX_STEPS, MAX_XP, MIN_XP, validationKinds, type MissionRecord, type ValidationKind } from "../../../domain/mission";
 import { saveMissionAction } from "../manage-missions.actions";
 
-export type MissionFormStep = { title: string; placeId: string };
+export type MissionFormStep = {
+  title: string;
+  placeId: string;
+  /** Como a etapa é comprovada (#61); padrão: QR. */
+  validation?: ValidationKind;
+  radiusMeters?: number;
+  dwellMinutes?: number;
+};
+
+const validationLabels: Record<ValidationKind, string> = {
+  qr: "QR code no balcão",
+  gps: "Check-in por GPS no lugar",
+  qr_gps: "QR code + GPS (mais seguro)",
+};
 export type MissionFormValues = {
   missionId?: string;
   title: string;
@@ -54,7 +68,15 @@ export function MissionForm({ initial, placeOptions, submitLabel, stepsLocked = 
   return (
     <form onSubmit={submit} className="flex flex-col gap-5" noValidate>
       {values.missionId && <input type="hidden" name="missionId" value={values.missionId} />}
-      <input type="hidden" name="steps" value={JSON.stringify(rows.map(({ title, placeId }) => ({ title, placeId, validation: "qr" })))} />
+      <input
+        type="hidden"
+        name="steps"
+        value={JSON.stringify(
+          rows.map(({ title, placeId, validation = "qr", radiusMeters = GEOFENCE_RADIUS_METERS.default, dwellMinutes = DWELL_MINUTES.default }) =>
+            validation === "qr" ? { title, placeId, validation } : { title, placeId, validation, radiusMeters, dwellMinutes: validation === "gps" ? dwellMinutes : 0 },
+          ),
+        )}
+      />
       {state.status === "error" && state.message && <FormAlert>{state.message}</FormAlert>}
 
       <TextField label="Título" name="title" maxLength={120} required defaultValue={values.title} errors={errors.title} />
@@ -137,7 +159,7 @@ export function MissionForm({ initial, placeOptions, submitLabel, stepsLocked = 
                   ))}
                 </select>
               </label>
-              <p className="text-sm text-muted">Validação: QR code no balcão.</p>
+              <StepValidationFields index={i} row={row} locked={stepsLocked} onChange={(patch) => update(row.key, patch)} />
             </li>
           ))}
         </ol>
@@ -159,6 +181,68 @@ export function MissionForm({ initial, placeOptions, submitLabel, stepsLocked = 
         {submitLabel}
       </Button>
     </form>
+  );
+}
+
+/** Como a etapa vale (QR, GPS ou os dois) e, com GPS, o raio e o tempo mínimo no lugar (#61). */
+function StepValidationFields({ index, row, locked, onChange }: { index: number; row: MissionFormStep; locked: boolean; onChange: (patch: Partial<MissionFormStep>) => void }) {
+  const validation = row.validation ?? "qr";
+  const n = index + 1;
+  return (
+    <div className="flex flex-col gap-3">
+      <label className="flex flex-col gap-1.5 text-sm font-medium">
+        Como validar a etapa {n}
+        <select
+          value={validation}
+          disabled={locked}
+          onChange={(e) => onChange({ validation: e.target.value as ValidationKind })}
+          className="h-12 rounded-xl border border-border bg-bg px-3 text-base font-normal"
+        >
+          {validationKinds.map((kind) => (
+            <option key={kind} value={kind}>
+              {validationLabels[kind]}
+            </option>
+          ))}
+        </select>
+      </label>
+      {validation !== "qr" && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <TextField
+            label={`Raio do check-in da etapa ${n} (m)`}
+            type="number"
+            inputMode="numeric"
+            min={GEOFENCE_RADIUS_METERS.min}
+            max={GEOFENCE_RADIUS_METERS.max}
+            step={10}
+            readOnly={locked}
+            value={String(row.radiusMeters ?? GEOFENCE_RADIUS_METERS.default)}
+            onChange={(e) => onChange({ radiusMeters: e.target.value === "" ? undefined : Number(e.target.value) })}
+            hint={`De ${GEOFENCE_RADIUS_METERS.min} a ${GEOFENCE_RADIUS_METERS.max} m em volta do lugar.`}
+          />
+          {validation === "gps" && (
+            <TextField
+              label={`Tempo mínimo no lugar na etapa ${n} (min)`}
+              type="number"
+              inputMode="numeric"
+              min={DWELL_MINUTES.min}
+              max={DWELL_MINUTES.max}
+              step={1}
+              readOnly={locked}
+              value={String(row.dwellMinutes ?? DWELL_MINUTES.default)}
+              onChange={(e) => onChange({ dwellMinutes: e.target.value === "" ? undefined : Number(e.target.value) })}
+              hint="O explorador faz check-in ao chegar e de novo depois desse tempo."
+            />
+          )}
+        </div>
+      )}
+      <p className="text-sm text-muted">
+        {validation === "gps"
+          ? "GPS pode ser falsificado no celular: use só para etapas sem recompensa real (vale XP)."
+          : validation === "qr_gps"
+            ? "O explorador escaneia o QR no balcão e confirma que está no lugar."
+            : "O explorador escaneia o QR code no balcão."}
+      </p>
+    </div>
   );
 }
 

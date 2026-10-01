@@ -53,7 +53,7 @@ export default async function ValidarEtapaPage({ searchParams }: PageProps<"/mis
           <QrCode aria-hidden className="size-6 text-brand" /> {check.step.title}
         </h2>
         {check.step.placeName && <p>{check.step.placeName}</p>}
-        <ConfirmStepForm token={check.token} />
+        <ConfirmStepForm token={check.token} needsLocation={check.step.validation === "qr_gps"} />
       </Card>
     </div>
   );

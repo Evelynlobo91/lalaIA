@@ -140,7 +140,10 @@ describe("validar etapa por QR (CompleteStep + QrCodeValidator)", () => {
     const stub: StepValidator = { kind: "qr", validate: vi.fn().mockReturnValue(ok(undefined)) };
     const { useCase } = setup({ validators: [stub] });
     expect((await useCase.execute("ana", { stepId: S1, proof: { kind: "qr", token: "qualquer" } })).ok).toBe(true);
-    expect(stub.validate).toHaveBeenCalledWith(expect.objectContaining({ id: S1 }), { kind: "qr", token: "qualquer" }, { userId: "ana", now: now() });
+    expect(stub.validate).toHaveBeenCalledWith(expect.objectContaining({ id: S1 }), { kind: "qr", token: "qualquer" }, { userId: "ana", now: now(), dryRun: false });
+    // A prévia (GET do link) avisa a estratégia para não gravar nada.
+    await useCase.check("ana", { stepId: S1, proof: { kind: "qr", token: "qualquer" } });
+    expect(stub.validate).toHaveBeenLastCalledWith(expect.objectContaining({ id: S1 }), { kind: "qr", token: "qualquer" }, { userId: "ana", now: now(), dryRun: true });
 
     const { useCase: semEstrategia } = setup({ validators: [] });
     const res = await semEstrategia.execute("ana", { stepId: S1, proof: { kind: "qr", token: valid(S1) } });

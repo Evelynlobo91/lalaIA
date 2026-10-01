@@ -1,5 +1,6 @@
 import { NotFoundError, err, ok, type Result } from "@/shared/kernel";
-import { isAvailable, xpSplit, type MissionPlace, type MissionPlaces, type MissionRecord, type MissionRepository, type ValidationKind } from "../../domain/mission";
+import { geofenceFor } from "../../domain/geofence";
+import { isAvailable, xpSplit, type MissionPlace, type MissionPlaces, type MissionRecord, type MissionRepository, type StepGeofence, type ValidationKind } from "../../domain/mission";
 import { progressOf, stepStates, type Progress, type StepCompletionReader, type StepState } from "../../domain/progress";
 import type { UserMission, UserMissionRepository } from "../../domain/user-mission";
 
@@ -8,6 +9,8 @@ export type StepProgressView = {
   position: number;
   title: string;
   validation: ValidationKind;
+  /** Raio e permanência das etapas com GPS (#61); null nas de QR. */
+  geofence: StepGeofence | null;
   place: MissionPlace | null;
   state: StepState;
   completedAt: Date | null;
@@ -69,6 +72,7 @@ export class GetMissionProgress {
         position: s.position,
         title: s.title,
         validation: s.validation,
+        geofence: geofenceFor(s.validation, s.geofence),
         place: placeById.get(s.placeId) ?? null,
         state: userMission ? states.get(s.id)! : "pending",
         completedAt: completedAt.get(s.id) ?? null,

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { fromLocalInput } from "@/shared/time/joinville-time";
-import { MAX_STEPS, MAX_XP, MIN_XP, validationKinds, type StepDraft } from "../../domain/mission";
+import { DWELL_MINUTES, GEOFENCE_RADIUS_METERS, geofenceFor } from "../../domain/geofence";
+import { MAX_STEPS, MAX_XP, MIN_XP, usesGeofence, validationKinds, type StepDraft } from "../../domain/mission";
 
 const MAX_WINDOW_MS = 366 * 24 * 60 * 60 * 1000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -19,7 +20,12 @@ const stepInput = z.object({
   title: z.string().trim().max(200).catch(""),
   placeId: z.string().catch(""),
   validation: z.enum(validationKinds).catch("qr"),
+  /** Só nas etapas com GPS (#61). NaN = valor inválido, avisado no superRefine. */
+  radiusMeters: z.coerce.number().catch(Number.NaN).optional(),
+  dwellMinutes: z.coerce.number().catch(Number.NaN).optional(),
 });
+
+const inRange = (v: number | undefined, range: { min: number; max: number }) => v === undefined || (Number.isInteger(v) && v >= range.min && v <= range.max);
 
 /**
  * Etapas chegam como JSON num campo oculto (o editor de etapas é dinâmico). As mensagens dizem
@@ -40,9 +46,24 @@ const steps = z
     list.forEach((step, i) => {
       if (step.title.length < 3 || step.title.length > 80) ctx.addIssue({ code: "custom", message: `Etapa ${i + 1}: diga o que fazer (3 a 80 caracteres).` });
       if (!UUID.test(step.placeId)) ctx.addIssue({ code: "custom", message: `Etapa ${i + 1}: escolha o lugar.` });
+      if (!usesGeofence(step.validation)) return;
+      if (!inRange(step.radiusMeters, GEOFENCE_RADIUS_METERS)) {
+        ctx.addIssue({ code: "custom", message: `Etapa ${i + 1}: o raio do check-in vai de ${GEOFENCE_RADIUS_METERS.min} a ${GEOFENCE_RADIUS_METERS.max} m.` });
+      }
+      if (!inRange(step.dwellMinutes, DWELL_MINUTES)) {
+        ctx.addIssue({ code: "custom", message: `Etapa ${i + 1}: o tempo no lugar vai de ${DWELL_MINUTES.min} a ${DWELL_MINUTES.max} minutos.` });
+      }
     });
   })
-  .transform((list): StepDraft[] => list);
+  .transform((list): StepDraft[] =>
+    list.map(({ title, placeId, validation, radiusMeters, dwellMinutes }) => {
+      const geofence = geofenceFor(validation, {
+        radiusMeters: radiusMeters ?? GEOFENCE_RADIUS_METERS.default,
+        dwellMinutes: dwellMinutes ?? DWELL_MINUTES.default,
+      });
+      return geofence ? { title, placeId, validation, geofence } : { title, placeId, validation };
+    }),
+  );
 
 export const missionSchema = z
   .object({

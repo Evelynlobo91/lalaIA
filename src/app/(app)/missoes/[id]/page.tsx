@@ -27,7 +27,7 @@ export default async function MissaoPage({ params, searchParams }: PageProps<"/m
 
   const action = !view.mission.available ? null : user ? (
     <Card className="flex flex-col gap-3">
-      <p>Aceite a missão para começar. Depois é só ir aos lugares e escanear o QR code no balcão de cada etapa.</p>
+      <p>Aceite a missão para começar. Depois é só ir aos lugares e validar cada etapa: QR code no balcão ou check-in por GPS.</p>
       <AcceptMissionButton missionId={view.mission.id} title={view.mission.title} />
     </Card>
   ) : (
