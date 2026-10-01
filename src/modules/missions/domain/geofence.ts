@@ -62,7 +62,9 @@ export function dwellStatus(attempts: GeofenceAttempt[], now: Date, dwellMinutes
     else if (a.outcome === "inside" && !streakStart) streakStart = a.attemptedAt;
   }
   if (!streakStart) return { satisfied: false, minutesLeft: dwellMinutes };
-  const elapsed = now.getTime() - streakStart.getTime();
+  // O horário da tentativa vem do relógio do banco e `now` do app: com o banco alguns segundos adiantado, o
+  // decorrido ficaria negativo e pediria mais que a permanência exigida. Nunca menos que zero.
+  const elapsed = Math.max(0, now.getTime() - streakStart.getTime());
   const needed = dwellMinutes * 60_000;
   return elapsed >= needed ? { satisfied: true } : { satisfied: false, minutesLeft: Math.max(1, Math.ceil((needed - elapsed) / 60_000)) };
 }

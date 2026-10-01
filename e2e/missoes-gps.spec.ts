@@ -36,7 +36,7 @@ test.describe("missões com check-in por GPS", () => {
     // 1. Longe da praça (~1 km): recusado, com a distância.
     await context.setGeolocation({ latitude: ponto.lat + 0.01, longitude: ponto.lon, accuracy: 10 });
     await page.getByRole("button", { name: "Fazer check-in" }).click();
-    await expect(page.getByRole("alert")).toContainText("Chegue a menos de 100 m");
+    await expect(page.getByRole("alert").and(page.locator(":not(#__next-route-announcer__)"))).toContainText("Chegue a menos de 100 m");
 
     // 2. Na praça: chegou, mas a etapa pede 5 minutos no lugar.
     await context.setGeolocation({ latitude: ponto.lat, longitude: ponto.lon, accuracy: 10 });
@@ -62,7 +62,7 @@ test.describe("missões com check-in por GPS", () => {
     await context.grantPermissions(["geolocation"]);
     await context.setGeolocation({ latitude: ponto.lat, longitude: ponto.lon, accuracy: 500 });
     await page.getByRole("button", { name: "Fazer check-in" }).click();
-    await expect(page.getByRole("alert")).toContainText("imprecisa");
+    await expect(page.getByRole("alert").and(page.locator(":not(#__next-route-announcer__)"))).toContainText("imprecisa");
 
     await context.setGeolocation({ latitude: ponto.lat, longitude: ponto.lon, accuracy: 8 });
     await page.getByRole("button", { name: "Fazer check-in" }).click();

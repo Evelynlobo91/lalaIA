@@ -235,3 +235,11 @@ describe("validação de entrada", () => {
     expect(completeStepSchema.safeParse({ token: "abc", lat: "0", lon: "0", accuracy: "20" }).success).toBe(false);
   });
 });
+
+describe("dwellStatus com relógios diferentes (banco × app)", () => {
+  it("tentativa registrada alguns segundos 'no futuro' não pede mais que a permanência exigida", () => {
+    const now = new Date("2026-10-10T20:00:00Z");
+    const status = dwellStatus([{ outcome: "inside", distanceMeters: 10, attemptedAt: new Date(now.getTime() + 3_000) }], now, 5);
+    expect(status).toEqual({ satisfied: false, minutesLeft: 5 });
+  });
+});
