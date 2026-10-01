@@ -2,7 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FavoriteToggle } from "@/modules/favorites";
+import { FavoriteToggle, WantToGoButton } from "@/modules/favorites";
 import { PlaceDetailCard, getPlaceDetail } from "@/modules/places";
 
 // "Aberto agora" depende da hora da visita.
@@ -40,7 +40,11 @@ export default async function LugarPage({ params }: PageProps<"/lugares/[id]">) 
       <Link href="/lugares" className="inline-flex items-center gap-1 self-start text-sm font-medium text-muted hover:text-fg">
         <ArrowLeft aria-hidden className="size-4" /> Onde ir
       </Link>
-      <PlaceDetailCard place={place} extras={<FavoriteToggle entityType="place" entityId={place.id} className="sm:self-start" />} />
+      <PlaceDetailCard
+        place={place}
+        extras={<FavoriteToggle entityType="place" entityId={place.id} className="sm:self-start" />}
+        directions={<WantToGoButton href={place.directionsUrl} entityType="place" entityId={place.id} className="sm:w-auto sm:self-start" />}
+      />
     </div>
   );
 }

@@ -36,6 +36,20 @@ Módulo `favorites` (epic #7): lugares e eventos salvos pelo usuário.
 - **Sem N+1:** os dados vêm em lote das APIs públicas, uma consulta por tipo: `placeSummaries(ids)` e
   `eventSummaries(ids)`. Item que não existe mais some da lista.
 
+## "Quero ir" + Como chegar (#46)
+
+- Na página do lugar, o botão principal passa a ser **"Quero ir · Como chegar"** (`WantToGoButton`),
+  injetado pelo slot `directions` do `PlaceDetailCard` (sem ele, o card mantém o "Como chegar" padrão).
+- É um link comum para a rota no app de mapas (`directionsUrl` de places: URL universal do Google Maps,
+  que abre o app instalado no celular), em nova aba.
+- Ao tocar, registra o clique em segundo plano com `fetch(..., { keepalive: true })` para
+  `POST /api/favorites/want-to-go { entityType, entityId }` → **204**. O registro **nunca bloqueia nem atrasa**
+  a navegação, e falhas são ignoradas.
+- O caso de uso `RecordWantToGo` confere que o item existe (404 se não, para não poluir a métrica) e publica
+  **`favorites.WantToGoClicked { userId | null, entityType, entityId }`**: métrica do promotor.
+  Anônimo é permitido (`userId: null`); nenhum dado pessoal além do id, que vem só da sessão.
+- Para o detalhe do evento (#38): `<WantToGoButton href={rotaDoLugar} entityType="event" entityId={id} />`.
+
 ## Modelo de dados
 
 `favorites.favorites` (schema próprio):

@@ -120,3 +120,31 @@ test.describe("meus favoritos (#45)", () => {
     await expect(page.getByText("Nenhum lugar favorito ainda")).toBeVisible();
   });
 });
+
+test.describe('"Quero ir" + como chegar (#46)', () => {
+  test("abre a rota no app de mapas e registra o clique, mesmo sem login", async ({ page, context }) => {
+    const placeId = await createTestPlace(`Parque Quero Ir E2E ${Date.now()}`);
+    // A rota abre numa nova aba; o Google Maps não é carregado de verdade nos testes.
+    await context.route("https://www.google.com/**", (route) => route.fulfill({ status: 200, contentType: "text/html", body: "<title>Mapa</title>" }));
+
+    await page.goto(`/lugares/${placeId}`);
+    const queroIr = page.getByRole("link", { name: /Quero ir/ });
+    await expect(queroIr).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\/dir\/\?api=1&destination=-26\.\d+,-48\.\d+$/);
+    await expect(queroIr).toHaveAttribute("target", "_blank");
+
+    const registro = page.waitForResponse((r) => r.url().endsWith("/api/favorites/want-to-go") && r.request().method() === "POST");
+    const [mapa] = await Promise.all([context.waitForEvent("page"), queroIr.click()]);
+    const resposta = await registro;
+    expect(resposta.status()).toBe(204);
+    expect(resposta.request().postDataJSON()).toEqual({ entityType: "place", entityId: placeId });
+    await expect(mapa).toHaveURL(/google\.com\/maps\/dir/);
+    await mapa.close();
+  });
+
+  test("a API valida a entrada e não registra item inexistente", async ({ request }) => {
+    const url = "/api/favorites/want-to-go";
+    expect((await request.post(url, { data: { entityType: "place", entityId: "nao-e-um-id" } })).status()).toBe(400);
+    expect((await request.post(url, { data: { entityType: "usuario", entityId: "8f0e2c6a-6a1e-4b8e-9d2a-3f4b5c6d7e8f" } })).status()).toBe(400);
+    expect((await request.post(url, { data: { entityType: "place", entityId: "8f0e2c6a-6a1e-4b8e-9d2a-3f4b5c6d7e8f" } })).status()).toBe(404);
+  });
+});

@@ -3,6 +3,7 @@ import { sql } from "@/shared/db/sql";
 import { InMemoryEventBus } from "@/shared/events";
 import { ListMyFavorites } from "../features/fav-list/fav-list.use-case";
 import { ToggleFavorite } from "../features/fav-toggle/fav-toggle.use-case";
+import { RecordWantToGo } from "../features/want-to-go/want-to-go.use-case";
 import { eventDirectory, favoriteTargets, placeDirectory } from "./favorite-targets";
 import { PostgresFavoriteRepository } from "./postgres-favorite-repository";
 
@@ -14,6 +15,9 @@ const added: unknown[] = [];
 bus.subscribe("favorites.FavoriteAdded", (e) => void added.push(e.payload));
 const toggle = new ToggleFavorite(repo, favoriteTargets, bus);
 const list = new ListMyFavorites(repo, placeDirectory, eventDirectory);
+const wantToGo = new RecordWantToGo(favoriteTargets, bus);
+const clicks: unknown[] = [];
+bus.subscribe("favorites.WantToGoClicked", (e) => void clicks.push(e.payload));
 
 const user = crypto.randomUUID();
 const tag = crypto.randomUUID().slice(0, 8);
@@ -71,5 +75,15 @@ describe("favoritos com places e events reais", () => {
   it("remover tira da lista", async () => {
     await toggle.execute(user, { entityType: "event", entityId: pastEvent, favorite: false });
     expect((await list.execute(user)).events.map((e) => e.id)).toEqual([futureEvent]);
+  });
+
+  it("\"Quero ir\" registra lugar e evento que existem, com ou sem login", async () => {
+    expect((await wantToGo.execute(null, { entityType: "place", entityId: placeId })).ok).toBe(true);
+    expect((await wantToGo.execute(user, { entityType: "event", entityId: futureEvent })).ok).toBe(true);
+    expect((await wantToGo.execute(null, { entityType: "place", entityId: crypto.randomUUID() })).ok).toBe(false);
+    expect(clicks).toEqual([
+      { userId: null, entityType: "place", entityId: placeId },
+      { userId: user, entityType: "event", entityId: futureEvent },
+    ]);
   });
 });
