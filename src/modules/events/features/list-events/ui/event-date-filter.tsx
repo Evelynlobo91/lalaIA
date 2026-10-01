@@ -1,29 +1,32 @@
 import Link from "next/link";
 import { Button, cn } from "@/shared/ui";
-import { dateFilterLabels, type DateFilter } from "../../../domain/date-window";
+import { dateFilterLabels } from "../../../domain/date-window";
+import { eventListHref, type EventListFilters } from "../list-filters";
 
-const chip = (active: boolean) =>
+export const chip = (active: boolean) =>
   cn(
-    "inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-medium",
+    "inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-medium",
     active ? "border-brand bg-brand text-brand-fg" : "border-border hover:bg-surface",
   );
 
 /**
  * Filtro de data da lista de eventos (RF15): atalhos + data específica. Funciona sem JavaScript
- * (links e formulário GET), e o estado fica na URL (compartilhável).
+ * (links e formulário GET), e o estado fica na URL (compartilhável), preservando as categorias.
  */
-export function EventDateFilter({ active, basePath = "/eventos" }: { active: DateFilter | null; basePath?: string }) {
+export function EventDateFilter({ filters, basePath = "/eventos" }: { filters: EventListFilters; basePath?: string }) {
+  const active = filters.quando;
   return (
     <nav aria-label="Filtrar por data" className="flex flex-wrap items-center gap-2">
-      <Link href={basePath} aria-current={!active ? "true" : undefined} className={chip(!active)}>
+      <Link href={eventListHref({ ...filters, quando: null }, basePath)} aria-current={!active ? "true" : undefined} className={chip(!active)}>
         Todos
       </Link>
       {(Object.keys(dateFilterLabels) as Array<keyof typeof dateFilterLabels>).map((kind) => (
-        <Link key={kind} href={`${basePath}?quando=${kind}`} aria-current={active?.kind === kind ? "true" : undefined} className={chip(active?.kind === kind)}>
+        <Link key={kind} href={eventListHref({ ...filters, quando: { kind } }, basePath)} aria-current={active?.kind === kind ? "true" : undefined} className={chip(active?.kind === kind)}>
           {dateFilterLabels[kind]}
         </Link>
       ))}
       <form action={basePath} className="flex items-center gap-2">
+        {filters.categorias.length > 0 && <input type="hidden" name="categoria" value={filters.categorias.join(",")} />}
         <label htmlFor="data-evento" className="sr-only">
           Escolher uma data
         </label>

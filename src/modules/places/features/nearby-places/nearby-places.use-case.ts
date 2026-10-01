@@ -13,6 +13,11 @@ export interface NearbyPlacesReader {
   nearby(origin: Coordinates, radiusMeters: number, limit: number): Promise<NearbyPlace[]>;
 }
 
+/** Distância (m) de uma origem até cada lugar pedido, numa consulta só. Lugares inexistentes ficam de fora. */
+export interface PlaceDistanceReader {
+  distancesFrom(origin: Coordinates, ids: string[]): Promise<Map<string, number>>;
+}
+
 export type NearbyPlaceItem = PlaceListItem & { distanceMeters: number; distanceLabel: string };
 
 export type NearbyPlacesResult = { origin: Coordinates; radiusMeters: number; items: NearbyPlaceItem[] };

@@ -41,6 +41,7 @@ export class PostgresEventReader implements EventReader, EventSummaryReader {
       where status = 'scheduled'
         and ends_at > ${q.now}
         ${q.window ? this.sql`and starts_at < ${q.window.to} and ends_at > ${q.window.from}` : this.sql``}
+        ${q.categories?.length ? this.sql`and category in ${this.sql(q.categories)}` : this.sql``}
         ${cursor ? this.sql`and (starts_at, id) > (${cursor.startsAt}, ${cursor.id}::uuid)` : this.sql``}
       order by starts_at, id
       limit ${q.limit}`;

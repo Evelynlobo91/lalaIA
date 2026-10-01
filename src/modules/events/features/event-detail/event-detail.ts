@@ -2,6 +2,7 @@ import { z } from "zod";
 import { categories } from "@/shared/catalog/categories";
 import { NotFoundError, err, ok, type Result } from "@/shared/kernel";
 import { formatPrice, type EventRepository } from "../../domain/event";
+import { isHappeningAt } from "../../domain/happening";
 import { whenLabel } from "../list-events/list-events";
 
 export type EventPhase = "upcoming" | "happening" | "finished" | "cancelled";
@@ -28,7 +29,7 @@ const labels = new Map<string, string>(categories.map((c) => [c.id, c.label]));
 export function phaseOf(status: "scheduled" | "cancelled", startsAt: Date, endsAt: Date, now: Date): EventPhase {
   if (status === "cancelled") return "cancelled";
   if (endsAt <= now) return "finished";
-  return startsAt <= now ? "happening" : "upcoming";
+  return isHappeningAt({ startsAt, endsAt }, now) ? "happening" : "upcoming";
 }
 
 /** RF06/RF14 — Detalhe do evento. Cancelados e encerrados continuam acessíveis (links já compartilhados). */

@@ -41,7 +41,7 @@ describe("ListEvents", () => {
         card(3, "2026-10-12T00:00:00Z", "2026-10-12T02:00:00Z"),
       ]),
     };
-    const res = await new ListEvents(reader, places, () => now).execute({ cursor: null, limit: 2, quando: null });
+    const res = await new ListEvents(reader, places, () => now).execute({ cursor: null, limit: 2, quando: null, categoria: [] });
 
     expect(reader.listUpcoming).toHaveBeenCalledWith({ now, cursor: null, limit: 3 });
     expect(places.summaries).toHaveBeenCalledWith(["lugar-1", "lugar-1"]);
@@ -54,7 +54,7 @@ describe("ListEvents", () => {
 
   it("lugar sumido não quebra a lista", async () => {
     const reader = { listUpcoming: vi.fn().mockResolvedValue([card(1, "2026-10-11T00:00:00Z", "2026-10-11T02:00:00Z")]) };
-    const res = await new ListEvents(reader, { summaries: vi.fn().mockResolvedValue([]) }, () => now).execute({ cursor: null, limit: 20, quando: null });
+    const res = await new ListEvents(reader, { summaries: vi.fn().mockResolvedValue([]) }, () => now).execute({ cursor: null, limit: 20, quando: null, categoria: [] });
     expect(res.ok && [res.value.items[0].placeName, res.value.nextCursor]).toEqual(["Local a confirmar", null]);
   });
 });
@@ -62,7 +62,7 @@ describe("ListEvents", () => {
 describe("ListEvents com filtro de data", () => {
   it("repassa ao leitor o período do atalho (no calendário de Joinville)", async () => {
     const reader = { listUpcoming: vi.fn().mockResolvedValue([]) };
-    await new ListEvents(reader, { summaries: vi.fn().mockResolvedValue([]) }, () => now).execute({ cursor: null, limit: 20, quando: { kind: "hoje" } });
+    await new ListEvents(reader, { summaries: vi.fn().mockResolvedValue([]) }, () => now).execute({ cursor: null, limit: 20, quando: { kind: "hoje" }, categoria: [] });
     expect(reader.listUpcoming).toHaveBeenCalledWith({
       now,
       cursor: null,

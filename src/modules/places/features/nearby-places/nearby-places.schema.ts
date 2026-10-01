@@ -16,9 +16,14 @@ const coordinate = (min: number, max: number) =>
     .transform(roundCoordinate)
     .refine((v) => v >= min && v <= max, "Fora da área atendida (Joinville e arredores).");
 
-export const nearbyPlacesSchema = z.object({
+/** Ponto (lat/lon) dentro da área atendida, já arredondado. Reutilizado por outros módulos (ex.: eventos agora). */
+export const servicePointShape = {
   lat: coordinate(SERVICE_AREA.minLat, SERVICE_AREA.maxLat),
   lon: coordinate(SERVICE_AREA.minLon, SERVICE_AREA.maxLon),
+};
+
+export const nearbyPlacesSchema = z.object({
+  ...servicePointShape,
   radius: z.coerce
     .number()
     .int()

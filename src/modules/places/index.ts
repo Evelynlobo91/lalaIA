@@ -18,6 +18,7 @@ import type { ModuleSubscriptions } from "@/shared/events";
 import { AssignPlaceOwner, placeForEdit, type Editor } from "./features/edit-place/edit-place";
 import { PostgresPlaceOwnershipRepository } from "./infra/postgres-place-ownership-repository";
 import { scheduleFromOsm } from "./domain/weekly-schedule";
+import type { Coordinates } from "./domain/place";
 import { searchPlacesRoute } from "./features/search-by-name/search-by-name.route";
 
 export type { PlaceDraft, Address, Coordinates } from "./domain/place";
@@ -32,7 +33,8 @@ export type { SelectedPlace } from "./features/places-map/ui/places-layer";
 export { NearMeButton } from "./features/nearby-places/ui/near-me-button";
 export { PlaceListCard } from "./features/list-places/ui/place-list-card";
 export type { NearbyPlacesResult, NearbyPlaceItem } from "./features/nearby-places/nearby-places.use-case";
-export { RADIUS_OPTIONS_M, DEFAULT_RADIUS_M } from "./features/nearby-places/nearby-places.schema";
+export { RADIUS_OPTIONS_M, DEFAULT_RADIUS_M, servicePointShape } from "./features/nearby-places/nearby-places.schema";
+export { formatDistance } from "./features/nearby-places/nearby-places.use-case";
 export { EditPlaceForm } from "./features/edit-place/ui/edit-place-form";
 export { PlacePicker, type PickedPlace } from "./features/search-by-name/ui/place-picker";
 export type { PlaceSummary } from "./domain/place-ownership";
@@ -98,6 +100,11 @@ export function searchPlacesByName(query: string, limit = 10) {
 /** Resumo de um lugar (ou null se não existir). */
 export function placeSummary(id: string) {
   return ownership().summary(id);
+}
+
+/** Distância (m) de um ponto até cada lugar, numa consulta (ex.: eventos acontecendo agora perto de mim). */
+export function placeDistances(origin: Coordinates, ids: string[]): Promise<Map<string, number>> {
+  return reader().distancesFrom(origin, ids);
 }
 
 /** Resumos de vários lugares numa consulta (ex.: listas de eventos). */

@@ -89,6 +89,16 @@ describe("PostgresPlaceReader.listAfter", () => {
     expect(ours.distanceMeters).toBeLessThan(3_000);
   });
 
+  it("distancesFrom: distância de um ponto a vários lugares; ids inexistentes ou inválidos ficam de fora", async () => {
+    const [{ id }] = await db<{ id: string }[]>`select id from places.places where source_id = ${`${prefix}/0`}`;
+    const missing = "00000000-0000-4000-8000-000000000000";
+    const distances = await reader.distancesFrom({ lat: -26.2893, lon: -48.8157 }, [id, missing, "nao-e-id"]);
+    expect([...distances.keys()]).toEqual([id]);
+    expect(distances.get(id)).toBeGreaterThan(2_500);
+    expect(distances.get(id)).toBeLessThan(3_000);
+    expect(await reader.distancesFrom({ lat: -26.3, lon: -48.84 }, [])).toEqual(new Map());
+  });
+
   it("nearby: raio pequeno longe de tudo → vazio", async () => {
     expect(await reader.nearby({ lat: -26.85, lon: -49.5 }, 1000, 10)).toEqual([]);
   });

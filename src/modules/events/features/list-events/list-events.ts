@@ -4,7 +4,9 @@ import { ok, type DomainError, type Result } from "@/shared/kernel";
 import { formatDateTime, formatTime, sameLocalDay } from "@/shared/time/joinville-time";
 import { formatPrice } from "../../domain/event";
 import { dateFilterParam, dateWindow } from "../../domain/date-window";
-import type { EventCursor, EventPlaceNames, EventReader } from "../../domain/event-card";
+import { isHappeningAt } from "../../domain/happening";
+import { categoryFilterParam } from "../events-by-category/events-by-category.schema";
+import type { EventCard, EventCursor, EventPlaceNames, EventReader } from "../../domain/event-card";
 
 export const DEFAULT_PAGE_SIZE = 20;
 
@@ -39,6 +41,7 @@ export const listEventsSchema = z.object({
     }),
   limit: z.coerce.number().int().min(1).max(50).default(DEFAULT_PAGE_SIZE),
   quando: dateFilterParam,
+  categoria: categoryFilterParam,
 });
 
 export type ListEventsInput = z.infer<typeof listEventsSchema>;
@@ -66,6 +69,24 @@ export function whenLabel(startsAt: Date, endsAt: Date): string {
   return `${formatDateTime(startsAt)} – ${sameLocalDay(startsAt, endsAt) ? formatTime(endsAt) : formatDateTime(endsAt)}`;
 }
 
+type PlaceName = { name: string; neighborhood: string | null };
+
+/** Card da lista a partir do evento e do nome do lugar (compartilhado com "Agora"). */
+export function toEventListItem(e: EventCard, place: PlaceName | undefined, now: Date): EventListItem {
+  return {
+    id: e.id,
+    title: e.title,
+    category: e.category,
+    categoryLabel: labels.get(e.category) ?? e.category,
+    placeName: place?.name ?? "Local a confirmar",
+    neighborhood: place?.neighborhood ?? null,
+    whenLabel: whenLabel(e.startsAt, e.endsAt),
+    priceLabel: formatPrice(e.priceCents),
+    happeningNow: isHappeningAt(e, now),
+    startsAt: e.startsAt.toISOString(),
+  };
+}
+
 /** RF13/RF17 — Eventos que estão acontecendo ou vão acontecer em Joinville. */
 export class ListEvents {
   constructor(
@@ -77,24 +98,14 @@ export class ListEvents {
   async execute(input: ListEventsInput): Promise<Result<EventListPage, DomainError>> {
     const now = this.now();
     const window = input.quando ? dateWindow(input.quando, now) : undefined;
-    const rows = await this.reader.listUpcoming({ now, cursor: input.cursor, limit: input.limit + 1, ...(window && { window }) });
+    const categories = input.categoria?.length ? input.categoria : undefined;
+    const rows = await this.reader.listUpcoming({ now, cursor: input.cursor, limit: input.limit + 1, ...(window && { window }), ...(categories && { categories }) });
     const page = rows.slice(0, input.limit);
     const places = new Map((await this.places.summaries(page.map((e) => e.placeId))).map((p) => [p.id, p]));
     const last = page.at(-1);
 
     return ok({
-      items: page.map((e) => ({
-        id: e.id,
-        title: e.title,
-        category: e.category,
-        categoryLabel: labels.get(e.category) ?? e.category,
-        placeName: places.get(e.placeId)?.name ?? "Local a confirmar",
-        neighborhood: places.get(e.placeId)?.neighborhood ?? null,
-        whenLabel: whenLabel(e.startsAt, e.endsAt),
-        priceLabel: formatPrice(e.priceCents),
-        happeningNow: e.startsAt <= now && now < e.endsAt,
-        startsAt: e.startsAt.toISOString(),
-      })),
+      items: page.map((e) => toEventListItem(e, places.get(e.placeId), now)),
       nextCursor: rows.length > input.limit && last ? encodeEventCursor({ startsAt: last.startsAt, id: last.id }) : null,
     });
   }
