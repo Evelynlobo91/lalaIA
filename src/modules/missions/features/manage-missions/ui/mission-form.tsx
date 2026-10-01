@@ -5,7 +5,7 @@ import { startTransition, useActionState, useId, useState, type FormEvent, type 
 import { idleFormState, type FormState } from "@/shared/http/form-state";
 import { Button, Checkbox, FormAlert, TextField } from "@/shared/ui";
 import { DWELL_MINUTES, GEOFENCE_RADIUS_METERS } from "../../../domain/geofence";
-import { MAX_STEPS, MAX_XP, MIN_XP, validationKinds, type MissionRecord, type ValidationKind } from "../../../domain/mission";
+import { ESTIMATED_MINUTES, MAX_STEPS, MAX_XP, MINUTES_PER_STEP, MIN_XP, validationKinds, type MissionRecord, type ValidationKind } from "../../../domain/mission";
 import { saveMissionAction } from "../manage-missions.actions";
 
 export type MissionFormStep = {
@@ -32,6 +32,9 @@ export type MissionFormValues = {
   steps: MissionFormStep[];
   /** Missão surpresa (#63). Vem como "on" do formulário quando marcada. */
   surprise?: boolean | string;
+  /** Tempo estimado (min) e gasto por pessoa (R$) (#64). Vazios = não informados. */
+  estimatedMinutes?: string;
+  cost?: string;
 };
 export type PlaceOption = { id: string; label: string };
 
@@ -118,6 +121,30 @@ export function MissionForm({ initial, placeOptions, submitLabel, stepsLocked = 
         <TextField label="Termina em" name="endsAt" type="datetime-local" required defaultValue={values.endsAt} errors={errors.endsAt} />
       </div>
       <p className="-mt-3 text-sm text-muted">Horário de Joinville.</p>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <TextField
+          label="Tempo estimado (min)"
+          name="estimatedMinutes"
+          type="number"
+          inputMode="numeric"
+          min={ESTIMATED_MINUTES.min}
+          max={ESTIMATED_MINUTES.max}
+          step={5}
+          defaultValue={values.estimatedMinutes}
+          errors={errors.estimatedMinutes}
+          hint={`Opcional. Sem tempo, estimamos ${MINUTES_PER_STEP} min por etapa.`}
+        />
+        <TextField
+          label="Gasto por pessoa (R$)"
+          name="cost"
+          inputMode="decimal"
+          placeholder="Ex.: 25 ou 0 se for grátis"
+          defaultValue={values.cost}
+          errors={errors.cost}
+          hint="Opcional. Ajuda a sugerir a missão para quem tem orçamento curto."
+        />
+      </div>
 
       <Checkbox
         name="surprise"

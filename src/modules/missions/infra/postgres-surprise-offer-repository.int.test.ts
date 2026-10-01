@@ -57,6 +57,16 @@ describe("missões surpresa no catálogo", () => {
   });
 });
 
+describe("tempo estimado e gasto por pessoa (#64)", () => {
+  it("grava, lê e o banco recusa valores fora da faixa", async () => {
+    const criada = await missions.create(parceiro, { ...draft(`Com custo ${parceiro}`, false), estimatedMinutes: 90, costCents: 1250 });
+    expect(await missions.findById(criada.id)).toMatchObject({ estimatedMinutes: 90, costCents: 1250 });
+    expect((await missions.findById(comum.id))?.estimatedMinutes).toBeNull();
+    await expect(db`update missions.missions set estimated_minutes = 5 where id = ${criada.id}`).rejects.toThrow(/check constraint/);
+    await expect(db`update missions.missions set cost_cents = -1 where id = ${criada.id}`).rejects.toThrow(/check constraint/);
+  });
+});
+
 describe("ofertas (missions.surprise_offers, RLS)", () => {
   it("sem oferta aberta, o banco recusa aceitar a missão surpresa", async () => {
     await expect(userMissions.accept(ana, surpresa.id)).rejects.toThrow(/row-level security/);

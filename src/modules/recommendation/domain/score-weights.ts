@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /** Sinais de score conhecidos. Um sinal novo ganha um id aqui e um peso padrão abaixo. */
-export const signalIds = ["preference", "happeningNow", "live", "novelty", "favorite", "proximity"] as const;
+export const signalIds = ["preference", "happeningNow", "live", "novelty", "favorite", "proximity", "missionFit"] as const;
 export type SignalId = (typeof signalIds)[number];
 
 export type ScoreWeights = Record<SignalId, number>;
@@ -23,6 +23,8 @@ export const DEFAULT_WEIGHTS: ScoreWeights = {
   favorite: 2,
   /** Mais perto pesa mais (só com localização). */
   proximity: 1.5,
+  /** Missão que cabe no tempo disponível (com folga) e, se grátis, no bolso (#64). */
+  missionFit: 1,
 };
 
 const weight = z.number().min(0).max(10);

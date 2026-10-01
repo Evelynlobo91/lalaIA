@@ -14,6 +14,8 @@ type MissionRow = {
   status: MissionStatus;
   created_at: Date;
   surprise: boolean;
+  estimated_minutes: number | null;
+  cost_cents: number | null;
 };
 
 type StepRow = {
@@ -27,7 +29,7 @@ type StepRow = {
   dwell_minutes: number | null;
 };
 
-const COLUMNS = "id, owner_id, title, description, xp, starts_at, ends_at, status, created_at, surprise";
+const COLUMNS = "id, owner_id, title, description, xp, starts_at, ends_at, status, created_at, surprise, estimated_minutes, cost_cents";
 const STEP_COLUMNS = "id, mission_id, position, title, place_id, validation, geofence_radius_m, dwell_minutes";
 
 const toStep = (r: StepRow): MissionStep => ({
@@ -57,6 +59,8 @@ async function withSteps(db: Sql | Tx, rows: MissionRow[]): Promise<MissionRecor
     status: r.status,
     createdAt: r.created_at,
     surprise: r.surprise,
+    estimatedMinutes: r.estimated_minutes,
+    costCents: r.cost_cents,
     steps: steps.filter((s) => s.mission_id === r.id).map(toStep),
   }));
 }
@@ -125,9 +129,9 @@ export class PostgresMissionRepository implements MissionRepository {
       actorId,
       async (tx) => {
         const rows = await tx.unsafe<MissionRow[]>(
-          `insert into missions.missions (owner_id, title, description, xp, starts_at, ends_at, surprise)
-           values ($1, $2, $3, $4, $5, $6, $7) returning ${COLUMNS}`,
-          [actorId, d.title, d.description, d.xp, d.startsAt, d.endsAt, d.surprise ?? false],
+          `insert into missions.missions (owner_id, title, description, xp, starts_at, ends_at, surprise, estimated_minutes, cost_cents)
+           values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning ${COLUMNS}`,
+          [actorId, d.title, d.description, d.xp, d.startsAt, d.endsAt, d.surprise ?? false, d.estimatedMinutes ?? null, d.costCents ?? null],
         );
         await saveSteps(tx, rows[0].id, d);
         return (await withSteps(tx, rows))[0];
@@ -141,9 +145,10 @@ export class PostgresMissionRepository implements MissionRepository {
       actorId,
       async (tx) => {
         const rows = await tx.unsafe<MissionRow[]>(
-          `update missions.missions set title = $2, description = $3, xp = $4, starts_at = $5, ends_at = $6, surprise = $7
+          `update missions.missions set title = $2, description = $3, xp = $4, starts_at = $5, ends_at = $6, surprise = $7,
+             estimated_minutes = $8, cost_cents = $9
            where id = $1 and status = 'active' returning ${COLUMNS}`,
-          [id, d.title, d.description, d.xp, d.startsAt, d.endsAt, d.surprise ?? false],
+          [id, d.title, d.description, d.xp, d.startsAt, d.endsAt, d.surprise ?? false, d.estimatedMinutes ?? null, d.costCents ?? null],
         );
         if (rows.length === 0) return null;
         if (options.saveSteps) await saveSteps(tx, id, d);

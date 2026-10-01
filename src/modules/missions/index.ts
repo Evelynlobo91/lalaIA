@@ -142,6 +142,8 @@ export async function editableMission(editor: { id: string; isAdmin: boolean }, 
       startsAt: toLocalInput(mission.startsAt),
       endsAt: toLocalInput(mission.endsAt),
       surprise: mission.surprise ?? false,
+      estimatedMinutes: mission.estimatedMinutes == null ? "" : String(mission.estimatedMinutes),
+      cost: mission.costCents == null ? "" : (mission.costCents / 100).toFixed(2).replace(".", ","),
       steps: mission.steps.map((s) => ({
         title: s.title,
         placeId: s.placeId,

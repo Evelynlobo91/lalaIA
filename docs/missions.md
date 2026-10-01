@@ -182,6 +182,16 @@ Publicados **depois** de gravar. Missões não concedem XP: quem credita é o m�
   não pode chamar o motor sem criar um ciclo. A surpresa usa os mesmos sinais objetivos (proximidade por PostGIS e
   disponibilidade no horário); as missões comuns seguem ranqueadas pelo motor (#64).
 
+## Recomendar missões (#64, RF27)
+
+- O parceiro pode informar o **tempo estimado** (10 a 600 min; sem valor, 30 min por etapa: `estimatedMinutesOf`) e o
+  **gasto por pessoa** (R$ 0 a R$ 1.000; 0 = grátis; sem valor = não informado). Colunas `estimated_minutes` e
+  `cost_cents` em `missions.missions`, com `check` no banco. Os cards de missão mostram "Cerca de 1 h 30 · Grátis".
+- `MissionCard` (de `availableMissions()`) passou a trazer `estimatedMinutes`, `costCents` e `surprise`.
+- O ranking ("Missões para você", em `/missoes` e `/sugestoes`) mora no módulo `recommendation`: veja
+  [recomendação](recommendation.md#missões-para-você-64-rf27). Missões não têm categoria própria: ela é derivada dos
+  lugares das etapas pela API pública de places.
+
 ## Livro-razão de XP (#65, RF31) — módulo `progression`
 
 - `progression.xp_transactions` é **append-only**: um trigger recusa `UPDATE`, `DELETE` e `TRUNCATE`

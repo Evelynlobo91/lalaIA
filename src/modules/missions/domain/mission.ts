@@ -45,7 +45,21 @@ export type MissionDraft = {
    * As etapas só se revelam depois do aceite, uma por vez. Ausente = false.
    */
   surprise?: boolean;
+  /** Tempo estimado para concluir, em minutos (#64); ausente/null = estimado pelas etapas. */
+  estimatedMinutes?: number | null;
+  /** Gasto estimado por pessoa, em centavos (#64); 0 = grátis; ausente/null = não informado. */
+  costCents?: number | null;
 };
+
+/** Estimativa quando o parceiro não informa: cerca de 30 min por etapa (deslocamento + atividade). */
+export const MINUTES_PER_STEP = 30;
+export const ESTIMATED_MINUTES = { min: 10, max: 600 } as const;
+export const MAX_COST_CENTS = 100_000;
+
+/** Tempo para concluir a missão: o informado pelo parceiro ou 30 min por etapa. */
+export function estimatedMinutesOf(mission: Pick<MissionDraft, "estimatedMinutes" | "steps">): number {
+  return mission.estimatedMinutes ?? Math.max(1, mission.steps.length) * MINUTES_PER_STEP;
+}
 
 export type MissionStep = StepDraft & { id: string; missionId: string; position: number };
 

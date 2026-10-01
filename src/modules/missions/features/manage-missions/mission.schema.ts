@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { fromLocalInput } from "@/shared/time/joinville-time";
 import { DWELL_MINUTES, GEOFENCE_RADIUS_METERS, geofenceFor } from "../../domain/geofence";
-import { MAX_STEPS, MAX_XP, MIN_XP, usesGeofence, validationKinds, type StepDraft } from "../../domain/mission";
+import { ESTIMATED_MINUTES, MAX_COST_CENTS, MAX_STEPS, MAX_XP, MIN_XP, usesGeofence, validationKinds, type StepDraft } from "../../domain/mission";
 
 const MAX_WINDOW_MS = 366 * 24 * 60 * 60 * 1000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -25,7 +25,23 @@ const stepInput = z.object({
   dwellMinutes: z.coerce.number().catch(Number.NaN).optional(),
 });
 
-const inRange = (v: number | undefined, range: { min: number; max: number }) => v === undefined || (Number.isInteger(v) && v >= range.min && v <= range.max);
+/** Número inteiro opcional vindo do formulário: vazio = null. */
+const optionalInt = (min: number, max: number, message: string) =>
+  z
+    .string()
+    .optional()
+    .transform((v, ctx) => {
+      const raw = v?.trim() ?? "";
+      if (raw === "") return null;
+      const n = Number(raw);
+      if (!Number.isInteger(n) || n < min || n > max) {
+        ctx.addIssue({ code: "custom", message });
+        return z.NEVER;
+      }
+      return n;
+    });
+
+const inRange =(v: number | undefined, range: { min: number; max: number }) => v === undefined || (Number.isInteger(v) && v >= range.min && v <= range.max);
 
 /**
  * Etapas chegam como JSON num campo oculto (o editor de etapas é dinâmico). As mensagens dizem
@@ -78,6 +94,26 @@ export const missionSchema = z
     startsAt: localDateTime("quando a missão começa"),
     endsAt: localDateTime("quando a missão termina"),
     steps,
+    /** Tempo estimado em minutos (#64). Vazio = estimado pelas etapas. */
+    estimatedMinutes: optionalInt(
+      ESTIMATED_MINUTES.min,
+      ESTIMATED_MINUTES.max,
+      `O tempo estimado vai de ${ESTIMATED_MINUTES.min} a ${ESTIMATED_MINUTES.max} minutos.`,
+    ),
+    /** Gasto por pessoa em reais (ex.: "25" ou "12,50"), guardado em centavos (#64). Vazio = não informado. */
+    cost: z
+      .string()
+      .optional()
+      .transform((v, ctx) => {
+        const raw = v?.trim().replace(",", ".") ?? "";
+        if (raw === "") return null;
+        const reais = Number(raw);
+        if (!/^\d+(\.\d{1,2})?$/.test(raw) || reais * 100 > MAX_COST_CENTS) {
+          ctx.addIssue({ code: "custom", message: `Informe o gasto por pessoa em reais (de 0 a ${MAX_COST_CENTS / 100}).` });
+          return z.NEVER;
+        }
+        return Math.round(reais * 100);
+      }),
     /** Checkbox: "on" quando marcada, ausente quando não (#63). */
     surprise: z
       .string()
@@ -88,6 +124,6 @@ export const missionSchema = z
     if (v.endsAt <= v.startsAt) ctx.addIssue({ code: "custom", path: ["endsAt"], message: "O fim precisa ser depois do início." });
     else if (v.endsAt.getTime() - v.startsAt.getTime() > MAX_WINDOW_MS) ctx.addIssue({ code: "custom", path: ["endsAt"], message: "A missão pode durar no máximo 1 ano." });
   })
-  .transform(({ missionId, ...draft }) => ({ missionId, draft }));
+  .transform(({ missionId, cost, ...draft }) => ({ missionId, draft: { ...draft, costCents: cost } }));
 
 export type MissionInput = z.infer<typeof missionSchema>;

@@ -3,6 +3,7 @@ import { formatDistance } from "@/modules/places";
 import { formatDateTime, formatTime } from "@/shared/time/joinville-time";
 import type { CandidateKind } from "../../domain/candidate";
 import type { Recommendation } from "../../domain/score";
+import { durationLabel } from "../../domain/signals";
 
 /** Item pronto para a tela e para a API (serializável). */
 export type RecommendationItem = {
@@ -27,6 +28,9 @@ export type RecommendationItem = {
   reasons: string[];
 };
 
+/** Gasto estimado por pessoa de uma missão: "Grátis" ou "R$ 25,00/pessoa". */
+const missionCost = (cents: number) => (cents === 0 ? "Grátis" : `${(cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}/pessoa`);
+
 const kindLabel: Record<CandidateKind, string> = { event: "Evento", place: "Lugar", mission: "Missão" };
 export const recommendationKindLabel = (kind: CandidateKind) => kindLabel[kind];
 
@@ -38,11 +42,11 @@ export function toRecommendationItem({ candidate: c, score, reasons }: Recommend
   let timeLabel: string | null = null;
   if (c.kind === "event" && period) timeLabel = happening ? startedLabel(period.startsAt, now) : startsInLabel(period.startsAt, now);
   else if (c.kind === "place" && period) timeLabel = happening ? "Aberto agora" : `Abre às ${formatTime(period.startsAt)}`;
-  else if (c.kind === "mission" && period) timeLabel = `Até ${formatDateTime(period.endsAt)}`;
+  else if (c.kind === "mission" && period) timeLabel = `${c.durationMinutes != null ? `Cerca de ${durationLabel(c.durationMinutes)} · ` : ""}até ${formatDateTime(period.endsAt)}`;
 
   let priceLabel: string | null = null;
-  if (c.priceCents !== null) priceLabel = formatPrice(c.priceCents);
-  else if (c.kind === "mission" && c.xp !== null) priceLabel = `${c.xp} XP`;
+  if (c.kind === "mission" && c.xp !== null) priceLabel = c.priceCents === null ? `${c.xp} XP` : `${c.xp} XP · ${missionCost(c.priceCents)}`;
+  else if (c.priceCents !== null) priceLabel = formatPrice(c.priceCents);
 
   return {
     key: `${c.kind}:${c.id}`,

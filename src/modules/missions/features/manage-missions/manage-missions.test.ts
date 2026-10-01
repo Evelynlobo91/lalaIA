@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { isAvailable, xpSplit, type MissionDraft, type MissionPlaces, type MissionRecord, type MissionRepository } from "../../domain/mission";
+import { estimatedMinutesOf, isAvailable, xpSplit, type MissionDraft, type MissionPlaces, type MissionRecord, type MissionRepository } from "../../domain/mission";
 import { missionSchema } from "./mission.schema";
 import { ArchiveMission, SaveMission } from "./manage-missions.use-cases";
 
@@ -31,6 +31,14 @@ describe("missionSchema", () => {
     ]);
   });
 
+  it("tempo estimado e gasto por pessoa (#64): opcionais; gasto em reais vira centavos; surpresa pelo checkbox", () => {
+    expect(missionSchema.parse(form()).draft).toMatchObject({ estimatedMinutes: null, costCents: null, surprise: false });
+    expect(missionSchema.parse(form({ estimatedMinutes: "90", cost: "12,50", surprise: "on" })).draft).toMatchObject({ estimatedMinutes: 90, costCents: 1250, surprise: true });
+    expect(missionSchema.parse(form({ cost: "0" })).draft.costCents).toBe(0);
+    expect(estimatedMinutesOf({ estimatedMinutes: null, steps: [{}, {}, {}] as never })).toBe(90);
+    expect(estimatedMinutesOf({ estimatedMinutes: 45, steps: [{}, {}, {}] as never })).toBe(45);
+  });
+
   it("etapas com GPS (#61): raio e permanência; em QR + GPS a permanência é zero; QR ignora a geofence", () => {
     const { draft } = missionSchema.parse(
       form({
@@ -58,6 +66,8 @@ describe("missionSchema", () => {
     ["etapa sem descrição", { steps: JSON.stringify([{ title: "", placeId: CAFE }]) }, "steps", "Etapa 1: diga o que fazer (3 a 80 caracteres)."],
     ["etapas que não são JSON", { steps: "{" }, "steps", "Etapas inválidas."],
     ["mais de 10 etapas", { steps: JSON.stringify(Array.from({ length: 11 }, () => ({ title: "Etapa", placeId: CAFE }))) }, "steps", "Use no máximo 10 etapas."],
+    ["tempo estimado fora da faixa", { estimatedMinutes: "5" }, "estimatedMinutes", "O tempo estimado vai de 10 a 600 minutos."],
+    ["gasto inválido", { cost: "abc" }, "cost", "Informe o gasto por pessoa em reais (de 0 a 1000)."],
     ["raio do GPS fora da faixa", { steps: JSON.stringify([{ title: "Chegue à praça", placeId: CAFE, validation: "gps", radiusMeters: 1000, dwellMinutes: 2 }]) }, "steps", "Etapa 1: o raio do check-in vai de 30 a 300 m."],
     ["permanência fora da faixa", { steps: JSON.stringify([{ title: "Chegue à praça", placeId: CAFE, validation: "gps", radiusMeters: 80, dwellMinutes: 90 }]) }, "steps", "Etapa 1: o tempo no lugar vai de 0 a 30 minutos."],
   ])("recusa %s", (_, patch, field, message) => {

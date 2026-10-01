@@ -12,15 +12,29 @@ import {
   type MyMission,
   type SurpriseTeaser,
 } from "@/modules/missions";
-import { Badge, ButtonLink, EmptyState } from "@/shared/ui";
+import { NearMeButton } from "@/modules/places";
+import { MissionRecommendations, constraintsSummary, missionRecommendations } from "@/modules/recommendation";
+import { Badge, ButtonLink, EmptyState, FormAlert } from "@/shared/ui";
+
+/** Leva as restrições efetivas (e a localização) para /sugestoes, onde dá para ajustar em chips. */
+function sugestoesHref(state: { tempo: number; orcamento: number | null; pessoas: number; origin: { lat: number; lon: number } | null }) {
+  const query = new URLSearchParams({ tempo: String(state.tempo), orcamento: state.orcamento === null ? "sem" : String(state.orcamento), pessoas: String(state.pessoas) });
+  if (state.origin) {
+    query.set("lat", String(state.origin.lat));
+    query.set("lon", String(state.origin.lon));
+  }
+  return `/sugestoes?${query.toString()}`;
+}
 
 export const metadata: Metadata = { title: "Missões", description: "Missões urbanas para explorar Joinville e ganhar XP." };
 // Depende do momento (janela de validade) e de quem está logado.
 export const dynamic = "force-dynamic";
 
-export default async function MissoesPage() {
+export default async function MissoesPage({ searchParams }: PageProps<"/missoes">) {
+  const params = await searchParams;
   const user = await getCurrentUser();
-  const [available, mine, surprises] = await Promise.all([
+  const [recommended, available, mine, surprises] = await Promise.all([
+    missionRecommendations(params),
     availableMissions(),
     user ? myMissions(user.id) : Promise.resolve([] as MyMission[]),
     user ? openSurpriseOffers(user.id) : Promise.resolve([] as SurpriseTeaser[]),
@@ -34,6 +48,15 @@ export default async function MissoesPage() {
         <h1 className="text-2xl font-bold md:text-3xl">Missões</h1>
         <p className="text-muted">Explore Joinville, complete etapas nos lugares parceiros e ganhe XP.</p>
       </header>
+
+      {recommended.invalid && <FormAlert>{recommended.invalid} Mostrando com os padrões do seu perfil.</FormAlert>}
+      <MissionRecommendations items={recommended.items} summary={constraintsSummary(recommended.state)} />
+      <div className="flex flex-wrap items-start gap-3">
+        {!recommended.state.origin && <NearMeButton target="/missoes" label="Missões perto de mim" />}
+        <ButtonLink href={sugestoesHref(recommended.state)} variant="ghost">
+          Ajustar tempo e orçamento
+        </ButtonLink>
+      </div>
 
       {user && (
         <section className="flex flex-col gap-3" aria-label="Missão surpresa">

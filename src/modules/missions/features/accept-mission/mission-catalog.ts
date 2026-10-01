@@ -1,4 +1,4 @@
-import type { MissionPlace, MissionPlaces, MissionRecord, MissionRepository } from "../../domain/mission";
+import { estimatedMinutesOf, type MissionPlace, type MissionPlaces, type MissionRecord, type MissionRepository } from "../../domain/mission";
 import type { Progress, StepCompletionReader } from "../../domain/progress";
 import type { UserMission, UserMissionRepository } from "../../domain/user-mission";
 
@@ -14,6 +14,10 @@ export type MissionCard = {
   /** Lugares das etapas, sem repetir. Vazio nas missões surpresa (#63): as etapas se revelam na tela da missão. */
   places: MissionPlace[];
   surprise: boolean;
+  /** Tempo para concluir (informado pelo parceiro ou ~30 min por etapa), em minutos (#64). */
+  estimatedMinutes: number;
+  /** Gasto estimado por pessoa em centavos; null = não informado (#64). */
+  costCents: number | null;
 };
 
 export type MyMission = MissionCard & { userMission: UserMission; progress: Progress };
@@ -26,6 +30,8 @@ export async function toCards(missions: MissionRecord[], places: Pick<MissionPla
   const byId = new Map(found.map((p) => [p.id, { id: p.id, name: p.name, neighborhood: p.neighborhood }]));
   return missions.map((m) => ({
     surprise: m.surprise ?? false,
+    estimatedMinutes: estimatedMinutesOf(m),
+    costCents: m.costCents ?? null,
     id: m.id,
     title: m.title,
     description: m.description,

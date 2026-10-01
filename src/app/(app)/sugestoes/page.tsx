@@ -1,6 +1,6 @@
 import { SearchX } from "lucide-react";
 import type { Metadata } from "next";
-import { ConstraintsForm, RecommendationList, constrainedRecommendations, constraintsSummary } from "@/modules/recommendation";
+import { ConstraintsForm, MissionRecommendations, RecommendationList, constrainedRecommendations, constraintsSummary, missionRecommendations } from "@/modules/recommendation";
 import { EmptyState, FormAlert, OsmAttribution } from "@/shared/ui";
 
 export const metadata: Metadata = {
@@ -13,7 +13,8 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function SugestoesPage({ searchParams }: PageProps<"/sugestoes">) {
-  const { invalid, state, items } = await constrainedRecommendations(await searchParams);
+  const params = await searchParams;
+  const [{ invalid, state, items }, missions] = await Promise.all([constrainedRecommendations(params), missionRecommendations(params)]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -36,6 +37,8 @@ export default async function SugestoesPage({ searchParams }: PageProps<"/sugest
           <RecommendationList items={items} label="Sugestões ordenadas para você" />
         )}
       </section>
+
+      <MissionRecommendations items={missions.items} />
       <OsmAttribution className="text-center" />
     </div>
   );

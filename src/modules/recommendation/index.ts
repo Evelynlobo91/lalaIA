@@ -1,6 +1,8 @@
 // API pública do módulo recommendation (motor de recomendação, epic #11).
 import { getCurrentUser } from "@/modules/identity";
-import { findCandidates, realtimeFeed, recommendationEngine, recommendNow, recommendWithConstraints, surpriseMe } from "./composition";
+import { findCandidates, realtimeFeed, recommendationEngine, recommendMissions, recommendNow, recommendWithConstraints, surpriseMe } from "./composition";
+import { recommendMissionsRoute } from "./features/recommend-missions/recommend-missions.route";
+import { parseMissionParams } from "./features/recommend-missions/recommend-missions.schema";
 import { surpriseMeRoute } from "./features/surprise-me/surprise-me.route";
 import { parseSurpriseParams } from "./features/surprise-me/surprise-me.schema";
 import { realtimeFeedRoute } from "./features/realtime-feed/realtime-feed.route";
@@ -22,6 +24,7 @@ export type { RealtimeFeedView } from "./features/realtime-feed/realtime-feed.us
 export type { ConstraintState } from "./features/rec-constraints/rec-constraints.use-case";
 export type { Itinerary, ItineraryStop } from "./features/surprise-me/surprise-me.use-case";
 export { ItineraryView } from "./features/surprise-me/ui/itinerary-view";
+export { MissionRecommendations } from "./features/recommend-missions/ui/mission-recommendations";
 
 /**
  * Motor determinístico (candidatos + filtros + score). Porta para o "ME SURPREENDA" (#74):
@@ -55,6 +58,17 @@ export async function realtimeFeedView(params: Record<string, string | string[] 
   return { invalid: parsed.success ? null : (parsed.error.issues[0]?.message ?? "Localização inválida."), view: result.value, origin };
 }
 
+/**
+ * RF27 (#64) — "Missões para você": missões ordenadas por relevância (preferências, distância, tempo e orçamento),
+ * com os mesmos parâmetros de /sugestoes. Parâmetro inválido → `invalid`, e segue com os padrões do perfil.
+ */
+export async function missionRecommendations(params: Record<string, string | string[] | undefined>) {
+  const { params: parsed, invalid } = parseMissionParams(params);
+  const result = await recommendMissions().execute({ userId: await currentUserId(), params: parsed });
+  if (!result.ok) throw result.error;
+  return { invalid, ...result.value };
+}
+
 /** RF42 — "ME SURPREENDA": roteiro com as restrições da URL (/surpreenda); inválido cai nos padrões do perfil. */
 export async function surpriseItinerary(params: Record<string, string | string[] | undefined>) {
   const { params: parsed, invalid } = parseSurpriseParams(params);
@@ -72,6 +86,8 @@ export const recommendationApi = {
   recommendations: recScoreRoute(recommendNow, currentUserId),
   /** GET /api/recommendations/for-me — com as restrições do formulário e os padrões do perfil. */
   forMe: recConstraintsRoute(recommendWithConstraints, currentUserId),
+  /** GET /api/recommendations/missions — "Missões para você" (#64), com as mesmas restrições do /sugestoes. */
+  missions: recommendMissionsRoute(recommendMissions, currentUserId),
   /** GET /api/recommendations/now?lat=&lon= — feed "Agora perto de você". */
   now: realtimeFeedRoute(realtimeFeed, currentUserId),
 };
