@@ -86,3 +86,21 @@ describe("PostgresStreamRepository (#47: chave só para o dono)", () => {
     expect((await repo.listLive(500)).find((s) => s.id === created.id)?.status).toBe("live");
   });
 });
+
+describe("situação atual (#53)", () => {
+  it("dona e admin atualizam; outra parceira não; limpar volta a null", async () => {
+    const created = (await repo.create(ana, newStream()))!;
+    expect(created.note).toBeNull();
+    expect((await repo.setNote(ana, created.id, "Casa cheia"))?.note).toBe("Casa cheia");
+    expect(await repo.setNote(bia, created.id, "Forjada")).toBeNull();
+    expect((await repo.findById(created.id))?.note).toBe("Casa cheia");
+    expect((await repo.setNote(adm, created.id, "Show começa 22h"))?.note).toBe("Show começa 22h");
+    expect((await repo.setNote(ana, created.id, null))?.note).toBeNull();
+  });
+
+  it("o banco recusa situação acima de 80 caracteres ou vazia", async () => {
+    const created = (await repo.create(ana, newStream()))!;
+    await expect(repo.setNote(ana, created.id, "x".repeat(81))).rejects.toThrow(/check constraint/);
+    await expect(repo.setNote(ana, created.id, "")).rejects.toThrow(/check constraint/);
+  });
+});

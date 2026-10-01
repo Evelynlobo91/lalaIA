@@ -6,6 +6,7 @@ import type { LiveTargetView } from "../stream-key.use-case";
 import { ProvisionStreamButton } from "./provision-stream-button";
 import { StreamControls } from "../../stream-control/ui/stream-controls";
 import { StreamKeyField } from "./stream-key-field";
+import { StreamNoteForm } from "../../stream-context/ui/stream-note-form";
 
 export function StreamStatusBadge({ status }: { status: StreamStatus }) {
   if (status === "live") return <LiveBadge />;
@@ -46,6 +47,7 @@ export function LiveTargetsList({ targets }: { targets: LiveTargetView[] }) {
             {t.stream ? (
               <>
                 <StreamControls streamId={t.stream.id} status={t.stream.status} label={t.label} />
+                {t.stream.status !== "ended" && <StreamNoteForm streamId={t.stream.id} note={t.stream.note} label={t.label} />}
                 <StreamKeyField streamId={t.stream.id} />
               </>
             ) : (

@@ -22,6 +22,7 @@ function setup(initial: { control?: StreamControl; signal?: "offline" | "live" }
     status: statusOf(control, signal),
     signalChangedAt: new Date(),
     createdAt: new Date(),
+    note: null,
   });
   let current = make(initial.control ?? "on", initial.signal ?? "live");
   const order: string[] = [];

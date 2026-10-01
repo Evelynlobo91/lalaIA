@@ -22,6 +22,7 @@ const record = (patch: Partial<StreamRecord> = {}): StreamRecord => ({
   status: "waiting",
   signalChangedAt: new Date(),
   createdAt: new Date(),
+  note: null,
   ...patch,
 });
 
@@ -140,7 +141,7 @@ describe("ListLiveTargets (#47)", () => {
     expect(view).toEqual({
       ingestUrl: "rtmps://global-live.mux.com:443/app",
       simulated: true,
-      targets: [{ ...target, label: "Bar do Zé", href: `/lugares/${PLACE}`, stream: { id: "s1", status: "live" } }],
+      targets: [{ ...target, label: "Bar do Zé", href: `/lugares/${PLACE}`, stream: { id: "s1", status: "live", note: null } }],
     });
     expect(JSON.stringify(view)).not.toContain("chave");
   });

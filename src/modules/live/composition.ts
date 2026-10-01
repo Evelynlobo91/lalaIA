@@ -7,6 +7,7 @@ import { GetLivePlayback, ListActiveStreams } from "./features/player/player.use
 import { GetLiveStatus } from "./features/stream-states/stream-states.use-case";
 import { GetActiveStreams, GetLiveNowGeo, ListLiveNow } from "./features/live-badge/live-badge.use-case";
 import { ModuleLiveTargetDirectory } from "./infra/live-target-directory";
+import { GetStreamContext, UpdateStreamNote } from "./features/stream-context/stream-context.use-case";
 import { ControlStream, EndStreamOfCancelledEvent } from "./features/stream-control/stream-control.use-case";
 import { HandleProviderWebhook } from "./features/webhooks/webhooks.use-case";
 import { streamingProviderFrom } from "./infra/live-config";
@@ -39,3 +40,6 @@ const targetDirectory = new ModuleLiveTargetDirectory();
 export const listLiveNow = lazy(() => new ListLiveNow(streamRepository(), targetDirectory));
 export const getActiveStreams = lazy(() => new GetActiveStreams(listActiveStreamsUseCase()));
 export const getLiveNowGeo = lazy(() => new GetLiveNowGeo(listLiveNow()));
+
+export const updateStreamNote = lazy(() => new UpdateStreamNote(streamRepository(), streamRepository()));
+export const getStreamContext = lazy(() => new GetStreamContext(targetDirectory));

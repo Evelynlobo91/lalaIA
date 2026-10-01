@@ -2,8 +2,11 @@ import type { PublicStreamReader, StreamEntityType, StreamStatus, StreamTarget }
 import type { StreamingProvider } from "../../domain/streaming-provider";
 import { ACTIVE_STREAMS_MAX } from "./player.schema";
 
-/** O que o público vê de uma transmissão. A URL HLS só sai quando está ao vivo (pausada/encerrada some). */
-export type LivePlayback = { streamId: string; status: StreamStatus; playbackUrl: string | null };
+/**
+ * O que o público vê de uma transmissão. A URL HLS só sai quando está ao vivo (pausada/encerrada some).
+ * `note` é a situação atual definida pelo parceiro e `liveSince`, desde quando está no ar (#53).
+ */
+export type LivePlayback = { streamId: string; status: StreamStatus; playbackUrl: string | null; note: string | null; liveSince: Date | null };
 
 /** RF19 — Live de um lugar/evento para o player (null se não houver transmissão). Nunca expõe a chave. */
 export class GetLivePlayback {
@@ -19,6 +22,9 @@ export class GetLivePlayback {
       streamId: stream.id,
       status: stream.status,
       playbackUrl: stream.status === "live" ? this.provider().playbackUrl(stream.playbackId) : null,
+      // Encerrada: a situação não vale mais.
+      note: stream.status === "ended" ? null : stream.note,
+      liveSince: stream.status === "live" ? stream.signalChangedAt : null,
     };
   }
 }

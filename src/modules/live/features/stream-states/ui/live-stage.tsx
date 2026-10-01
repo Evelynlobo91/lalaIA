@@ -6,6 +6,7 @@ import { useState, type ReactNode } from "react";
 import { Button, LiveBadge } from "@/shared/ui";
 import { liveViewState, type LiveStatusView, type LiveViewKind } from "../stream-states.use-case";
 import { useLiveStatus } from "./use-live-status";
+import { StreamContextLine, type StreamContextInfo } from "../../stream-context/ui/stream-context-line";
 
 // O player (e o hls.js, quando preciso) só é baixado quando a live está no ar: não pesa a página.
 const HlsPlayer = dynamic(() => import("../../player/ui/hls-player"), {
@@ -28,13 +29,17 @@ type Props = {
   title: string;
   /** Renderizado quando o vídeo começa a tocar (ex.: TrackView de live_view, do módulo analytics). */
   onWatch?: ReactNode;
+  /** Evento, lugar e horário (#53), mostrados junto do player com a situação atual e há quanto tempo está no ar. */
+  context?: StreamContextInfo | null;
+  /** Hora do render no servidor (ms), para o "há X min" não divergir na hidratação. */
+  renderedAt?: number;
 };
 
 /**
  * Live na página do lugar/evento com estados claros (RNF20): aguardando sinal, ao vivo, pausada,
  * encerrada e indisponível (erro do player). Troca de estado sozinha, sem recarregar a página.
  */
-export function LiveStage({ entityType, entityId, initial, title, onWatch }: Props) {
+export function LiveStage({ entityType, entityId, initial, title, onWatch, context = null, renderedAt = 0 }: Props) {
   const status = useLiveStatus(entityType, entityId, initial);
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -82,6 +87,7 @@ export function LiveStage({ entityType, entityId, initial, title, onWatch }: Pro
           </div>
         </div>
       )}
+      {view.kind !== "ended" && <StreamContextLine info={context} status={status} renderedAt={renderedAt} />}
       {watching && onWatch}
     </section>
   );

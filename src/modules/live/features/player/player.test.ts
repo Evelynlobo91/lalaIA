@@ -17,6 +17,7 @@ const record = (control: StreamControl, signal: StreamSignal, id = "s1"): Stream
   status: statusOf(control, signal),
   signalChangedAt: new Date(),
   createdAt: new Date(),
+  note: null,
 });
 
 const provider = { playbackUrl: (id: string) => `https://stream.mux.com/${id}.m3u8` } as StreamingProvider;
@@ -24,7 +25,9 @@ const provider = { playbackUrl: (id: string) => `https://stream.mux.com/${id}.m3
 describe("GetLivePlayback (#50)", () => {
   it("ao vivo → URL HLS do provedor", async () => {
     const useCase = new GetLivePlayback({ findByTarget: async () => record("on", "live") }, () => provider);
-    expect(await useCase.execute(target)).toEqual({ streamId: "s1", status: "live", playbackUrl: "https://stream.mux.com/pb-1.m3u8" });
+    const result = await useCase.execute(target);
+    expect(result).toMatchObject({ streamId: "s1", status: "live", playbackUrl: "https://stream.mux.com/pb-1.m3u8", note: null });
+    expect(result?.liveSince).toBeInstanceOf(Date);
   });
 
   it.each([
@@ -33,7 +36,7 @@ describe("GetLivePlayback (#50)", () => {
     ["ended", "live", "ended"],
   ] as const)("controle %s + sinal %s → %s, sem URL (o player some)", async (control, signal, status) => {
     const useCase = new GetLivePlayback({ findByTarget: async () => record(control, signal) }, () => provider);
-    expect(await useCase.execute(target)).toEqual({ streamId: "s1", status, playbackUrl: null });
+    expect(await useCase.execute(target)).toEqual({ streamId: "s1", status, playbackUrl: null, note: null, liveSince: null });
   });
 
   it("sem transmissão → null, sem tocar no provedor (páginas sem live não exigem configuração)", async () => {

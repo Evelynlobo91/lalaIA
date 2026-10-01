@@ -64,7 +64,7 @@ export class RevealStreamKey {
 export type LiveTargetView = StreamTarget & {
   label: string;
   href: string;
-  stream: { id: string; status: StreamStatus } | null;
+  stream: { id: string; status: StreamStatus; note: string | null } | null;
 };
 
 export type LivePortalView = { ingestUrl: string; simulated: boolean; targets: LiveTargetView[] };
@@ -86,7 +86,7 @@ export class ListLiveTargets {
       simulated: provider.name === "fake",
       targets: options.map((o) => {
         const stream = byTarget.get(`${o.entityType}:${o.entityId}`);
-        return { ...o, stream: stream ? { id: stream.id, status: stream.status } : null };
+        return { ...o, stream: stream ? { id: stream.id, status: stream.status, note: stream.note } : null };
       }),
     };
   }

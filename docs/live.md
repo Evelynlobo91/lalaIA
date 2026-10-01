@@ -43,7 +43,7 @@ nenhum ambiente. Páginas sem live não exigem a configuração.
 | Tela | Mascarada por padrão. A chave **não vai no HTML**: só chega ao navegador quando o dono clica em "Revelar" ou "Copiar" (Server Action). |
 | Caso de uso | `RevealStreamKey`/`RotateStreamKey` exigem ser o dono (nem o admin vê). O id vem da sessão (`withUser`). |
 | Banco | A chave fica em `live.stream_credentials`, separada de `live.streams`. RLS: **só o dono** lê e rotaciona; o backend lê com `asUser`. A leitura pública nunca toca nessa tabela. |
-| Column grants | Como usuário, em `live.streams` só a coluna `control` é alterável: dono, vínculo, provedor e sinal não. |
+| Column grants | Como usuário, em `live.streams` só `control` e a situação atual (#53) são alteráveis: dono, vínculo, provedor e sinal não. |
 
 ## Webhooks e ciclo de vida (#48, RNF18)
 
@@ -167,6 +167,25 @@ na CDN (`s-maxage=10`): mil pessoas na lista não viram mil consultas ao banco.
 
 **Evolução: Supabase Realtime.** O `LiveNowProvider` é a fachada: basta assinar mudanças de uma tabela/canal
 público de status (veja "Evolução" no #51) e aplicar no mesmo conjunto, mantendo o polling como reserva.
+
+## Informações contextuais (#53, RF21)
+
+`features/stream-context`. Junto do player (`LiveStage`), a página mostra:
+
+| Informação | De onde vem |
+|------------|-------------|
+| Evento, lugar e horário | `GetStreamContext` → `ModuleLiveTargetDirectory` (APIs públicas de events/places), no servidor |
+| Há quanto tempo está ao vivo | `liveSince` (= `signal_changed_at` enquanto o status é `live`): "Ao vivo há 12 min (desde 21:40)". O primeiro render usa a hora do servidor (sem erro de hidratação); depois atualiza a cada minuto |
+| Situação atual | `live.streams.status_note` (até 80 caracteres, uma linha), editada pelo parceiro no portal ("Show começa 22h", "Casa cheia") |
+
+- A situação e o início vêm no mesmo `GET /api/live/status` do #51 (`note`, `liveSince`): mudam na página
+  sem recarregar. Encerrada → a situação não aparece mais. Também aparece na lista "Com live agora".
+- **Portal:** campo "Situação atual" em cada transmissão não encerrada (`StreamNoteForm`, Server Action
+  `updateStreamNoteAction`). Vazio limpa. Validação com zod (espaços e quebras de linha viram um espaço) e
+  `check` no banco.
+- **Quem altera:** dono ou admin (`UpdateStreamNote` + RLS). Column grants: como usuário, em `live.streams`
+  só `control`, `status_note` e `status_note_updated_at` mudam.
+- "Há quanto tempo" conta desde a última vez que o sinal entrou no ar; pausar e voltar não reinicia a contagem.
 
 ## Configurar o Mux
 

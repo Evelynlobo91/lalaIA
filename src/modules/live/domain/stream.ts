@@ -53,6 +53,8 @@ export type StreamRecord = StreamTarget & {
   status: StreamStatus;
   signalChangedAt: Date;
   createdAt: Date;
+  /** Situação atual definida pelo parceiro (#53), ex.: "Casa cheia". */
+  note: string | null;
 };
 
 export type NewStream = StreamTarget & { provider: string; providerStreamId: string; playbackId: string; streamKey: string };
@@ -82,6 +84,14 @@ export const CONTROL_BY_ACTION: Record<StreamAction, { control: StreamControl; k
   pause: { control: "paused", kind: "paused" },
   end: { control: "ended", kind: "ended" },
 };
+
+/** Situação atual (#53): texto curto que o parceiro edita. */
+export const STREAM_NOTE_MAX = 80;
+
+/** Grava a situação atual como o usuário (RLS: dono ou admin). null se o banco não permitir. */
+export interface StreamNoteStore {
+  setNote(actorId: string, streamId: string, note: string | null): Promise<StreamRecord | null>;
+}
 
 /** Muda o controle e registra a ação no log de ciclo de vida, na mesma transação. */
 export interface StreamControlStore {

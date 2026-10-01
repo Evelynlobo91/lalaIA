@@ -22,6 +22,7 @@ const live = (id: string, target: StreamTarget): StreamRecord => ({
   status: statusOf("on", "live"),
   signalChangedAt: since,
   createdAt: since,
+  note: null,
 });
 
 const directory: LiveTargetDirectory = {

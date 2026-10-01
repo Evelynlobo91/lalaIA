@@ -36,6 +36,11 @@ export function LiveNowList({ items }: { items: LiveNowItem[] }) {
                   </span>
                   <span>No ar desde {formatTime(item.liveSince)}</span>
                 </p>
+                {item.note && (
+                  <p className="text-sm">
+                    <span className="font-semibold">Agora:</span> {item.note}
+                  </p>
+                )}
               </div>
               <ChevronRight aria-hidden className="size-5 shrink-0 text-muted" />
             </Card>

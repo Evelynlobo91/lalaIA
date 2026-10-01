@@ -15,6 +15,8 @@ export type LiveNowItem = {
   location: { lat: number; lon: number } | null;
   /** Desde quando o sinal está no ar. */
   liveSince: Date;
+  /** Situação atual definida pelo parceiro (#53). */
+  note: string | null;
 };
 
 /** RF20 — "Com live agora": lives no ar com nome, lugar e horário (APIs públicas de places/events). */
@@ -31,7 +33,7 @@ export class ListLiveNow {
     // Lugar/evento que não existe mais (ex.: apagado) fica de fora.
     return live.flatMap((s) => {
       const info = infos.get(targetKey(s));
-      return info ? [{ ...info, streamId: s.id, liveSince: s.signalChangedAt }] : [];
+      return info ? [{ ...info, streamId: s.id, liveSince: s.signalChangedAt, note: s.note }] : [];
     });
   }
 }
