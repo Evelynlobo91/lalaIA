@@ -47,3 +47,36 @@ events/features/search-events/      # SearchEvents + infra/postgres-event-search
   categoria, e por isso "bar do zé" não vira "todos os bares".
 - A expressão do documento nas consultas é idêntica à dos índices; os testes de integração conferem pelo
   `explain` que o índice é usado.
+
+## Filtros (#43)
+
+Cinco filtros que se combinam entre si, com a busca (`q`) e com o tipo (`tipo`). Ficam **na URL**
+(compartilhável) com os mesmos nomes de `/eventos`:
+
+| Parâmetro | Valores | Lugares | Eventos |
+|-----------|---------|---------|---------|
+| `categoria` | id do catálogo (`shared/catalog/categories.ts`) | categoria do lugar | categoria do evento |
+| `bairro` | nome do bairro (sem diferenciar acento, maiúsculas e espaços) | bairro do lugar | eventos em lugares do bairro (ids vindos de `placeIdsInNeighborhood`) |
+| `quando` | `hoje`, `amanha`, `fim-de-semana`, `AAAA-MM-DD` (mesmo `dateFilterParam` de events) | abertos em algum momento do período | que se sobrepõem ao período |
+| `horario` | `agora`, `manha` (6h–12h), `tarde` (12h–18h), `noite` (18h–6h) | abertos no horário | que se sobrepõem ao horário |
+| `preco` | `gratis`, `ate-50`, `ate-100`, `acima-100` | **não aparecem** (lugar não tem preço; o grupo explica o motivo) | valor "a partir de" na faixa |
+
+- **Sem texto, só com filtros** também vale (ex.: `/buscar?quando=hoje&preco=gratis`). Sem texto e sem filtro, a
+  página só mostra a dica.
+- **Data + horário** viram períodos no calendário de Joinville (`domain/time-of-day.ts`): só horário = hoje (e o
+  resto da noite de ontem, se ainda for madrugada); data + horário = o horário em cada dia da data (fim de
+  semana à noite = sábado e domingo à noite); "agora" = o instante atual. O que já passou é cortado.
+- **Horário de lugares** vem do OpenStreetMap e é interpretado em memória (`isOpenDuring`, de 15 em 15 min).
+  A busca lê em lotes de 100, na ordem do cursor, até completar a página. **Lugares sem horário conhecido não
+  aparecem** quando há filtro de data ou horário, porque não dá para prometer que estarão abertos.
+- **Estratégias (OCP):** cada filtro é uma classe que implementa `SearchFilter`
+  (`features/filters/filters.strategies.ts`): restringe os critérios de lugares e de eventos, ou tira um tipo
+  da busca com o motivo. Um filtro novo é uma classe nova mais uma linha em `SearchFilterFactory`, sem mexer em
+  `Search` nem nos outros filtros.
+- **Painel** (`SearchFilters`): `<details>` com selects e um campo de data. Com JavaScript, cada mudança
+  já aplica o filtro e a URL fica só com o que foi escolhido. Sem JavaScript, é um formulário GET (campos vazios
+  são ignorados e `data` vira `quando`).
+- **Chips** dos filtros ativos removem um filtro de cada vez; **"Limpar filtros"** tira todos e mantém a busca e o
+  tipo. Valor inválido (ex.: `quando=2026-02-31`) → aviso na página e 400 na API.
+- **`GET /api/discovery/filters`**: opções de cada filtro (categorias, bairros com lugares, atalhos de data,
+  horários e faixas de preço).

@@ -1,4 +1,4 @@
-import { categories } from "@/shared/catalog/categories";
+import { categories, type CategoryId } from "@/shared/catalog/categories";
 import { err, ok, ValidationError, type DomainError, type Result } from "@/shared/kernel";
 import { formatPrice } from "../../domain/event";
 import type { EventCard, EventCursor, EventPlaceNames } from "../../domain/event-card";
@@ -9,6 +9,17 @@ export type EventSearchFilter = {
   now: Date;
   /** Texto livre: casa com título/descrição (sem acento, por prefixo) ou com o nome da categoria. */
   text: string | null;
+} & EventSearchRestrictions;
+
+/** Filtros opcionais da busca (RF05). Ausente = sem restrição; lista vazia = nada casa. */
+export type EventSearchRestrictions = {
+  category?: CategoryId;
+  /** Só eventos nestes lugares (ex.: lugares de um bairro, vindos do módulo places). */
+  placeIds?: string[];
+  /** Só eventos que se sobrepõem a algum destes períodos. */
+  periods?: Array<{ from: Date; to: Date }>;
+  /** Faixa de preço "a partir de", em centavos (`maxCents` null = sem teto). */
+  price?: { minCents: number; maxCents: number | null };
 };
 
 export interface EventSearchReader {
@@ -17,7 +28,7 @@ export interface EventSearchReader {
 }
 
 /** Critérios públicos da busca de eventos (usados pelo módulo discovery). */
-export type EventSearchCriteria = {
+export type EventSearchCriteria = EventSearchRestrictions & {
   text?: string | null;
   /** Cursor opaco devolvido pela página anterior. */
   cursor: string | null;
@@ -39,7 +50,15 @@ export class SearchEvents {
     if (criteria.cursor && !cursor) return err(new ValidationError("Cursor inválido."));
 
     const now = this.now();
-    const filter: EventSearchFilter = { now, text: criteria.text?.trim() || null };
+    const { category, placeIds, periods, price } = criteria;
+    const filter: EventSearchFilter = {
+      now,
+      text: criteria.text?.trim() || null,
+      ...(category && { category }),
+      ...(placeIds && { placeIds }),
+      ...(periods && { periods }),
+      ...(price && { price }),
+    };
     const rows = await this.reader.search(filter, cursor, criteria.limit + 1);
     const page = rows.slice(0, criteria.limit);
     const places = new Map((await this.places.summaries(page.map((e) => e.placeId))).map((p) => [p.id, p]));

@@ -96,22 +96,19 @@ export function describeOpeningHours(value: string | null | undefined): Array<{ 
 }
 
 /** Dia da semana (0 = domingo) e minuto do dia no fuso de Joinville. */
-function localTime(date: Date): { day: number; minute: number } {
-  const parts = new Intl.DateTimeFormat("en-US", { timeZone: TIMEZONE, weekday: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(date);
+export type LocalMoment = { day: number; minute: number };
+
+const localFormatter = new Intl.DateTimeFormat("en-US", { timeZone: TIMEZONE, weekday: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+
+function localTime(date: Date): LocalMoment {
+  const parts = localFormatter.formatToParts(date);
   const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
   return { day: DAYS.indexOf(get("weekday").slice(0, 2) as (typeof DAYS)[number]), minute: Number(get("hour")) * 60 + Number(get("minute")) };
 }
 
-/**
- * Está aberto em `date`? `true`/`false` quando o horário é reconhecido; `null` quando não dá para saber.
- * Regras posteriores sobrescrevem as anteriores para os mesmos dias (como no OSM).
- */
-export function isOpenAt(openingHours: string | null | undefined, date: Date): boolean | null {
-  const rules = parseOpeningHours(openingHours);
-  if (!rules) return null;
-  const { day, minute } = localTime(date);
+/** Regras posteriores sobrescrevem as anteriores para os mesmos dias (como no OSM). */
+function openAtMoment(rules: Rule[], { day, minute }: LocalMoment): boolean {
   const yesterday = (day + 6) % 7;
-
   const ruleFor = (d: number) => rules.filter((r) => r.days.has(d)).at(-1);
   const today = ruleFor(day);
   const previous = ruleFor(yesterday);
@@ -121,4 +118,40 @@ export function isOpenAt(openingHours: string | null | undefined, date: Date): b
   if (fromYesterday) return true;
   if (!today || today.ranges === "off") return false;
   return today.ranges.some(([s, e]) => (e > s ? minute >= s && minute < e : minute >= s));
+}
+
+/**
+ * Está aberto em `date`? `true`/`false` quando o horário é reconhecido; `null` quando não dá para saber.
+ */
+export function isOpenAt(openingHours: string | null | undefined, date: Date): boolean | null {
+  const rules = parseOpeningHours(openingHours);
+  return rules ? openAtMoment(rules, localTime(date)) : null;
+}
+
+const SAMPLE_STEP_MS = 15 * 60_000;
+
+/**
+ * Momentos (no horário de Joinville) a conferir dentro dos períodos, de 15 em 15 minutos.
+ * Calcule uma vez por busca e reaproveite para todos os lugares (`isOpenDuring`).
+ */
+export function momentsWithin(periods: Array<{ from: Date; to: Date }>): LocalMoment[] {
+  const seen = new Set<string>();
+  const moments: LocalMoment[] = [];
+  for (const { from, to } of periods) {
+    for (let t = from.getTime(); t === from.getTime() || t < to.getTime(); t += SAMPLE_STEP_MS) {
+      const m = localTime(new Date(t));
+      const key = `${m.day}:${m.minute}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        moments.push(m);
+      }
+    }
+  }
+  return moments;
+}
+
+/** Abre em algum dos momentos? `null` quando o horário não é reconhecido. */
+export function isOpenDuring(openingHours: string | null | undefined, moments: LocalMoment[]): boolean | null {
+  const rules = parseOpeningHours(openingHours);
+  return rules ? moments.some((m) => openAtMoment(rules, m)) : null;
 }

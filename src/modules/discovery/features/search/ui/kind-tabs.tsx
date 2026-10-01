@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/shared/ui";
 import { kindLabels, resultKinds, type ResultKind } from "../../../domain/search";
-import { toQueryString } from "../search.schema";
+import { toQueryString } from "../search-url";
 
 const chip = (active: boolean) =>
   cn(

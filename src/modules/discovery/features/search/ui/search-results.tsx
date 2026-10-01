@@ -4,7 +4,7 @@ import { SearchX } from "lucide-react";
 import { useState, useTransition } from "react";
 import { Button, EmptyState, FormAlert } from "@/shared/ui";
 import { kindLabels, type ResultGroup, type SearchResults as Results } from "../../../domain/search";
-import { SINGLE_PAGE_SIZE } from "../search.schema";
+import { SINGLE_PAGE_SIZE } from "../search-url";
 import { ResultCard } from "./result-card";
 
 const emptyText: Record<ResultGroup["kind"], string> = { lugares: "Nenhum lugar encontrado.", eventos: "Nenhum evento encontrado." };

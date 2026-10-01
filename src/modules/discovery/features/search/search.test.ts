@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import { ValidationError, err, ok } from "@/shared/kernel";
 import { exclude, type SearchFilter, type SearchHit } from "../../domain/search";
 import { EventsSearchSource, PlacesSearchSource, eventHit, placeHit } from "../../infra/module-search-sources";
-import { firstValues, searchSchema, toQueryString } from "./search.schema";
+import { searchSchema } from "./search.schema";
+import { firstValues, toQueryString } from "./search-url";
 import { Search } from "./search.use-case";
 
 const hit = (id: string): SearchHit => ({ id, href: `/x/${id}`, title: id, categoryLabel: "Bares", where: null, when: null, badge: null });
@@ -52,10 +53,11 @@ describe("Search (busca unificada)", () => {
 });
 
 describe("searchSchema", () => {
-  it("texto obrigatório com pelo menos 2 letras; tamanho da página depende do tipo", () => {
-    expect(searchSchema.safeParse({}).error?.issues[0]?.message).toBe("Digite o que você procura.");
+  it("texto (pelo menos 2 letras) ou algum filtro; tamanho da página depende do tipo", () => {
+    expect(searchSchema.safeParse({}).error?.issues[0]?.message).toBe("Digite o que você procura ou escolha um filtro.");
     expect(searchSchema.safeParse({ q: " a " }).error?.issues[0]?.message).toBe("Digite pelo menos 2 letras.");
-    expect(searchSchema.parse({ q: " açaí " })).toEqual({ q: "açaí", tipo: null, cursor: null, limit: 6 });
+    expect(searchSchema.parse({ q: " açaí " })).toMatchObject({ q: "açaí", tipo: null, cursor: null, limit: 6 });
+    expect(searchSchema.parse({ preco: "gratis" })).toMatchObject({ q: null, preco: "gratis" });
     expect(searchSchema.parse({ q: "bar", tipo: "eventos" }).limit).toBe(20);
   });
 

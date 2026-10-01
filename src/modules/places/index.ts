@@ -135,9 +135,21 @@ export const subscriptions: ModuleSubscriptions = (bus) => {
 
 // Busca (RF04/RF05), consumida pelo módulo discovery.
 export type { PlaceSearchCriteria } from "./features/search-places/search-places";
-const placeSearch = lazy(() => new SearchPlaces(new PostgresPlaceSearch(sql())));
+export type { Neighborhood } from "./features/search-places/neighborhoods";
+const placeSearchAdapter = lazy(() => new PostgresPlaceSearch(sql()));
+const placeSearch = lazy(() => new SearchPlaces(placeSearchAdapter()));
 
 /** Busca de lugares por texto e filtros, em ordem alfabética e paginada por cursor opaco. */
 export function searchPlaces(criteria: PlaceSearchCriteria) {
   return placeSearch().execute(criteria);
+}
+
+/** Bairros com lugares (opções do filtro de localização). */
+export function placeNeighborhoods() {
+  return placeSearchAdapter().neighborhoods();
+}
+
+/** Ids dos lugares de um bairro (ex.: eventos de um bairro, sem join entre schemas). */
+export function placeIdsInNeighborhood(neighborhood: string) {
+  return placeSearchAdapter().placeIdsIn(neighborhood);
 }

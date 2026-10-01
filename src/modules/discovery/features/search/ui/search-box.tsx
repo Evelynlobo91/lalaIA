@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Button, cn } from "@/shared/ui";
 import { useDebouncedValue } from "@/shared/ui/debounce";
-import { MIN_QUERY_LENGTH, toQueryString } from "../search.schema";
+import { MIN_QUERY_LENGTH, toQueryString } from "../search-url";
 
 const DEBOUNCE_MS = 300;
 

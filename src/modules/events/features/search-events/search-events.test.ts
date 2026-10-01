@@ -42,6 +42,21 @@ describe("SearchEvents", () => {
     expect(res.ok && res.value).toEqual({ items: [], nextCursor: null });
   });
 
+  it("repassa os filtros (categoria, lugares, períodos, preço) ao banco", async () => {
+    const reader = { search: vi.fn().mockResolvedValue([]) };
+    const periods = [{ from: now, to: now }];
+    await new SearchEvents(reader, places, () => now).execute({
+      text: null,
+      category: "shows",
+      placeIds: ["l1"],
+      periods,
+      price: { minCents: 0, maxCents: 0 },
+      cursor: null,
+      limit: 5,
+    });
+    expect(reader.search).toHaveBeenCalledWith({ now, text: null, category: "shows", placeIds: ["l1"], periods, price: { minCents: 0, maxCents: 0 } }, null, 6);
+  });
+
   it("cursor adulterado → ValidationError", async () => {
     const reader = { search: vi.fn() };
     const res = await new SearchEvents(reader, places, () => now).execute({ text: "x", cursor: "lixo", limit: 5 });

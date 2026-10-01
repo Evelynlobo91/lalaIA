@@ -1,3 +1,4 @@
+import type { CategoryId } from "@/shared/catalog/categories";
 import type { DomainError, Result } from "@/shared/kernel";
 
 /** Tipos de resultado da busca unificada (também é o valor do parâmetro `tipo` na URL). */
@@ -29,10 +30,27 @@ export type ResultGroup = HitPage & {
 
 export type SearchResults = { groups: ResultGroup[] };
 
+/** Intervalo de tempo [from, to). `from === to` é um instante (ex.: "agora"). */
+export type Period = { from: Date; to: Date };
+
 /** O que a busca pede ao módulo places. Novos filtros entram como campos opcionais (OCP). */
-export type PlaceCriteria = { text: string | null };
+export type PlaceCriteria = {
+  text: string | null;
+  category?: CategoryId;
+  neighborhood?: string;
+  /** Só lugares abertos em algum momento destes períodos. */
+  openDuring?: Period[];
+};
+
 /** O que a busca pede ao módulo events. Novos filtros entram como campos opcionais (OCP). */
-export type EventCriteria = { text: string | null };
+export type EventCriteria = {
+  text: string | null;
+  category?: CategoryId;
+  placeIds?: string[];
+  /** Só eventos que se sobrepõem a algum destes períodos. */
+  periods?: Period[];
+  price?: { minCents: number; maxCents: number | null };
+};
 
 export type PageRequest = { cursor: string | null; limit: number };
 

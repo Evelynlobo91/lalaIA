@@ -24,6 +24,21 @@ export class PostgresEventSearch implements EventSearchReader {
       const byText = textMatch(sql, sql`title || ' ' || description`, filter.text) ?? sql`false`;
       conditions.push(cats.length ? sql`(${byText} or category in ${sql(cats)})` : byText);
     }
+    if (filter.category) conditions.push(sql`category = ${filter.category}`);
+    if (filter.placeIds) {
+      if (filter.placeIds.length === 0) return [];
+      conditions.push(sql`place_id in ${sql(filter.placeIds)}`);
+    }
+    if (filter.periods) {
+      if (filter.periods.length === 0) return [];
+      // Sobreposição com algum período: começa antes do fim dele e termina depois do início.
+      const overlaps = filter.periods.map((p) => sql`(starts_at < ${p.to} and ends_at > ${p.from})`);
+      conditions.push(sql`(${overlaps.reduce((acc, o) => sql`${acc} or ${o}`)})`);
+    }
+    if (filter.price) {
+      conditions.push(sql`price_cents >= ${filter.price.minCents}`);
+      if (filter.price.maxCents !== null) conditions.push(sql`price_cents <= ${filter.price.maxCents}`);
+    }
     if (cursor) conditions.push(sql`(starts_at, id) > (${cursor.startsAt}, ${cursor.id}::uuid)`);
 
     const where = conditions.reduce((acc, c) => sql`${acc} and ${c}`);

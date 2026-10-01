@@ -8,11 +8,13 @@ import { PostgresPlaceSearch } from "./postgres-place-search";
 const db = sql();
 const search = new PostgresPlaceSearch(db);
 const tag = `busca${Date.now().toString(36)}`;
+// Bairro exclusivo do teste, com grafias diferentes (acento, maiúsculas, espaços) que devem virar um só.
+const bairro = `Glória ${tag}`;
 const places = [
-  { name: `Açaí da Praça ${tag}`, category: "cafes" as const },
-  { name: `Restaurante Japonês ${tag}`, category: "restaurantes" as const },
-  { name: `Bar do Zé ${tag}`, category: "bares" as const },
-  { name: `Museu Fritz ${tag}`, category: "cultura" as const },
+  { name: `Açaí da Praça ${tag}`, category: "cafes" as const, neighborhood: bairro, openingHours: "Mo-Su 08:00-18:00" },
+  { name: `Restaurante Japonês ${tag}`, category: "restaurantes" as const, neighborhood: ` gloria ${tag.toUpperCase()}`, openingHours: null },
+  { name: `Bar do Zé ${tag}`, category: "bares" as const, neighborhood: null, openingHours: "Tu-Su 18:00-02:00" },
+  { name: `Museu Fritz ${tag}`, category: "cultura" as const, neighborhood: bairro, openingHours: null },
 ];
 
 beforeAll(async () => {
@@ -22,10 +24,10 @@ beforeAll(async () => {
       sourceId: `${tag}/${i}`,
       name: p.name,
       category: p.category,
-      address: { street: null, houseNumber: null, neighborhood: null, postcode: null, city: "Joinville" },
+      address: { street: null, houseNumber: null, neighborhood: p.neighborhood, postcode: null, city: "Joinville" },
       phone: null,
       website: null,
-      openingHours: null,
+      openingHours: p.openingHours,
       location: { lat: -26.3, lon: -48.84 },
     })),
   );
@@ -69,6 +71,20 @@ describe("PostgresPlaceSearch", () => {
       cursor = { name: page.at(-1)!.name, id: page.at(-1)!.id };
     }
     expect(all.map((p) => p.name)).toEqual([`Açaí da Praça ${tag}`, `Bar do Zé ${tag}`, `Museu Fritz ${tag}`, `Restaurante Japonês ${tag}`]);
+  });
+
+  it("filtra por categoria, por bairro (sem acento/maiúsculas/espaços) e por ter horário", async () => {
+    expect(await names({ text: tag, category: "bares" })).toEqual([`Bar do Zé ${tag}`]);
+    expect(await names({ text: tag, neighborhood: `GLORIA ${tag}` })).toEqual([`Açaí da Praça ${tag}`, `Museu Fritz ${tag}`, `Restaurante Japonês ${tag}`]);
+    expect(await names({ text: tag, withOpeningHours: true })).toEqual([`Açaí da Praça ${tag}`, `Bar do Zé ${tag}`]);
+    expect(await names({ text: null, category: "cafes", neighborhood: bairro, withOpeningHours: true })).toEqual([`Açaí da Praça ${tag}`]);
+  });
+
+  it("bairros: grafias diferentes viram uma opção só, com a contagem; ids do bairro para outros módulos", async () => {
+    const ours = (await search.neighborhoods()).filter((n) => n.name.toLowerCase().includes(tag));
+    expect(ours).toEqual([{ name: bairro, places: 3 }]);
+    const ids = await search.placeIdsIn(`gloria ${tag}`);
+    expect(ids).toHaveLength(3);
   });
 
   it("texto só com pontuação não quebra (nada casa)", async () => {
