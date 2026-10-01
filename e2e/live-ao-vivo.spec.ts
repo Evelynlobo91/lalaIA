@@ -26,9 +26,9 @@ test.describe("Live: selo 'Ao vivo', lista e mapa (#52)", () => {
     await sendLiveWebhook(request, eventStream.providerStreamId, "video.live_stream.active");
     await page.reload();
     const lista = page.getByRole("list", { name: "Com live agora" });
-    const card = lista.getByRole("link", { name: new RegExp(placeName) });
+    const card = lista.locator(`a[href="/lugares/${placeId}"]`);
     await expect(card).toBeVisible();
-    await expect(card.getByText("Ao vivo")).toBeVisible();
+    await expect(card.getByText("Ao vivo", { exact: true })).toBeVisible();
     await expect(lista.getByRole("link", { name: new RegExp(eventTitle) })).toHaveAttribute("href", `/eventos/${eventId}`);
 
     await card.click();
@@ -48,13 +48,13 @@ test.describe("Live: selo 'Ao vivo', lista e mapa (#52)", () => {
     await page.goto(`/lugares/${placeId}`);
     const cabecalho = page.locator("header", { has: page.getByRole("heading", { level: 1 }) });
     await expect(page.getByRole("heading", { level: 1, name: placeName })).toBeVisible();
-    await expect(cabecalho.getByText("Ao vivo")).toHaveCount(0);
+    await expect(cabecalho.getByText("Ao vivo", { exact: true })).toHaveCount(0);
 
     await sendLiveWebhook(request, stream.providerStreamId, "video.live_stream.active");
-    await expect(cabecalho.getByText("Ao vivo")).toBeVisible(cycle);
+    await expect(cabecalho.getByText("Ao vivo", { exact: true })).toBeVisible(cycle);
 
     await setLiveControl(stream.id, "ended");
-    await expect(cabecalho.getByText("Ao vivo")).toHaveCount(0, cycle);
+    await expect(cabecalho.getByText("Ao vivo", { exact: true })).toHaveCount(0, cycle);
   });
 
   test("camada Live do mapa: GeoJSON com a live no ar e link 'Com live agora'", async ({ page, request }) => {

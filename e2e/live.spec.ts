@@ -150,7 +150,7 @@ test.describe("Live: player na página do lugar e do evento (#50)", () => {
     await sendLiveWebhook(request, stream.providerStreamId, "video.live_stream.active");
     await page.reload();
     const live = page.getByRole("region", { name: "Transmissão ao vivo" });
-    await expect(live.getByText("Ao vivo")).toBeVisible();
+    await expect(live.getByText("Ao vivo", { exact: true })).toBeVisible();
     const video = live.locator("video");
     await expect(video).toHaveJSProperty("muted", true);
     await expect(video).toHaveAttribute("playsinline", "");
@@ -200,7 +200,7 @@ test.describe("Live: estados sem recarregar a página (#51)", () => {
 
     await sendLiveWebhook(request, stream.providerStreamId, "video.live_stream.active");
     await expect(live.locator("video")).toBeVisible(cycle);
-    await expect(live.getByText("Ao vivo")).toBeVisible();
+    await expect(live.getByText("Ao vivo", { exact: true })).toBeVisible();
 
     await setLiveControl(stream.id, "paused");
     await expect(live.getByText("Transmissão pausada")).toBeVisible(cycle);
