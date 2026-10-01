@@ -30,6 +30,20 @@ jobs:
       - run: npm run typecheck
       - run: npm test
 
+  face-blur-agent:
+    name: Agente de borrão de rostos (lógica)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: tools/face-blur-agent
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: python -m unittest discover -s tests -v
+
   integration:
     name: Testes de integração (Postgres + PostGIS)
     runs-on: ubuntu-latest

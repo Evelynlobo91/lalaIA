@@ -50,3 +50,8 @@ next-env.d.ts
 
 # worktrees de agentes do Claude Code (cópias isoladas do repositório)
 /.claude/
+
+# Python (tools/)
+__pycache__/
+.venv/
+*.onnx
