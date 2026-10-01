@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import {
+  acceptLiveGuidelines,
   assignPlaceTo,
   createApprovedPartner,
   createLiveStream,
@@ -28,7 +29,14 @@ test.describe("Live: chave de transmissão (#47)", () => {
     await expect(page.getByText("rtmps://global-live.mux.com:443/app").first()).toBeVisible();
     await expect(page.getByRole("complementary", { name: "Privacidade" })).toBeVisible();
 
+    // Diretrizes de privacidade (#55): sem o aceite, gerar a chave fica bloqueado.
     const card = page.getByRole("listitem").filter({ hasText: placeName });
+    await expect(card.getByRole("button", { name: `Gerar chave de transmissão para ${placeName}` })).toBeDisabled();
+    const checklist = page.getByRole("form", { name: "Diretrizes de privacidade da live" });
+    for (const box of await checklist.getByRole("checkbox").all()) await box.check();
+    await checklist.getByRole("button", { name: "Aceitar as diretrizes" }).click();
+    await expect(page.getByText(/Diretrizes aceitas em/)).toBeVisible();
+
     await card.getByRole("button", { name: `Gerar chave de transmissão para ${placeName}` }).click();
     await expect(card.getByText("Aguardando sinal")).toBeVisible();
 
@@ -61,6 +69,7 @@ test.describe("Live: chave de transmissão (#47)", () => {
     const dono = await createConfirmedUser();
     await createApprovedPartner(dono);
     await assignPlaceTo(dono, placeId);
+    await acceptLiveGuidelines(dono);
     await loginAs(page, dono, "/parceiro/live");
     const card = page.getByRole("listitem").filter({ hasText: placeName });
     await card.getByRole("button", { name: `Gerar chave de transmissão para ${placeName}` }).click();
@@ -86,6 +95,7 @@ test.describe("Live: chave de transmissão (#47)", () => {
     const dono = await createConfirmedUser();
     await createApprovedPartner(dono);
     await assignPlaceTo(dono, placeId);
+    await acceptLiveGuidelines(dono);
     await loginAs(page, dono, "/parceiro/live");
     const card = page.getByRole("listitem").filter({ hasText: placeName });
     await card.getByRole("button", { name: `Gerar chave de transmissão para ${placeName}` }).click();

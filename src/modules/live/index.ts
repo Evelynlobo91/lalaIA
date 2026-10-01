@@ -1,7 +1,7 @@
 // API pública do módulo live (transmissões ao vivo de lugares e eventos).
 import { hasRole, type CurrentUser } from "@/modules/identity";
 import type { ModuleSubscriptions } from "@/shared/events";
-import { endStreamOfCancelledEvent, getActiveStreams, getStreamMetrics, getLiveNowGeo, getLiveStatus, handleProviderWebhook, listActiveStreamsUseCase, listLiveNow, listLiveTargets } from "./composition";
+import { endStreamOfCancelledEvent, getActiveStreams, getStreamMetrics, privacyGate, getLiveNowGeo, getLiveStatus, handleProviderWebhook, listActiveStreamsUseCase, listLiveNow, listLiveTargets } from "./composition";
 import { liveNowRoute } from "./features/live-badge/live-badge.route";
 import type { LiveNowItem } from "./features/live-badge/live-badge.use-case";
 import { errorReporter, logger } from "@/shared/observability";
@@ -16,6 +16,7 @@ import type { StreamMetrics } from "./features/stream-metrics/stream-metrics.use
 export { LiveTargetsList, StreamStatusBadge } from "./features/stream-key/ui/live-targets-list";
 export { BroadcastInstructions } from "./features/stream-key/ui/broadcast-instructions";
 export { LivePrivacyNotice } from "./features/stream-key/ui/live-privacy-notice";
+export { LivePrivacyGuidelines } from "./features/privacy/ui/live-privacy-guidelines";
 export type { LivePortalView, LiveTargetView } from "./features/stream-key/stream-key.use-case";
 export type { StreamMetrics } from "./features/stream-metrics/stream-metrics.use-case";
 export { LivePlayerFor } from "./features/player/ui/live-player-for";
@@ -30,6 +31,11 @@ export { STATUS_LABELS, type StreamStatus, type StreamEntityType } from "./domai
 /** Portal /parceiro/live: lugares e eventos do parceiro com a transmissão de cada um (sem a chave). */
 export function livePortal(user: CurrentUser): Promise<LivePortalView> {
   return listLiveTargets().execute({ id: user.id, isPartner: hasRole(user, "partner"), isAdmin: hasRole(user, "admin") });
+}
+
+/** Quando o parceiro aceitou as diretrizes de privacidade vigentes (#55), ou null: sem aceite, nada vai ao ar. */
+export function livePrivacyAcceptedAt(user: CurrentUser): Promise<Date | null> {
+  return privacyGate().acceptedAt(user.id);
 }
 
 /**

@@ -107,7 +107,7 @@ Botões no card de cada transmissão em `/parceiro/live` (`features/stream-contr
   (e quem tem HLS nativo) tocam direto no `<video>`; nos demais, o `hls.js` (Apache-2.0) é baixado por
   import dinâmico, com **bitrate adaptativo** e `lowLatencyMode`.
 - **Privacidade (RNF16):** sempre começa **mudo**, com `playsInline` (não abre em tela cheia no iPhone).
-  A live stream é criada **sem gravação**. Aviso curto de privacidade no portal (a #55 completa).
+  A live stream é criada **sem gravação**. Aviso curto ao público perto do player e diretrizes no portal (#55).
 - **Analytics:** quando o vídeo começa a tocar, renderiza `<TrackView kind="live_view" entityType="live"
   entityId={streamId}>` (módulo analytics), passado pelo server component.
 - A URL HLS só é entregue quando o status é `live` (pausada/encerrada não expõe a URL).
@@ -203,6 +203,26 @@ público de status (veja "Evolução" no #51) e aplicar no mesmo conjunto, mante
 - **Sem dados pessoais:** o Analytics não guarda quem fez (LGPD). O portal só mostra contagens e diz isso.
 - Se o Analytics falhar, o portal abre sem métricas (erro logado e reportado).
 - **Pendência:** pico de espectadores simultâneos via API do provedor (Mux Data). Fica para depois da POC.
+
+## Diretrizes de privacidade e enquadramento (#55, RNF16/RNF17)
+
+`features/privacy`. Objetivo: minimizar a exposição de quem está no local.
+
+- **Checklist obrigatório** no portal antes da primeira live (`PrivacyChecklist`): câmera no alto em plano
+  aberto (sem rostos, mesas de perto, caixa ou banheiros), **sem áudio**, **aviso físico** no local e
+  **LGPD** (quem pedir para não aparecer → ajustar o enquadramento ou pausar). Todos os itens são obrigatórios
+  (zod), e o formulário envia a versão que a pessoa leu.
+- **Aceite registrado** em `live.broadcaster_agreements` (`owner_id`, `guidelines_version`, `privacy_ack_at`),
+  um por parceiro. RLS: só parceiro, só em nome próprio; ninguém lê o aceite de outra pessoa. Apagar a conta
+  apaga o aceite. Mudou o texto de forma relevante → nova `LIVE_GUIDELINES_VERSION` → novo aceite.
+- **Trava no caso de uso** (`PrivacyGate`): sem o aceite da versão vigente, `ProvisionStream` (gerar a chave) e
+  `ControlStream` com "Ativar" recusam com `privacy_guidelines_required`. Vale o aceite do **dono**, mesmo quando
+  um admin ativa. Pausar e encerrar continuam livres (são ações de proteção). A tela também desabilita os botões.
+- **Guia de posicionamento de câmera** sempre visível no portal (`CameraGuide`), com o texto sugerido para o
+  cartaz no local.
+- **Público:** aviso curto perto do player (`PublicLiveNotice`): plano aberto, sem áudio, sem gravação e como
+  pedir para não aparecer.
+- Transmissões criadas antes do aceite continuam com o controle que tinham; "Ativar" passa a exigir o aceite.
 
 ## Configurar o Mux
 

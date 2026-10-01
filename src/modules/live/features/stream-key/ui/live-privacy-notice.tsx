@@ -1,6 +1,6 @@
 import { ShieldCheck } from "lucide-react";
 
-/** RNF16 — aviso curto de privacidade para quem transmite (a #55 completa com o aviso físico no local). */
+/** RNF16 — aviso curto de privacidade para quem transmite (o checklist e o guia de câmera ficam em LivePrivacyGuidelines, #55). */
 export function LivePrivacyNotice() {
   return (
     <aside aria-label="Privacidade" className="flex gap-3 rounded-2xl border border-border bg-surface-2 p-4 text-sm">

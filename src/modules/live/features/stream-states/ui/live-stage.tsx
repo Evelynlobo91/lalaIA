@@ -7,6 +7,7 @@ import { Button, LiveBadge } from "@/shared/ui";
 import { liveViewState, type LiveStatusView, type LiveViewKind } from "../stream-states.use-case";
 import { useLiveStatus } from "./use-live-status";
 import { StreamContextLine, type StreamContextInfo } from "../../stream-context/ui/stream-context-line";
+import { PublicLiveNotice } from "../../privacy/ui/public-live-notice";
 
 // O player (e o hls.js, quando preciso) só é baixado quando a live está no ar: não pesa a página.
 const HlsPlayer = dynamic(() => import("../../player/ui/hls-player"), {
@@ -64,6 +65,7 @@ export function LiveStage({ entityType, entityId, initial, title, onWatch, conte
             onPlaying={() => setWatching(true)}
             onError={() => setFailedUrl(status.playbackUrl)}
           />
+          <PublicLiveNotice />
         </>
       ) : (
         <div role="status" className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-4">

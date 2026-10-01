@@ -13,6 +13,8 @@ import { GetStreamContext, UpdateStreamNote } from "./features/stream-context/st
 import { ControlStream, EndStreamOfCancelledEvent } from "./features/stream-control/stream-control.use-case";
 import { HandleProviderWebhook } from "./features/webhooks/webhooks.use-case";
 import { streamingProviderFrom } from "./infra/live-config";
+import { AcceptLiveGuidelines, PrivacyGate } from "./features/privacy/privacy.use-case";
+import { PostgresPrivacyAgreements } from "./infra/postgres-privacy-agreements";
 import { PostgresStreamLifecycleLog } from "./infra/postgres-stream-lifecycle-log";
 import { PostgresStreamRepository } from "./infra/postgres-stream-repository";
 import { ModuleStreamTargets } from "./infra/stream-targets";
@@ -23,7 +25,11 @@ export const streamingProvider = lazy(() => streamingProviderFrom(process.env));
 export const streamRepository = lazy(() => new PostgresStreamRepository(sql()));
 const streamTargets = new ModuleStreamTargets();
 
-export const provisionStream = lazy(() => new ProvisionStream(streamRepository(), streamTargets, streamingProvider));
+export const privacyAgreements = lazy(() => new PostgresPrivacyAgreements(sql()));
+export const privacyGate = lazy(() => new PrivacyGate(privacyAgreements()));
+export const acceptLiveGuidelines = lazy(() => new AcceptLiveGuidelines(privacyAgreements()));
+
+export const provisionStream = lazy(() => new ProvisionStream(streamRepository(), streamTargets, streamingProvider, privacyGate()));
 export const rotateStreamKey = lazy(() => new RotateStreamKey(streamRepository(), streamingProvider));
 export const revealStreamKey = lazy(() => new RevealStreamKey(streamRepository()));
 export const listLiveTargets = lazy(() => new ListLiveTargets(streamRepository(), streamTargets, streamingProvider));
@@ -31,7 +37,7 @@ export const listLiveTargets = lazy(() => new ListLiveTargets(streamRepository()
 export const lifecycleLog = lazy(() => new PostgresStreamLifecycleLog(sql()));
 export const handleProviderWebhook = lazy(() => new HandleProviderWebhook(streamingProvider, lifecycleLog(), domainEvents()));
 
-export const controlStream = lazy(() => new ControlStream(streamRepository(), streamRepository(), streamingProvider, domainEvents()));
+export const controlStream = lazy(() => new ControlStream(streamRepository(), streamRepository(), streamingProvider, domainEvents(), privacyGate()));
 export const endStreamOfCancelledEvent = lazy(() => new EndStreamOfCancelledEvent(streamRepository(), streamRepository(), streamingProvider, domainEvents()));
 
 export const getLivePlayback = lazy(() => new GetLivePlayback(streamRepository(), streamingProvider));
