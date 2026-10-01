@@ -60,14 +60,14 @@ test.describe("filtros da busca (#43)", () => {
     await expect(await findInPagedList(page, page.getByRole("list", { name: "Eventos encontrados" }), `Feira Período ${tag}`)).toBeVisible();
 
     await page.goto(`/buscar?q=${encodeURIComponent(`feira ${tag}`)}&quando=hoje`);
-    await expect(page.getByText("Nenhum evento encontrado.")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Nada encontrado" })).toBeVisible();
   });
 
   test("bairro filtra lugares; filtro inválido avisa; API de opções e de busca", async ({ page, request }) => {
     const tag = `${Date.now()}`;
     await createTestPlace(`Café Bairro ${tag}`);
     await page.goto(`/buscar?q=${encodeURIComponent(`cafe bairro ${tag}`)}&bairro=${encodeURIComponent(`Bairro Inexistente ${tag}`)}`);
-    await expect(page.getByText("Nenhum lugar encontrado.")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Nada encontrado" })).toBeVisible();
 
     await page.goto("/buscar?quando=2026-02-31");
     await expect(page.getByText(/Data inválida/)).toBeVisible();
