@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/modules/identity";
-import { AcceptMissionButton, MissionProgressPanel, SurpriseOfferButtons, missionProgress } from "@/modules/missions";
+import { AcceptMissionButton, MissionProgressPanel, MissionRewardCard, SurpriseOfferButtons, missionProgress, missionReward } from "@/modules/missions";
 import { formatTime } from "@/shared/time/joinville-time";
 import { ButtonLink, Card, FormAlert } from "@/shared/ui";
 
@@ -23,6 +23,8 @@ export default async function MissaoPage({ params, searchParams }: PageProps<"/m
   const user = await getCurrentUser();
   const view = await missionProgress(user?.id ?? null, id);
   if (!view) notFound();
+  // Recompensa do parceiro (#62): só depois de saber que a pessoa pode ver a missão.
+  const reward = await missionReward(user?.id ?? null, view.mission.id);
   // ?etapa=<id> depois de validar o QR: só vale se a etapa estiver mesmo concluída.
   const completedStep = typeof etapa === "string" ? view.steps.find((s) => s.id === etapa && s.state === "done") : undefined;
 
@@ -57,6 +59,7 @@ export default async function MissaoPage({ params, searchParams }: PageProps<"/m
         </FormAlert>
       )}
       <MissionProgressPanel view={view} action={action} />
+      {reward && <MissionRewardCard reward={reward} />}
     </div>
   );
 }

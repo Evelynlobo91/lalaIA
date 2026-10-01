@@ -2,7 +2,7 @@ import { eventsByOwner } from "@/modules/events";
 import { myFavorites } from "@/modules/favorites";
 import type { PersonalDataSource } from "@/modules/identity";
 import { livePrivacyAcceptedAt, liveStreamsOf } from "@/modules/live";
-import { missionsByOwner, myGeofenceCheckIns, myMissions } from "@/modules/missions";
+import { missionsByOwner, myGeofenceCheckIns, myMissions, myRewards } from "@/modules/missions";
 import { myPartnerApplication, myRedemptions, offersCreatedBy } from "@/modules/partners";
 import { placesManagedBy } from "@/modules/places";
 import { achievementsOf, explorerProfileOf, levelOverviewOf, xpOverviewOf } from "@/modules/progression";
@@ -16,6 +16,7 @@ export const personalDataSources: PersonalDataSource[] = [
   { name: "favoritos", export: (user) => myFavorites(user) },
   { name: "missoes", export: (user) => myMissions(user.id) },
   { name: "checkinsPorGps", export: (user) => myGeofenceCheckIns(user.id) },
+  { name: "recompensasDeMissoes", export: (user) => myRewards(user.id) },
   { name: "xp", export: (user) => xpOverviewOf(user.id, 10_000) },
   { name: "nivel", export: (user) => levelOverviewOf(user.id) },
   { name: "conquistas", export: (user) => achievementsOf(user.id) },

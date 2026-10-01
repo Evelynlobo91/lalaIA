@@ -28,6 +28,8 @@ import { GetStepQrCodes } from "./features/qr-validation/step-qr-codes.use-case"
 import { HmacStepTokens } from "./infra/hmac-step-tokens";
 import { missionsQrSecret } from "./infra/qr-config";
 import { qrSvg } from "./infra/qr-svg";
+import { ClaimMissionReward, GetMissionReward, GetPartnerRewardPanel, SaveMissionReward, ValidateRewardCode } from "./features/rewards/rewards.use-case";
+import { PostgresMissionRewardRepository, PostgresRewardClaimRepository } from "./infra/postgres-reward-repository";
 
 export const missionPlaces: MissionPlaces = { summaries: placeSummaries, managedBy: placesManagedBy };
 
@@ -66,6 +68,17 @@ export const completeStep = lazy(
 );
 export const geofenceCheckIn = lazy(() => new GeofenceCheckIn(completeStep()));
 export const qrStepValidation = lazy(() => new QrStepValidation(stepTokens(), completeStep()));
+// Recompensa do parceiro (#62): vincular, resgatar ao concluir e validar no balcão.
+export const missionRewardRepository = lazy(() => new PostgresMissionRewardRepository(sql()));
+export const rewardClaimRepository = lazy(() => new PostgresRewardClaimRepository(sql()));
+export const saveMissionReward = lazy(() => new SaveMissionReward(missionRepository(), missionRewardRepository()));
+export const claimMissionReward = lazy(
+  () => new ClaimMissionReward(missionRepository(), userMissionRepository(), missionRewardRepository(), rewardClaimRepository(), domainEvents()),
+);
+export const validateRewardCode = lazy(() => new ValidateRewardCode(missionRepository(), missionRewardRepository(), rewardClaimRepository(), domainEvents()));
+export const getMissionReward = lazy(() => new GetMissionReward(missionRepository(), userMissionRepository(), missionRewardRepository(), rewardClaimRepository()));
+export const getPartnerRewardPanel = lazy(() => new GetPartnerRewardPanel(missionRepository(), missionRewardRepository()));
+
 export const stepQrCodes = lazy(
   () => new GetStepQrCodes(missionRepository(), missionPlaces, stepTokens(), { svg: qrSvg }, () => publicEnv().NEXT_PUBLIC_SITE_URL),
 );

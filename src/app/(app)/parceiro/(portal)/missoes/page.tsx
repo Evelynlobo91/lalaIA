@@ -59,17 +59,25 @@ function MissionGroup({ title, items, now, editable = false }: { title: string; 
               <p className="text-sm text-muted">
                 De {formatDateTime(m.startsAt)} até {formatDateTime(m.endsAt)}
               </p>
-              {editable && (
-                <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
+                {editable && (
                   <Link href={`/parceiro/missoes/${m.id}/qr`} className="text-sm font-medium text-brand underline" aria-label={`QR codes de ${m.title}`}>
                     QR codes
                   </Link>
-                  <Link href={`/parceiro/missoes/${m.id}/editar`} className="text-sm font-medium text-brand underline" aria-label={`Editar ${m.title}`}>
-                    Editar
-                  </Link>
-                  <ArchiveMissionButton missionId={m.id} title={m.title} />
-                </div>
-              )}
+                )}
+                {/* Também nas encerradas: os códigos já resgatados continuam sendo validados no balcão. */}
+                <Link href={`/parceiro/missoes/${m.id}/recompensa`} className="text-sm font-medium text-brand underline" aria-label={`Recompensa de ${m.title}`}>
+                  Recompensa
+                </Link>
+                {editable && (
+                  <>
+                    <Link href={`/parceiro/missoes/${m.id}/editar`} className="text-sm font-medium text-brand underline" aria-label={`Editar ${m.title}`}>
+                      Editar
+                    </Link>
+                    <ArchiveMissionButton missionId={m.id} title={m.title} />
+                  </>
+                )}
+              </div>
             </Card>
           </li>
         ))}
