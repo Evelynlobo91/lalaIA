@@ -79,6 +79,16 @@ describe("etapas concluídas (RLS, append-only)", () => {
     expect((await completions.countsByUserMission(bia)).size).toBe(0);
   });
 
+  it("complete(): grava uma vez só (idempotente) e conclui a missão na última etapa, uma única vez", async () => {
+    const um = await userMissions.accept(bia, outra.id);
+    // Outra pessoa não grava na missão aceita da Bia.
+    await expect(completions.complete(ana, um.id, outra.steps[0].id)).rejects.toThrow(/row-level security/);
+    expect(await completions.complete(bia, um.id, outra.steps[0].id)).toEqual({ recorded: true, missionCompleted: false });
+    expect(await completions.complete(bia, um.id, outra.steps[0].id)).toEqual({ recorded: false, missionCompleted: false });
+    expect(await completions.complete(bia, um.id, outra.steps[1].id)).toEqual({ recorded: true, missionCompleted: true });
+    expect(await userMissions.find(bia, outra.id)).toMatchObject({ status: "completed" });
+  });
+
   it("missão só vira concluída com todas as etapas, e só pela própria pessoa", async () => {
     await expect(completeMission(ana, anaRota.id)).rejects.toThrow(/row-level security/);
     await insertCompletion(ana, anaRota.id, rota.steps[1].id);

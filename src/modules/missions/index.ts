@@ -1,7 +1,9 @@
 // API pública do módulo missions (missões urbanas).
 import { cache } from "react";
 import { toLocalInput } from "@/shared/time/joinville-time";
-import { getMissionProgress, listAvailableMissions, listMyMissions, missionPlaces, missionRepository, userMissionRepository } from "./composition";
+import { getMissionProgress, listAvailableMissions, listMyMissions, missionPlaces, missionRepository, qrStepValidation, stepQrCodes, userMissionRepository } from "./composition";
+import { qrModeSchema, qrTokenSchema } from "./features/qr-validation/qr-validation.schema";
+import "./domain/events";
 import { missionIdSchema } from "./features/mission-progress/mission-progress.schema";
 import { xpSplit, type MissionRecord } from "./domain/mission";
 import type { MissionFormValues, PlaceOption } from "./features/manage-missions/ui/mission-form";
@@ -17,6 +19,13 @@ export { ActiveMissionsCard } from "./features/accept-mission/ui/active-missions
 export { MissionProgressPanel } from "./features/mission-progress/ui/mission-progress-view";
 export type { MissionProgressView, StepProgressView } from "./features/mission-progress/mission-progress.use-case";
 export type { Progress, StepState } from "./domain/progress";
+export { ConfirmStepForm } from "./features/qr-validation/ui/confirm-step-form";
+export { StepQrGrid } from "./features/qr-validation/ui/step-qr-grid";
+export { QrAutoRefresh } from "./features/qr-validation/ui/qr-auto-refresh";
+export { PrintButton } from "./features/qr-validation/ui/print-button";
+export { QR_ROTATION_SECONDS } from "./domain/step-validation";
+export type { MissionQrCodes, QrMode } from "./features/qr-validation/step-qr-codes.use-case";
+export type { StepCheck, StepCompleted } from "./features/qr-validation/complete-step.use-case";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -50,6 +59,37 @@ export const missionProgress = cache(async (userId: string | null, missionId: st
   const result = await getMissionProgress().execute(userId, missionId);
   return result.ok ? result.value : null;
 });
+
+/** QR codes das etapas (portal do parceiro): só o dono (ou admin) e missão ativa; null para os demais. */
+export async function missionQrCodes(viewer: { id: string; isAdmin: boolean }, missionId: string, mode: string) {
+  const parsedMode = qrModeSchema.safeParse(mode);
+  if (!missionIdSchema.safeParse(missionId).success || !parsedMode.success) return null;
+  const result = await stepQrCodes().execute(viewer, missionId, parsedMode.data);
+  return result.ok ? result.value : null;
+}
+
+/**
+ * Prévia da validação por QR (/missoes/validar?t=): confere assinatura, validade, aceite, ordem e uso
+ * único SEM gravar. A conclusão acontece no POST do `ConfirmStepForm`.
+ */
+export async function inspectStepQr(userId: string, token: string) {
+  const parsed = qrTokenSchema.safeParse(token);
+  if (!parsed.success) return { ok: false as const, code: "qr_invalid", message: "Este QR code não é válido.", missionId: null };
+  const result = await qrStepValidation().check(userId, parsed.data);
+  if (result.ok) {
+    const { mission, step, stepXp } = result.value;
+    const [place] = await missionPlaces.summaries([step.placeId]);
+    return {
+      ok: true as const,
+      token: parsed.data,
+      mission: { id: mission.id, title: mission.title, totalSteps: mission.steps.length },
+      step: { id: step.id, position: step.position, title: step.title, placeName: place?.name ?? null },
+      stepXp,
+    };
+  }
+  const details = result.error.details as { missionId?: string } | undefined;
+  return { ok: false as const, code: result.error.code, message: result.error.message, missionId: details?.missionId ?? null };
+}
 
 /** Missão para o formulário de edição: só para o dono (ou admin) e enquanto ativa; null para os demais. */
 export async function editableMission(editor: { id: string; isAdmin: boolean }, missionId: string): Promise<{ mission: MissionRecord; stepsLocked: boolean; values: MissionFormValues } | null> {

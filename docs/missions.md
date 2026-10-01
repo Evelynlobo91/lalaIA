@@ -56,3 +56,52 @@ acontece num lugar e é comprovada por um **tipo de validação** (na POC, QR co
 - **`missions.step_completions` é append-only** (sem UPDATE/DELETE) com `unique (user_mission_id, step_id)`.
   A RLS só deixa a pessoa gravar conclusões na **própria missão aceita e ativa**, com uma etapa **dessa
   missão**, e só deixa marcar a missão como concluída quando **todas** as etapas foram concluídas.
+
+## Validar etapa por QR code no balcão (#60, RF30)
+
+```
+Portal /parceiro/missoes/<id>/qr ──(QR na tela ou impresso)──► celular do explorador
+   ► /missoes/validar?t=<token>  (login se preciso; só CONFERE, GET não grava)
+   ► "Concluir etapa" (POST, Server Action)  ► CompleteStep
+   ► grava a etapa (+ conclui a missão se era a última) ► publica missions.StepCompleted / MissionCompleted
+   ► progression credita o XP (assinante)
+```
+
+- **Portal:** "QR codes" em cada missão ativa mostra um QR por etapa (SVG gerado no servidor pela lib
+  [`qrcode`](https://www.npmjs.com/package/qrcode), MIT, sem serviço externo).
+  - **Tela do balcão (padrão):** o QR **gira a cada minuto** (a página se atualiza sozinha) e cada
+    token vale de 4 a 5 minutos. Todos que abrem no mesmo minuto veem o mesmo QR.
+  - **Versão para imprimir:** vale **até 23:59 do dia** (horário de Joinville); imprime-se um por dia.
+- **Validação como estratégia (OCP):** `CompleteStep` não sabe o que é QR. Ele escolhe o
+  `StepValidator` pelo tipo da etapa (`QrCodeValidator` hoje). GPS/geofence entra como nova prova
+  (`StepProof`) + nova estratégia registrada na composição, sem mudar o caso de uso.
+
+### Desenho anti-fraude
+
+| Ameaça | Defesa |
+|--------|--------|
+| Forjar um QR / trocar a etapa ou a validade no link | Token `<stepId>.<exp>.<assinatura>`, com **HMAC-SHA256** (`MISSIONS_QR_SECRET`, só no servidor) sobre `stepId` e `exp`; comparação em tempo constante (`timingSafeEqual`). Qualquer alteração → "QR inválido". |
+| Foto do QR mandada para amigos / validar de casa depois | **Expiração curta e rotativa** (4–5 min na tela; impresso só no dia). Nenhum token vale mais de 26 h, mesmo bem assinado. |
+| Escanear de novo para ganhar XP de novo | **Uso único por usuário/etapa**: checagem no caso de uso + `unique (user_mission_id, step_id)` no banco + `on conflict do nothing`. Repetir é recusado e **não publica evento** (o XP também é idempotente no progression). |
+| QR de uma etapa usado como prova de outra | O token carrega o `stepId` assinado; o validador exige que seja **a etapa** que está sendo concluída. |
+| Pular etapas | **Ordem obrigatória**: só conclui a etapa N com as anteriores feitas. |
+| Validar sem ter aceitado, em missão de outra pessoa, encerrada ou fora do prazo | Caso de uso (`mission_not_accepted`, `mission_unavailable`...) **e** RLS em `step_completions` (só na própria missão aceita e ativa, com etapa dessa missão). |
+| Parceiro jogar a própria missão (tem os QR codes) | Quem criou não aceita a própria missão. |
+| Link malicioso que conclui etapa sozinho (CSRF via GET, prévia de links) | A página do QR só **confere**; concluir exige o **POST** do botão (Server Action, protegida pelo Next). |
+| Trocar o usuário no formulário (IDOR) | O id vem sempre da sessão (`withUser`), nunca da requisição. |
+
+Limitação conhecida (POC): quem está no balcão pode fotografar o QR e repassar na hora (dentro dos
+minutos de validade). A evolução natural é combinar com GPS (`GeofenceValidator`) na mesma etapa.
+
+### Configuração
+
+`MISSIONS_QR_SECRET` (obrigatória no servidor, mínimo 32 caracteres, uma por ambiente; veja
+`.env.example`). Trocar o segredo invalida na hora todos os QR codes (inclusive os impressos do dia).
+No CI de E2E é gerada aleatoriamente a cada execução.
+
+### Eventos publicados
+
+- `missions.StepCompleted { userId, missionId, stepId, xp }`: XP da etapa.
+- `missions.MissionCompleted { userId, missionId, xp }`: bônus de conclusão (só na primeira vez).
+
+Publicados **depois** de gravar. Missões não concedem XP: quem credita é o módulo `progression`.

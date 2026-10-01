@@ -56,6 +56,8 @@ export interface MissionRepository {
   /** Ativas e dentro da janela em `now`, das que terminam antes para as que terminam depois. */
   listAvailable(now: Date, limit: number): Promise<MissionRecord[]>;
   findByIds(ids: string[]): Promise<MissionRecord[]>;
+  /** Missão (com todas as etapas) à qual a etapa pertence. */
+  findByStepId(stepId: string): Promise<MissionRecord | null>;
   /** Escritas rodam como o usuário (asUser): RLS garante dono/papel no banco. */
   create(actorId: string, draft: MissionDraft): Promise<MissionRecord>;
   /** `saveSteps: false` mantém as etapas como estão (missão que já tem participantes). */

@@ -30,6 +30,14 @@ export function stepStates(steps: Pick<MissionStep, "id" | "position">[], comple
   return states;
 }
 
+export interface StepCompletionWriter {
+  /**
+   * Grava a etapa como concluída (uso único: `recorded` false se já estava) e, se era a última,
+   * conclui a missão na mesma transação (`missionCompleted` true só na primeira vez).
+   */
+  complete(userId: string, userMissionId: string, stepId: string): Promise<{ recorded: boolean; missionCompleted: boolean }>;
+}
+
 export interface StepCompletionReader {
   /** Etapas concluídas pelo usuário numa missão aceita (asUser: RLS só mostra as dele). */
   listFor(userId: string, userMissionId: string): Promise<StepCompletion[]>;

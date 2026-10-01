@@ -71,6 +71,8 @@ jobs:
             echo "MAILPIT_URL=$MAILPIT_URL"
             # Chave admin do Supabase LOCAL do CI (efêmero), usada só pelos testes para criar usuários.
             echo "E2E_SUPABASE_SECRET_KEY=$SECRET_KEY"
+            # Segredo dos QR codes das missões: aleatório a cada execução (nunca fica no repositório).
+            echo "MISSIONS_QR_SECRET=$(openssl rand -hex 32)"
           } >> "$GITHUB_ENV"
       # Lugares reais de Joinville (snapshot do OpenStreetMap) para as telas de "Onde ir".
       - run: npm run places:seed

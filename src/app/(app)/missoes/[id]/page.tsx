@@ -18,10 +18,12 @@ export async function generateMetadata({ params }: PageProps<"/missoes/[id]">): 
 
 export default async function MissaoPage({ params, searchParams }: PageProps<"/missoes/[id]">) {
   const { id } = await params;
-  const { aceita } = await searchParams;
+  const { aceita, etapa } = await searchParams;
   const user = await getCurrentUser();
   const view = await missionProgress(user?.id ?? null, id);
   if (!view) notFound();
+  // ?etapa=<id> depois de validar o QR: só vale se a etapa estiver mesmo concluída.
+  const completedStep = typeof etapa === "string" ? view.steps.find((s) => s.id === etapa && s.state === "done") : undefined;
 
   const action = !view.mission.available ? null : user ? (
     <Card className="flex flex-col gap-3">
@@ -40,6 +42,12 @@ export default async function MissaoPage({ params, searchParams }: PageProps<"/m
         <ArrowLeft aria-hidden className="size-4" /> Missões
       </Link>
       {aceita && view.userMission && <FormAlert variant="success">Missão aceita! Boa exploração.</FormAlert>}
+      {completedStep && (
+        <FormAlert variant="success">
+          Etapa {completedStep.position} concluída! +{view.xp.perStep} XP.
+          {view.userMission?.status === "completed" && ` Missão concluída! +${view.xp.completionBonus} XP de bônus.`}
+        </FormAlert>
+      )}
       <MissionProgressPanel view={view} action={action} />
     </div>
   );

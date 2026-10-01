@@ -61,6 +61,9 @@ function MissionGroup({ title, items, now, editable = false }: { title: string; 
               </p>
               {editable && (
                 <div className="flex flex-wrap items-center gap-3">
+                  <Link href={`/parceiro/missoes/${m.id}/qr`} className="text-sm font-medium text-brand underline" aria-label={`QR codes de ${m.title}`}>
+                    QR codes
+                  </Link>
                   <Link href={`/parceiro/missoes/${m.id}/editar`} className="text-sm font-medium text-brand underline" aria-label={`Editar ${m.title}`}>
                     Editar
                   </Link>

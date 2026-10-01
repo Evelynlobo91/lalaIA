@@ -82,6 +82,14 @@ export class PostgresMissionRepository implements MissionRepository {
     return withSteps(this.sql, rows);
   }
 
+  async findByStepId(stepId: string): Promise<MissionRecord | null> {
+    const rows = await this.sql.unsafe<MissionRow[]>(
+      `select ${COLUMNS} from missions.missions where id = (select mission_id from missions.mission_steps where id = $1)`,
+      [stepId],
+    );
+    return (await withSteps(this.sql, rows))[0] ?? null;
+  }
+
   async create(actorId: string, d: MissionDraft): Promise<MissionRecord> {
     return asUser(
       actorId,

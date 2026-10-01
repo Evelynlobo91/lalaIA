@@ -83,6 +83,7 @@ describe("SaveMission / ArchiveMission", () => {
     listByOwner: vi.fn(),
     listAvailable: vi.fn(),
     findByIds: vi.fn(),
+    findByStepId: vi.fn(),
     create: vi.fn().mockResolvedValue(record()),
     update: vi.fn().mockResolvedValue(record()),
     archive: vi.fn().mockResolvedValue(record({ status: "archived" })),

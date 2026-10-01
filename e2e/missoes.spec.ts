@@ -85,4 +85,87 @@ test.describe("missões do explorador", () => {
     expect((await page.goto("/missoes/nao-existe"))?.status()).toBe(404);
     expect((await page.goto("/missoes/00000000-0000-4000-8000-000000000000"))?.status()).toBe(404);
   });
+
+  test("QR do balcão: valida a etapa na ordem, rejeita reutilizado e adulterado (#60)", async ({ page, browser }) => {
+    const sufixo = Date.now();
+    const cafe = await createTestPlace(`Café QR ${sufixo}`);
+    const bar = await createTestPlace(`Bar QR ${sufixo}`);
+    const parceiro = await createConfirmedUser();
+    await createApprovedPartner(parceiro);
+    const titulo = `Missão QR ${sufixo}`;
+    const { missionId } = await createTestMission({
+      ownerEmail: parceiro.email,
+      title: titulo,
+      xp: 90,
+      steps: [
+        { title: "Peça um espresso", placeId: cafe },
+        { title: "Prove o chope", placeId: bar },
+      ],
+    });
+
+    // Parceiro abre os QR codes no portal; a URL do QR é relativa ao site, então usamos só caminho + query.
+    const balcao = await (await browser.newContext()).newPage();
+    await loginAs(balcao, parceiro, `/parceiro/missoes/${missionId}/qr`);
+    const qrs = balcao.getByRole("img", { name: /QR code da etapa/ });
+    await expect(qrs).toHaveCount(2);
+    const caminho = async (i: number) => {
+      const url = new URL((await qrs.nth(i).getAttribute("data-qr-url"))!);
+      return url.pathname + url.search;
+    };
+    const etapa1 = await caminho(0);
+    const etapa2 = await caminho(1);
+
+    const explorador = await createConfirmedUser();
+    // Sem login, o QR leva ao login e volta para a validação.
+    await page.goto(etapa1);
+    await expect(page).toHaveURL(/\/entrar\?next=/);
+
+    await loginAs(page, explorador, `/missoes/${missionId}`);
+    // Sem aceitar a missão, não valida.
+    await page.goto(etapa1);
+    await expect(page.getByText("Aceite a missão antes de validar as etapas.")).toBeVisible();
+    await page.getByRole("link", { name: "Ver a missão" }).click();
+    await page.getByRole("button", { name: `Aceitar ${titulo}` }).click();
+    await expect(page.getByText("Missão aceita! Boa exploração.")).toBeVisible();
+
+    // Fora de ordem.
+    await page.goto(etapa2);
+    await expect(page.getByText(/conclua antes a etapa 1/)).toBeVisible();
+
+    // Leitura válida.
+    await page.goto(etapa1);
+    await expect(page.getByRole("heading", { name: "Peça um espresso" })).toBeVisible();
+    await expect(page.getByText("+30 XP")).toBeVisible();
+    await page.getByRole("button", { name: "Concluir etapa" }).click();
+    await expect(page).toHaveURL(new RegExp(`/missoes/${missionId}\\?etapa=`));
+    await expect(page.getByText("Etapa 1 concluída! +30 XP.")).toBeVisible();
+    await expect(page.getByRole("progressbar", { name: "Progresso" })).toHaveAttribute("aria-valuenow", "50");
+
+    // Reutilizado.
+    await page.goto(etapa1);
+    await expect(page.getByText("Você já concluiu esta etapa. O QR code só vale uma vez.")).toBeVisible();
+
+    // Adulterado.
+    await page.goto(etapa2.slice(0, -3) + "AAA");
+    await expect(page.getByText(/Este QR code não é válido/)).toBeVisible();
+
+    // Última etapa conclui a missão.
+    await page.goto(etapa2);
+    await page.getByRole("button", { name: "Concluir etapa" }).click();
+    await expect(page.getByText("Etapa 2 concluída! +30 XP. Missão concluída! +30 XP de bônus.")).toBeVisible();
+    await expect(page.getByRole("progressbar", { name: "Progresso" })).toHaveAttribute("aria-valuenow", "100");
+  });
+
+  test("QR de missão de outro parceiro não abre no portal (#60)", async ({ page }) => {
+    const placeId = await createTestPlace(`Café QR Alheio ${Date.now()}`);
+    const dono = await createConfirmedUser();
+    await createApprovedPartner(dono);
+    const { missionId } = await createTestMission({ ownerEmail: dono.email, title: `Missão Alheia ${Date.now()}`, steps: [{ title: "Peça um café", placeId }] });
+
+    const outro = await createConfirmedUser();
+    await createApprovedPartner(outro);
+    await loginAs(page, outro, "/parceiro/missoes");
+    expect((await page.goto(`/parceiro/missoes/${missionId}/qr`))?.status()).toBe(404);
+  });
 });
+
