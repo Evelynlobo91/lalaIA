@@ -97,6 +97,19 @@ Para mapear uma nova tag, adicione uma linha em `src/modules/places/domain/osm/o
 - **Acessibilidade:** o mapa é visual. Sempre há "Ver em lista" como alternativa, e o resumo é anunciado
   (`aria-live`). Sem WebGL, aparece uma mensagem no lugar do mapa.
 
+## Perto de mim
+
+- `/lugares/perto?lat=&lon=&radius=` e `GET /api/places/nearby` listam do mais perto para o mais longe,
+  com a distância em português ("150 m", "1,8 km"). Raios: 1, 2 (padrão), 5 e 10 km.
+- PostGIS: `ST_DWithin` filtra pelo raio usando o índice GiST e `ST_Distance` ordena (geografia, em metros).
+- **De onde vem o ponto:**
+  1. botão **"Perto de mim"** em `/lugares` (GPS do navegador, pedido só no toque);
+  2. **tocar num ponto vazio do mapa** → "Lugares perto daqui". Funciona sem GPS ou com permissão negada;
+  3. o próprio link, que pode ser compartilhado.
+- **Privacidade (LGPD):** a coordenada é arredondada para 4 casas (~10 m) antes de ir para a URL e para a
+  consulta. Ela **não é gravada** e **não aparece nos logs** (o log de acesso registra só o caminho, sem a query).
+- Ponto fora de Joinville e arredores → mensagem "Fora da área atendida", em vez de uma lista vazia.
+
 ## Licença e atribuição (obrigatória)
 
 Os dados do OpenStreetMap são © OpenStreetMap contributors, sob a licença
