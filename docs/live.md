@@ -97,6 +97,23 @@ Botões no card de cada transmissão em `/parceiro/live` (`features/stream-contr
   automaticamente (registrado no log como `system`).
 - O player some "em segundos": a página do público consulta o status a cada ~12 s (veja #51).
 
+## Player na página do lugar e do evento (#50, RF19/RF22)
+
+- `<LivePlayerFor entityType entityId title />` (server component, exportado pelo `index.ts`) entra no slot
+  `extras` de `PlaceDetailCard` e `EventDetailCard`, dentro de um `Suspense`: esses componentes não
+  conhecem o módulo live. Sem transmissão, não renderiza nada; se a consulta falhar, registra o erro e a
+  página continua (a live é um complemento).
+- **Sob demanda:** o player entra com `next/dynamic` (`ssr: false`) só quando há live no ar. Safari/iOS
+  (e quem tem HLS nativo) tocam direto no `<video>`; nos demais, o `hls.js` (Apache-2.0) é baixado por
+  import dinâmico, com **bitrate adaptativo** e `lowLatencyMode`.
+- **Privacidade (RNF16):** sempre começa **mudo**, com `playsInline` (não abre em tela cheia no iPhone).
+  A live stream é criada **sem gravação**. Aviso curto de privacidade no portal (a #55 completa).
+- **Analytics:** quando o vídeo começa a tocar, renderiza `<TrackView kind="live_view" entityType="live"
+  entityId={streamId}>` (módulo analytics), passado pelo server component.
+- A URL HLS só é entregue quando o status é `live` (pausada/encerrada não expõe a URL).
+- **Para Recomendação e Mapa:** `listActiveStreams(limit?)` devolve `{ streamId, entityType, entityId }`
+  das lives no ar (só ids; quem chama busca os próprios dados).
+
 ## Configurar o Mux
 
 1. Crie uma conta em [mux.com](https://mux.com) e um **Environment** (ex.: Production).

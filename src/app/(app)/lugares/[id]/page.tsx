@@ -1,8 +1,10 @@
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { TrackView } from "@/modules/analytics";
+import { LivePlayerFor } from "@/modules/live";
 import { FavoriteToggle, WantToGoButton } from "@/modules/favorites";
 import { PlaceDetailCard, getPlaceDetail } from "@/modules/places";
 
@@ -43,7 +45,14 @@ export default async function LugarPage({ params }: PageProps<"/lugares/[id]">) 
       </Link>
       <PlaceDetailCard
         place={place}
-        extras={<FavoriteToggle entityType="place" entityId={place.id} className="sm:self-start" />}
+        extras={
+          <>
+            <Suspense fallback={null}>
+              <LivePlayerFor entityType="place" entityId={place.id} title={place.name} />
+            </Suspense>
+            <FavoriteToggle entityType="place" entityId={place.id} className="sm:self-start" />
+          </>
+        }
         directions={<WantToGoButton href={place.directionsUrl} entityType="place" entityId={place.id} className="sm:w-auto sm:self-start" />}
       />
       <TrackView entityType="place" entityId={place.id} />

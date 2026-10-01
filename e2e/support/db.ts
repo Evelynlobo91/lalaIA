@@ -131,6 +131,22 @@ export function liveStreamOf(entityId: string): Promise<{ id: string; providerSt
   });
 }
 
+/** Transmissão simulada (provedor fake) já vinculada a um lugar/evento, como se o dono tivesse gerado a chave. */
+export function createLiveStream(owner: Pick<TestUser, "email">, entityType: "place" | "event", entityId: string): Promise<{ id: string; providerStreamId: string }> {
+  return withDb((sql) =>
+    sql.begin(async (tx) => {
+      const providerStreamId = `fake-${crypto.randomUUID()}`;
+      const [row] = await tx<{ id: string; owner_id: string }[]>`
+        insert into live.streams (owner_id, entity_type, entity_id, provider, provider_stream_id, playback_id)
+        select id, ${entityType}, ${entityId}, 'fake', ${providerStreamId}, ${providerStreamId}
+        from auth.users where lower(email) = ${owner.email.toLowerCase()}
+        returning id, owner_id`;
+      await tx`insert into live.stream_credentials (stream_id, owner_id, stream_key) values (${row.id}, ${row.owner_id}, ${`chave-e2e-${crypto.randomUUID()}`})`;
+      return { id: row.id, providerStreamId };
+    }),
+  );
+}
+
 /** Quantos eventos de ciclo de vida a transmissão tem (log append-only do módulo live). */
 export function lifecycleCount(streamId: string): Promise<number> {
   return withDb(async (sql) => {

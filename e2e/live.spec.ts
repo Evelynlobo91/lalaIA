@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { assignPlaceTo, createApprovedPartner, createTestPlace, lifecycleCount, liveStreamOf } from "./support/db";
+import { assignPlaceTo, createApprovedPartner, createLiveStream, createTestEvent, createTestPlace, interactionCounts, lifecycleCount, liveStreamOf } from "./support/db";
 import { sendLiveWebhook } from "./support/live";
 import { loginAs } from "./support/session";
 import { createConfirmedUser } from "./support/users";
@@ -111,5 +111,52 @@ test.describe("Live: chave de transmissão (#47)", () => {
     await loginAs(page, outro, "/parceiro/live");
     await expect(page.getByText("Nada para transmitir ainda")).toBeVisible();
     await expect(page.getByText(placeName)).toHaveCount(0);
+  });
+});
+
+test.describe("Live: player na página do lugar e do evento (#50)", () => {
+  test("live no ar aparece no lugar: mudo, inline, e assistir registra live_view", async ({ page, request }) => {
+    const placeName = `Bar Player ${Date.now()}`;
+    const placeId = await createTestPlace(placeName);
+    const dono = await createConfirmedUser();
+    await createApprovedPartner(dono);
+    const stream = await createLiveStream(dono, "place", placeId);
+
+    // Sem sinal ainda: nada de vídeo.
+    await page.goto(`/lugares/${placeId}`);
+    await expect(page.getByRole("heading", { level: 1, name: placeName })).toBeVisible();
+    await expect(page.locator("video")).toHaveCount(0);
+
+    await sendLiveWebhook(request, stream.providerStreamId, "video.live_stream.active");
+    await page.reload();
+    const live = page.getByRole("region", { name: "Transmissão ao vivo" });
+    await expect(live.getByText("Ao vivo")).toBeVisible();
+    const video = live.locator("video");
+    await expect(video).toHaveJSProperty("muted", true);
+    await expect(video).toHaveAttribute("playsinline", "");
+
+    // O vídeo de teste é externo (test-streams.mux.dev): só confere o live_view se ele chegar a tocar.
+    const played = await video.evaluate(
+      (v: HTMLVideoElement) =>
+        new Promise<boolean>((resolve) => {
+          if (!v.paused && v.readyState > 2) return resolve(true);
+          v.addEventListener("playing", () => resolve(true), { once: true });
+          setTimeout(() => resolve(false), 15_000);
+        }),
+    );
+    if (played) await expect.poll(() => interactionCounts(stream.id)).toMatchObject({ live_view: 1 });
+  });
+
+  test("live do evento aparece na página do evento", async ({ page, request }, testInfo) => {
+    test.skip(testInfo.project.name !== "celular-360", "o layout já é coberto no teste do lugar");
+    const placeId = await createTestPlace(`Palco Player ${Date.now()}`);
+    const dono = await createConfirmedUser();
+    await createApprovedPartner(dono);
+    const eventId = await createTestEvent({ ownerEmail: dono.email, placeId, title: `Show ao vivo ${Date.now()}`, startsInHours: -1, durationHours: 3 });
+    const stream = await createLiveStream(dono, "event", eventId);
+    await sendLiveWebhook(request, stream.providerStreamId, "video.live_stream.active");
+
+    await page.goto(`/eventos/${eventId}`);
+    await expect(page.getByRole("region", { name: "Transmissão ao vivo" }).locator("video")).toBeVisible();
   });
 });

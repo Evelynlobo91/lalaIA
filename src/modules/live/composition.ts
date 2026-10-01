@@ -3,6 +3,7 @@ import { sql } from "@/shared/db/sql";
 import { domainEvents } from "@/shared/events";
 import { lazy } from "@/shared/kernel";
 import { ListLiveTargets, ProvisionStream, RevealStreamKey, RotateStreamKey } from "./features/stream-key/stream-key.use-case";
+import { GetLivePlayback, ListActiveStreams } from "./features/player/player.use-case";
 import { ControlStream, EndStreamOfCancelledEvent } from "./features/stream-control/stream-control.use-case";
 import { HandleProviderWebhook } from "./features/webhooks/webhooks.use-case";
 import { streamingProviderFrom } from "./infra/live-config";
@@ -26,3 +27,6 @@ export const handleProviderWebhook = lazy(() => new HandleProviderWebhook(stream
 
 export const controlStream = lazy(() => new ControlStream(streamRepository(), streamRepository(), streamingProvider, domainEvents()));
 export const endStreamOfCancelledEvent = lazy(() => new EndStreamOfCancelledEvent(streamRepository(), streamRepository(), streamingProvider, domainEvents()));
+
+export const getLivePlayback = lazy(() => new GetLivePlayback(streamRepository(), streamingProvider));
+export const listActiveStreamsUseCase = lazy(() => new ListActiveStreams(streamRepository()));
