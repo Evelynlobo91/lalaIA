@@ -27,12 +27,13 @@ npm run dev                      # http://localhost:3000
 ```bash
 npm run check      # lint (inclui fronteiras entre módulos) + typecheck + testes unitários
 npm run test:int   # testes de integração (precisa do db:start)
-npm run db:reset   # recria o banco do zero a partir das migrations
+npm run db:reset   # recria o banco do zero (migrations + lugares de Joinville)
+npm run places:seed  # (re)importa os lugares de Joinville do snapshot do OpenStreetMap
 npm run test:e2e   # testes E2E (Playwright) no build de produção, em 360/768/1280 px
 npm run role -- grant admin voce@exemplo.com   # concede papel (partner/admin) a uma conta
 ```
 
-Veja também [convenções do banco](docs/database.md), [observabilidade](docs/observability.md) e [CI/CD e deploy](docs/deploy.md).
+Veja também [convenções do banco](docs/database.md), [lugares do OpenStreetMap](docs/places-data.md), [observabilidade](docs/observability.md) e [CI/CD e deploy](docs/deploy.md).
 
 ## Arquitetura
 

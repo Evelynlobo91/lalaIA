@@ -1,0 +1,7791 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-30T23:58:54Z",
+    "timestamp_areas_base": "2026-09-30T00:32:36Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 1077674905,
+  "lat": -26.2920699,
+  "lon": -48.8270116,
+  "tags": {
+    "man_made": "tower",
+    "name": "Mirante Higino Aguiar",
+    "tourism": "viewpoint",
+    "tower:type": "observation"
+  }
+},
+{
+  "type": "node",
+  "id": 1139817689,
+  "lat": -26.2747447,
+  "lon": -48.8554411,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "530",
+    "addr:postcode": "89218-000",
+    "addr:street": "Rua Presidente Prudente de Moraes",
+    "addr:suburb": "Santo Antônio",
+    "name": "Napolitana",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 1242682257,
+  "lat": -26.3016262,
+  "lon": -48.8414255,
+  "tags": {
+    "historic": "monument",
+    "name": "Monumento à Barca"
+  }
+},
+{
+  "type": "node",
+  "id": 1694859282,
+  "lat": -26.2759950,
+  "lon": -48.8503183,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "268",
+    "addr:postcode": "89218-015",
+    "addr:street": "Rua Coelho Neto",
+    "addr:suburb": "Santo Antônio",
+    "amenity": "restaurant",
+    "name": "Grão da Terra"
+  }
+},
+{
+  "type": "node",
+  "id": 1781740792,
+  "lat": -26.3620025,
+  "lon": -48.8094036,
+  "tags": {
+    "name": "Panificadora e Confetaria Paixão",
+    "shop": "confectionery"
+  }
+},
+{
+  "type": "node",
+  "id": 1781740804,
+  "lat": -26.3621996,
+  "lon": -48.8119356,
+  "tags": {
+    "name": "Panificadora e Confeitaria Paixão",
+    "shop": "confectionery"
+  }
+},
+{
+  "type": "node",
+  "id": 1784813996,
+  "lat": -26.2724887,
+  "lon": -48.8767527,
+  "tags": {
+    "access": "yes",
+    "leisure": "playground",
+    "max_age": "14",
+    "min_age": "3",
+    "name": "Pracinha do Costa e Silva",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "node",
+  "id": 1784817839,
+  "lat": -26.2730467,
+  "lon": -48.8769995,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "470",
+    "addr:postcode": "89220-001",
+    "addr:street": "Rua Inambu",
+    "addr:suburb": "Costa e Silva",
+    "amenity": "restaurant",
+    "cuisine": "pizza",
+    "name": "Pizzaria Suzena",
+    "phone": "+55 47 3202 8714"
+  }
+},
+{
+  "type": "node",
+  "id": 2398533300,
+  "lat": -26.2635807,
+  "lon": -48.8447119,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1428",
+    "addr:postcode": "89222-401",
+    "addr:street": "Rua Tenente Antônio João",
+    "addr:suburb": "Bom Retiro",
+    "cuisine": "Panificadora",
+    "internet_access": "no",
+    "name": "Panificadora Santa Bárbara",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 2616876896,
+  "lat": -26.1938895,
+  "lon": -49.0335042,
+  "tags": {
+    "ele": "596",
+    "lit": "yes",
+    "name": "Mirante da Serra Dona Francisca",
+    "tourism": "viewpoint"
+  }
+},
+{
+  "type": "node",
+  "id": 2632994823,
+  "lat": -26.3196362,
+  "lon": -48.8515312,
+  "tags": {
+    "name": "Panificadora Anita",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 2640719597,
+  "lat": -26.2927595,
+  "lon": -48.8404476,
+  "tags": {
+    "amenity": "cafe",
+    "contact:phone": "+55 47 3422-3940",
+    "cuisine": "regional",
+    "internet_access": "yes",
+    "name": "Divina Gula"
+  }
+},
+{
+  "type": "node",
+  "id": 2645898914,
+  "lat": -26.3023715,
+  "lon": -48.8475515,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "JK Restaurante e Choperia"
+  }
+},
+{
+  "type": "node",
+  "id": 2645898916,
+  "lat": -26.3006492,
+  "lon": -48.8487855,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Restaurante Colombo"
+  }
+},
+{
+  "type": "node",
+  "id": 2645898917,
+  "lat": -26.3006622,
+  "lon": -48.8484245,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "fried_food",
+    "name": "Lanchonete Energia"
+  }
+},
+{
+  "type": "node",
+  "id": 2645898920,
+  "lat": -26.3004528,
+  "lon": -48.8482639,
+  "tags": {
+    "amenity": "restaurant",
+    "level": "1",
+    "name": "Restaurante Floral",
+    "payment:sodexo": "yes",
+    "phone": "+55 47 3433 0978",
+    "wheelchair": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 2689112336,
+  "lat": -26.2534751,
+  "lon": -48.8560188,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Restaurante Mãos Peruanas"
+  }
+},
+{
+  "type": "node",
+  "id": 2691973934,
+  "lat": -26.2518604,
+  "lon": -48.8539971,
+  "tags": {
+    "amenity": "fast_food",
+    "level": "0",
+    "name": "Cold Beer Lanches",
+    "opening_hours": "Mo-Fr 09:00-21:00"
+  }
+},
+{
+  "type": "node",
+  "id": 2699332972,
+  "lat": -26.2906986,
+  "lon": -48.8129339,
+  "tags": {
+    "artist_name": "Paulo de Siqueira",
+    "artwork_type": "statue",
+    "name": "O Fundidor",
+    "tourism": "artwork"
+  }
+},
+{
+  "type": "node",
+  "id": 2704738473,
+  "lat": -26.3016448,
+  "lon": -48.8467950,
+  "tags": {
+    "amenity": "ice_cream",
+    "name": "Zebrão",
+    "shop": "ice_cream"
+  }
+},
+{
+  "type": "node",
+  "id": 2721675824,
+  "lat": -26.2928723,
+  "lon": -48.8437623,
+  "tags": {
+    "amenity": "theatre",
+    "level": "-1",
+    "name": "Teatro Juarez Machado"
+  }
+},
+{
+  "type": "node",
+  "id": 2750350605,
+  "lat": -26.2995348,
+  "lon": -48.8500570,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "221",
+    "addr:postcode": "89201-330",
+    "addr:street": "Rua Mário Lobo",
+    "addr:suburb": "Centro",
+    "amenity": "fast_food",
+    "cuisine": "Açaí",
+    "name": "Manzini Açaí",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 2750350609,
+  "lat": -26.2993602,
+  "lon": -48.8496696,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "fried_food",
+    "name": "Pastelaria Suqtel",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 2752858651,
+  "lat": -26.3106025,
+  "lon": -48.8457780,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "328",
+    "addr:postcode": "89202-000",
+    "addr:street": "Avenida Getúlio Vargas",
+    "addr:suburb": "Anita Garibaldi",
+    "name": "Doceria São José",
+    "opening_hours": "Mo-Fr 06:00-22:00; Sa 07:00-20:30; Su 07:00-21:00",
+    "phone": "+55 47 3433-2626",
+    "shop": "confectionery",
+    "website": "https://www.doceriasaojose.com.br/"
+  }
+},
+{
+  "type": "node",
+  "id": 2762007541,
+  "lat": -26.2533657,
+  "lon": -48.8510148,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2107",
+    "addr:postcode": "89219-710",
+    "addr:street": "Rua Tenente Antônio João",
+    "addr:suburb": "Bom Retiro",
+    "amenity": "fast_food",
+    "cuisine": "burger",
+    "delivery": "no",
+    "drive_through": "no",
+    "name": "Kélson Lanches",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 2838427689,
+  "lat": -26.2949124,
+  "lon": -48.8164124,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2488",
+    "addr:postcode": "89205-100",
+    "addr:street": "Rua Albano Schmidt",
+    "addr:suburb": "Boa Vista",
+    "amenity": "restaurant",
+    "cuisine": "pizza",
+    "name": "Antoniolli Pizzaria"
+  }
+},
+{
+  "type": "node",
+  "id": 3154335784,
+  "lat": -26.3024309,
+  "lon": -48.8489093,
+  "tags": {
+    "addr:street": "Rua Visconde de Taunay",
+    "amenity": "fast_food",
+    "cuisine": "açaí",
+    "name": "Açaí Visconde",
+    "operator": "Getúlio Restaurantes"
+  }
+},
+{
+  "type": "node",
+  "id": 3154335785,
+  "lat": -26.2998034,
+  "lon": -48.8451167,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "empanada",
+    "name": "Takeo"
+  }
+},
+{
+  "type": "node",
+  "id": 3510518558,
+  "lat": -26.2356911,
+  "lon": -48.8343288,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1415",
+    "addr:postcode": "89223-600",
+    "addr:street": "Rua Dorothóvio do Nascimento",
+    "addr:suburb": "Jardim Sofia",
+    "amenity": "fast_food",
+    "cuisine": "pastel",
+    "name": "Cantinho da Oma"
+  }
+},
+{
+  "type": "node",
+  "id": 3540160493,
+  "lat": -26.3471353,
+  "lon": -48.8317103,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:country": "BR",
+    "addr:housenumber": "2461",
+    "addr:street": "Avenida Paulo Schroeder",
+    "addr:suburb": "Petrópolis",
+    "name": "Panificadora Moinho",
+    "shop": "bakery",
+    "survey:date": "2015-05-22"
+  }
+},
+{
+  "type": "node",
+  "id": 3613769293,
+  "lat": -26.2530567,
+  "lon": -48.8505337,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:street": "Avenida Santos Dumont",
+    "addr:suburb": "Zona Industrial Norte",
+    "amenity": "pub",
+    "name": "Tillmann",
+    "smoking": "outside"
+  }
+},
+{
+  "type": "node",
+  "id": 3613798061,
+  "lat": -26.2695121,
+  "lon": -48.8509216,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "185",
+    "addr:postcode": "89218-110",
+    "addr:street": "Rua Papanduva",
+    "addr:suburb": "Santo Antônio",
+    "leisure": "sports_centre",
+    "name": "WS Fitness",
+    "sport": "gymnastics"
+  }
+},
+{
+  "type": "node",
+  "id": 3613804516,
+  "lat": -26.2744409,
+  "lon": -48.8502410,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2933",
+    "addr:postcode": "89218-035",
+    "addr:street": "Rua Doutor João Colin",
+    "addr:suburb": "Santo Antônio",
+    "amenity": "restaurant",
+    "cuisine": "regional",
+    "name": "Estação América"
+  }
+},
+{
+  "type": "node",
+  "id": 3613809226,
+  "lat": -26.2799897,
+  "lon": -48.8496875,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2287",
+    "addr:postcode": "89204-005",
+    "addr:street": "Rua Doutor João Colin",
+    "addr:suburb": "América",
+    "amenity": "restaurant",
+    "cuisine": "pizza",
+    "name": "Itália Massas e Pizzas"
+  }
+},
+{
+  "type": "node",
+  "id": 3618590827,
+  "lat": -26.2453660,
+  "lon": -48.8116406,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1859",
+    "addr:postcode": "89226-030",
+    "addr:street": "Rua Emílio Landmann",
+    "addr:suburb": "Aventureiro",
+    "amenity": "ice_cream",
+    "name": "Sorveteria Doce Sabor"
+  }
+},
+{
+  "type": "node",
+  "id": 3618591970,
+  "lat": -26.2454767,
+  "lon": -48.8114904,
+  "tags": {
+    "leisure": "sports_centre",
+    "name": "Zumba"
+  }
+},
+{
+  "type": "node",
+  "id": 3620961210,
+  "lat": -26.2424864,
+  "lon": -48.8137407,
+  "tags": {
+    "addr:housenumber": "654",
+    "addr:street": "Rua Antônio Jorge Cecyn",
+    "addr:suburb": "Aventureiro",
+    "name": "Panificadora Cecyn",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 3620961390,
+  "lat": -26.2504518,
+  "lon": -48.8169073,
+  "tags": {
+    "amenity": "pub",
+    "name": "Bar do Batata"
+  }
+},
+{
+  "type": "node",
+  "id": 3620961900,
+  "lat": -26.2491504,
+  "lon": -48.8213840,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2771",
+    "addr:postcode": "89226-000",
+    "addr:street": "Rua Tuiuti",
+    "addr:suburb": "Aventureiro",
+    "name": "Panificadora e Confeitaria Fama",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 3630207840,
+  "lat": -26.2433978,
+  "lon": -48.8198460,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "3540",
+    "addr:postcode": "89226-001",
+    "addr:street": "Rua Tuiuti",
+    "addr:suburb": "Aventureiro",
+    "name": "Panificadora e Confeitaria Tuiuti",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 3638114929,
+  "lat": -26.2424914,
+  "lon": -48.8132916,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:street": "Rua Antônio Jorge Cecyn",
+    "amenity": "fast_food",
+    "cuisine": "burger",
+    "drive_through": "no",
+    "name": "Tchê Lanches",
+    "smoking": "separated",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 3647677271,
+  "lat": -26.2548062,
+  "lon": -48.8201952,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2085",
+    "addr:postcode": "89225-001",
+    "addr:street": "Rua Tuiuti",
+    "addr:suburb": "Aventureiro",
+    "name": "Panificadora Plaza",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 3647689674,
+  "lat": -26.2637107,
+  "lon": -48.8196605,
+  "tags": {
+    "addr:street": "Rua Tuiuti",
+    "amenity": "restaurant",
+    "cuisine": "pizza",
+    "delivery": "yes",
+    "name": "Big Pizza",
+    "smoking": "no",
+    "takeaway": "only"
+  }
+},
+{
+  "type": "node",
+  "id": 3647727042,
+  "lat": -26.2845773,
+  "lon": -48.8405039,
+  "tags": {
+    "amenity": "pub",
+    "name": "Bar Astral"
+  }
+},
+{
+  "type": "node",
+  "id": 3652033607,
+  "lat": -26.3446742,
+  "lon": -48.8312305,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2720",
+    "addr:postcode": "89208-750",
+    "addr:street": "Avenida Paulo Schroeder",
+    "addr:suburb": "Petrópolis",
+    "amenity": "fast_food",
+    "name": "Academia do Búrguer"
+  }
+},
+{
+  "type": "node",
+  "id": 3652033608,
+  "lat": -26.3459509,
+  "lon": -48.8312318,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2600",
+    "addr:postcode": "89208-751",
+    "addr:street": "Avenida Paulo Schroeder",
+    "addr:suburb": "Petrópolis",
+    "amenity": "restaurant",
+    "cuisine": "pizza",
+    "name": "Rizzò Pizza"
+  }
+},
+{
+  "type": "node",
+  "id": 3652039469,
+  "lat": -26.3407678,
+  "lon": -48.8314197,
+  "tags": {
+    "leisure": "sports_centre",
+    "name": "Academia Yolo"
+  }
+},
+{
+  "type": "node",
+  "id": 3852342969,
+  "lat": -26.3315722,
+  "lon": -48.8419829,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "583",
+    "addr:postcode": "89210-200",
+    "addr:street": "Rua Presidente Wenceslau Braz",
+    "addr:suburb": "Floresta",
+    "amenity": "fast_food",
+    "cuisine": "burger",
+    "name": "Mistão Lanches",
+    "opening_hours": "Mo-Su 08:00-23:00",
+    "smoking": "outside"
+  }
+},
+{
+  "type": "node",
+  "id": 4117896891,
+  "lat": -26.2517678,
+  "lon": -48.8547770,
+  "tags": {
+    "amenity": "library",
+    "internet_access": "wlan",
+    "name": "Biblioteca Universitária",
+    "opening_hours": "Mo-Fr 07:30-22:00; Sa 07:30-11:30"
+  }
+},
+{
+  "type": "node",
+  "id": 4147062058,
+  "lat": -26.3056998,
+  "lon": -48.7945166,
+  "tags": {
+    "historic": "archaeological_site",
+    "name": "Sambaqui Lagoa do Saguaçu"
+  }
+},
+{
+  "type": "node",
+  "id": 4147062059,
+  "lat": -26.3063098,
+  "lon": -48.7936418,
+  "tags": {
+    "historic": "archaeological_site",
+    "name": "Oficina Lítica Caieira"
+  }
+},
+{
+  "type": "node",
+  "id": 4411013988,
+  "lat": -26.2910993,
+  "lon": -48.7752954,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "3632",
+    "addr:postcode": "89228-800",
+    "addr:street": "Rua Prefeito Baltasar Buschle",
+    "addr:suburb": "Espinheiros",
+    "amenity": "restaurant",
+    "cuisine": "seafood",
+    "name": "Restaurante Beira Mar"
+  }
+},
+{
+  "type": "node",
+  "id": 4412639377,
+  "lat": -26.2861136,
+  "lon": -48.8659768,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "870",
+    "addr:postcode": "89216-120",
+    "addr:street": "Rua Luiz Delfino",
+    "addr:suburb": "Glória",
+    "amenity": "restaurant",
+    "name": "Restaurante Angélicos"
+  }
+},
+{
+  "type": "node",
+  "id": 4438282690,
+  "lat": -26.2066995,
+  "lon": -48.9130869,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1100",
+    "addr:postcode": "89239-000",
+    "addr:street": "Rua Eugênio Ernesto Kunde",
+    "addr:suburb": "Pirabeiraba",
+    "amenity": "restaurant",
+    "name": "Colonial Gute Küche",
+    "opening_hours": "11:00-22:00"
+  }
+},
+{
+  "type": "node",
+  "id": 4488625369,
+  "lat": -26.1084886,
+  "lon": -49.1194833,
+  "tags": {
+    "addr:street": "Servidão José Luiz Lírio de Souza",
+    "amenity": "restaurant",
+    "cuisine": "fish;brazilian",
+    "delivery": "no",
+    "name": "Pesque Truta NSA",
+    "outdoor_seating": "no",
+    "smoking": "outside",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4527239024,
+  "lat": -26.2845935,
+  "lon": -48.8498756,
+  "tags": {
+    "amenity": "fast_food",
+    "brand": "Subway",
+    "brand:wikidata": "Q244457",
+    "brand:wikipedia": "en:Subway (restaurant)",
+    "cuisine": "sandwich",
+    "drive_through": "no",
+    "name": "Subway",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4536668880,
+  "lat": -26.2915371,
+  "lon": -48.8283092,
+  "tags": {
+    "name": "Janela para a Cidade",
+    "tourism": "viewpoint"
+  }
+},
+{
+  "type": "node",
+  "id": 4536678338,
+  "lat": -26.2843660,
+  "lon": -48.8490119,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Copa 70"
+  }
+},
+{
+  "type": "node",
+  "id": 4542975914,
+  "lat": -26.2881443,
+  "lon": -48.8437146,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:suburb": "América",
+    "amenity": "theatre",
+    "name": "Teatro do SESC"
+  }
+},
+{
+  "type": "node",
+  "id": 4558867197,
+  "lat": -26.2811721,
+  "lon": -48.8505437,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "92",
+    "addr:postcode": "89204-210",
+    "addr:street": "Rua José de Alencar",
+    "addr:suburb": "América",
+    "amenity": "restaurant",
+    "cuisine": "pizza",
+    "name": "Mozzafiatto Gastronomia",
+    "opening_hours": "Tu-Su 18:00-23:00",
+    "phone": "+554734673467",
+    "website": "@pizzariamozzafiatto"
+  }
+},
+{
+  "type": "node",
+  "id": 4558867248,
+  "lat": -26.2849538,
+  "lon": -48.8552562,
+  "tags": {
+    "addr:housenumber": "834",
+    "addr:street": "Rua Visconde de Mauá",
+    "addr:suburb": "América",
+    "amenity": "pub",
+    "food": "yes",
+    "name": "Stammtisch am Zeppa"
+  }
+},
+{
+  "type": "node",
+  "id": 4558867375,
+  "lat": -26.2945098,
+  "lon": -48.8581577,
+  "tags": {
+    "addr:housenumber": "1589",
+    "addr:street": "Rua Max Colin",
+    "addr:suburb": "América",
+    "amenity": "bar",
+    "name": "Parque Opa Bier"
+  }
+},
+{
+  "type": "node",
+  "id": 4560097022,
+  "lat": -26.2704722,
+  "lon": -48.8340101,
+  "tags": {
+    "addr:housenumber": "437",
+    "addr:street": "Rua Piratuba",
+    "addr:suburb": "Saguaçu",
+    "amenity": "restaurant",
+    "cuisine": "pizza",
+    "delivery": "yes",
+    "name": "Império das Pizzas",
+    "outdoor_seating": "no",
+    "phone": "+55 47 3435-0292",
+    "takeaway": "only"
+  }
+},
+{
+  "type": "node",
+  "id": 4560097151,
+  "lat": -26.2818117,
+  "lon": -48.8428586,
+  "tags": {
+    "name": "Doceria Sandem",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 4560097823,
+  "lat": -26.2818958,
+  "lon": -48.8427056,
+  "tags": {
+    "addr:housenumber": "2538",
+    "addr:street": "Rua Dona Francisca",
+    "addr:suburb": "Saguaçu",
+    "amenity": "pub",
+    "name": "Bar do Elias"
+  }
+},
+{
+  "type": "node",
+  "id": 4562747176,
+  "lat": -26.2963776,
+  "lon": -48.8646726,
+  "tags": {
+    "addr:street": "Rua XV de Novembro",
+    "addr:suburb": "Glória",
+    "amenity": "pub",
+    "name": "Bar Glória"
+  }
+},
+{
+  "type": "node",
+  "id": 4562747258,
+  "lat": -26.2924021,
+  "lon": -48.8683173,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "383",
+    "addr:street": "Rua Presidente Campos Salles",
+    "addr:suburb": "Glória",
+    "amenity": "cafe",
+    "cuisine": "cafe;coffee_shop;cake",
+    "name": "Panificadora Blumenauense",
+    "opening_hours": "de 06:30 ás 20:00"
+  }
+},
+{
+  "type": "node",
+  "id": 4562748979,
+  "lat": -26.2933313,
+  "lon": -48.8676750,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2560",
+    "addr:street": "Rua Max Colin",
+    "addr:suburb": "Glória",
+    "amenity": "restaurant",
+    "cuisine": "pizza",
+    "name": "Pizzaria do Fritz",
+    "opening_hours": "de 18:00 a 00:00"
+  }
+},
+{
+  "type": "node",
+  "id": 4562751655,
+  "lat": -26.3014437,
+  "lon": -48.8638039,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "586",
+    "addr:postcode": "89216-280",
+    "addr:state": "SC",
+    "addr:street": "Rua Campo Alegre",
+    "addr:suburb": "Glória",
+    "amenity": "restaurant",
+    "cuisine": "italian",
+    "delivery": "no",
+    "level": "0",
+    "name": "La Fontana",
+    "outdoor_seating": "yes",
+    "phone": "+55 47 3445-1140",
+    "takeaway": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 4567617903,
+  "lat": -26.3244270,
+  "lon": -48.8626741,
+  "tags": {
+    "addr:housenumber": "2126",
+    "addr:street": "Rua Anita Garibaldi",
+    "addr:suburb": "Anita Garibaldi",
+    "amenity": "fast_food",
+    "name": "Cantinho dos Amigos"
+  }
+},
+{
+  "type": "node",
+  "id": 4567618853,
+  "lat": -26.3242483,
+  "lon": -48.8623555,
+  "tags": {
+    "addr:housenumber": "2100",
+    "addr:street": "Rua Anita Garibaldi",
+    "addr:suburb": "Anita Garibaldi",
+    "name": "Panificadora Dona Helena",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 4567619825,
+  "lat": -26.3203547,
+  "lon": -48.8553842,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "35",
+    "addr:postcode": "89203-404",
+    "addr:street": "Rua Joaquim Nabuco",
+    "addr:suburb": "Anita Garibaldi",
+    "amenity": "fast_food",
+    "cuisine": "asian",
+    "level": "0",
+    "name": "Oishii Comida Oriental",
+    "outdoor_seating": "yes",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4567623192,
+  "lat": -26.3185262,
+  "lon": -48.8563828,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "683",
+    "addr:postcode": "89203-400",
+    "addr:street": "Rua Gothard Kaesemodel",
+    "addr:suburb": "Anita Garibaldi",
+    "alt_name": "Volksbier Bar Joinville",
+    "amenity": "restaurant",
+    "cuisine": "german",
+    "delivery": "no",
+    "name": "Volksbar Joinville",
+    "outdoor_seating": "yes",
+    "phone": "+55 47 99117-0324",
+    "takeaway": "no",
+    "website": "https://www.facebook.com/volksbarrestaurante",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4614990148,
+  "lat": -26.3157469,
+  "lon": -48.8352955,
+  "tags": {
+    "addr:housenumber": "958",
+    "addr:street": "Rua Inácio Bastos",
+    "addr:suburb": "Bucarein",
+    "name": "Panificadora e Confeitaria Caetano",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 4623440144,
+  "lat": -26.2741027,
+  "lon": -48.8199430,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "185",
+    "addr:postcode": "89227-260",
+    "addr:street": "Rua Rio Fortuna",
+    "addr:suburb": "Iririú",
+    "amenity": "pub",
+    "brewery": "yes;various",
+    "name": "Bar Brusquense",
+    "opening_hours": "Mo-Su 11:00-23:00",
+    "smoking": "outside"
+  }
+},
+{
+  "type": "node",
+  "id": 4623444834,
+  "lat": -26.2729776,
+  "lon": -48.8117614,
+  "tags": {
+    "addr:housenumber": "5167",
+    "addr:street": "Rua Albano Schmidt",
+    "addr:suburb": "Iririú",
+    "name": "Savege",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 4627354359,
+  "lat": -26.3463279,
+  "lon": -48.8472597,
+  "tags": {
+    "name": "Maikon",
+    "phone": "+55 47 3436-0914",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 4627355137,
+  "lat": -26.3238541,
+  "lon": -48.8450500,
+  "tags": {
+    "amenity": "fast_food",
+    "name": "Lanchonete do Ponto"
+  }
+},
+{
+  "type": "node",
+  "id": 4627362391,
+  "lat": -26.3234684,
+  "lon": -48.8450944,
+  "tags": {
+    "amenity": "bar",
+    "name": "Abu Dhabi Lounge Bar"
+  }
+},
+{
+  "type": "node",
+  "id": 4649563356,
+  "lat": -26.2876272,
+  "lon": -48.8444602,
+  "tags": {
+    "amenity": "cafe",
+    "name": "Lanchonete do SESC"
+  }
+},
+{
+  "type": "node",
+  "id": 4649563357,
+  "lat": -26.2876458,
+  "lon": -48.8441486,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Restaurante do SESC"
+  }
+},
+{
+  "type": "node",
+  "id": 4649775727,
+  "lat": -26.3489059,
+  "lon": -48.8275907,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "446",
+    "addr:postcode": "89208-790",
+    "addr:street": "Rua Jorge Weh",
+    "addr:suburb": "Petrópolis",
+    "name": "Tambosi",
+    "opening_hours": "Mo-Sa 06:30-20:00; Su 07:00-12:00",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 4649777973,
+  "lat": -26.3540832,
+  "lon": -48.8279870,
+  "tags": {
+    "addr:housenumber": "711;727",
+    "addr:street": "Rua João Ramalho",
+    "addr:suburb": "Petrópolis",
+    "amenity": "marketplace",
+    "name": "Mercado São Luís",
+    "opening_hours": "Mo-Sa 08:00-12:00,14:00-20:00; Su 14:00-19:00",
+    "phone": "+55 47 3013 6627"
+  }
+},
+{
+  "type": "node",
+  "id": 4665341901,
+  "lat": -26.3609107,
+  "lon": -48.8352379,
+  "tags": {
+    "addr:housenumber": "409",
+    "addr:street": "Rua Boehmerwald",
+    "addr:suburb": "Boehmerwald",
+    "name": "Panificadora e Confeitaria Mafra",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 4665341912,
+  "lat": -26.3612112,
+  "lon": -48.8293271,
+  "tags": {
+    "addr:housenumber": "45",
+    "addr:street": "Rua Adolfo da Veiga",
+    "addr:suburb": "Boehmerwald",
+    "amenity": "fast_food",
+    "cuisine": "pizza",
+    "name": "Seu Madruga Pizzas"
+  }
+},
+{
+  "type": "node",
+  "id": 4707275854,
+  "lat": -26.3167839,
+  "lon": -48.8640110,
+  "tags": {
+    "amenity": "pub",
+    "microbrewery": "yes",
+    "name": "Mad Dwarf Brew Pub"
+  }
+},
+{
+  "type": "node",
+  "id": 4708417429,
+  "lat": -26.2953039,
+  "lon": -48.8365769,
+  "tags": {
+    "amenity": "food_court",
+    "name": "Área de Alimentação do Zoobotânico"
+  }
+},
+{
+  "type": "node",
+  "id": 4714600980,
+  "lat": -26.2881198,
+  "lon": -48.8440632,
+  "tags": {
+    "name": "Galeria de Arte do SESC",
+    "operator": "SESC",
+    "tourism": "gallery"
+  }
+},
+{
+  "type": "node",
+  "id": 4770775448,
+  "lat": -26.2946550,
+  "lon": -48.8545100,
+  "tags": {
+    "amenity": "pub",
+    "microbrewery": "yes",
+    "name": "Garagem Opa BIer",
+    "outdoor_seating": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4770775990,
+  "lat": -26.2741379,
+  "lon": -48.8509393,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "kebab",
+    "name": "Metéora Shawarma",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4772982713,
+  "lat": -26.2834958,
+  "lon": -48.8494924,
+  "tags": {
+    "amenity": "ice_cream",
+    "name": "Paviloche"
+  }
+},
+{
+  "type": "node",
+  "id": 4795882510,
+  "lat": -26.3052598,
+  "lon": -48.7943902,
+  "tags": {
+    "name": "Vista para a lagoa",
+    "tourism": "viewpoint"
+  }
+},
+{
+  "type": "node",
+  "id": 4946026751,
+  "lat": -26.2608087,
+  "lon": -48.8306923,
+  "tags": {
+    "name": "Mirante em Ruínas",
+    "tourism": "viewpoint"
+  }
+},
+{
+  "type": "node",
+  "id": 5017193825,
+  "lat": -26.2980277,
+  "lon": -48.8474864,
+  "tags": {
+    "amenity": "restaurant",
+    "cuisine": "japanese",
+    "name": "Tokiomaki",
+    "name:pt": "Tokiomaki"
+  }
+},
+{
+  "type": "node",
+  "id": 5017194022,
+  "lat": -26.2980500,
+  "lon": -48.8471350,
+  "tags": {
+    "name": "Panificadora da Vila 2",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 5036875121,
+  "lat": -26.3039152,
+  "lon": -48.8545338,
+  "tags": {
+    "amenity": "cafe",
+    "name": "Avelã",
+    "name:pt": "Avelã"
+  }
+},
+{
+  "type": "node",
+  "id": 5044862838,
+  "lat": -26.2659699,
+  "lon": -48.8580740,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "158",
+    "addr:street": "Rua Iguaçu",
+    "addr:suburb": "Santo Antônio",
+    "amenity": "restaurant",
+    "cuisine": "barbecue",
+    "name": "Churrascaria Baby Búfalo"
+  }
+},
+{
+  "type": "node",
+  "id": 5075669421,
+  "lat": -26.2900892,
+  "lon": -48.7767014,
+  "tags": {
+    "amenity": "restaurant",
+    "cuisine": "seafood;fish",
+    "name": "Restaurante e Petisqueira do Paulinho"
+  }
+},
+{
+  "type": "node",
+  "id": 5105388322,
+  "lat": -26.3151037,
+  "lon": -48.8572747,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Graça Lanches"
+  }
+},
+{
+  "type": "node",
+  "id": 5236610935,
+  "lat": -26.2170255,
+  "lon": -49.0541768,
+  "tags": {
+    "amenity": "pub",
+    "name": "Bar Waldemar"
+  }
+},
+{
+  "type": "node",
+  "id": 5443845277,
+  "lat": -26.3010418,
+  "lon": -48.8505817,
+  "tags": {
+    "amenity": "cafe",
+    "diet:vegan": "only",
+    "diet:vegetarian": "only",
+    "name": "Salvador Café"
+  }
+},
+{
+  "type": "node",
+  "id": 5716211621,
+  "lat": -26.2515164,
+  "lon": -48.8548335,
+  "tags": {
+    "addr:street": "Rua Paulo Malschitzki",
+    "amenity": "theatre",
+    "name": "Univille Anfiteatro II",
+    "theatre:type": "amphi"
+  }
+},
+{
+  "type": "node",
+  "id": 6077371804,
+  "lat": -26.3044275,
+  "lon": -48.8430124,
+  "tags": {
+    "amenity": "cafe",
+    "name": "Best Cake in Town"
+  }
+},
+{
+  "type": "node",
+  "id": 6380993095,
+  "lat": -26.3012152,
+  "lon": -48.8439277,
+  "tags": {
+    "historic": "monument",
+    "name": "Fundadores de Joinville"
+  }
+},
+{
+  "type": "node",
+  "id": 6424679666,
+  "lat": -26.2816894,
+  "lon": -48.8126826,
+  "tags": {
+    "access": "yes",
+    "historic": "monument",
+    "inscription": "Placa com honrarias e data de inauguração da Academia",
+    "material": "steel",
+    "name": "Placa Inaugurativa da Academia da Terceira Idade"
+  }
+},
+{
+  "type": "node",
+  "id": 6744390585,
+  "lat": -26.3031103,
+  "lon": -48.8592279,
+  "tags": {
+    "name": "Ecatarina",
+    "shop": "confectionery"
+  }
+},
+{
+  "type": "node",
+  "id": 6799448985,
+  "lat": -26.2635713,
+  "lon": -48.8007749,
+  "tags": {
+    "addr:housenumber": "686",
+    "addr:street": "Rua Serra Azul",
+    "amenity": "ice_cream",
+    "name": "Vó Helena"
+  }
+},
+{
+  "type": "node",
+  "id": 7052311168,
+  "lat": -26.3158398,
+  "lon": -48.8319527,
+  "tags": {
+    "artwork_type": "statue",
+    "name": "Monumento ao Voluntariado",
+    "tourism": "artwork"
+  }
+},
+{
+  "type": "node",
+  "id": 7123131829,
+  "lat": -26.3697879,
+  "lon": -48.9844039,
+  "tags": {
+    "addr:city": "Joinville",
+    "amenity": "events_venue",
+    "name": "Aventura Rural Eventos",
+    "phone": "+55 47 99911-2933",
+    "website": "https://www.aventurarural.com.br/"
+  }
+},
+{
+  "type": "node",
+  "id": 7139442186,
+  "lat": -26.2230514,
+  "lon": -48.7827945,
+  "tags": {
+    "historic": "archaeological_site",
+    "name": "Sambaqui Cubatãozinho"
+  }
+},
+{
+  "type": "node",
+  "id": 7141204442,
+  "lat": -26.3436230,
+  "lon": -48.9486613,
+  "tags": {
+    "amenity": "pub",
+    "name": "Empório Canarinho"
+  }
+},
+{
+  "type": "node",
+  "id": 7154969823,
+  "lat": -26.2939945,
+  "lon": -48.8476449,
+  "tags": {
+    "amenity": "fast_food",
+    "brand": "Subway",
+    "brand:wikidata": "Q244457",
+    "brand:wikipedia": "en:Subway (restaurant)",
+    "cuisine": "sandwich",
+    "name": "Subway",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 7154969848,
+  "lat": -26.2923329,
+  "lon": -48.8434218,
+  "tags": {
+    "artist_name": "Jesper Neergaard",
+    "artwork_type": "statue",
+    "material": "marble",
+    "name": "Terpsícore",
+    "start_date": "2010-03-15",
+    "tourism": "artwork"
+  }
+},
+{
+  "type": "node",
+  "id": 7155122924,
+  "lat": -26.4476410,
+  "lon": -48.8276918,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Restaurante do Caminhoneiro"
+  }
+},
+{
+  "type": "node",
+  "id": 7156972285,
+  "lat": -26.2939388,
+  "lon": -48.8477524,
+  "tags": {
+    "amenity": "restaurant",
+    "cuisine": "japanese",
+    "name": "Joigrill"
+  }
+},
+{
+  "type": "node",
+  "id": 7156972286,
+  "lat": -26.2937462,
+  "lon": -48.8477421,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Toscana's"
+  }
+},
+{
+  "type": "node",
+  "id": 7157712341,
+  "lat": -26.2964595,
+  "lon": -48.8194969,
+  "tags": {
+    "addr:housenumber": "2085",
+    "addr:street": "Rua Prefeito Helmuth Fallgatter",
+    "addr:suburb": "Boa Vista",
+    "amenity": "fast_food",
+    "drive_through": "no",
+    "name": "Lanchonete do Nei"
+  }
+},
+{
+  "type": "node",
+  "id": 7158894526,
+  "lat": -26.2948541,
+  "lon": -48.8410410,
+  "tags": {
+    "addr:housenumber": "31",
+    "addr:street": "Rua Saguaçu",
+    "addr:suburb": "Saguaçu",
+    "amenity": "pub",
+    "brewery": "yes",
+    "name": "Prainha Opa Bier"
+  }
+},
+{
+  "type": "node",
+  "id": 7159714366,
+  "lat": -26.2831103,
+  "lon": -48.8432122,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "362",
+    "addr:postcode": "89221-265",
+    "addr:street": "Rua Professor Ricardo Buss",
+    "addr:suburb": "Saguaçu",
+    "amenity": "restaurant",
+    "cuisine": "sushi",
+    "name": "Sushi'n'Roll",
+    "opening_hours": "18:00-24:00",
+    "phone": "+55 47 3472 2122",
+    "website": "https://sushinroll.com.br/"
+  }
+},
+{
+  "type": "node",
+  "id": 7159754517,
+  "lat": -26.1380207,
+  "lon": -48.9017166,
+  "tags": {
+    "amenity": "restaurant",
+    "cuisine": "local;german",
+    "name": "Grün Wald",
+    "opening_hours": "11:30-15:00",
+    "phone": "+55 47 3464 1271",
+    "website": "https://grunwald.com.br/"
+  }
+},
+{
+  "type": "node",
+  "id": 7160954345,
+  "lat": -26.2950947,
+  "lon": -48.8465399,
+  "tags": {
+    "amenity": "pub",
+    "name": "Barão"
+  }
+},
+{
+  "type": "node",
+  "id": 7160954355,
+  "lat": -26.2937517,
+  "lon": -48.8476570,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "hot_dog",
+    "name": "Super Dog"
+  }
+},
+{
+  "type": "node",
+  "id": 7160958098,
+  "lat": -26.2946811,
+  "lon": -48.8433918,
+  "tags": {
+    "amenity": "fast_food",
+    "brand": "Burger King",
+    "brand:wikidata": "Q177054",
+    "brand:wikipedia": "en:Burger King",
+    "cuisine": "burger",
+    "drive_through": "yes",
+    "name": "Burger King",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 7160958174,
+  "lat": -26.2926948,
+  "lon": -48.8470562,
+  "tags": {
+    "name": "Ah! Cucaria",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 7173953550,
+  "lat": -26.2971795,
+  "lon": -48.8478380,
+  "tags": {
+    "amenity": "cafe",
+    "name": "Piano Café"
+  }
+},
+{
+  "type": "node",
+  "id": 7178403017,
+  "lat": -26.2985850,
+  "lon": -48.8476181,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Mari's Restaurante"
+  }
+},
+{
+  "type": "node",
+  "id": 7178403040,
+  "lat": -26.2978119,
+  "lon": -48.8477857,
+  "tags": {
+    "amenity": "fast_food",
+    "name": "Empadas Jerke",
+    "start_date": "1922"
+  }
+},
+{
+  "type": "node",
+  "id": 7178455843,
+  "lat": -26.3018877,
+  "lon": -48.8482471,
+  "tags": {
+    "name": "Confeitaria XV",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 7319610426,
+  "lat": -26.2379011,
+  "lon": -48.8110066,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "955",
+    "addr:postcode": "89226-300",
+    "addr:street": "Rua Santa Luzia",
+    "addr:suburb": "Aventureiro",
+    "government": "yes",
+    "leisure": "sports_centre",
+    "name": "Centro de Artes e Esportes Unificados do Aventureiro"
+  }
+},
+{
+  "type": "node",
+  "id": 7389390994,
+  "lat": -26.3184922,
+  "lon": -48.8454731,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1266",
+    "addr:postcode": "89202-002",
+    "addr:street": "Avenida Getúlio Vargas",
+    "addr:suburb": "Anita Garibaldi",
+    "amenity": "events_venue",
+    "name": "Teatro Cnec Joinville",
+    "phone": "+55 47 3431 0900",
+    "website": "http://www.teatrocnec.com.br"
+  }
+},
+{
+  "type": "node",
+  "id": 7430269727,
+  "lat": -26.2955082,
+  "lon": -48.8416675,
+  "tags": {
+    "name": "Galeria de Arte Victor Kursancew",
+    "opening_hours": "Mo-Fr 08:00-17:00",
+    "phone": "+55 47 3433 2557",
+    "tourism": "gallery"
+  }
+},
+{
+  "type": "node",
+  "id": 7747061086,
+  "lat": -26.3031755,
+  "lon": -49.1192736,
+  "tags": {
+    "addr:street": "Estrada Rio do Júlio",
+    "name": "Ponto mais alto da Estrada Rio do Júlio",
+    "tourism": "attraction"
+  }
+},
+{
+  "type": "node",
+  "id": 7916805456,
+  "lat": -26.3495553,
+  "lon": -48.8473504,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2868",
+    "addr:postcode": "89233-000",
+    "addr:street": "Rua Santa Catarina",
+    "addr:suburb": "Santa Catarina",
+    "amenity": "events_venue",
+    "name": "Holiday Festa Infantil"
+  }
+},
+{
+  "type": "node",
+  "id": 8638188918,
+  "lat": -26.2692292,
+  "lon": -48.9659287,
+  "tags": {
+    "leisure": "water_park",
+    "name": "Parque Aquático Cascata do Piraí"
+  }
+},
+{
+  "type": "node",
+  "id": 8813188513,
+  "lat": -26.2933304,
+  "lon": -48.8454975,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "480",
+    "addr:street": "Rua Orestes Guimarães",
+    "addr:suburb": "América",
+    "amenity": "cafe",
+    "cuisine": "portuguese",
+    "internet_access": "wlan",
+    "name": "Quinta de Olivares",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 9492691890,
+  "lat": -26.2488081,
+  "lon": -48.9415308,
+  "tags": {
+    "leisure": "water_park",
+    "name": "Water Valley"
+  }
+},
+{
+  "type": "node",
+  "id": 9676985041,
+  "lat": -26.3685435,
+  "lon": -49.0036154,
+  "tags": {
+    "ele": "616",
+    "name": "Mirante Duas Mamas",
+    "tourism": "viewpoint"
+  }
+},
+{
+  "type": "node",
+  "id": 9921738700,
+  "lat": -26.3065581,
+  "lon": -48.8411843,
+  "tags": {
+    "amenity": "fast_food",
+    "contact:phone": "+55 47 3422 2781",
+    "internet_access": "wlan",
+    "name": "Sereia Lanches"
+  }
+},
+{
+  "type": "node",
+  "id": 9921738704,
+  "lat": -26.2915482,
+  "lon": -48.8456941,
+  "tags": {
+    "amenity": "pub",
+    "name": "Petricor"
+  }
+},
+{
+  "type": "node",
+  "id": 10295537138,
+  "lat": -26.2970448,
+  "lon": -48.8187823,
+  "tags": {
+    "name": "Armazém do Pão",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 10548674340,
+  "lat": -26.3152213,
+  "lon": -48.8428469,
+  "tags": {
+    "addr:door": "Sala 1B",
+    "air_conditioning": "yes",
+    "amenity": "fast_food",
+    "cuisine": "açaí;frozen_yogurt",
+    "name": "LaFrida Açaíteria",
+    "opening_hours": "14:00-21:00",
+    "takeaway": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 10562084447,
+  "lat": -26.1372706,
+  "lon": -48.9057281,
+  "tags": {
+    "name": "Ango Kersten",
+    "tourism": "attraction"
+  }
+},
+{
+  "type": "node",
+  "id": 10562160711,
+  "lat": -26.2122237,
+  "lon": -49.0039210,
+  "tags": {
+    "name": "Recanto das Nascentes Divinas",
+    "tourism": "attraction"
+  }
+},
+{
+  "type": "node",
+  "id": 10791260605,
+  "lat": -26.3776118,
+  "lon": -48.8274811,
+  "tags": {
+    "addr:housenumber": "3242",
+    "addr:street": "Rua Waldemiro José Borges",
+    "amenity": "fast_food",
+    "name": "3242"
+  }
+},
+{
+  "type": "node",
+  "id": 10971926068,
+  "lat": -26.2569816,
+  "lon": -48.8514651,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1790",
+    "addr:postcode": "89229-003",
+    "addr:street": "Avenida Santos Dumont",
+    "addr:suburb": "Bom Retiro",
+    "amenity": "restaurant",
+    "cuisine": "pizza;burger;sandwich",
+    "name": "Opa Bier Sanos Dumont"
+  }
+},
+{
+  "type": "node",
+  "id": 11224125226,
+  "lat": -26.2891288,
+  "lon": -48.8369339,
+  "tags": {
+    "addr:street": "Rua de Marseille",
+    "leisure": "park",
+    "name": "Piá de Prédio",
+    "opening_hours": "24/7",
+    "operator": "Laranja",
+    "operator:type": "government"
+  }
+},
+{
+  "type": "node",
+  "id": 11224152128,
+  "lat": -26.3155251,
+  "lon": -48.8328093,
+  "tags": {
+    "amenity": "bar",
+    "name": "Espeto do Rodízio"
+  }
+},
+{
+  "type": "node",
+  "id": 12117605319,
+  "lat": -26.2515520,
+  "lon": -48.8539822,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "açaí",
+    "name": "The Best Açaí",
+    "website": "https://thebestacai.com.br/"
+  }
+},
+{
+  "type": "node",
+  "id": 12117605320,
+  "lat": -26.2514012,
+  "lon": -48.8539785,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "tapioca",
+    "name": "Tapioca do Giga"
+  }
+},
+{
+  "type": "node",
+  "id": 12145891678,
+  "lat": -26.2847121,
+  "lon": -48.8575745,
+  "tags": {
+    "contact:instagram": "orleans.paes",
+    "name": "Orleans Pães e Gastronomia",
+    "shop": "bakery",
+    "website:menu": "https://rebrand.ly/orleans_cardapio"
+  }
+},
+{
+  "type": "node",
+  "id": 12156162755,
+  "lat": -26.2755493,
+  "lon": -48.8309218,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1370",
+    "addr:postcode": "89227-075",
+    "addr:street": "Rua Baercker Wagner",
+    "addr:suburb": "Iririú",
+    "amenity": "fast_food",
+    "check_date": "2024-10-11",
+    "check_date:currency:XBT": "2025-07-19",
+    "cuisine": "burger;hot_dog",
+    "currency:XBT": "yes",
+    "name": "Ninja Hamburgueria - Burgers e Hot Dogs",
+    "payment:blink": "yes",
+    "payment:coinos": "yes",
+    "payment:lightning": "yes",
+    "payment:lightning_contactless": "yes",
+    "payment:onchain": "yes",
+    "phone": "+5547936181836",
+    "survey:date": "2024-10-11",
+    "website": "https://app.cardapioweb.com/ninja_hamburgueria"
+  }
+},
+{
+  "type": "node",
+  "id": 12215861490,
+  "lat": -26.3037187,
+  "lon": -48.8503218,
+  "tags": {
+    "amenity": "restaurant",
+    "contact:instagram": "primofratelli.joinville",
+    "contact:phone": "+55 47 3029 5615",
+    "cuisine": "italian",
+    "name": "Primo Fratelli"
+  }
+},
+{
+  "type": "node",
+  "id": 12215861491,
+  "lat": -26.3042393,
+  "lon": -48.8513839,
+  "tags": {
+    "alt_name": "Hoopers",
+    "amenity": "fast_food",
+    "name": "Patanegra Cervejaria"
+  }
+},
+{
+  "type": "node",
+  "id": 12215861494,
+  "lat": -26.3040878,
+  "lon": -48.8512042,
+  "tags": {
+    "amenity": "events_venue",
+    "contact:facebook": "indaiaeventos",
+    "contact:instagram": "eventosindaia",
+    "contact:phone": "+55 47 99944 8927",
+    "contact:website": "https://eventosindaia.com.br",
+    "fee": "yes",
+    "name": "Indaiá Eventos",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 12215861499,
+  "lat": -26.3038557,
+  "lon": -48.8509306,
+  "tags": {
+    "amenity": "restaurant",
+    "contact:facebook": "didgeoficial",
+    "contact:instagram": "didgeoficial",
+    "contact:phone": "+55 47 3013 7704",
+    "contact:website": "https://didge.com.br",
+    "name": "Didge Steakhouse Pub",
+    "reservation": "yes",
+    "website:menu": "https://www.didge.com.br/joinville/cardapio"
+  }
+},
+{
+  "type": "node",
+  "id": 12215861500,
+  "lat": -26.3038052,
+  "lon": -48.8508730,
+  "tags": {
+    "addr:housenumber": "368",
+    "addr:street": "Rua Visconde de Taunay",
+    "addr:suburb": "Atiradores",
+    "addr:unit": "Sala 01",
+    "amenity": "fast_food",
+    "contact:facebook": "labrasaburgeroficial",
+    "contact:instagram": "labrasaburgeroficial",
+    "contact:phone": "+55 47 99270-8335",
+    "contact:website": "https://labrasaburger.com.br",
+    "cuisine": "burger",
+    "name": "La Brasa",
+    "website:menu": "https://labrasaburgerjoinville.menudino.com"
+  }
+},
+{
+  "type": "node",
+  "id": 12766583001,
+  "lat": -26.3738130,
+  "lon": -48.9556513,
+  "tags": {
+    "addr:street": "Rodovia Rodolfo Jahn",
+    "amenity": "restaurant",
+    "name": "Sítio do Brema"
+  }
+},
+{
+  "type": "node",
+  "id": 12776783678,
+  "lat": -26.1261536,
+  "lon": -48.9271302,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "3233",
+    "addr:street": "Estrada Rio Bonito",
+    "amenity": "cafe",
+    "name": "Dona Zita Café Rural",
+    "opening_hours": "Su"
+  }
+},
+{
+  "type": "node",
+  "id": 12985725040,
+  "lat": -26.2872129,
+  "lon": -48.9092512,
+  "tags": {
+    "addr:housenumber": "7581",
+    "addr:street": "Rua XV de Novembro",
+    "amenity": "restaurant",
+    "cuisine": "sushi",
+    "name": "Kimi Sushi"
+  }
+},
+{
+  "type": "node",
+  "id": 12985735927,
+  "lat": -26.3259540,
+  "lon": -48.8344196,
+  "tags": {
+    "addr:housenumber": "420",
+    "addr:street": "Rua Guanabara",
+    "amenity": "restaurant",
+    "cuisine": "sushi",
+    "name": "Kimi Express"
+  }
+},
+{
+  "type": "node",
+  "id": 13359801601,
+  "lat": -26.3103346,
+  "lon": -48.9228078,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2886",
+    "addr:street": "Rodovia Rodolfo Jahn",
+    "amenity": "restaurant",
+    "name": "Rei do Pastel",
+    "opening_hours": "Mo-Sa 06:30-19:00; Su 10:00-19:00",
+    "phone": "+55 47 99789-8854"
+  }
+},
+{
+  "type": "node",
+  "id": 13609848001,
+  "lat": -26.2242632,
+  "lon": -48.7671525,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:suburb": "Vigorelli",
+    "amenity": "restaurant",
+    "name": "Petisqueira Babitonga",
+    "start_date": "2022"
+  }
+},
+{
+  "type": "node",
+  "id": 13609848101,
+  "lat": -26.2244293,
+  "lon": -48.7672524,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:suburb": "Vigorelli",
+    "amenity": "ice_cream",
+    "name": "O Marujo Sorveteria",
+    "start_date": "2025"
+  }
+},
+{
+  "type": "node",
+  "id": 13614938420,
+  "lat": -26.2253541,
+  "lon": -48.7668378,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:suburb": "Vigorelli",
+    "amenity": "pub",
+    "name": "Bar e Petisqueira Por do Sol"
+  }
+},
+{
+  "type": "node",
+  "id": 13614938428,
+  "lat": -26.2253042,
+  "lon": -48.7671376,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Restaurante e Lanchonete Maré Alta"
+  }
+},
+{
+  "type": "node",
+  "id": 13614938433,
+  "lat": -26.2252930,
+  "lon": -48.7673244,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Restaurante e Petisqueira Mar & Brisa"
+  }
+},
+{
+  "type": "node",
+  "id": 13614938435,
+  "lat": -26.2245035,
+  "lon": -48.7674748,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:suburb": "Vigorelli",
+    "amenity": "pub",
+    "name": "Empório Boca's do Mar"
+  }
+},
+{
+  "type": "node",
+  "id": 13614938437,
+  "lat": -26.2238100,
+  "lon": -48.7672192,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:suburb": "Vigorelli",
+    "amenity": "restaurant",
+    "name": "Petisqueira Estrela do Mar"
+  }
+},
+{
+  "type": "node",
+  "id": 13614938438,
+  "lat": -26.2239388,
+  "lon": -48.7672017,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:suburb": "Vigorelli",
+    "amenity": "restaurant",
+    "name": "Alfredo SimplesMente"
+  }
+},
+{
+  "type": "node",
+  "id": 13614938443,
+  "lat": -26.2241014,
+  "lon": -48.7671510,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Petisqueira Paddocks"
+  }
+},
+{
+  "type": "node",
+  "id": 13614938444,
+  "lat": -26.2241632,
+  "lon": -48.7671521,
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:suburb": "Vigorelli",
+    "amenity": "ice_cream",
+    "name": "Fruteros"
+  }
+},
+{
+  "type": "node",
+  "id": 13665851801,
+  "lat": -26.3059449,
+  "lon": -48.8395666,
+  "tags": {
+    "addr:street": "Rua Cais Conde d'Eu",
+    "amenity": "pub",
+    "name": "Texas Bar Joinville"
+  }
+},
+{
+  "type": "node",
+  "id": 14234293201,
+  "lat": -26.3034410,
+  "lon": -48.8619475,
+  "tags": {
+    "addr:housenumber": "1146",
+    "addr:street": "Rua Otto Boehm",
+    "amenity": "cafe",
+    "name": "Koda café bistrô Joinville",
+    "opening_hours": "Tu-Sa 09:00-19:00; Su 14:00-19:00"
+  }
+},
+{
+  "type": "way",
+  "id": 93478134,
+  "center": {
+    "lat": -26.3181933,
+    "lon": -48.8434400
+  },
+  "tags": {
+    "addr:housenumber": "1900",
+    "addr:street": "Rua Coronel Francisco Gomes",
+    "leisure": "stadium",
+    "name": "Esnesto Schlemm Sobrinho",
+    "source": "Bing",
+    "sport": "soccer",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "way",
+  "id": 108234458,
+  "center": {
+    "lat": -26.3038149,
+    "lon": -48.8491076
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "235",
+    "addr:postcode": "89201-440",
+    "addr:street": "Rua Visconde de Taunay",
+    "addr:suburb": "Centro",
+    "building": "yes",
+    "building:levels": "5",
+    "email": "contato@muellerjoinville.com.br",
+    "name": "Shopping Mueller",
+    "phone": "+55 47 3027 9800",
+    "shop": "mall",
+    "website": "https://muellerjoinville.com.br/",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 108284695,
+  "center": {
+    "lat": -26.3054281,
+    "lon": -48.8403900
+  },
+  "tags": {
+    "addr:housenumber": "27",
+    "addr:street": "Rua Ricardo Stamm Gomes",
+    "addr:suburb": "Centro",
+    "amenity": "marketplace",
+    "building": "yes",
+    "building:levels": "2",
+    "building:material": "timber_framing",
+    "name": "Mercado Municipal Germano Kurt Freissler",
+    "opening_hours": "Mo-Fr 07:00-19:00; Sa 07:00-13:00",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 108284729,
+  "center": {
+    "lat": -26.3056822,
+    "lon": -48.8405368
+  },
+  "tags": {
+    "alt_name": "Praça do Mercado Municipal",
+    "leisure": "park",
+    "name": "Praça Hercílio Luz"
+  }
+},
+{
+  "type": "way",
+  "id": 108284731,
+  "center": {
+    "lat": -26.3012412,
+    "lon": -48.8439493
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça da Bandeira"
+  }
+},
+{
+  "type": "way",
+  "id": 108284738,
+  "center": {
+    "lat": -26.3013348,
+    "lon": -48.8428361
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Doutor Dario Geraldo Salles"
+  }
+},
+{
+  "type": "way",
+  "id": 167280776,
+  "center": {
+    "lat": -26.2688370,
+    "lon": -48.8688439
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Antônio Rosa"
+  }
+},
+{
+  "type": "way",
+  "id": 167280779,
+  "center": {
+    "lat": -26.2727814,
+    "lon": -48.8765801
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:street": "Rua Cuiabá",
+    "addr:suburb": "Costa e Silva",
+    "alt_name": "Praça do Bosque",
+    "leisure": "park",
+    "name": "Praça José Olávio Budal"
+  }
+},
+{
+  "type": "way",
+  "id": 167360937,
+  "center": {
+    "lat": -26.2530983,
+    "lon": -48.8519737
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Professor José Demarchi"
+  }
+},
+{
+  "type": "way",
+  "id": 238683415,
+  "center": {
+    "lat": -26.2525779,
+    "lon": -48.8552246
+  },
+  "tags": {
+    "amenity": "library",
+    "building": "yes",
+    "building:levels": "1",
+    "email": "biblioteca@joinville.udesc.br",
+    "name": "Biblioteca Universitária Professor Paulo Malschitzki",
+    "opening_hours": "Mo-Fr 07:30-22:00;Sa 07:30-11:30",
+    "website": "https://cct.udesc.br/?id=29"
+  }
+},
+{
+  "type": "way",
+  "id": 238683419,
+  "center": {
+    "lat": -26.2527871,
+    "lon": -48.8558685
+  },
+  "tags": {
+    "building": "university",
+    "building:levels": "2",
+    "fixme": "verificar nome",
+    "leisure": "sports_centre",
+    "name": "Ginásio Professor Renato Colagrande",
+    "start_date": "2001-11-30"
+  }
+},
+{
+  "type": "way",
+  "id": 253132729,
+  "center": {
+    "lat": -26.3221342,
+    "lon": -48.8454641
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housename": "Complexo Ferroviário",
+    "addr:place": "Praça Monte Castelo",
+    "addr:suburb": "Anita Garibaldi",
+    "building": "yes",
+    "building:levels": "2",
+    "name": "Museu da Bicicleta de Joinville",
+    "operator": "Mubi",
+    "phone": "+55 47 99984 0963",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "half-hipped",
+    "tourism": "museum",
+    "wikidata": "Q10333649",
+    "wikipedia": "pt:Museu da Bicicleta de Joinville"
+  }
+},
+{
+  "type": "way",
+  "id": 253163866,
+  "center": {
+    "lat": -26.3219735,
+    "lon": -48.8487906
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housename": "Antiga Estação Ferroviária",
+    "addr:postcode": "89202-090",
+    "addr:street": "Rua Leite Ribeiro",
+    "addr:suburb": "Anita Garibaldi",
+    "name": "Complexo Estação da Memória",
+    "operator": "Fundação Cultural de Joinville",
+    "phone": "+55 47 3422 5222",
+    "tourism": "attraction",
+    "website": "https://fundacaocultural.joinville.sc.gov.br/conteudo/8-Esta%C3%A7%C3%A3o+da+Mem%C3%B3ria.html",
+    "wikipedia": "pt:Joinville#Turismo"
+  }
+},
+{
+  "type": "way",
+  "id": 253257404,
+  "center": {
+    "lat": -26.3361082,
+    "lon": -48.8465431
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1463",
+    "addr:postcode": "89211-715",
+    "addr:street": "Rua Santa Catarina",
+    "addr:suburb": "Floresta",
+    "leisure": "park",
+    "name": "Praça Tiradentes",
+    "old_name": "Praça Floresta"
+  }
+},
+{
+  "type": "way",
+  "id": 255158868,
+  "center": {
+    "lat": -26.3217920,
+    "lon": -48.8453408
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Monte Castelo"
+  }
+},
+{
+  "type": "way",
+  "id": 255322556,
+  "center": {
+    "lat": -26.3036091,
+    "lon": -48.8432112
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "229",
+    "addr:street": "Rua Rio Branco",
+    "addr:suburb": "Centro",
+    "contact:website": "https://museudeimigracao.blogspot.com",
+    "fee": "no",
+    "name": "Museu Nacional de Imigração e Colonização",
+    "note": "O horário que consta em opening_hours é segundo o site, não segundo a placa",
+    "note:website": "Na placa tem um site que não funciona: http://www.museunacional.com.br/",
+    "opening_hours": "Tu-Fr 09:00-17:00;Sa, Su, PH 12:00-18:00",
+    "phone": "+55 47 3433 3736",
+    "tourism": "museum",
+    "wikidata": "Q10333590",
+    "wikipedia": "pt:Museu Nacional de Imigração e Colonização"
+  }
+},
+{
+  "type": "way",
+  "id": 255346571,
+  "center": {
+    "lat": -26.3243424,
+    "lon": -48.8446355
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Getúlio Vargas"
+  }
+},
+{
+  "type": "way",
+  "id": 255541754,
+  "center": {
+    "lat": -26.3374433,
+    "lon": -48.8539203
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Área de Lazer Floresta"
+  }
+},
+{
+  "type": "way",
+  "id": 255541758,
+  "center": {
+    "lat": -26.3569666,
+    "lon": -48.8458636
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Marcos Antônio Braga"
+  }
+},
+{
+  "type": "way",
+  "id": 255541760,
+  "center": {
+    "lat": -26.3240058,
+    "lon": -48.8370760
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Almirante Barroso",
+    "old_name": "Praça Castelo Branco"
+  }
+},
+{
+  "type": "way",
+  "id": 255628160,
+  "center": {
+    "lat": -26.3231662,
+    "lon": -48.8524855
+  },
+  "tags": {
+    "building": "house",
+    "building:levels": "2",
+    "building:material": "timber_framing",
+    "building:part": "yes",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 255735322,
+  "center": {
+    "lat": -26.2721899,
+    "lon": -48.8505969
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Doutor João Colin"
+  }
+},
+{
+  "type": "way",
+  "id": 255822263,
+  "center": {
+    "lat": -26.3148724,
+    "lon": -48.8277645
+  },
+  "tags": {
+    "historic": "archaeological_site",
+    "name": "Sambaqui"
+  }
+},
+{
+  "type": "way",
+  "id": 255822265,
+  "center": {
+    "lat": -26.2756123,
+    "lon": -48.8069782
+  },
+  "tags": {
+    "historic": "archaeological_site",
+    "name": "Sambaqui Rio Comprido"
+  }
+},
+{
+  "type": "way",
+  "id": 255867552,
+  "center": {
+    "lat": -26.3175269,
+    "lon": -48.8583703
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:street": "Rua Concórdia",
+    "addr:suburb": "Anita Garibaldi",
+    "building": "house",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel"
+  }
+},
+{
+  "type": "way",
+  "id": 255869314,
+  "center": {
+    "lat": -26.3033323,
+    "lon": -48.8504283
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:street": "Rua Henrique Meyer",
+    "addr:suburb": "Centro",
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 255869315,
+  "center": {
+    "lat": -26.3141368,
+    "lon": -48.8606147
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "551",
+    "addr:postcode": "89203-307",
+    "addr:street": "Rua Ottokar Doerffel",
+    "addr:suburb": "Anita Garibaldi",
+    "building": "house",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel"
+  }
+},
+{
+  "type": "way",
+  "id": 255927516,
+  "center": {
+    "lat": -26.3218042,
+    "lon": -48.8465814
+  },
+  "tags": {
+    "building:levels": "1",
+    "historic": "building",
+    "name": "Antiga Estação Ferroviária",
+    "tourism": "museum",
+    "wikidata": "Q65970123"
+  }
+},
+{
+  "type": "way",
+  "id": 256109252,
+  "center": {
+    "lat": -26.2819077,
+    "lon": -48.8126417
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:street": "Rua Xavier Arp",
+    "addr:suburb": "Boa Vista",
+    "alt_name": "Parque Regional Hans Dieter Schmidt",
+    "leisure": "park",
+    "name": "Praça Cecy Maia",
+    "old_name": "Praça Erich Adolpho Colin"
+  }
+},
+{
+  "type": "way",
+  "id": 256120382,
+  "center": {
+    "lat": -26.3187821,
+    "lon": -48.8481110
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:country": "BR",
+    "addr:housenumber": "95",
+    "addr:postcode": "89203-470",
+    "addr:street": "Rua Rondônia",
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 256254934,
+  "center": {
+    "lat": -26.3154474,
+    "lon": -48.8599622
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "163",
+    "addr:postcode": "89203-400",
+    "addr:street": "Rua Gothard Kaesemodel",
+    "addr:suburb": "Anita Garibaldi",
+    "building": "house",
+    "building:levels": "2",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel"
+  }
+},
+{
+  "type": "way",
+  "id": 256256812,
+  "center": {
+    "lat": -26.2979385,
+    "lon": -48.8558631
+  },
+  "tags": {
+    "building": "yes",
+    "building:levels": "2",
+    "layer": "1",
+    "name": "Museu de Arte de Joinville",
+    "roof:orientation": "along",
+    "roof:shape": "gabled",
+    "tourism": "gallery"
+  }
+},
+{
+  "type": "way",
+  "id": 256256816,
+  "center": {
+    "lat": -26.2985052,
+    "lon": -48.8554140
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça dos Suíços"
+  }
+},
+{
+  "type": "way",
+  "id": 256256817,
+  "center": {
+    "lat": -26.2992173,
+    "lon": -48.8558556
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1383",
+    "addr:postcode": "89201-602",
+    "addr:street": "Rua XV de Novembro",
+    "addr:suburb": "América",
+    "amenity": "arts_centre",
+    "name": "Cidadela Cultural Antártica",
+    "phone": "+55 47 3422 4174"
+  }
+},
+{
+  "type": "way",
+  "id": 256576628,
+  "center": {
+    "lat": -26.3022402,
+    "lon": -48.8468236
+  },
+  "tags": {
+    "addr:housenumber": "60",
+    "addr:postcode": "89201-150",
+    "addr:street": "Rua Comandante Eugênio Lepper",
+    "amenity": "library",
+    "building": "yes",
+    "contact:website": "https://www.joinville.sc.gov.br/institucional/biblioteca-rolf-colin/",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "Biblioteca Pública Municipal Prefeito Rolf Colin",
+    "opening_hours": "Mo-Fr 07:00-19:00",
+    "operator": "Secretaria de Educação do Município de Joinville"
+  }
+},
+{
+  "type": "way",
+  "id": 256576629,
+  "center": {
+    "lat": -26.3025583,
+    "lon": -48.8457893
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Nereu Ramos"
+  }
+},
+{
+  "type": "way",
+  "id": 256774864,
+  "center": {
+    "lat": -26.3317546,
+    "lon": -48.9051470
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Área de Lazer Morro do Meio"
+  }
+},
+{
+  "type": "way",
+  "id": 256774872,
+  "center": {
+    "lat": -26.3273143,
+    "lon": -48.9083955
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Lagoinha"
+  }
+},
+{
+  "type": "way",
+  "id": 256796119,
+  "center": {
+    "lat": -26.2177803,
+    "lon": -48.8189967
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Daiana Cristina da Silva Wessling"
+  }
+},
+{
+  "type": "way",
+  "id": 256930826,
+  "center": {
+    "lat": -26.3457360,
+    "lon": -48.7708287
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Waldemiro Inácio de Carvalho"
+  }
+},
+{
+  "type": "way",
+  "id": 256930872,
+  "center": {
+    "lat": -26.3517643,
+    "lon": -48.7917607
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Área de Lazer Paranaguamirim"
+  }
+},
+{
+  "type": "way",
+  "id": 256977014,
+  "center": {
+    "lat": -26.3202710,
+    "lon": -48.8378724
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Área de Lazer Kátia Regina Crestani",
+    "old_name": "Área de Lazer Bucarein"
+  }
+},
+{
+  "type": "way",
+  "id": 257042379,
+  "center": {
+    "lat": -26.3699336,
+    "lon": -48.8093722
+  },
+  "tags": {
+    "building": "house",
+    "historic": "architecture",
+    "name": "Casa Enxaimel"
+  }
+},
+{
+  "type": "way",
+  "id": 257042380,
+  "center": {
+    "lat": -26.3001486,
+    "lon": -48.8504629
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "26",
+    "addr:street": "Rua Blumenau",
+    "addr:suburb": "Centro",
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along"
+  }
+},
+{
+  "type": "way",
+  "id": 257043942,
+  "center": {
+    "lat": -26.2973119,
+    "lon": -48.8617886
+  },
+  "tags": {
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "building:part": "yes",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "across",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 257054083,
+  "center": {
+    "lat": -26.3097559,
+    "lon": -48.8521483
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "281",
+    "addr:postcode": "89202-138",
+    "addr:street": "Rua General Valgas Neves",
+    "addr:suburb": "Anita Garibaldi",
+    "building": "house",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel"
+  }
+},
+{
+  "type": "way",
+  "id": 257137259,
+  "center": {
+    "lat": -26.3185091,
+    "lon": -48.8689087
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1598",
+    "addr:postcode": "89203-212",
+    "addr:street": "Rua Ottokar Doerffel",
+    "addr:suburb": "Anita Garibaldi",
+    "amenity": "fast_food",
+    "building": "yes",
+    "cuisine": "chicken",
+    "drive_through": "yes",
+    "name": "FNP Joinville",
+    "opening_hours": "Mo-Sa 18:00-23:00",
+    "phone": "+55 47 98916-2558",
+    "website": "https://www.ifood.com.br/delivery/joinville-sc/fnp-joinville-atiradores/5862f3c8-419c-4e48-92ea-ef66e9f21e35"
+  }
+},
+{
+  "type": "way",
+  "id": 257137265,
+  "center": {
+    "lat": -26.3202919,
+    "lon": -48.8736405
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Otávio Redivo \"O Nono\""
+  }
+},
+{
+  "type": "way",
+  "id": 257137274,
+  "center": {
+    "lat": -26.3225741,
+    "lon": -48.8704935
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "300",
+    "addr:postcode": "89214-110",
+    "addr:street": "Rua Botuverá",
+    "addr:suburb": "São Marcos",
+    "contact:facebook": "https://www.facebook.com/pages/SNIPER-Paintball-Joinville/142154015869394",
+    "leisure": "sports_centre",
+    "name": "Sniper Paintball",
+    "opening_hours": "Mo-Fr 14:00+; Sa-Su 09:00+",
+    "phone": "+55 47 3453 2963",
+    "shooting": "paintball",
+    "sport": "shooting",
+    "website": "http://www.sniperpaintball.net/"
+  }
+},
+{
+  "type": "way",
+  "id": 257148117,
+  "center": {
+    "lat": -26.3182993,
+    "lon": -48.8801483
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "279",
+    "addr:postcode": "89214-260",
+    "addr:street": "Rua das Hortências",
+    "addr:suburb": "São Marcos",
+    "amenity": "pub",
+    "building": "commercial",
+    "name": "Bar do Alemão"
+  }
+},
+{
+  "type": "way",
+  "id": 257148119,
+  "center": {
+    "lat": -26.3202474,
+    "lon": -48.8759893
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "968",
+    "addr:postcode": "89214-400",
+    "addr:street": "Rua Fernando Drefahl",
+    "addr:suburb": "São Marcos",
+    "amenity": "restaurant",
+    "building": "yes",
+    "description": "Pratos Feitos, à la Carte, Lanches, Café e Doces",
+    "name": "Café & Restaurante Pão com Banha",
+    "phone": "+55 47 3429 3220; +55 47 99947 4424"
+  }
+},
+{
+  "type": "way",
+  "id": 257148125,
+  "center": {
+    "lat": -26.3201961,
+    "lon": -48.8755340
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "957",
+    "addr:postcode": "89214-000",
+    "addr:street": "Rua Tupy",
+    "addr:suburb": "São Marcos",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Restaurante Cézar Refeições"
+  }
+},
+{
+  "type": "way",
+  "id": 257181126,
+  "center": {
+    "lat": -26.3121566,
+    "lon": -48.8781801
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "194",
+    "addr:postcode": "89214-350",
+    "addr:street": "Rua Karl W. Noack",
+    "addr:suburb": "São Marcos",
+    "leisure": "sports_centre",
+    "name": "Real Sociedade Esporte Clube",
+    "sport": "soccer"
+  }
+},
+{
+  "type": "way",
+  "id": 257511241,
+  "center": {
+    "lat": -26.3201512,
+    "lon": -48.8670611
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "119",
+    "addr:postcode": "89002-230",
+    "addr:street": "Rua Bagé",
+    "addr:suburb": "Anita Garibaldi",
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "building:part": "yes",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 257511242,
+  "center": {
+    "lat": -26.3216152,
+    "lon": -48.8701047
+  },
+  "tags": {
+    "building": "house",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel"
+  }
+},
+{
+  "type": "way",
+  "id": 257570518,
+  "center": {
+    "lat": -26.2989497,
+    "lon": -48.8484864
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "106",
+    "addr:postcode": "89201-330",
+    "addr:street": "Rua dos Ginásticos",
+    "addr:suburb": "Centro",
+    "building": "yes",
+    "building:levels": "2",
+    "name": "Shopping Cidade das Flores",
+    "opening_hours": "Mo-Su 10:00-22:00",
+    "shop": "mall"
+  }
+},
+{
+  "type": "way",
+  "id": 257573377,
+  "center": {
+    "lat": -26.3186658,
+    "lon": -48.8406105
+  },
+  "tags": {
+    "building": "yes",
+    "delivery": "yes",
+    "name": "Procópio Padaria e Confeitaria",
+    "phone": "+55 47 3034 2288",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "way",
+  "id": 257707170,
+  "center": {
+    "lat": -26.2061891,
+    "lon": -48.9091403
+  },
+  "tags": {
+    "alt_name": "Estação da Cidadania Max Lütke",
+    "leisure": "park",
+    "name": "Praça Caetano Évora da Silveira Júnior"
+  }
+},
+{
+  "type": "way",
+  "id": 257833898,
+  "center": {
+    "lat": -26.3320437,
+    "lon": -48.8516456
+  },
+  "tags": {
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "building:part": "yes",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "across",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 257847436,
+  "center": {
+    "lat": -26.3047883,
+    "lon": -48.8452588
+  },
+  "tags": {
+    "amenity": "fast_food",
+    "building": "commercial",
+    "building:levels": "1",
+    "cuisine": "empanada",
+    "name": "Pastelaria Itália",
+    "opening_hours": "Mo-Fr 07:00-18:00; Sa 07:30-12:00",
+    "roof:shape": "hipped",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 258027513,
+  "center": {
+    "lat": -26.2979670,
+    "lon": -48.8555861
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1400",
+    "addr:street": "Rua XV de Novembro",
+    "name": "Museu de Arte de Joinville",
+    "tourism": "museum"
+  }
+},
+{
+  "type": "way",
+  "id": 258036131,
+  "center": {
+    "lat": -26.3014722,
+    "lon": -48.8416051
+  },
+  "tags": {
+    "alt_name": "Praça Marco Zero",
+    "leisure": "park",
+    "name": "Praça Carlos Ficker",
+    "old_name": "Praça George Washington"
+  }
+},
+{
+  "type": "way",
+  "id": 258106912,
+  "center": {
+    "lat": -26.2753755,
+    "lon": -48.8346894
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1073",
+    "addr:postcode": "89227-045",
+    "addr:street": "Rua Iririú",
+    "addr:suburb": "Saguaçu",
+    "leisure": "sports_centre",
+    "name": "Sociedade Esportiva e Recreativa Alvorada",
+    "phone": "+55 47 3437 1128",
+    "short_name": "S.E.R. Alvorada",
+    "source:addr": "website",
+    "sport": "shooting",
+    "website": "http://www.alvoradajoinville.com/"
+  }
+},
+{
+  "type": "way",
+  "id": 258412919,
+  "center": {
+    "lat": -26.3110500,
+    "lon": -48.8563989
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Xavier Arp"
+  }
+},
+{
+  "type": "way",
+  "id": 258588910,
+  "center": {
+    "lat": -26.3756848,
+    "lon": -48.8419506
+  },
+  "tags": {
+    "historic": "architecture",
+    "name": "Casa Enxaimel"
+  }
+},
+{
+  "type": "way",
+  "id": 258694493,
+  "center": {
+    "lat": -26.3670350,
+    "lon": -48.8424177
+  },
+  "tags": {
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "building:part": "yes",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 258699485,
+  "center": {
+    "lat": -26.3115515,
+    "lon": -48.8397900
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "442",
+    "addr:postcode": "89202-400",
+    "addr:street": "Rua Urussanga",
+    "addr:suburb": "Bucarein",
+    "alt_name": "RP1 Joinville",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Restaurante Popular Herbert José de Souza",
+    "opening_hours": "Mo-Fr 08:00-16:00"
+  }
+},
+{
+  "type": "way",
+  "id": 258722922,
+  "center": {
+    "lat": -26.2919295,
+    "lon": -48.8358499
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "392",
+    "addr:postcode": "89221-060",
+    "addr:street": "Rua Bela Vista",
+    "addr:suburb": "Saguaçu",
+    "building": "house",
+    "building:levels": "2",
+    "historic": "architecture",
+    "name": "Casa Enxaimel"
+  }
+},
+{
+  "type": "way",
+  "id": 258723727,
+  "center": {
+    "lat": -26.2817792,
+    "lon": -48.8439099
+  },
+  "tags": {
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 258738733,
+  "center": {
+    "lat": -26.2926095,
+    "lon": -48.8440388
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "315",
+    "addr:postcode": "89204-110",
+    "addr:street": "Avenida José Vieira",
+    "addr:suburb": "América",
+    "amenity": "arts_centre",
+    "building": "yes",
+    "building:levels": "3",
+    "name": "Centreventos Cau Hansen"
+  }
+},
+{
+  "type": "way",
+  "id": 258845121,
+  "center": {
+    "lat": -26.3185030,
+    "lon": -48.8491534
+  },
+  "tags": {
+    "addr:street": "Rua Porto União",
+    "building": "house",
+    "building:levels": "2",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 258851740,
+  "center": {
+    "lat": -26.3245605,
+    "lon": -48.8653951
+  },
+  "tags": {
+    "addr:street": "Rua Anita Garibaldi",
+    "building": "house",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "note": "Casa com reboco."
+  }
+},
+{
+  "type": "way",
+  "id": 258851741,
+  "center": {
+    "lat": -26.3242421,
+    "lon": -48.8604257
+  },
+  "tags": {
+    "addr:street": "Rua Anita Garibaldi",
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 258851742,
+  "center": {
+    "lat": -26.3193298,
+    "lon": -48.8505389
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:country": "BR",
+    "addr:housenumber": "663",
+    "addr:postcode": "89203-300",
+    "addr:street": "Rua Anita Garibaldi",
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "note": "Casa com reboco.",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 258851743,
+  "center": {
+    "lat": -26.3241183,
+    "lon": -48.8574055
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:country": "BR",
+    "addr:housenumber": "1590",
+    "addr:postcode": "89203-301",
+    "addr:street": "Rua Anita Garibaldi",
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "building:part": "yes",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 259237706,
+  "center": {
+    "lat": -26.3204762,
+    "lon": -48.8447889
+  },
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "empanada",
+    "name": "Pastelaria Joinville"
+  }
+},
+{
+  "type": "way",
+  "id": 259669540,
+  "center": {
+    "lat": -26.3241372,
+    "lon": -48.8058206
+  },
+  "tags": {
+    "alt_name": "Praça Adhemar Garcia",
+    "leisure": "park",
+    "name": "Praça da Paz"
+  }
+},
+{
+  "type": "way",
+  "id": 260390720,
+  "center": {
+    "lat": -26.3110761,
+    "lon": -48.8507799
+  },
+  "tags": {
+    "building": "house",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel"
+  }
+},
+{
+  "type": "way",
+  "id": 260390721,
+  "center": {
+    "lat": -26.3101418,
+    "lon": -48.8515879
+  },
+  "tags": {
+    "building": "house",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel"
+  }
+},
+{
+  "type": "way",
+  "id": 260390722,
+  "center": {
+    "lat": -26.3111713,
+    "lon": -48.8514121
+  },
+  "tags": {
+    "building": "house",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel"
+  }
+},
+{
+  "type": "way",
+  "id": 260390723,
+  "center": {
+    "lat": -26.3108399,
+    "lon": -48.8510717
+  },
+  "tags": {
+    "building": "house",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel"
+  }
+},
+{
+  "type": "way",
+  "id": 260390874,
+  "center": {
+    "lat": -26.3070410,
+    "lon": -48.8510445
+  },
+  "tags": {
+    "addr:housenumber": "204",
+    "addr:street": "Rua Duque de Caxias",
+    "addr:suburb": "Centro",
+    "building": "house",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "note": "rebocado"
+  }
+},
+{
+  "type": "way",
+  "id": 260390974,
+  "center": {
+    "lat": -26.3039901,
+    "lon": -48.8506403
+  },
+  "tags": {
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 260393636,
+  "center": {
+    "lat": -26.2999144,
+    "lon": -48.8504305
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "38",
+    "addr:street": "Rua Blumenau",
+    "addr:suburb": "Centro",
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along"
+  }
+},
+{
+  "type": "way",
+  "id": 260393637,
+  "center": {
+    "lat": -26.2996785,
+    "lon": -48.8515189
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "950",
+    "addr:postcode": "89201-602",
+    "addr:street": "Rua XV de Novembro",
+    "addr:suburb": "América",
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "note": "rebocado",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 260393638,
+  "center": {
+    "lat": -26.2988054,
+    "lon": -48.8518825
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1000",
+    "addr:postcode": "89201-602",
+    "addr:street": "Rua XV de Novembro",
+    "addr:suburb": "América",
+    "landuse": "cemetery",
+    "name": "Cemitério dos Imigrantes",
+    "tourism": "attraction"
+  }
+},
+{
+  "type": "way",
+  "id": 260550564,
+  "center": {
+    "lat": -26.3188737,
+    "lon": -48.8444114
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:country": "BR",
+    "addr:housenumber": "1046",
+    "addr:street": "Rua Coronel Francisco Gomes",
+    "addr:suburb": "Bucarein",
+    "amenity": "pub",
+    "building": "yes",
+    "building:levels": "1",
+    "name": "Bar Dock",
+    "roof:orientation": "across",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 260550566,
+  "center": {
+    "lat": -26.3181211,
+    "lon": -48.8471148
+  },
+  "tags": {
+    "leisure": "sports_centre",
+    "name": "Complexo Poliesportivo e Cultural Professor Félix José Negherbon"
+  }
+},
+{
+  "type": "way",
+  "id": 260550568,
+  "center": {
+    "lat": -26.3190832,
+    "lon": -48.8419367
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "805",
+    "addr:postcode": "89202-250",
+    "addr:street": "Rua Coronel Francisco Gomes",
+    "addr:suburb": "Bucarein",
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "seafood",
+    "name": "Restaurante e Petisqueira Dourados",
+    "wifi": "customers"
+  }
+},
+{
+  "type": "way",
+  "id": 260550576,
+  "center": {
+    "lat": -26.3167998,
+    "lon": -48.8461784
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "79",
+    "addr:postcode": "89203-300",
+    "addr:street": "Rua Anita Garibaldi",
+    "addr:suburb": "Anita Garibaldi",
+    "amenity": "arts_centre",
+    "building": "yes",
+    "building:levels": "2",
+    "description": "Biblioteca Municipal, Sec. Região Central, Procon, Defesa Civil, Junta Militar",
+    "name": "Centro de Cultura e Serviços Anita Garibaldi",
+    "old_name": "Piazza Italia"
+  }
+},
+{
+  "type": "way",
+  "id": 261743176,
+  "center": {
+    "lat": -26.3158327,
+    "lon": -48.8423856
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "949",
+    "addr:postcode": "89202-253",
+    "addr:street": "Rua São Paulo",
+    "addr:suburb": "Bucarein",
+    "amenity": "fast_food",
+    "building": "yes",
+    "name": "Dryville"
+  }
+},
+{
+  "type": "way",
+  "id": 261988073,
+  "center": {
+    "lat": -26.3319350,
+    "lon": -48.8472405
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:country": "BR",
+    "addr:housenumber": "1038",
+    "addr:street": "Rua Santa Catarina",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Petisqueira Amadeu",
+    "phone": "+55 47 3436-0970"
+  }
+},
+{
+  "type": "way",
+  "id": 261991291,
+  "center": {
+    "lat": -26.3309522,
+    "lon": -48.8463747
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:country": "BR",
+    "addr:housenumber": "952",
+    "addr:postcode": "89211-300",
+    "addr:street": "Rua Santa Catarina",
+    "addr:suburb": "Floresta",
+    "amenity": "nightclub",
+    "building": "yes",
+    "building:levels": "2",
+    "name": "Sociedade Floresta",
+    "phone": "+55 47 3028-6092"
+  }
+},
+{
+  "type": "way",
+  "id": 262143116,
+  "center": {
+    "lat": -26.3284423,
+    "lon": -48.8457112
+  },
+  "tags": {
+    "building": "commercial",
+    "building:levels": "2",
+    "name": "Docelândia",
+    "roof:orientation": "along",
+    "roof:shape": "hipped",
+    "shop": "confectionery"
+  }
+},
+{
+  "type": "way",
+  "id": 262177359,
+  "center": {
+    "lat": -26.3263345,
+    "lon": -48.8422572
+  },
+  "tags": {
+    "building": "commercial",
+    "name": "Ana Paula Pães e Doces",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "way",
+  "id": 262492304,
+  "center": {
+    "lat": -26.3230177,
+    "lon": -48.8486276
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:country": "BR",
+    "addr:housenumber": "400",
+    "addr:postcode": "89211-000",
+    "addr:street": "Rua Arnaldo Moreira Douat",
+    "addr:suburb": "Floresta",
+    "amenity": "fast_food",
+    "building": "commercial",
+    "name": "Lanchonete do Alemão"
+  }
+},
+{
+  "type": "way",
+  "id": 262492306,
+  "center": {
+    "lat": -26.3226447,
+    "lon": -48.8510517
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:country": "BR",
+    "addr:housenumber": "599",
+    "addr:postcode": "89211-135",
+    "addr:street": "Rua Tiradentes",
+    "addr:suburb": "Floresta",
+    "amenity": "fast_food",
+    "building": "commercial",
+    "name": "Petisqueira Canranguejo do Alemão"
+  }
+},
+{
+  "type": "way",
+  "id": 262770544,
+  "center": {
+    "lat": -26.3300510,
+    "lon": -48.8468766
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "836",
+    "addr:postcode": "89211-300",
+    "addr:street": "Rua Santa Catarina",
+    "addr:suburb": "Floresta",
+    "building": "commercial",
+    "building:levels": "2",
+    "name": "Panificadora Floresta",
+    "roof:orientation": "along",
+    "roof:shape": "gabled",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "way",
+  "id": 263444813,
+  "center": {
+    "lat": -26.3177746,
+    "lon": -48.8051866
+  },
+  "tags": {
+    "access": "permissive",
+    "leisure": "garden",
+    "name": "Horta Comunitária Sabor da Terra"
+  }
+},
+{
+  "type": "way",
+  "id": 263566533,
+  "center": {
+    "lat": -26.2539066,
+    "lon": -48.8532246
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "333",
+    "addr:postcode": "89223-005",
+    "addr:street": "Avenida Rolf Wiest",
+    "addr:suburb": "Zona Industrial Norte",
+    "building": "commercial",
+    "contact:facebook": "https://www.facebook.com/gartenshopping",
+    "contact:twitter": "garten_shopping",
+    "name": "Garten Shopping",
+    "opening_hours": "Mo-Sa 10:00-22:00; Su 14:00-20:00",
+    "phone": "+55 47 3043-9444",
+    "shop": "mall",
+    "website": "https://www.gartenshopping.com.br/"
+  }
+},
+{
+  "type": "way",
+  "id": 263566534,
+  "center": {
+    "lat": -26.2534023,
+    "lon": -48.8608107
+  },
+  "tags": {
+    "amenity": "theatre",
+    "building": "commercial",
+    "name": "Anfiteatro"
+  }
+},
+{
+  "type": "way",
+  "id": 264002799,
+  "center": {
+    "lat": -26.2814147,
+    "lon": -48.7805329
+  },
+  "tags": {
+    "alt_name": "Área de Lazer Moinho dos Ventos 2",
+    "leisure": "park",
+    "name": "Área de Lazer Francisco Rodrigues Miranda"
+  }
+},
+{
+  "type": "way",
+  "id": 265058582,
+  "center": {
+    "lat": -26.2513865,
+    "lon": -48.8579440
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "10",
+    "addr:postcode": "89219-710",
+    "addr:street": "Rua Paulo Malschitzki",
+    "addr:suburb": "Zona Industrial Norte",
+    "amenity": "restaurant",
+    "building": "commercial",
+    "contact:facebook": "https://www.facebook.com/RestauranteMrAbass",
+    "name": "Mister Abass"
+  }
+},
+{
+  "type": "way",
+  "id": 265890673,
+  "center": {
+    "lat": -26.2965370,
+    "lon": -48.8831215
+  },
+  "tags": {
+    "building": "gatehouse",
+    "building:levels": "1",
+    "description": "Entrada da cidade",
+    "name": "Pórtico da Cidade de Joinville",
+    "tourism": "attraction"
+  }
+},
+{
+  "type": "way",
+  "id": 266413401,
+  "center": {
+    "lat": -26.2995720,
+    "lon": -48.8809526
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "4315",
+    "addr:postcode": "89216-201",
+    "addr:street": "Rua XV de Novembro",
+    "addr:suburb": "Glória",
+    "amenity": "events_venue",
+    "description": "O Complexo Expoville é um importante centro de eventos, negócios e lazer de Joinville – SC, que foi projetado especialmente para feiras, congressos, formaturas, shows, entre outros.",
+    "email": "contato@expoville.com.br",
+    "name": "Complexo Expoville",
+    "opening_hours": "Mo-Su 10:00-18:00",
+    "phone": "+55 47 3029 0699",
+    "website": "https://expoville.com.br"
+  }
+},
+{
+  "type": "way",
+  "id": 266413405,
+  "center": {
+    "lat": -26.2968205,
+    "lon": -48.8826617
+  },
+  "tags": {
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "tourism": "attraction"
+  }
+},
+{
+  "type": "way",
+  "id": 266413406,
+  "center": {
+    "lat": -26.2968882,
+    "lon": -48.8832843
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "4315",
+    "addr:postcode": "89216-201",
+    "addr:street": "Rua XV de Novembro",
+    "addr:suburb": "Glória",
+    "amenity": "pub",
+    "biergarten": "yes",
+    "building": "yes",
+    "microbrewery": "yes",
+    "name": "Opa Bier",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 266634570,
+  "center": {
+    "lat": -26.2896407,
+    "lon": -48.8437522
+  },
+  "tags": {
+    "amenity": "fast_food",
+    "drive_through": "yes",
+    "name": "Jerônimo Track"
+  }
+},
+{
+  "type": "way",
+  "id": 266697488,
+  "center": {
+    "lat": -26.2304116,
+    "lon": -48.8258445
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2290",
+    "addr:street": "Rua Dorothóvio do Nascimento",
+    "addr:suburb": "Zona Industrial Norte",
+    "leisure": "sports_centre",
+    "name": "Kartódromo de Joinville",
+    "sport": "karting"
+  }
+},
+{
+  "type": "way",
+  "id": 267118110,
+  "center": {
+    "lat": -26.3041365,
+    "lon": -48.8446184
+  },
+  "tags": {
+    "amenity": "restaurant",
+    "building": "commercial",
+    "building:levels": "2",
+    "building:part": "yes",
+    "name": "Tempeiro Crioulo",
+    "roof:shape": "hipped"
+  }
+},
+{
+  "type": "way",
+  "id": 267118115,
+  "center": {
+    "lat": -26.3038120,
+    "lon": -48.8440514
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "151",
+    "addr:postcode": "89201-200",
+    "addr:street": "Rua Três de Maio",
+    "addr:suburb": "Centro",
+    "building:levels": "2",
+    "name": "Galeria de Arte Antônio Mir",
+    "roof:orientation": "across",
+    "roof:shape": "hipped",
+    "tourism": "gallery"
+  }
+},
+{
+  "type": "way",
+  "id": 270657270,
+  "center": {
+    "lat": -26.2737703,
+    "lon": -48.8270548
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Padre Valente Simeoni"
+  }
+},
+{
+  "type": "way",
+  "id": 270767167,
+  "center": {
+    "lat": -26.2635167,
+    "lon": -48.8190711
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Mãe Peregrina"
+  }
+},
+{
+  "type": "way",
+  "id": 270767218,
+  "center": {
+    "lat": -26.2639482,
+    "lon": -48.8194112
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Área de Lazer Tuiuti"
+  }
+},
+{
+  "type": "way",
+  "id": 271243472,
+  "center": {
+    "lat": -26.2579807,
+    "lon": -48.8466300
+  },
+  "tags": {
+    "addr:housenumber": "46",
+    "addr:street": "Rua Leão XIII",
+    "addr:suburb": "Bom Retiro",
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "pizza",
+    "name": "Pizza Bramasole"
+  }
+},
+{
+  "type": "way",
+  "id": 271244129,
+  "center": {
+    "lat": -26.2570599,
+    "lon": -48.8475253
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2233",
+    "addr:postcode": "89223-100",
+    "addr:street": "Rua Tenente Antônio João",
+    "addr:suburb": "Bom Retiro",
+    "building": "yes",
+    "name": "Panificadora Manchester",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "way",
+  "id": 271700682,
+  "center": {
+    "lat": -26.2068442,
+    "lon": -48.9086504
+  },
+  "tags": {
+    "building": "retail",
+    "building:levels": "1",
+    "name": "Panificadora Lemke",
+    "phone": "+55 47 3424-0258",
+    "roof:orientation": "along",
+    "roof:shape": "gabled",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "way",
+  "id": 271700684,
+  "center": {
+    "lat": -26.2067594,
+    "lon": -48.9086506
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:country": "BR",
+    "addr:housenumber": "458",
+    "addr:postcode": "89239-100",
+    "addr:street": "Rua Olavo Bilac",
+    "addr:suburb": "Pirabeiraba",
+    "amenity": "restaurant",
+    "building": "retail",
+    "building:levels": "1",
+    "name": "Restaurante e Lanchonete Moacir",
+    "phone": "+55 47 3424-0091"
+  }
+},
+{
+  "type": "way",
+  "id": 271971048,
+  "center": {
+    "lat": -26.2029355,
+    "lon": -48.9143612
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housename": "Casa Krüger",
+    "addr:milestone": "0",
+    "addr:postcode": "89239-100",
+    "addr:street": "Estrada Dona Francisca",
+    "addr:suburb": "Dona Francisca",
+    "building": "yes",
+    "building:levels": "1",
+    "historic": "building",
+    "information": "office",
+    "name": "Atendimento ao Turista",
+    "opening_hours": "Mo-Su 09:00-18:00",
+    "phone": "+55 47 3427 5623",
+    "roof:orientation": "along",
+    "roof:shape": "gabled",
+    "short_name": "CAT",
+    "tourism": "information"
+  }
+},
+{
+  "type": "way",
+  "id": 272981999,
+  "center": {
+    "lat": -26.2965188,
+    "lon": -48.8831272
+  },
+  "tags": {
+    "building": "yes",
+    "building:levels": "1",
+    "building:material": "wood;timber_framing",
+    "historic": "city_gate",
+    "level": "1",
+    "name": "Pórtico de Joinville",
+    "roof:angle": "40;20",
+    "roof:direction": "N",
+    "roof:levels": "1",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled;skillion"
+  }
+},
+{
+  "type": "way",
+  "id": 272983398,
+  "center": {
+    "lat": -26.2965312,
+    "lon": -48.8832988
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Rotary"
+  }
+},
+{
+  "type": "way",
+  "id": 273151717,
+  "center": {
+    "lat": -26.2837974,
+    "lon": -48.7936673
+  },
+  "tags": {
+    "historic": "archaeological_site",
+    "name": "Sambaqui Espinheiros II"
+  }
+},
+{
+  "type": "way",
+  "id": 273417504,
+  "center": {
+    "lat": -26.2762669,
+    "lon": -48.7800161
+  },
+  "tags": {
+    "historic": "archaeological_site",
+    "name": "Sambaqui"
+  }
+},
+{
+  "type": "way",
+  "id": 273417507,
+  "center": {
+    "lat": -26.2521505,
+    "lon": -48.8091016
+  },
+  "tags": {
+    "access": "yes",
+    "archaeological_site": "sambaqui",
+    "historic": "archaeological_site",
+    "historic:civilization": "itararés",
+    "name": "Parque Sambaqui Rua Guaíra Ágata May Thiesen"
+  }
+},
+{
+  "type": "way",
+  "id": 273590247,
+  "center": {
+    "lat": -26.2849566,
+    "lon": -48.8038221
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Avencal"
+  }
+},
+{
+  "type": "way",
+  "id": 273590248,
+  "center": {
+    "lat": -26.2786493,
+    "lon": -48.7943626
+  },
+  "tags": {
+    "alt_name": "Área de Lazer Comasa",
+    "leisure": "park",
+    "name": "Área de Lazer Vila Paranaense"
+  }
+},
+{
+  "type": "way",
+  "id": 274169416,
+  "center": {
+    "lat": -26.3224782,
+    "lon": -48.8522239
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:country": "BR",
+    "addr:housenumber": "745",
+    "addr:street": "Rua Tiradentes",
+    "addr:suburb": "Floresta",
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 274169419,
+  "center": {
+    "lat": -26.3188048,
+    "lon": -48.8480832
+  },
+  "tags": {
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "flat"
+  }
+},
+{
+  "type": "way",
+  "id": 274401895,
+  "center": {
+    "lat": -26.2677675,
+    "lon": -48.8448827
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "952",
+    "addr:postcode": "89222-401",
+    "addr:street": "Rua Tenente Antônio João",
+    "addr:suburb": "Bom Retiro",
+    "amenity": "pub",
+    "building": "yes",
+    "name": "Bar e Petisqueira do Janga"
+  }
+},
+{
+  "type": "way",
+  "id": 274401897,
+  "center": {
+    "lat": -26.2685989,
+    "lon": -48.8456144
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "859",
+    "addr:postcode": "89222-401",
+    "addr:street": "Rua Tenente Antônio João",
+    "addr:suburb": "Bom Retiro",
+    "building": "yes",
+    "name": "Amor e Canela",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "way",
+  "id": 274401899,
+  "center": {
+    "lat": -26.2689092,
+    "lon": -48.8451249
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "826",
+    "addr:postcode": "89222-401",
+    "addr:street": "Rua Tenente Antônio João",
+    "addr:suburb": "Bom Retiro",
+    "building": "yes",
+    "leisure": "sports_centre",
+    "name": "Academia Civi"
+  }
+},
+{
+  "type": "way",
+  "id": 274731101,
+  "center": {
+    "lat": -26.2962084,
+    "lon": -48.8689887
+  },
+  "tags": {
+    "alt_name": "Praça 15;Praça Quinze;Praça XV",
+    "leisure": "park",
+    "name": "Praça Felipe Baumer"
+  }
+},
+{
+  "type": "way",
+  "id": 274911314,
+  "center": {
+    "lat": -26.3459160,
+    "lon": -48.8788534
+  },
+  "tags": {
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 274911317,
+  "center": {
+    "lat": -26.3318379,
+    "lon": -48.8668007
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Joana d'Arc"
+  }
+},
+{
+  "type": "way",
+  "id": 274911318,
+  "center": {
+    "lat": -26.3300066,
+    "lon": -48.8666583
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Olga Machado Ferreira"
+  }
+},
+{
+  "type": "way",
+  "id": 275139768,
+  "center": {
+    "lat": -26.3319798,
+    "lon": -48.8516445
+  },
+  "tags": {
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "building:part": "yes",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles"
+  }
+},
+{
+  "type": "way",
+  "id": 275139769,
+  "center": {
+    "lat": -26.3320431,
+    "lon": -48.8516958
+  },
+  "tags": {
+    "building": "garage",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "building:part": "yes",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "eternit"
+  }
+},
+{
+  "type": "way",
+  "id": 275824651,
+  "center": {
+    "lat": -26.2374534,
+    "lon": -48.8063943
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça João Inácio do Nascimento"
+  }
+},
+{
+  "type": "way",
+  "id": 276434422,
+  "center": {
+    "lat": -26.3087965,
+    "lon": -48.8340527
+  },
+  "tags": {
+    "fee": "no",
+    "name": "Museu Fritz Alt",
+    "opening_hours": "Th-Su 10:00-16:00",
+    "tourism": "museum",
+    "wikidata": "Q20059109",
+    "wikipedia": "pt:Museu Casa Fritz Alt"
+  }
+},
+{
+  "type": "way",
+  "id": 276434423,
+  "center": {
+    "lat": -26.3068386,
+    "lon": -48.8318273
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Albano Schmidt"
+  }
+},
+{
+  "type": "way",
+  "id": 276664648,
+  "center": {
+    "lat": -26.2906929,
+    "lon": -48.8129068
+  },
+  "tags": {
+    "alt_name": "Praça 1º de Maio;Praça 1 de Maio;Praça Um de Maio",
+    "leisure": "park",
+    "name": "Praça Primeiro de Maio"
+  }
+},
+{
+  "type": "way",
+  "id": 276664662,
+  "center": {
+    "lat": -26.3057635,
+    "lon": -48.8317473
+  },
+  "tags": {
+    "building": "yes",
+    "building:levels": "3",
+    "leisure": "sports_centre",
+    "name": "Escola de Natação",
+    "roof:orientation": "along",
+    "roof:shape": "half-rounded",
+    "sport": "swimming"
+  }
+},
+{
+  "type": "way",
+  "id": 276920921,
+  "center": {
+    "lat": -26.3177000,
+    "lon": -48.8477094
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:country": "BR",
+    "addr:housenumber": "730",
+    "addr:postcode": "89202-100",
+    "addr:street": "Rua Eugênio Moreira",
+    "addr:suburb": "Anita Garibaldi",
+    "amenity": "restaurant",
+    "building": "yes",
+    "building:levels": "1",
+    "name": "Santo Galeto",
+    "opening_hours": "Mo-Sa 11:00-00:00;Su 11:00-16:00",
+    "phone": "+55 47 3804 3811"
+  }
+},
+{
+  "type": "way",
+  "id": 277448143,
+  "center": {
+    "lat": -26.3453684,
+    "lon": -48.8469189
+  },
+  "tags": {
+    "amenity": "bar",
+    "name": "Bar Di Baraúna"
+  }
+},
+{
+  "type": "way",
+  "id": 277448145,
+  "center": {
+    "lat": -26.3472393,
+    "lon": -48.8465075
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "50",
+    "addr:postcode": "89212-330",
+    "addr:street": "Rua Simão Krüger",
+    "addr:suburb": "Floresta",
+    "amenity": "restaurant",
+    "building": "commercial",
+    "building:levels": "2",
+    "name": "Restaurante Virado no Alho",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 277478893,
+  "center": {
+    "lat": -26.3387886,
+    "lon": -48.8472245
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1735",
+    "addr:postcode": "89211-305",
+    "addr:street": "Rua Santa Catarina",
+    "addr:suburb": "Floresta",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Churrascaria Buzzi"
+  }
+},
+{
+  "type": "way",
+  "id": 277478894,
+  "center": {
+    "lat": -26.3303868,
+    "lon": -48.8465124
+  },
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "burger",
+    "name": "Kiko Lanches"
+  }
+},
+{
+  "type": "way",
+  "id": 277707296,
+  "center": {
+    "lat": -26.3086419,
+    "lon": -48.8452972
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "145",
+    "addr:street": "Avenida Getúlio Vargas",
+    "addr:suburb": "Bucarein",
+    "amenity": "nightclub",
+    "name": "Mansão"
+  }
+},
+{
+  "type": "way",
+  "id": 278467953,
+  "center": {
+    "lat": -26.3677414,
+    "lon": -48.8424060
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Área de Lazer Radialista James Brizola"
+  }
+},
+{
+  "type": "way",
+  "id": 278759574,
+  "center": {
+    "lat": -26.3634023,
+    "lon": -48.8230382
+  },
+  "tags": {
+    "building": "house",
+    "building:levels": "1",
+    "building:material": "timber_framing",
+    "building:part": "yes",
+    "historic": "architecture",
+    "name": "Casa Enxaimel",
+    "roof:material": "roof_tiles",
+    "roof:orientation": "along",
+    "roof:shape": "gabled"
+  }
+},
+{
+  "type": "way",
+  "id": 278759579,
+  "center": {
+    "lat": -26.3554674,
+    "lon": -48.8362933
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Neriton Gladmir Rodrigues"
+  }
+},
+{
+  "type": "way",
+  "id": 278759627,
+  "center": {
+    "lat": -26.3589398,
+    "lon": -48.8109251
+  },
+  "tags": {
+    "leisure": "park",
+    "loc_name": "Área de Lazer Parque Guarani;Praça dos Baobás",
+    "name": "Praça José Cláudio de Oliveira"
+  }
+},
+{
+  "type": "way",
+  "id": 278992223,
+  "center": {
+    "lat": -26.3139936,
+    "lon": -48.8455800
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "720",
+    "addr:street": "Avenida Getúlio Vargas",
+    "addr:suburb": "Anita Garibaldi",
+    "building": "commercial",
+    "building:levels": "2",
+    "name": "Lev Pão",
+    "roof:orientation": "along",
+    "roof:shape": "hipped",
+    "shop": "bakery",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "way",
+  "id": 305147629,
+  "center": {
+    "lat": -26.3091710,
+    "lon": -48.8419550
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1708",
+    "addr:street": "Rua Coronel Procópio Gomes",
+    "addr:suburb": "Bucarein",
+    "amenity": "bar",
+    "contact:facebook": "https://www.facebook.com/yelostagejoinville",
+    "name": "Yelo Stage",
+    "website": "https://www.yelostage.com.br/"
+  }
+},
+{
+  "type": "way",
+  "id": 309254923,
+  "center": {
+    "lat": -26.3157419,
+    "lon": -48.8276878
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Parque da Cidade - Setor Sambaqui"
+  }
+},
+{
+  "type": "way",
+  "id": 318532679,
+  "center": {
+    "lat": -26.2893027,
+    "lon": -48.8408776
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1495",
+    "addr:postcode": "89221-006",
+    "addr:street": "Rua Dona Francisca",
+    "addr:suburb": "Saguaçu",
+    "amenity": "bar",
+    "name": "Wood Bar & Choperia",
+    "opening_hours": "18:00 - 00:00",
+    "phone": "+55 47 3437 7865",
+    "smoking": "outside",
+    "website": "https://www.woodbar.com.br/",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 329017674,
+  "center": {
+    "lat": -26.1748910,
+    "lon": -48.9574633
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "5317",
+    "addr:street": "Estrada Dona Francisca",
+    "amenity": "fast_food",
+    "building": "commercial",
+    "cuisine": "empanada",
+    "email": "pedidos@lanchoneteriodaprata.com.br",
+    "name": "Pastelaria Rio da Prata",
+    "phone": "+55 47 3428-0019",
+    "website": "http://www.lanchoneteriodaprata.com.br/"
+  }
+},
+{
+  "type": "way",
+  "id": 334661572,
+  "center": {
+    "lat": -26.2889895,
+    "lon": -48.8123631
+  },
+  "tags": {
+    "amenity": "library",
+    "building": "yes",
+    "name": "Biblioteca Visconde de Mauá",
+    "operator": "Unisociesc"
+  }
+},
+{
+  "type": "way",
+  "id": 334661573,
+  "center": {
+    "lat": -26.2890905,
+    "lon": -48.8127446
+  },
+  "tags": {
+    "amenity": "theatre",
+    "building": "yes",
+    "name": "Anfiteatro UniSociesc"
+  }
+},
+{
+  "type": "way",
+  "id": 334661591,
+  "center": {
+    "lat": -26.2876493,
+    "lon": -48.8140816
+  },
+  "tags": {
+    "amenity": "fast_food",
+    "building": "yes",
+    "name": "Cantina Mini Kalzone"
+  }
+},
+{
+  "type": "way",
+  "id": 335047129,
+  "center": {
+    "lat": -26.2860607,
+    "lon": -48.8114259
+  },
+  "tags": {
+    "amenity": "fast_food",
+    "building": "yes",
+    "name": "Associação Tupy"
+  }
+},
+{
+  "type": "way",
+  "id": 337464878,
+  "center": {
+    "lat": -26.1831277,
+    "lon": -48.9090295
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:milestone": "25",
+    "addr:postcode": "89239-500",
+    "addr:street": "Rodovia Governador Mário Covas",
+    "addr:suburb": "Rio Bonito",
+    "amenity": "restaurant",
+    "building": "yes",
+    "building:levels": "2",
+    "contact:facebook": "restaurante.rudnick",
+    "contact:instagram": "restauranterudnick_",
+    "contact:mobile": "+55 47 99107-8508",
+    "contact:phone": "+55 47 3431-6090",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "Rudnick",
+    "opening_hours": "Mo-Su 06:00-22:45",
+    "toilets": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 343774118,
+  "center": {
+    "lat": -26.2302661,
+    "lon": -48.8023405
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "7770",
+    "addr:postcode": "89223-004",
+    "addr:street": "Avenida Santos Dumont",
+    "addr:suburb": "Aventureiro",
+    "amenity": "events_venue",
+    "building": "yes",
+    "name": "Sítio Novo",
+    "phone": "+55 47 3419-6626",
+    "website": "http://www.sitionovo.com"
+  }
+},
+{
+  "type": "way",
+  "id": 356682881,
+  "center": {
+    "lat": -26.3573939,
+    "lon": -48.8594827
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:milestone": "46",
+    "addr:postcode": "89219-501",
+    "addr:street": "Rodovia Governador Mário Covas",
+    "addr:suburb": "Nova Brasília",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Restaurante Zandoná"
+  }
+},
+{
+  "type": "way",
+  "id": 356839069,
+  "center": {
+    "lat": -26.2980362,
+    "lon": -48.8486737
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "96",
+    "addr:postcode": "89201-310",
+    "addr:street": "Rua dos Ginásticos",
+    "addr:suburb": "Centro",
+    "building": "yes",
+    "leisure": "sports_centre",
+    "name": "Sociedade Ginástica de Joinville",
+    "opening_hours": "Mo-Fr 06:00-22:00; Sa-Su 08:00-20:00",
+    "phone": "+55 47 3422 7960; +55 47 3433 2597",
+    "website": "https://www.sociedadeginasticajlle.com.br/"
+  }
+},
+{
+  "type": "way",
+  "id": 356839070,
+  "center": {
+    "lat": -26.2973651,
+    "lon": -48.8487830
+  },
+  "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "regional",
+    "name": "Smânia",
+    "outdoor_seating": "yes",
+    "phone": "+55 47 3801-3591"
+  }
+},
+{
+  "type": "way",
+  "id": 359348273,
+  "center": {
+    "lat": -26.1758392,
+    "lon": -48.9541440
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "5743",
+    "addr:street": "Estrada Dona Francisca",
+    "amenity": "restaurant",
+    "building": "commercial",
+    "name": "Max Moppi Restaurant",
+    "opening_hours": "Tu-Su 08:00-22:00",
+    "phone": "+55 47 3428-0062",
+    "website": "https://www.maxmoppi.com.br/"
+  }
+},
+{
+  "type": "way",
+  "id": 359350901,
+  "center": {
+    "lat": -26.1683747,
+    "lon": -48.9850435
+  },
+  "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "german",
+    "name": "Restaurante Hübener",
+    "phone": "+55 47 3428-0275"
+  }
+},
+{
+  "type": "way",
+  "id": 359896755,
+  "center": {
+    "lat": -26.3604256,
+    "lon": -48.8303159
+  },
+  "tags": {
+    "amenity": "fast_food",
+    "name": "Zeu Lanches"
+  }
+},
+{
+  "type": "way",
+  "id": 359896795,
+  "center": {
+    "lat": -26.3688886,
+    "lon": -48.8337743
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1870",
+    "addr:postcode": "89233-550",
+    "addr:street": "Rua Waldemiro José Borges",
+    "addr:suburb": "Profipo",
+    "amenity": "fast_food",
+    "building": "yes",
+    "cuisine": "pizza",
+    "drive_through": "no",
+    "name": "Sul Pizzas",
+    "smoking": "no"
+  }
+},
+{
+  "type": "way",
+  "id": 360165004,
+  "center": {
+    "lat": -26.2710480,
+    "lon": -48.8259574
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2096",
+    "addr:postcode": "89221-301",
+    "addr:street": "Rua Iririú",
+    "addr:suburb": "Iririú",
+    "amenity": "fast_food",
+    "building": "yes",
+    "cuisine": "burger",
+    "drive_through": "no",
+    "name": "Rech Lanches",
+    "opening_hours": "11:00-20:00",
+    "smoking": "no",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 360166128,
+  "center": {
+    "lat": -26.2835680,
+    "lon": -48.8389161
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "70",
+    "addr:postcode": "89221-195",
+    "addr:street": "Rua Carlos Benack",
+    "addr:suburb": "Saguaçu",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Chácara Saguaçu"
+  }
+},
+{
+  "type": "way",
+  "id": 366229399,
+  "center": {
+    "lat": -26.2410975,
+    "lon": -48.8455070
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:suburb": "Jardim Sofia",
+    "amenity": "fast_food",
+    "building": "yes",
+    "cuisine": "burger",
+    "delivery": "no",
+    "drive_through": "no",
+    "name": "Lanchonete Juarez"
+  }
+},
+{
+  "type": "way",
+  "id": 369418691,
+  "center": {
+    "lat": -26.3007742,
+    "lon": -48.8242009
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1370",
+    "addr:street": "Rua Prefeito Helmuth Fallgatter",
+    "addr:suburb": "Boa Vista",
+    "amenity": "fast_food",
+    "building": "yes",
+    "cuisine": "burger",
+    "name": "X do Gaúcho",
+    "phone": "+55 47 99140 5107"
+  }
+},
+{
+  "type": "way",
+  "id": 369423024,
+  "center": {
+    "lat": -26.2826583,
+    "lon": -48.7869745
+  },
+  "tags": {
+    "addr:housenumber": "283",
+    "addr:street": "Rua Sebastião S de Borba",
+    "addr:suburb": "Espinheiros",
+    "amenity": "pub",
+    "building": "yes",
+    "name": "Bebidas e Bocha"
+  }
+},
+{
+  "type": "way",
+  "id": 369445066,
+  "center": {
+    "lat": -26.2830421,
+    "lon": -48.7871468
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "231",
+    "addr:postcode": "89228-600",
+    "addr:street": "Rua Sebastião S de Borba",
+    "addr:suburb": "Espinheiros",
+    "building": "yes",
+    "name": "Panificadora Novo Sabor",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "way",
+  "id": 409322442,
+  "center": {
+    "lat": -26.2650610,
+    "lon": -48.8571209
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "271",
+    "addr:postcode": "89218-180",
+    "addr:street": "Rua Iguaçu",
+    "addr:suburb": "Santo Antônio",
+    "leisure": "sports_centre",
+    "name": "Grêmio Esportivo 25 de Agosto"
+  }
+},
+{
+  "type": "way",
+  "id": 409322511,
+  "center": {
+    "lat": -26.2647383,
+    "lon": -48.8567691
+  },
+  "tags": {
+    "addr:housenumber": "271",
+    "addr:street": "Rua Iguaçu",
+    "addr:suburb": "Santo Antônio",
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "regional",
+    "delivery": "no",
+    "name": "25 de Agosto",
+    "smoking": "no",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 413955112,
+  "center": {
+    "lat": -26.3061140,
+    "lon": -48.7940891
+  },
+  "tags": {
+    "building": "yes",
+    "historic": "ruins",
+    "name": "Fornos da Caieira",
+    "tourism": "attraction"
+  }
+},
+{
+  "type": "way",
+  "id": 431586675,
+  "center": {
+    "lat": -26.2185976,
+    "lon": -48.9156621
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:milestone": "28",
+    "addr:postcode": "89239-300",
+    "addr:street": "Rodovia Governador Mário Covas",
+    "addr:suburb": "Pirabeiraba",
+    "building": "yes",
+    "name": "Shopping Bavária",
+    "shop": "mall"
+  }
+},
+{
+  "type": "way",
+  "id": 442654316,
+  "center": {
+    "lat": -26.2537731,
+    "lon": -48.8402526
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "768",
+    "addr:postcode": "89223-200",
+    "addr:street": "Rua Itajubá",
+    "addr:suburb": "Bom Retiro",
+    "leisure": "sports_centre",
+    "name": "Arena Opa Bier"
+  }
+},
+{
+  "type": "way",
+  "id": 443524715,
+  "center": {
+    "lat": -26.2906554,
+    "lon": -48.7720305
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "3773",
+    "addr:postcode": "89228-700",
+    "addr:street": "Rua Antônio Gonçalves",
+    "addr:suburb": "Espinheiros",
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "seafood",
+    "name": "Capitão do Mar"
+  }
+},
+{
+  "type": "way",
+  "id": 455957889,
+  "center": {
+    "lat": -26.2991190,
+    "lon": -48.8567999
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Parque das Águas Raul Guenther"
+  }
+},
+{
+  "type": "way",
+  "id": 456078952,
+  "center": {
+    "lat": -26.2968189,
+    "lon": -48.8645266
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça General Osório"
+  }
+},
+{
+  "type": "way",
+  "id": 456079128,
+  "center": {
+    "lat": -26.2842117,
+    "lon": -48.8533783
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça dos Pioneiros"
+  }
+},
+{
+  "type": "way",
+  "id": 456081684,
+  "center": {
+    "lat": -26.2837052,
+    "lon": -48.8452585
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "400",
+    "addr:street": "Rua Padre Antônio Vieira",
+    "addr:suburb": "América",
+    "amenity": "fast_food",
+    "building": "yes",
+    "cuisine": "burger",
+    "name": "Gordão Lanches"
+  }
+},
+{
+  "type": "way",
+  "id": 456081687,
+  "center": {
+    "lat": -26.2859463,
+    "lon": -48.8487983
+  },
+  "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "japanese",
+    "delivery": "yes",
+    "name": "Japa Drive",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 456608818,
+  "center": {
+    "lat": -26.2753964,
+    "lon": -48.8629844
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1294",
+    "addr:postcode": "89218-500",
+    "addr:street": "Rua Presidente Prudente de Moraes",
+    "addr:suburb": "Santo Antônio",
+    "amenity": "restaurant",
+    "building": "yes",
+    "building:levels": "1",
+    "diet:vegetarian": "only",
+    "name": "Restaurante Formosa"
+  }
+},
+{
+  "type": "way",
+  "id": 456746102,
+  "center": {
+    "lat": -26.2858621,
+    "lon": -48.8467959
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "130",
+    "addr:postcode": "89204-345",
+    "addr:street": "Rua Edgar Schneider",
+    "addr:suburb": "América",
+    "leisure": "sports_centre",
+    "name": "América Futebol Clube",
+    "phone": "+55 47 3433 1170",
+    "website": "https://www.americafutebolclube.com.br"
+  }
+},
+{
+  "type": "way",
+  "id": 456864472,
+  "center": {
+    "lat": -26.2903577,
+    "lon": -48.8435678
+  },
+  "tags": {
+    "amenity": "fast_food",
+    "brand": "McDonald's",
+    "brand:wikidata": "Q38076",
+    "brand:wikipedia": "en:McDonald's",
+    "building": "yes",
+    "building:levels": "1",
+    "cuisine": "burger",
+    "drive_through": "yes",
+    "name": "McDonald's",
+    "opening_hours": "Mo-Su 11:00-23:30",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 457248078,
+  "center": {
+    "lat": -26.2770857,
+    "lon": -48.8510912
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1301",
+    "addr:postcode": "89218-055",
+    "addr:street": "Rua Aracaju",
+    "addr:suburb": "América",
+    "amenity": "restaurant",
+    "building": "yes",
+    "building:levels": "1",
+    "name": "Leaves",
+    "opening_hours": "Mo-Fr 11:00-21:30; Sa 11:00-17:00",
+    "phone": "+55 47 3031 3232",
+    "website": "https://deliveryapp.neemo.com.br/delivery/637/menu"
+  }
+},
+{
+  "type": "way",
+  "id": 457892095,
+  "center": {
+    "lat": -26.2964883,
+    "lon": -48.8429109
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "600",
+    "addr:street": "Rua Dona Francisca",
+    "addr:suburb": "Centro",
+    "building": "yes",
+    "building:levels": "1",
+    "name": "Museu Arqueológico de Sambaqui de Joinville",
+    "tourism": "museum",
+    "wikidata": "Q20060373"
+  }
+},
+{
+  "type": "way",
+  "id": 457986501,
+  "center": {
+    "lat": -26.3018724,
+    "lon": -48.8545337
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "376",
+    "addr:street": "Rua Otto Boehm",
+    "addr:suburb": "América",
+    "amenity": "restaurant",
+    "building": "yes",
+    "building:levels": "1",
+    "capacity": "120",
+    "cuisine": "pizza",
+    "delivery": "yes",
+    "name": "Pizzaria Baggio"
+  }
+},
+{
+  "type": "way",
+  "id": 458065612,
+  "center": {
+    "lat": -26.2952322,
+    "lon": -48.8389638
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "212",
+    "addr:street": "Rua Saguaçu",
+    "addr:suburb": "Saguaçu",
+    "amenity": "restaurant",
+    "building": "yes",
+    "building:levels": "1",
+    "capacity": "300",
+    "name": "Casa do Capitão"
+  }
+},
+{
+  "type": "way",
+  "id": 460149041,
+  "center": {
+    "lat": -26.2860614,
+    "lon": -48.8496860
+  },
+  "tags": {
+    "addr:housenumber": "1728",
+    "addr:street": "Rua Blumenau",
+    "addr:suburb": "América",
+    "amenity": "pub",
+    "building": "yes",
+    "building:levels": "1",
+    "name": "Zuffa"
+  }
+},
+{
+  "type": "way",
+  "id": 460337008,
+  "center": {
+    "lat": -26.3016247,
+    "lon": -48.8399359
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "177",
+    "addr:postcode": "89205-000",
+    "addr:street": "Rua Aubé",
+    "addr:suburb": "Saguaçu",
+    "club": "sport",
+    "leisure": "sports_centre",
+    "name": "Joinville Tênis Clube",
+    "sport": "tennis",
+    "website": "http://joinvilletenisclube.com.br/"
+  }
+},
+{
+  "type": "way",
+  "id": 469400924,
+  "center": {
+    "lat": -26.2664174,
+    "lon": -48.8706686
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "925",
+    "addr:postcode": "89219-520",
+    "addr:street": "Rua Rui Barbosa",
+    "addr:suburb": "Costa e Silva",
+    "leisure": "sports_centre",
+    "name": "Associação Desportiva Embraco",
+    "phone": "+55 47 3441 2520",
+    "short_name": "ADE Embraco",
+    "website": "https://adembraco.com.br/"
+  }
+},
+{
+  "type": "way",
+  "id": 470072643,
+  "center": {
+    "lat": -26.2660015,
+    "lon": -48.8694594
+  },
+  "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Churrascaria ADE Embraco"
+  }
+},
+{
+  "type": "way",
+  "id": 470072653,
+  "center": {
+    "lat": -26.2657843,
+    "lon": -48.8710703
+  },
+  "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Bavária"
+  }
+},
+{
+  "type": "way",
+  "id": 472442412,
+  "center": {
+    "lat": -26.3134753,
+    "lon": -48.8425544
+  },
+  "tags": {
+    "addr:housenumber": "651",
+    "addr:street": "Rua São Paulo",
+    "addr:suburb": "Bucarein",
+    "amenity": "restaurant",
+    "building": "yes",
+    "diet:vegan": "yes",
+    "diet:vegetarian": "only",
+    "name": "Ming Zhou"
+  }
+},
+{
+  "type": "way",
+  "id": 473362373,
+  "center": {
+    "lat": -26.2935884,
+    "lon": -48.8586946
+  },
+  "tags": {
+    "addr:housenumber": "1640",
+    "addr:street": "Rua Max Colin",
+    "addr:suburb": "América",
+    "building": "yes",
+    "leisure": "sports_centre",
+    "name": "Ginásio de Esportes Deputado Ivan Rodrigues",
+    "operator": "Prefeitura Municipal de Joinville"
+  }
+},
+{
+  "type": "way",
+  "id": 473906415,
+  "center": {
+    "lat": -26.2989812,
+    "lon": -48.8557286
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1383",
+    "addr:postcode": "89201-602",
+    "addr:street": "Rua XV de Novembro",
+    "addr:suburb": "Glória",
+    "amenity": "theatre",
+    "building": "yes",
+    "name": "Teatro da AJOTE",
+    "phone": "+55 47 9 9956 0170",
+    "website": "https://www.teatroemjoinville.com.br"
+  }
+},
+{
+  "type": "way",
+  "id": 473906416,
+  "center": {
+    "lat": -26.2989863,
+    "lon": -48.8556065
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1400",
+    "addr:postcode": "89201-602",
+    "addr:street": "Rua XV de Novembro",
+    "addr:suburb": "América",
+    "building": "yes",
+    "name": "Anexo 2 - Museu de Arte",
+    "opening_hours": "Th-Su 10:00-16:00",
+    "phone": "+55 47 3433 4677",
+    "tourism": "gallery"
+  }
+},
+{
+  "type": "way",
+  "id": 473906417,
+  "center": {
+    "lat": -26.2989904,
+    "lon": -48.8554853
+  },
+  "tags": {
+    "building": "yes",
+    "name": "Anexo 1 - Museu de Arte",
+    "tourism": "gallery"
+  }
+},
+{
+  "type": "way",
+  "id": 473906418,
+  "center": {
+    "lat": -26.2990001,
+    "lon": -48.8552334
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1383",
+    "addr:postcode": "89201-602",
+    "addr:street": "Rua XV de Novembro",
+    "addr:suburb": "América",
+    "amenity": "arts_centre",
+    "building": "yes",
+    "name": "Associação dos Artistas Plásticos de Joinville - AAPLAJ",
+    "opening_hours": "Th-Sa 14:00-17:00"
+  }
+},
+{
+  "type": "way",
+  "id": 477500425,
+  "center": {
+    "lat": -26.2946735,
+    "lon": -48.8352138
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "462",
+    "addr:postcode": "89221-020",
+    "addr:street": "Rua Pastor Guilherme Rau",
+    "addr:suburb": "Saguaçu",
+    "name": "Parque Zoobotânico de Joinville",
+    "opening_hours": "Tu-Su 09:00-17:00",
+    "phone": "+55 47 3433-1230",
+    "tourism": "zoo",
+    "website": "https://www.joinville.sc.gov.br/servicos/visitar-parque-zoobotanico"
+  }
+},
+{
+  "type": "way",
+  "id": 478361856,
+  "center": {
+    "lat": -26.2762345,
+    "lon": -48.8497610
+  },
+  "tags": {
+    "addr:housenumber": "2728",
+    "addr:street": "Rua Doutor João Colin",
+    "addr:suburb": "Saguaçu",
+    "building": "yes",
+    "building:levels": "3",
+    "name": "Artezan Mega Padaria",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "way",
+  "id": 479508027,
+  "center": {
+    "lat": -26.2964339,
+    "lon": -48.8535333
+  },
+  "tags": {
+    "addr:housenumber": "994",
+    "addr:street": "Rua Lages",
+    "addr:suburb": "América",
+    "building": "yes",
+    "building:levels": "2",
+    "name": "Instituto Juarez Machado",
+    "tourism": "gallery",
+    "website": "http://institutojuarezmachado.com.br/"
+  }
+},
+{
+  "type": "way",
+  "id": 479804074,
+  "center": {
+    "lat": -26.2966774,
+    "lon": -48.8474420
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "518",
+    "addr:postcode": "89201-300",
+    "addr:street": "Rua Doutor João Colin",
+    "addr:suburb": "Centro",
+    "amenity": "fast_food",
+    "brand": "Habib's",
+    "brand:wikidata": "Q2504930",
+    "brand:wikipedia": "en:Habib's",
+    "building": "yes",
+    "building:levels": "1",
+    "cuisine": "middle_eastern",
+    "delivery": "yes",
+    "name": "Habib's",
+    "operator": "Habib's",
+    "phone": "+55 47 3003-2828",
+    "seating": "yes",
+    "takeaway": "yes",
+    "website": "https://www.habibs.com.br"
+  }
+},
+{
+  "type": "way",
+  "id": 479877968,
+  "center": {
+    "lat": -26.3076412,
+    "lon": -48.8479824
+  },
+  "tags": {
+    "addr:housenumber": "815",
+    "addr:street": "Rua Ministro Calógeras",
+    "addr:suburb": "Anita Garibaldi",
+    "amenity": "restaurant",
+    "building": "yes",
+    "building:levels": "1",
+    "cuisine": "japanese",
+    "name": "Kodashi Sushi Bar"
+  }
+},
+{
+  "type": "way",
+  "id": 479965009,
+  "center": {
+    "lat": -26.2288309,
+    "lon": -48.9705739
+  },
+  "tags": {
+    "leisure": "nature_reserve",
+    "name": "Parque Ecológico Prefeito Rolf Colin",
+    "protection_title": "parque ecológico",
+    "related_law": "Decreto Municipal 6.959",
+    "start_date": "1992"
+  }
+},
+{
+  "type": "way",
+  "id": 483562279,
+  "center": {
+    "lat": -26.2836676,
+    "lon": -48.8496537
+  },
+  "tags": {
+    "addr:housenumber": "1893",
+    "addr:street": "Rua Doutor João Colin",
+    "addr:suburb": "América",
+    "building": "retail",
+    "building:levels": "2",
+    "name": "Amor & Canela",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "way",
+  "id": 486982474,
+  "center": {
+    "lat": -26.2521249,
+    "lon": -48.8763534
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "7173",
+    "addr:postcode": "89219-600",
+    "addr:street": "Rua Dona Francisca",
+    "addr:suburb": "Zona Industrial Norte",
+    "leisure": "sports_centre",
+    "name": "Grêmio Whirlpool",
+    "opening_hours": "Mo-Fr 07:30-12:00, 13:30-17:30",
+    "phone": "+55 47 3803 4537",
+    "website": "http://gremiowhirlpool.com.br/"
+  }
+},
+{
+  "type": "way",
+  "id": 487073068,
+  "center": {
+    "lat": -26.3148502,
+    "lon": -48.7968065
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Ivonei Machado"
+  }
+},
+{
+  "type": "way",
+  "id": 490135535,
+  "center": {
+    "lat": -26.2956494,
+    "lon": -48.8412863
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "800",
+    "addr:postcode": "89221-005",
+    "addr:street": "Rua Dona Francisca",
+    "addr:suburb": "Saguaçu",
+    "alt_name": "Casa da Cultura",
+    "amenity": "arts_centre",
+    "name": "Casa da Cultura Fausto Rocha Júnior",
+    "opening_hours": "Mo-Fr 08:00-22:00",
+    "phone": "+55 47 3433 2266",
+    "website": "https://casadacultura.org/"
+  }
+},
+{
+  "type": "way",
+  "id": 490135536,
+  "center": {
+    "lat": -26.2960937,
+    "lon": -48.8417628
+  },
+  "tags": {
+    "amenity": "library",
+    "building": "yes",
+    "name": "Arquivo Histórico de Joinville"
+  }
+},
+{
+  "type": "way",
+  "id": 504610694,
+  "center": {
+    "lat": -26.2665654,
+    "lon": -48.8394156
+  },
+  "tags": {
+    "alt_name": "Praça Piratuba",
+    "leisure": "park",
+    "name": "Praça Presidente Tancredo de Almeida Neves"
+  }
+},
+{
+  "type": "way",
+  "id": 511490555,
+  "center": {
+    "lat": -26.2673543,
+    "lon": -48.8383460
+  },
+  "tags": {
+    "addr:housenumber": "1171",
+    "addr:street": "Rua São Severino",
+    "addr:suburb": "Saguaçu",
+    "amenity": "pub",
+    "building": "yes",
+    "building:levels": "1",
+    "name": "Quintal - Burguer & Beer"
+  }
+},
+{
+  "type": "way",
+  "id": 512686006,
+  "center": {
+    "lat": -26.2939631,
+    "lon": -48.8437720
+  },
+  "tags": {
+    "addr:housenumber": "119",
+    "addr:street": "Rua Vargeão",
+    "addr:suburb": "América",
+    "amenity": "restaurant",
+    "building": "yes",
+    "diet:vegan": "only",
+    "diet:vegetarian": "only",
+    "name": "Villarejo"
+  }
+},
+{
+  "type": "way",
+  "id": 512687805,
+  "center": {
+    "lat": -26.2950869,
+    "lon": -48.8460962
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "349",
+    "addr:postcode": "89201-215",
+    "addr:street": "Rua Max Colin",
+    "addr:suburb": "Centro",
+    "amenity": "fast_food",
+    "building": "yes",
+    "contact:phone": "+55 47 3439-6502",
+    "cuisine": "burger",
+    "name": "Tex Burgers",
+    "old_name": "Max Hamburgueria"
+  }
+},
+{
+  "type": "way",
+  "id": 515706390,
+  "center": {
+    "lat": -26.2661704,
+    "lon": -48.8498965
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:postcode": "89222-550",
+    "addr:street": "Rua Otto Benack",
+    "addr:suburb": "Bom Retiro",
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "regional",
+    "delivery": "no",
+    "name": "Restaurante Angélicos",
+    "smoking": "no",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 518914627,
+  "center": {
+    "lat": -26.2866225,
+    "lon": -48.8120859
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "3605",
+    "addr:postcode": "89205-101",
+    "addr:street": "Rua Albano Schmidt",
+    "addr:suburb": "Boa Vista",
+    "alt_name": "AA Tupy",
+    "leisure": "sports_centre",
+    "name": "Associação Atlética Tupy",
+    "opening_hours": "Mo-Fr 08:00-12:00, 13:30-17:30",
+    "phone": "+55 47 4009 8593; +55 47 4009 8510",
+    "short_name": "AA Tupy",
+    "website": "https://www.aatupy.com.br"
+  }
+},
+{
+  "type": "way",
+  "id": 519162066,
+  "center": {
+    "lat": -26.2749507,
+    "lon": -48.8690825
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1405",
+    "addr:postcode": "89218-501",
+    "addr:street": "Rua Guilherme",
+    "addr:suburb": "Costa e Silva",
+    "building": "yes",
+    "name": "Panificadora e Restaurante da Vila",
+    "phone": "+55 47 3435 5544",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "way",
+  "id": 519383067,
+  "center": {
+    "lat": -26.1884776,
+    "lon": -48.9333240
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "16444",
+    "addr:street": "Estrada Dona Francisca",
+    "addr:suburb": "Pirabeiraba",
+    "amenity": "cafe",
+    "building": "commercial",
+    "name": "Café Paris",
+    "phone": "+55 47 3464-1266",
+    "source": "survey",
+    "survey_date": "2017-08-27"
+  }
+},
+{
+  "type": "way",
+  "id": 523394440,
+  "center": {
+    "lat": -26.2405101,
+    "lon": -48.8439293
+  },
+  "tags": {
+    "leisure": "sports_centre",
+    "name": "Viracopos Esporte Clube",
+    "sport": "soccer"
+  }
+},
+{
+  "type": "way",
+  "id": 545093709,
+  "center": {
+    "lat": -26.3220147,
+    "lon": -48.8045715
+  },
+  "tags": {
+    "alt_name": "Parque São Francisco",
+    "description": "Pista de skate com formato de pé e recreação.",
+    "leisure": "park",
+    "loc_name": "Parque do Pezinho",
+    "name": "Parque São Francisco"
+  }
+},
+{
+  "type": "way",
+  "id": 545094879,
+  "center": {
+    "lat": -26.3165828,
+    "lon": -48.8318142
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Parque da Cidade - Setor Bucarein"
+  }
+},
+{
+  "type": "way",
+  "id": 552387420,
+  "center": {
+    "lat": -26.3327904,
+    "lon": -48.8358503
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Vereador João Amaral"
+  }
+},
+{
+  "type": "way",
+  "id": 552626137,
+  "center": {
+    "lat": -26.2849903,
+    "lon": -48.8430843
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:suburb": "Saguaçu",
+    "leisure": "park",
+    "name": "Praça Alídio Pohl",
+    "opening_hours": "24/7"
+  }
+},
+{
+  "type": "way",
+  "id": 552687038,
+  "center": {
+    "lat": -26.2530724,
+    "lon": -48.8569904
+  },
+  "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "international",
+    "name": "Restaurante Escola"
+  }
+},
+{
+  "type": "way",
+  "id": 602213826,
+  "center": {
+    "lat": -26.3118548,
+    "lon": -48.8278112
+  },
+  "tags": {
+    "alt_name": "Praça do Calceteiro",
+    "description": "Parque com quadra de futebol e área verde",
+    "leisure": "park",
+    "lit": "yes",
+    "name": "Praça Mário Metz"
+  }
+},
+{
+  "type": "way",
+  "id": 607085310,
+  "center": {
+    "lat": -26.2717196,
+    "lon": -48.8508096
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Dom Pedro I"
+  }
+},
+{
+  "type": "way",
+  "id": 656605799,
+  "center": {
+    "lat": -26.2441334,
+    "lon": -48.8129519
+  },
+  "tags": {
+    "amenity": "bar",
+    "building": "yes",
+    "name": "Beto Casanova"
+  }
+},
+{
+  "type": "way",
+  "id": 681422474,
+  "center": {
+    "lat": -26.3019883,
+    "lon": -48.8451803
+  },
+  "tags": {
+    "building": "yes",
+    "name": "Shopping Direto",
+    "shop": "mall"
+  }
+},
+{
+  "type": "way",
+  "id": 681441324,
+  "center": {
+    "lat": -26.3353677,
+    "lon": -48.8162729
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "504",
+    "addr:postcode": "89230-183",
+    "addr:street": "Rua Fátima",
+    "addr:suburb": "Jarivatuba",
+    "amenity": "restaurant",
+    "name": "Restaurante e Pizzaria do Nego"
+  }
+},
+{
+  "type": "way",
+  "id": 681442063,
+  "center": {
+    "lat": -26.3271388,
+    "lon": -48.8177982
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Padre Érico João Ahler"
+  }
+},
+{
+  "type": "way",
+  "id": 685536592,
+  "center": {
+    "lat": -26.2658032,
+    "lon": -48.8705396
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:suburb": "Costa e Silva",
+    "leisure": "park",
+    "name": "Parque do Bosque",
+    "opening_hours": "Mo-Su 06:00-24:00"
+  }
+},
+{
+  "type": "way",
+  "id": 689632719,
+  "center": {
+    "lat": -26.3180526,
+    "lon": -48.8263183
+  },
+  "tags": {
+    "addr:street": "Rua Japurá",
+    "leisure": "park",
+    "name": "Praça Sambaqui - Guanabara II"
+  }
+},
+{
+  "type": "way",
+  "id": 710768652,
+  "center": {
+    "lat": -26.3053125,
+    "lon": -48.8520236
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "555",
+    "addr:postcode": "89203-005",
+    "addr:street": "Rua Visconde de Taunay",
+    "addr:suburb": "Centro",
+    "amenity": "pub",
+    "building": "commercial",
+    "building:levels": "1",
+    "cuisine": "german",
+    "name": "Zum Schlauch - Via Gastronômica",
+    "phone": "+55 47 3422 2909",
+    "website": "http://zumschlauch.com.br"
+  }
+},
+{
+  "type": "way",
+  "id": 710768653,
+  "center": {
+    "lat": -26.3049411,
+    "lon": -48.8515868
+  },
+  "tags": {
+    "amenity": "restaurant",
+    "building": "commercial",
+    "building:levels": "1",
+    "cuisine": "japanese",
+    "name": "Hosu Sushi",
+    "source": "Esri World Imagery;survey"
+  }
+},
+{
+  "type": "way",
+  "id": 711269672,
+  "center": {
+    "lat": -26.3094998,
+    "lon": -48.8545293
+  },
+  "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "german",
+    "name": "Zeit Biergarten",
+    "source": "Esri World Imagery;survey"
+  }
+},
+{
+  "type": "way",
+  "id": 711269673,
+  "center": {
+    "lat": -26.3076205,
+    "lon": -48.8468751
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "697",
+    "addr:street": "Rua Ministro Calógeras",
+    "addr:suburb": "Anita Garibaldi",
+    "amenity": "pub",
+    "building": "yes",
+    "name": "Mister Hoppy",
+    "outdoor_seating": "yes",
+    "source": "Esri World Imagery;survey"
+  }
+},
+{
+  "type": "way",
+  "id": 736510016,
+  "center": {
+    "lat": -26.2405800,
+    "lon": -48.8353604
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:street": "Rua Abelardo José Avelino",
+    "addr:suburb": "Jardim Sofia",
+    "dog": "yes",
+    "leisure": "park",
+    "name": "Praça Affonso Nass",
+    "sport": "soccer"
+  }
+},
+{
+  "type": "way",
+  "id": 753168859,
+  "center": {
+    "lat": -26.3022136,
+    "lon": -48.8468317
+  },
+  "tags": {
+    "alt_name": "Praça da Biblioteca Pública;Praça Jardim Velho",
+    "leisure": "park",
+    "name": "Praça Lauro Müller"
+  }
+},
+{
+  "type": "way",
+  "id": 753169741,
+  "center": {
+    "lat": -26.3006220,
+    "lon": -48.8425256
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Castelo Branco"
+  }
+},
+{
+  "type": "way",
+  "id": 753401988,
+  "center": {
+    "lat": -26.3353679,
+    "lon": -48.7980951
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Área de Lazer Pedro Ferreira",
+    "old_name": "Praça Jarivatuba"
+  }
+},
+{
+  "type": "way",
+  "id": 754033791,
+  "center": {
+    "lat": -26.3243730,
+    "lon": -48.8071512
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "65",
+    "addr:postcode": "89230-580",
+    "addr:street": "Avenida Alwino Hansen",
+    "addr:suburb": "Adhemar Garcia",
+    "alt_name": "RP2 Joinville",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Restaurante Popular Zilda Arns",
+    "opening_hours": "Mo-Fr 11:00-14:00"
+  }
+},
+{
+  "type": "way",
+  "id": 754678844,
+  "center": {
+    "lat": -26.2376619,
+    "lon": -48.8114156
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Osmar Evaristo Heck"
+  }
+},
+{
+  "type": "way",
+  "id": 754679859,
+  "center": {
+    "lat": -26.3067664,
+    "lon": -48.8460391
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Adolar Linzmeyer"
+  }
+},
+{
+  "type": "way",
+  "id": 754681409,
+  "center": {
+    "lat": -26.2451463,
+    "lon": -48.7998302
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Francieli Pavoski"
+  }
+},
+{
+  "type": "way",
+  "id": 754702622,
+  "center": {
+    "lat": -26.3298164,
+    "lon": -48.8313889
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Antônio Barbi"
+  }
+},
+{
+  "type": "way",
+  "id": 754703868,
+  "center": {
+    "lat": -26.2956684,
+    "lon": -48.8418122
+  },
+  "tags": {
+    "leisure": "park",
+    "lit": "yes",
+    "name": "Praça Deputado Miraci Dereti"
+  }
+},
+{
+  "type": "way",
+  "id": 754704379,
+  "center": {
+    "lat": -26.2148036,
+    "lon": -48.9127268
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Eugênio Augusto Fock"
+  }
+},
+{
+  "type": "way",
+  "id": 754704946,
+  "center": {
+    "lat": -26.2582016,
+    "lon": -48.8231983
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Mário Valentim Muraro"
+  }
+},
+{
+  "type": "way",
+  "id": 754706413,
+  "center": {
+    "lat": -26.2182012,
+    "lon": -48.8006793
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Nerivaldo Medeiros"
+  }
+},
+{
+  "type": "way",
+  "id": 754707830,
+  "center": {
+    "lat": -26.2735834,
+    "lon": -48.8459278
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Otávio Carlos de Oliveira"
+  }
+},
+{
+  "type": "way",
+  "id": 754759517,
+  "center": {
+    "lat": -26.2671823,
+    "lon": -48.8091964
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça São João Batista"
+  }
+},
+{
+  "type": "way",
+  "id": 754761973,
+  "center": {
+    "lat": -26.2751873,
+    "lon": -48.8075363
+  },
+  "tags": {
+    "alt_name": "Praça do Casqueiro",
+    "leisure": "park",
+    "name": "Praça David da Graça"
+  }
+},
+{
+  "type": "way",
+  "id": 754763888,
+  "center": {
+    "lat": -26.2901796,
+    "lon": -48.8370398
+  },
+  "tags": {
+    "alt_name": "Praça Parque de France",
+    "leisure": "park",
+    "name": "Praça Parc de France"
+  }
+},
+{
+  "type": "way",
+  "id": 754765862,
+  "center": {
+    "lat": -26.2246778,
+    "lon": -48.8020310
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Deputado Federal Carneiro de Loyola"
+  }
+},
+{
+  "type": "way",
+  "id": 754918400,
+  "center": {
+    "lat": -26.3218295,
+    "lon": -48.8464959
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Estação da Memória"
+  }
+},
+{
+  "type": "way",
+  "id": 754918748,
+  "center": {
+    "lat": -26.3071913,
+    "lon": -48.8614407
+  },
+  "tags": {
+    "alt_name": "Praça Edifício Dulce",
+    "leisure": "park",
+    "name": "Praça Gjerth Olsen"
+  }
+},
+{
+  "type": "way",
+  "id": 754923803,
+  "center": {
+    "lat": -26.2425569,
+    "lon": -48.8162663
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Santa Luzia"
+  }
+},
+{
+  "type": "way",
+  "id": 754926791,
+  "center": {
+    "lat": -26.3073691,
+    "lon": -48.8355154
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça do Aleijadinho"
+  }
+},
+{
+  "type": "way",
+  "id": 754929262,
+  "center": {
+    "lat": -26.3567548,
+    "lon": -48.8344144
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Jardim Andressa"
+  }
+},
+{
+  "type": "way",
+  "id": 754931542,
+  "center": {
+    "lat": -26.2537057,
+    "lon": -48.8416266
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça do Bom Retiro"
+  }
+},
+{
+  "type": "way",
+  "id": 754936134,
+  "center": {
+    "lat": -26.3035108,
+    "lon": -48.8446685
+  },
+  "tags": {
+    "leisure": "park",
+    "lit": "yes",
+    "loc_name": "Rua das Palmeiras",
+    "name": "Praça Alameda Brüstlein",
+    "tourism": "attraction"
+  }
+},
+{
+  "type": "way",
+  "id": 754966547,
+  "center": {
+    "lat": -26.2911977,
+    "lon": -48.7748261
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Parque Porta do Mar Marino de Oliveira"
+  }
+},
+{
+  "type": "way",
+  "id": 754967614,
+  "center": {
+    "lat": -26.3377701,
+    "lon": -48.8556995
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Área de Lazer Copacabana"
+  }
+},
+{
+  "type": "way",
+  "id": 754969251,
+  "center": {
+    "lat": -26.2880039,
+    "lon": -48.8787347
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Área de Lazer Sérgio Vieira",
+    "old_name": "Praça Bernardo Ziemer"
+  }
+},
+{
+  "type": "way",
+  "id": 754970990,
+  "center": {
+    "lat": -26.2887497,
+    "lon": -48.8831523
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Versailles"
+  }
+},
+{
+  "type": "way",
+  "id": 754975945,
+  "center": {
+    "lat": -26.3263160,
+    "lon": -48.8289946
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Área de Lazer Guanabara"
+  }
+},
+{
+  "type": "way",
+  "id": 754976941,
+  "center": {
+    "lat": -26.2724629,
+    "lon": -48.8187363
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Iririú"
+  }
+},
+{
+  "type": "way",
+  "id": 754979079,
+  "center": {
+    "lat": -26.3823211,
+    "lon": -48.8222004
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Santa Gertrudes"
+  }
+},
+{
+  "type": "way",
+  "id": 754980197,
+  "center": {
+    "lat": -26.2591622,
+    "lon": -48.8053338
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:postcode": "89224-041",
+    "addr:street": "Rua Rocha Pombo",
+    "addr:suburb": "Jardim Iririú",
+    "leisure": "park",
+    "name": "Praça Portinho"
+  }
+},
+{
+  "type": "way",
+  "id": 755036016,
+  "center": {
+    "lat": -26.3454400,
+    "lon": -48.8074345
+  },
+  "tags": {
+    "alt_name": "Praça Irineu Pereira",
+    "leisure": "park",
+    "name": "Área de Lazer Jair de Lima Matias"
+  }
+},
+{
+  "type": "way",
+  "id": 755036464,
+  "center": {
+    "lat": -26.3450003,
+    "lon": -48.8109141
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Santa Izabel"
+  }
+},
+{
+  "type": "way",
+  "id": 755037703,
+  "center": {
+    "lat": -26.3344555,
+    "lon": -48.8744371
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Área de Lazer Nova Brasília"
+  }
+},
+{
+  "type": "way",
+  "id": 755041256,
+  "center": {
+    "lat": -26.3514533,
+    "lon": -48.7907645
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Área de Lazer Frederico Rudolpho Germano Dumke"
+  }
+},
+{
+  "type": "way",
+  "id": 755042385,
+  "center": {
+    "lat": -26.3488756,
+    "lon": -48.8321544
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Área de Lazer Monsenhor Scarzello"
+  }
+},
+{
+  "type": "way",
+  "id": 755305774,
+  "center": {
+    "lat": -26.1712372,
+    "lon": -48.9047427
+  },
+  "tags": {
+    "alt_name": "Praça 15 de Outubro;Praça XV de Outubro",
+    "leisure": "park",
+    "name": "Praça Quinze de Outubro"
+  }
+},
+{
+  "type": "way",
+  "id": 755310888,
+  "center": {
+    "lat": -26.2855152,
+    "lon": -48.9025397
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Conjunto Irineu Bornhausen"
+  }
+},
+{
+  "type": "way",
+  "id": 755311018,
+  "center": {
+    "lat": -26.2825187,
+    "lon": -48.9078501
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Jardim Florêncio"
+  }
+},
+{
+  "type": "way",
+  "id": 755311401,
+  "center": {
+    "lat": -26.2836563,
+    "lon": -48.8990759
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça João Miers"
+  }
+},
+{
+  "type": "way",
+  "id": 755311637,
+  "center": {
+    "lat": -26.2957788,
+    "lon": -48.9007019
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Joaquim Girardi"
+  }
+},
+{
+  "type": "way",
+  "id": 755312147,
+  "center": {
+    "lat": -26.2930351,
+    "lon": -48.9100856
+  },
+  "tags": {
+    "alt_name": "Praça Parque 15;Praça Parque Quinze;Praça Parque XV",
+    "leisure": "park",
+    "name": "Praça Paulo Germano Baumer"
+  }
+},
+{
+  "type": "way",
+  "id": 755312559,
+  "center": {
+    "lat": -26.2247037,
+    "lon": -48.7667553
+  },
+  "tags": {
+    "alt_name": "Praça Vigorelli",
+    "leisure": "park",
+    "name": "Praça dos Guarás"
+  }
+},
+{
+  "type": "way",
+  "id": 755313471,
+  "center": {
+    "lat": -26.2678819,
+    "lon": -48.8672791
+  },
+  "tags": {
+    "description": "Área verde da rua do rio",
+    "leaf_type": "mixed",
+    "leisure": "park",
+    "name": "Praça Vice-Prefeito Luiz Carlos Garcia"
+  }
+},
+{
+  "type": "way",
+  "id": 766591086,
+  "center": {
+    "lat": -26.3171169,
+    "lon": -48.9306070
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "3315",
+    "addr:postcode": "89237-800",
+    "addr:street": "Rodovia Rodolfo Jahn",
+    "amenity": "fast_food",
+    "building": "yes",
+    "cuisine": "friture",
+    "name": "Pastelaria Cristo Rei"
+  }
+},
+{
+  "type": "way",
+  "id": 778113012,
+  "center": {
+    "lat": -26.2725129,
+    "lon": -48.8500368
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Geraldo Wetzel"
+  }
+},
+{
+  "type": "way",
+  "id": 782823148,
+  "center": {
+    "lat": -26.2844532,
+    "lon": -48.8076058
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "212",
+    "addr:postcode": "89228-000",
+    "addr:street": "Rua Prefeito Baltasar Buschle",
+    "addr:suburb": "Comasa",
+    "alt_name": "Old Castle",
+    "building": "yes",
+    "historic": "building",
+    "name": "Castelo Excalibur",
+    "phone": "+55 47 3416 4137",
+    "tower:construction": "brick"
+  }
+},
+{
+  "type": "way",
+  "id": 786362964,
+  "center": {
+    "lat": -26.3448971,
+    "lon": -48.8467844
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2351",
+    "addr:postcode": "89212-213",
+    "addr:street": "Rua Santa Catarina",
+    "addr:suburb": "Floresta",
+    "leisure": "sports_centre",
+    "name": "Sociedade Esportiva e Recreativa Vera Cruz",
+    "phone": "+55 47 3463 7432",
+    "website": "http://sociedadeveracruz.com.br"
+  }
+},
+{
+  "type": "way",
+  "id": 787226517,
+  "center": {
+    "lat": -26.3106175,
+    "lon": -48.8468317
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "391",
+    "addr:postcode": "89202-050",
+    "addr:street": "Rua Doutor Plácido Gomes",
+    "addr:suburb": "Anita Garibaldi",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Grão Mestre Restaurante Café Bar",
+    "opening_hours": "Mo-Fr 07:00-18:30",
+    "phone": "+55 47 3028 5741"
+  }
+},
+{
+  "type": "way",
+  "id": 788575974,
+  "center": {
+    "lat": -26.3529741,
+    "lon": -48.8631302
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "372",
+    "addr:postcode": "89213-240",
+    "addr:street": "Rua Risolete Knittel",
+    "addr:suburb": "Nova Brasília",
+    "amenity": "events_venue",
+    "building": "yes",
+    "name": "Espaço Art Sul",
+    "opening_hours": "Tu-Fr 10:00-18:00; Sa 08:00-12:00",
+    "phone": "+55 47 3465 4000",
+    "website": "https://espacolive.com.br"
+  }
+},
+{
+  "type": "way",
+  "id": 788588675,
+  "center": {
+    "lat": -26.2615614,
+    "lon": -48.8842430
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "273",
+    "addr:postcode": "89219-550",
+    "addr:street": "Rua Clodoaldo Gomes",
+    "addr:suburb": "Zona Industrial Norte",
+    "amenity": "events_venue",
+    "building": "yes",
+    "name": "Dumont Refeições e Eventos",
+    "phone": "+55 47 3437 9801; +55 47 3427 4600",
+    "website": "http://www.dumontrefeicoes.com.br"
+  }
+},
+{
+  "type": "way",
+  "id": 790392256,
+  "center": {
+    "lat": -26.2984187,
+    "lon": -48.8427216
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "815",
+    "addr:postcode": "89201-250",
+    "addr:street": "Avenida Doutor Albano Schulz",
+    "addr:suburb": "Centro",
+    "amenity": "events_venue",
+    "building": "yes",
+    "building:levels": "10",
+    "name": "Le Village",
+    "phone": "+55 47 2101 8500",
+    "website": "https://levillage.com.br/"
+  }
+},
+{
+  "type": "way",
+  "id": 790393173,
+  "center": {
+    "lat": -26.2983486,
+    "lon": -48.8436201
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "364",
+    "addr:postcode": "89201-250",
+    "addr:street": "Rua Dona Francisca",
+    "addr:suburb": "Centro",
+    "amenity": "events_venue",
+    "building": "yes",
+    "name": "Le Village",
+    "phone": "+55 47 3305 5454",
+    "website": "https://levillage.com.br/"
+  }
+},
+{
+  "type": "way",
+  "id": 791495901,
+  "center": {
+    "lat": -26.3024146,
+    "lon": -48.8564265
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "578",
+    "addr:postcode": "89201-700",
+    "addr:street": "Rua Otto Boehm",
+    "addr:suburb": "América",
+    "amenity": "cafe",
+    "building": "yes",
+    "name": "Castelo do Monte",
+    "opening_hours": "Mo-Sa 14:30-20:00"
+  }
+},
+{
+  "type": "way",
+  "id": 792536990,
+  "center": {
+    "lat": -26.2766593,
+    "lon": -48.9364406
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1500",
+    "addr:postcode": "89237-705",
+    "addr:street": "Estrada do Atalho",
+    "addr:suburb": "Vila Nova",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Restaurante Pesque Pague Piraí",
+    "phone": "+55 47 3439 5180",
+    "website": "https://pesquepaguepirai.com.br/"
+  }
+},
+{
+  "type": "way",
+  "id": 798435601,
+  "center": {
+    "lat": -26.3212698,
+    "lon": -48.8539283
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1343",
+    "addr:postcode": "89203-420",
+    "addr:street": "Rua Gothard Kaesemodel",
+    "addr:suburb": "Anita Garibaldi",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Escola de Gastronomia Carême",
+    "phone": "+55 47 3029 5143",
+    "website": "https://www.egcareme.com.br"
+  }
+},
+{
+  "type": "way",
+  "id": 808557164,
+  "center": {
+    "lat": -26.2979882,
+    "lon": -48.8606525
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1903",
+    "addr:postcode": "89216-200",
+    "addr:street": "Rua XV de Novembro",
+    "addr:suburb": "Glória",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Poial Tropeiro",
+    "opening_hours": "Mo-Sa 11:30-14:30, 18:30-23:00; Su 11:30-15:30",
+    "phone": "+55 47 3028 6465",
+    "website": "https://www.poialtropeiro.com.br"
+  }
+},
+{
+  "type": "way",
+  "id": 836122039,
+  "center": {
+    "lat": -26.2950771,
+    "lon": -48.9921214
+  },
+  "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Restaurante Pesque Pague Zoller"
+  }
+},
+{
+  "type": "way",
+  "id": 836122043,
+  "center": {
+    "lat": -26.2947445,
+    "lon": -49.0114707
+  },
+  "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Rio do Ouro"
+  }
+},
+{
+  "type": "way",
+  "id": 845577488,
+  "center": {
+    "lat": -26.2810180,
+    "lon": -48.8823540
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Pracinha do Willy Schossland"
+  }
+},
+{
+  "type": "way",
+  "id": 868213043,
+  "center": {
+    "lat": -26.2727673,
+    "lon": -48.8509256
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "3125",
+    "addr:postcode": "89218-055",
+    "addr:street": "Rua Blumenau",
+    "addr:suburb": "Santo Antônio",
+    "amenity": "fast_food",
+    "brand": "McDonald's",
+    "brand:wikidata": "Q38076",
+    "brand:wikipedia": "en:McDonald's",
+    "building": "commercial",
+    "cuisine": "burger",
+    "drive_through": "yes",
+    "name": "McDonald's",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 901710906,
+  "center": {
+    "lat": -26.2524204,
+    "lon": -48.8186111
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "87",
+    "addr:postcode": "89226-000",
+    "addr:street": "Rua Arara",
+    "addr:suburb": "Aventureiro",
+    "amenity": "marketplace",
+    "name": "Feirão Aventureiro",
+    "opening_hours": "Mo-Sa 07:30-19:30; Su 07:30-12:00",
+    "phone": "+55 47 996 608 853"
+  }
+},
+{
+  "type": "way",
+  "id": 905829668,
+  "center": {
+    "lat": -26.2246264,
+    "lon": -48.7670139
+  },
+  "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "O Guará"
+  }
+},
+{
+  "type": "way",
+  "id": 910549574,
+  "center": {
+    "lat": -26.2492090,
+    "lon": -48.8475061
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2625",
+    "addr:postcode": "89219-730",
+    "addr:street": "Avenida Santos Dumont",
+    "addr:suburb": "Zona Industrial Norte",
+    "alt_name": "Joinville Square Garten",
+    "amenity": "bar",
+    "building": "commercial",
+    "name": "Joinville Square Garden"
+  }
+},
+{
+  "type": "way",
+  "id": 918694165,
+  "center": {
+    "lat": -26.2913916,
+    "lon": -48.7743473
+  },
+  "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Lagoa Pescados y Mariscos"
+  }
+},
+{
+  "type": "way",
+  "id": 996050582,
+  "center": {
+    "lat": -26.2755196,
+    "lon": -48.8463454
+  },
+  "tags": {
+    "leisure": "sports_centre",
+    "lit": "yes",
+    "name": "Estrela da Vila Baumer Futebol Society",
+    "sport": "five-a-side",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 996051959,
+  "center": {
+    "lat": -26.2823689,
+    "lon": -48.8418399
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2440",
+    "addr:postcode": "89221-300",
+    "addr:street": "Rua Dona Francisca",
+    "addr:suburb": "Saguaçu",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Sabor Pastel"
+  }
+},
+{
+  "type": "way",
+  "id": 1020052569,
+  "center": {
+    "lat": -26.3568778,
+    "lon": -48.8455286
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "53",
+    "addr:postcode": "89232-010",
+    "addr:street": "Rua Julião Favre",
+    "addr:suburb": "Santa Catarina",
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "regional",
+    "delivery": "no",
+    "name": "Restaurante Engenho",
+    "opening_hours": "Mo-Sa 11:00-14:30",
+    "phone": "+55 47 3436-7451",
+    "smoking": "no"
+  }
+},
+{
+  "type": "way",
+  "id": 1021383745,
+  "center": {
+    "lat": -26.3889811,
+    "lon": -48.8166949
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "4899",
+    "addr:postcode": "89235-160",
+    "addr:street": "Rua Waldemiro José Borges",
+    "addr:suburb": "Itinga",
+    "amenity": "nightclub",
+    "building": "yes",
+    "name": "Baileiros Club"
+  }
+},
+{
+  "type": "way",
+  "id": 1029645788,
+  "center": {
+    "lat": -26.2523342,
+    "lon": -48.9390755
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "3122",
+    "addr:street": "Estrada Motucas",
+    "addr:suburb": "Vila Nova",
+    "amenity": "pub",
+    "building": "yes",
+    "microbrewery": "yes",
+    "name": "Cervejaria Gut Braun",
+    "phone": "+55 47 3432-7551",
+    "website": "https://gutbrau.com.br/"
+  }
+},
+{
+  "type": "way",
+  "id": 1029645789,
+  "center": {
+    "lat": -26.2528721,
+    "lon": -48.9391314
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2492",
+    "addr:postcode": "89237-790",
+    "addr:street": "Estrada Motucas",
+    "addr:suburb": "Vila Nova",
+    "amenity": "events_venue",
+    "building": "yes",
+    "name": "Hausmesse Casa de Eventos",
+    "phone": "+55 47 3227-9875",
+    "website": "https://www.hausmesse.com.br/"
+  }
+},
+{
+  "type": "way",
+  "id": 1032629609,
+  "center": {
+    "lat": -26.3245777,
+    "lon": -48.8601874
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1913",
+    "addr:postcode": "89203-305",
+    "addr:street": "Rua Anita Garibaldi",
+    "addr:suburb": "Anita Garibaldi",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Restaurante e Pizzaria Anita"
+  }
+},
+{
+  "type": "way",
+  "id": 1032980995,
+  "center": {
+    "lat": -26.3148662,
+    "lon": -48.8409695
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "990",
+    "addr:postcode": "89202-422",
+    "addr:street": "Rua Coronel Procópio Gomes",
+    "addr:suburb": "Bucarein",
+    "amenity": "nightclub",
+    "building": "yes",
+    "name": "Number One"
+  }
+},
+{
+  "type": "way",
+  "id": 1034794712,
+  "center": {
+    "lat": -26.2923708,
+    "lon": -48.8682739
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "383",
+    "addr:postcode": "89216-120",
+    "addr:street": "Rua Presidente Campos Salles",
+    "addr:suburb": "Glória",
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "coffee_shop;sandwich;ice_cream;breakfast;cake;tea;pancake;juice;german",
+    "diet:local": "yes",
+    "name": "Panificadora Blumenauense",
+    "opening_hours": "06:30 ás 20:00"
+  }
+},
+{
+  "type": "way",
+  "id": 1034795074,
+  "center": {
+    "lat": -26.2962747,
+    "lon": -48.8707385
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "2876",
+    "addr:postcode": "89216-200",
+    "addr:street": "Rua XV de Novembro",
+    "addr:suburb": "Glória",
+    "amenity": "restaurant",
+    "building": "yes",
+    "cuisine": "steak_house",
+    "name": "Churrascaria do Lino"
+  }
+},
+{
+  "type": "way",
+  "id": 1035926647,
+  "center": {
+    "lat": -26.3039342,
+    "lon": -48.8504185
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "343",
+    "addr:postcode": "89201-420",
+    "addr:street": "Rua Visconde de Taunay",
+    "addr:suburb": "Centro",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Chimarrão Churrascaria",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 1035926724,
+  "center": {
+    "lat": -26.3059465,
+    "lon": -48.8510996
+  },
+  "tags": {
+    "amenity": "cafe",
+    "building": "yes",
+    "name": "Delicatesse Viktória"
+  }
+},
+{
+  "type": "way",
+  "id": 1046032643,
+  "center": {
+    "lat": -26.3459372,
+    "lon": -48.8340022
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça dos Vizinhos"
+  }
+},
+{
+  "type": "way",
+  "id": 1233236647,
+  "center": {
+    "lat": -26.2036063,
+    "lon": -49.0490518
+  },
+  "tags": {
+    "area": "yes",
+    "name": "Sítio Canela Preta",
+    "tourism": "attraction"
+  }
+},
+{
+  "type": "way",
+  "id": 1233236654,
+  "center": {
+    "lat": -26.2172709,
+    "lon": -49.0785818
+  },
+  "tags": {
+    "amenity": "fast_food",
+    "building": "yes",
+    "name": "Caldo de Cana"
+  }
+},
+{
+  "type": "way",
+  "id": 1261976181,
+  "center": {
+    "lat": -26.2754554,
+    "lon": -48.8400724
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Mário Luiz Alves"
+  }
+},
+{
+  "type": "way",
+  "id": 1282014306,
+  "center": {
+    "lat": -26.3319037,
+    "lon": -48.8678011
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Sebastião Vicente"
+  }
+},
+{
+  "type": "way",
+  "id": 1290128681,
+  "center": {
+    "lat": -26.2263062,
+    "lon": -48.7662744
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "54",
+    "addr:street": "Servidão José Lamin",
+    "addr:suburb": "Vigorelli",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Cantinho Vigorelli"
+  }
+},
+{
+  "type": "way",
+  "id": 1290128682,
+  "center": {
+    "lat": -26.2233154,
+    "lon": -48.7673960
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:suburb": "Vigorelli",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Restaurante Toca do Siri"
+  }
+},
+{
+  "type": "way",
+  "id": 1290128684,
+  "center": {
+    "lat": -26.2235631,
+    "lon": -48.7673394
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:suburb": "Vigorelli",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Restaurante e Petisqueira Bela Vista"
+  }
+},
+{
+  "type": "way",
+  "id": 1290322994,
+  "center": {
+    "lat": -26.3044708,
+    "lon": -48.8175071
+  },
+  "tags": {
+    "landuse": "recreation_ground",
+    "leisure": "playground",
+    "name": "Parquinho infantil"
+  }
+},
+{
+  "type": "way",
+  "id": 1290322995,
+  "center": {
+    "lat": -26.3039371,
+    "lon": -48.8204789
+  },
+  "tags": {
+    "landuse": "recreation_ground",
+    "leisure": "park",
+    "name": "Passeio Público Sandrionir Siqueira, \"Diácono Chico\""
+  }
+},
+{
+  "type": "way",
+  "id": 1290324109,
+  "center": {
+    "lat": -26.3041780,
+    "lon": -48.8202327
+  },
+  "tags": {
+    "leisure": "playground",
+    "name": "Parquinho"
+  }
+},
+{
+  "type": "way",
+  "id": 1305834442,
+  "center": {
+    "lat": -26.2511569,
+    "lon": -48.8089066
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:street": "Rua Peixes",
+    "addr:suburb": "Aventureiro",
+    "leisure": "park",
+    "name": "Área de lazer do Parque Sambaqui Guaíra"
+  }
+},
+{
+  "type": "way",
+  "id": 1448535172,
+  "center": {
+    "lat": -26.3128965,
+    "lon": -48.8626214
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Plaenge"
+  }
+},
+{
+  "type": "way",
+  "id": 1450877084,
+  "center": {
+    "lat": -26.2929218,
+    "lon": -48.9184063
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Irmã Bassani Menestrina"
+  }
+},
+{
+  "type": "way",
+  "id": 1495970490,
+  "center": {
+    "lat": -26.2946015,
+    "lon": -49.0159113
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça da Energia"
+  }
+},
+{
+  "type": "way",
+  "id": 1554882697,
+  "center": {
+    "lat": -26.2837158,
+    "lon": -48.8441402
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça do Voluntário"
+  }
+},
+{
+  "type": "relation",
+  "id": 5373247,
+  "center": {
+    "lat": -26.3105684,
+    "lon": -48.7982279
+  },
+  "tags": {
+    "boundary": "protected_area",
+    "leisure": "nature_reserve",
+    "name": "Parque Natural Municipal da Caieira",
+    "natural": "wood",
+    "protect_class": "2",
+    "start_date": "2004",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 10597041,
+  "center": {
+    "lat": -26.3176927,
+    "lon": -48.8300830
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Parque da Cidade - Setor Guanabara",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 12909426,
+  "center": {
+    "lat": -26.3168558,
+    "lon": -48.8334930
+  },
+  "tags": {
+    "addr:city": "Joinville",
+    "addr:housenumber": "1084",
+    "addr:postcode": "89202-310",
+    "addr:street": "Rua Inácio Bastos",
+    "addr:suburb": "Bucarein",
+    "leisure": "stadium",
+    "name": "Arena Joinville",
+    "phone": "+55 47 3455 0055",
+    "type": "multipolygon",
+    "website": "https://www.jec.com.br/contato",
+    "wheelchair": "yes",
+    "wikidata": "Q4788896",
+    "wikipedia": "pt:Arena Joinville"
+  }
+},
+{
+  "type": "relation",
+  "id": 12993227,
+  "center": {
+    "lat": -26.2569015,
+    "lon": -48.8147978
+  },
+  "tags": {
+    "leisure": "park",
+    "name": "Praça Antônio Reinert",
+    "type": "multipolygon"
+  }
+}
+
+  ]
+}
