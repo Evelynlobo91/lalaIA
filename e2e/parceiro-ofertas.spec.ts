@@ -65,11 +65,11 @@ test.describe("descontos e promoções do parceiro (#30)", () => {
 
     await page.getByLabel("Código do cliente").fill(codigo);
     await page.getByRole("button", { name: "Validar", exact: true }).click();
-    await expect(page.getByRole("alert")).toContainText("já foi usado");
+    await expect(page.getByRole("alert").and(page.locator(":not(#__next-route-announcer__)"))).toContainText("já foi usado");
 
     await page.getByLabel("Código do cliente").fill("ZZZZ-2222");
     await page.getByRole("button", { name: "Validar", exact: true }).click();
-    await expect(page.getByRole("alert")).toHaveText("Código inválido.");
+    await expect(page.getByRole("alert").and(page.locator(":not(#__next-route-announcer__)"))).toHaveText("Código inválido.");
     await expect(page.getByText("1 resgate de 20 · 1 usado no balcão")).toBeVisible();
   });
 
@@ -103,7 +103,7 @@ test.describe("descontos e promoções do parceiro (#30)", () => {
     await loginAs(outro, intruso, "/parceiro/ofertas");
     await outro.getByLabel("Código do cliente").fill(codigo);
     await outro.getByRole("button", { name: "Validar", exact: true }).click();
-    await expect(outro.getByRole("alert")).toHaveText("Código inválido.");
+    await expect(outro.getByRole("alert").and(outro.locator(":not(#__next-route-announcer__)"))).toHaveText("Código inválido.");
     await ctx2.close();
   });
 

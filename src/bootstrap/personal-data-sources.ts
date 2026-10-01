@@ -3,8 +3,6 @@ import { myFavorites } from "@/modules/favorites";
 import type { PersonalDataSource } from "@/modules/identity";
 import { livePrivacyAcceptedAt, liveStreamsOf } from "@/modules/live";
 import { missionsByOwner, myGeofenceCheckIns, myMissions } from "@/modules/missions";
-import { myPartnerApplication } from "@/modules/partners";
-import { missionsByOwner, myMissions } from "@/modules/missions";
 import { myPartnerApplication, myRedemptions, offersCreatedBy } from "@/modules/partners";
 import { placesManagedBy } from "@/modules/places";
 import { achievementsOf, explorerProfileOf, levelOverviewOf, xpOverviewOf } from "@/modules/progression";
