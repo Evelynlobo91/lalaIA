@@ -7,8 +7,10 @@ import type { EventDetailView } from "../event-detail";
 /**
  * Detalhe do evento. `extras` é o ponto de extensão para outros módulos
  * (ex.: favoritar, selo e player da Live) sem que este componente os conheça.
+ * `directions` substitui o botão "Como chegar" (ex.: "Quero ir" de favorites);
+ * só aparece quando o evento tem lugar e ainda não terminou nem foi cancelado.
  */
-export function EventDetailCard({ event, extras }: { event: EventDetailView; extras?: ReactNode }) {
+export function EventDetailCard({ event, extras, directions }: { event: EventDetailView; extras?: ReactNode; directions?: ReactNode }) {
   return (
     <article className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
@@ -25,12 +27,12 @@ export function EventDetailCard({ event, extras }: { event: EventDetailView; ext
 
       {extras}
 
-      {event.place && event.phase !== "cancelled" && event.phase !== "finished" && (
+      {event.place && event.phase !== "cancelled" && event.phase !== "finished" && (directions ?? (
         <a href={event.place.directionsUrl} target="_blank" rel="noopener noreferrer" className={buttonClasses({ size: "lg", fullWidth: true }, "sm:w-auto sm:self-start")}>
           <Navigation aria-hidden className="size-5" />
           Como chegar
         </a>
-      )}
+      ))}
 
       <Card className="flex flex-col divide-y divide-border p-0">
         <Info icon={<CalendarDays aria-hidden className="size-5" />} label="Quando">

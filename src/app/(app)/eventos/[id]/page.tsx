@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EventDetailCard, getEventDetail } from "@/modules/events";
+import { FavoriteToggle, WantToGoButton } from "@/modules/favorites";
 
 // A fase do evento (acontecendo/encerrado) depende da hora da visita.
 export const dynamic = "force-dynamic";
@@ -32,7 +33,11 @@ export default async function EventoPage({ params }: PageProps<"/eventos/[id]">)
       <Link href="/eventos" className="inline-flex items-center gap-1 self-start text-sm font-medium text-muted hover:text-fg">
         <ArrowLeft aria-hidden className="size-4" /> O que fazer
       </Link>
-      <EventDetailCard event={event} />
+      <EventDetailCard
+        event={event}
+        extras={<FavoriteToggle entityType="event" entityId={event.id} className="sm:self-start" />}
+        directions={event.place && <WantToGoButton href={event.place.directionsUrl} entityType="event" entityId={event.id} className="sm:w-auto sm:self-start" />}
+      />
     </div>
   );
 }

@@ -55,6 +55,25 @@ test.describe("favoritar lugar (#44)", () => {
   });
 });
 
+test.describe("favoritar evento (#44)", () => {
+  test("favorita pela página do evento e aparece em Meus favoritos", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "celular-360", "fluxo de conta roda só no celular");
+    const titulo = `Show Favorito E2E ${Date.now()}`;
+    const placeId = await createTestPlace(`Palco Favorito E2E ${Date.now()}`);
+    const pessoa = await createConfirmedUser();
+    const eventId = await createTestEvent({ ownerEmail: pessoa.email, placeId, title: titulo, startsInHours: 24, durationHours: 2 });
+    await loginAs(page, pessoa, `/eventos/${eventId}`);
+
+    await expect(page.getByRole("link", { name: /Quero ir/ })).toBeVisible();
+    await page.getByRole("button", { name: "Favoritar" }).click();
+    await expect(page.getByRole("button", { name: "Remover dos favoritos" })).toHaveAttribute("aria-pressed", "true");
+    await page.waitForLoadState("networkidle");
+
+    await page.goto("/perfil/favoritos?aba=eventos");
+    await expect(page.getByRole("list", { name: "Eventos favoritos" }).getByText(titulo)).toBeVisible();
+  });
+});
+
 test.describe("meus favoritos (#45)", () => {
   test.beforeEach(({}, testInfo) => {
     test.skip(testInfo.project.name !== "celular-360", "fluxo de conta roda só no celular");
