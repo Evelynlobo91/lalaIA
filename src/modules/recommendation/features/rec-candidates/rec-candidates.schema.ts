@@ -35,35 +35,36 @@ export const categoryListParam = z
     return ids.length ? (ids as CategoryId[]) : null;
   });
 
-/**
- * GET /api/recommendations/candidates — restrições explícitas (sem perfil): tempo em minutos, orçamento
- * total em reais, pessoas, raio em km, categorias e localização opcional.
- */
-export const recCandidatesSchema = z
-  .object({
-    tempo: z.coerce.number().int().min(15).max(720).default(120),
-    orcamento: z.coerce.number().int().min(0).max(10_000).optional(),
-    pessoas: z.coerce.number().int().min(1).max(20).default(1),
-    raio: z.coerce.number().min(0.5).max(50).default(10),
-    categoria: categoryListParam,
-    lat: z.string().max(20).optional(),
-    lon: z.string().max(20).optional(),
-  })
-  .transform((v, ctx) => {
-    const origin = optionalOrigin.safeParse({ lat: v.lat, lon: v.lon });
-    if (!origin.success) {
-      ctx.addIssue({ code: "custom", message: origin.error.issues[0]?.message ?? "Localização inválida." });
-      return z.NEVER;
-    }
-    return {
-      availableMinutes: v.tempo,
-      budgetCents: v.orcamento === undefined ? null : v.orcamento * 100,
-      people: v.pessoas,
-      maxDistanceMeters: Math.round(v.raio * 1000),
-      categories: v.categoria,
-      avoidCategories: [] as CategoryId[],
-      origin: origin.data,
-    };
-  });
+/** Parâmetros explícitos (sem perfil): tempo em minutos, orçamento total em reais, pessoas, raio em km, categorias, lat/lon. */
+export const candidatesParams = z.object({
+  tempo: z.coerce.number().int().min(15).max(720).default(120),
+  orcamento: z.coerce.number().int().min(0).max(10_000).optional(),
+  pessoas: z.coerce.number().int().min(1).max(20).default(1),
+  raio: z.coerce.number().min(0.5).max(50).default(10),
+  categoria: categoryListParam,
+  lat: z.string().max(20).optional(),
+  lon: z.string().max(20).optional(),
+});
+
+/** Converte os parâmetros explícitos nas restrições do motor (sem o "agora", que vem do relógio). */
+export function toConstraintsInput(v: z.infer<typeof candidatesParams>, ctx: z.RefinementCtx) {
+  const origin = optionalOrigin.safeParse({ lat: v.lat, lon: v.lon });
+  if (!origin.success) {
+    ctx.addIssue({ code: "custom", message: origin.error.issues[0]?.message ?? "Localização inválida." });
+    return z.NEVER;
+  }
+  return {
+    availableMinutes: v.tempo,
+    budgetCents: v.orcamento === undefined ? null : v.orcamento * 100,
+    people: v.pessoas,
+    maxDistanceMeters: Math.round(v.raio * 1000),
+    categories: v.categoria,
+    avoidCategories: [] as CategoryId[],
+    origin: origin.data,
+  };
+}
+
+/** GET /api/recommendations/candidates */
+export const recCandidatesSchema = candidatesParams.transform(toConstraintsInput);
 
 export type RecCandidatesInput = z.infer<typeof recCandidatesSchema>;

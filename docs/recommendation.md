@@ -43,6 +43,38 @@ O módulo não tem tabelas. Ele lê tudo pelas APIs públicas (`index.ts`) de `p
 | `places` | `placeCandidates({ origin, radiusMeters, categories, limit })` | lugares no raio (ou os mais recentes), com horário, distância e `newSince` (só lugares de parceiro: os do OSM não são "novidade") |
 | `events` | `eventCandidates({ from, to, limit })` | eventos agendados no período, com o lugar e a data de publicação |
 
+## Score ponderado e motivos (#72, RF39–RF41)
+
+- Cada sinal é uma estratégia `ScoreSignal` (`domain/signals.ts`) que devolve uma força de 0 a 1 **e o motivo**:
+
+  | Sinal (`id`) | Peso padrão | Quando pontua | Motivo exibido |
+  |--------------|:-----------:|---------------|----------------|
+  | `preference` | 3 | categoria entre as preferidas do perfil | "Porque você curte Shows e música" |
+  | `happeningNow` | 2,5 | evento acontecendo (1), começando no tempo disponível (0,6), lugar aberto (0,3) | "Acontecendo agora", "Começa em 40 min", "Aberto agora" |
+  | `live` | 3 | live ativa (porta `LiveStatusReader`; hoje o stub `NoLiveYet` não tem nenhuma) | "Com live agora" |
+  | `novelty` | 1,5 | publicado/cadastrado há menos de 14 dias (decai até zero) | "Novidade na agenda", "Novo no LalaIA", "Missão nova" |
+  | `favorite` | 2 | está nos favoritos | "Está nos seus favoritos" |
+  | `proximity` | 1,5 | com localização: 1 no ponto, 0 na distância máxima | "A 300 m de você" |
+
+- **Score = Σ peso × força.** Os motivos vêm do que mais pesou para o que menos (a tela mostra até 2).
+- **Pesos num lugar só:** `DEFAULT_WEIGHTS` em `domain/score-weights.ts`. Para mudar **sem alterar código**, defina
+  `RECOMMENDATION_WEIGHTS` com um JSON parcial (ex.: `{"live":5,"novelty":0}`, cada peso de 0 a 10). JSON inválido ou
+  sinal desconhecido → loga um aviso e usa os padrões (o app não cai).
+- **Determinístico:** empate desempata por distância, início, título e chave.
+- **Perfil (`TasteProfileReader`):** preferências de identity (`userPreferences().preferencesOf`) + favoritos
+  (`favoriteKeysOf`, nova função de favorites, uma consulta). Visitante recebe um ranking sem gosto pessoal.
+  Se os favoritos falharem, segue sem eles; se a Live falhar, segue sem live (ambos logados).
+- **`RecommendationEngine.recommend(constraints, profile, limit)`** junta as camadas (candidatos → live → ranking → top N).
+  É a **porta do "ME SURPREENDA" (#74)**: o roteiro do LLM parte do top 10–20 dela, e todo item do roteiro precisa
+  estar nessa lista. Exportado no `index.ts` como `recommendationEngine()`.
+- **API:** `GET /api/recommendations?limite=20` (+ os mesmos parâmetros dos candidatos). Itens com `reasons`,
+  `timeLabel`, `distanceLabel`, `priceLabel`, `live` e `score`.
+- **UI:** `RecommendationCard`/`RecommendationList` (motivos como selos, preço ou XP, tempo e distância).
+
+| Módulo | Função nova | Para quê |
+|--------|-------------|----------|
+| `favorites` | `favoriteKeysOf(user)` | só tipo + id dos favoritos (sinal "Está nos seus favoritos") |
+
 ## Privacidade (LGPD)
 
 A localização é opcional, pedida **só no toque** (`NearMeButton` de places), arredondada para 4 casas (~10 m)
