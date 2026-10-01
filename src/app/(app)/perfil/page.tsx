@@ -1,4 +1,4 @@
-import { Heart, Pencil, ShieldCheck, Store } from "lucide-react";
+import { Heart, Lock, Pencil, ShieldCheck, Store } from "lucide-react";
 import type { Metadata } from "next";
 import { LogoutButton, budgetOptions, groupSizes, hasRole, requireUser, userPreferences } from "@/modules/identity";
 import { ActiveMissionsCard, myMissions } from "@/modules/missions";
@@ -44,6 +44,9 @@ export default async function PerfilPage() {
           </ButtonLink>
           <ButtonLink href="/perfil/editar" variant="secondary">
             <Pencil aria-hidden className="size-4" /> Editar perfil
+          </ButtonLink>
+          <ButtonLink href="/perfil/privacidade" variant="secondary">
+            <Lock aria-hidden className="size-4" /> Privacidade e dados
           </ButtonLink>
           <LogoutButton />
         </div>

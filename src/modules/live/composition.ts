@@ -1,5 +1,6 @@
 // Composição do módulo live (interna): usada pelas actions, rotas e pelo index.ts.
 import { sql } from "@/shared/db/sql";
+import { logger } from "@/shared/observability";
 import { domainEvents } from "@/shared/events";
 import { lazy } from "@/shared/kernel";
 import { ListLiveTargets, ProvisionStream, RevealStreamKey, RotateStreamKey } from "./features/stream-key/stream-key.use-case";
@@ -10,7 +11,7 @@ import { ModuleLiveTargetDirectory } from "./infra/live-target-directory";
 import { GetStreamMetrics } from "./features/stream-metrics/stream-metrics.use-case";
 import { AnalyticsInteractionCounter } from "./infra/analytics-interaction-counter";
 import { GetStreamContext, UpdateStreamNote } from "./features/stream-context/stream-context.use-case";
-import { ControlStream, EndStreamOfCancelledEvent } from "./features/stream-control/stream-control.use-case";
+import { ControlStream, EndStreamOfCancelledEvent, EndStreamsOfDeletedUser } from "./features/stream-control/stream-control.use-case";
 import { HandleProviderWebhook } from "./features/webhooks/webhooks.use-case";
 import { streamingProviderFrom } from "./infra/live-config";
 import { AcceptLiveGuidelines, PrivacyGate } from "./features/privacy/privacy.use-case";
@@ -39,6 +40,7 @@ export const handleProviderWebhook = lazy(() => new HandleProviderWebhook(stream
 
 export const controlStream = lazy(() => new ControlStream(streamRepository(), streamRepository(), streamingProvider, domainEvents(), privacyGate()));
 export const endStreamOfCancelledEvent = lazy(() => new EndStreamOfCancelledEvent(streamRepository(), streamRepository(), streamingProvider, domainEvents()));
+export const endStreamsOfDeletedUser = lazy(() => new EndStreamsOfDeletedUser(streamRepository(), streamingProvider, logger().child({ module: "live" })));
 
 export const getLivePlayback = lazy(() => new GetLivePlayback(streamRepository(), streamingProvider));
 export const listActiveStreamsUseCase = lazy(() => new ListActiveStreams(streamRepository()));

@@ -55,3 +55,21 @@ describe("trackUiSchema", () => {
     expect(trackUiSchema.safeParse({ kind: "view", entityType: "place", entityId: "x" }).success).toBe(false);
   });
 });
+
+describe("consentimento de métricas (LGPD, #25)", () => {
+  it("interação de domínio de quem desligou as métricas não é gravada; de quem consente, sim", async () => {
+    const store = { record: vi.fn<(i: Interaction) => Promise<void>>().mockResolvedValue(undefined) };
+    const bg = deferred();
+    const consent = { allows: vi.fn(async (userId: string) => userId !== "recusou") };
+    const useCase = new TrackInteraction(store, bg.runner, () => now, consent);
+    const payload = (userId: string | null) => ({ userId, entityType: "place", entityId: placeId });
+
+    useCase.fromDomain({ id: "e1", type: "favorites.FavoriteAdded", occurredAt: now, payload: payload("recusou") } as never);
+    useCase.fromDomain({ id: "e2", type: "favorites.FavoriteAdded", occurredAt: now, payload: payload("aceitou") } as never);
+    useCase.fromDomain({ id: "e3", type: "favorites.WantToGoClicked", occurredAt: now, payload: payload(null) } as never); // anônimo
+    await bg.flush();
+
+    expect(store.record.mock.calls.map(([i]) => (i.source === "domain" ? i.eventId : "")).sort()).toEqual(["e2", "e3"]);
+    expect(consent.allows).toHaveBeenCalledTimes(2);
+  });
+});

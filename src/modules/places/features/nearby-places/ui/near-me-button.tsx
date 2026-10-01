@@ -7,9 +7,9 @@ import { useState } from "react";
 import { Button } from "@/shared/ui";
 import { roundCoordinate } from "../nearby-places.schema";
 
-type Status = "idle" | "locating" | "denied" | "unavailable";
+type Status = "idle" | "locating" | "denied" | "unavailable" | "optedOut";
 
-const messages: Record<Exclude<Status, "idle" | "locating">, string> = {
+const messages: Record<Exclude<Status, "idle" | "locating" | "optedOut">, string> = {
   denied: "Sem permissão para usar sua localização.",
   unavailable: "Não foi possível descobrir sua localização agora.",
 };
@@ -23,6 +23,11 @@ export function NearMeButton({ target = "/lugares/perto", label = "Perto de mim"
   const [status, setStatus] = useState<Status>("idle");
 
   function locate() {
+    // Consentimento (#25): localização desligada em Privacidade → nem pede o GPS.
+    if (/(?:^|;\s*)lalaia-geo=0(?:;|$)/.test(document.cookie)) {
+      setStatus("optedOut");
+      return;
+    }
     if (!("geolocation" in navigator)) {
       setStatus("unavailable");
       return;
@@ -45,6 +50,19 @@ export function NearMeButton({ target = "/lugares/perto", label = "Perto de mim"
         <LocateFixed aria-hidden className="size-5" />
         {label}
       </Button>
+      {status === "optedOut" && (
+        <p role="status" className="text-sm text-muted">
+          Você desligou o uso da localização.{" "}
+          <Link href="/perfil/privacidade" className="font-medium text-brand underline">
+            Reativar em Privacidade
+          </Link>{" "}
+          ou{" "}
+          <Link href="/mapa" className="font-medium text-brand underline">
+            escolha um ponto no mapa
+          </Link>
+          .
+        </p>
+      )}
       {(status === "denied" || status === "unavailable") && (
         <p role="status" className="text-sm text-muted">
           {messages[status]}{" "}
