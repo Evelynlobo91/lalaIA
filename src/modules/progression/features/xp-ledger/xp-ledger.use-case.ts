@@ -1,3 +1,4 @@
+import type { DomainEventPublisher } from "@/shared/events";
 import { logger } from "@/shared/observability";
 import type { MissionTitles, XpLedger, XpReason, XpTransaction } from "../../domain/xp";
 import { eventIdSchema, missionCompletedSchema, stepCompletedSchema } from "./xp-ledger.schema";
@@ -16,6 +17,7 @@ export class GrantXp {
   constructor(
     private readonly ledger: Pick<XpLedger, "append">,
     private readonly missions: MissionTitles,
+    private readonly events: DomainEventPublisher,
   ) {}
 
   async onStepCompleted(event: IncomingEvent): Promise<boolean> {
@@ -39,6 +41,8 @@ export class GrantXp {
       description: title ? `${labels[reason]} · ${title}`.slice(0, 200) : labels[reason],
     });
     logger().info(credited ? "xp creditado" : "xp já creditado (ignorado)", { reason, eventId, amount });
+    // Só depois de gravar, e só quando a transação é nova (o nível é recalculado por quem assina).
+    if (credited) await this.events.publish("progression.XpGranted", { userId, amount, reason });
     return credited;
   }
 }
