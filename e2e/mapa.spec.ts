@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
+import { createTestPlace, isolatedPoint } from "./support/db";
 
 const DATABASE_URL = process.env.DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
 
@@ -52,8 +53,10 @@ test.describe("mapa de lugares (RF11)", () => {
     await expect(resumo.getByRole("link", { name: "Como chegar" })).toHaveAttribute("href", /google\.com\/maps\/dir/);
   });
 
-  test("tocar no marcador abre o resumo do lugar", async ({ page }) => {
-    const lugar = await umLugar();
+  test("tocar no marcador abre o resumo do lugar", async ({ page }, testInfo) => {
+    // Lugar próprio num ponto isolado: o marcador fica sozinho no centro do mapa (sem cluster).
+    const nome = `Marco E2E ${testInfo.project.name} ${Date.now()}`;
+    const lugar = { id: await createTestPlace(nome, isolatedPoint(), "ar-livre"), name: nome };
     await page.goto(`/mapa?lugar=${lugar.id}`);
     await expect(mapa(page)).toHaveAttribute("data-ready", "true", { timeout: 20_000 });
 

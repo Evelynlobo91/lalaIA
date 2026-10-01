@@ -15,6 +15,12 @@
 - **Fuso:** os campos `datetime-local` são interpretados no horário de Joinville
   (`src/shared/time/joinville-time.ts`, com o deslocamento calculado por `Intl`), e o banco guarda em UTC.
 
+## Lista pública (#37)
+
+- `/eventos` e `GET /api/events?cursor=`: agendados que ainda não terminaram, por início (keyset em
+  `starts_at, id`), com "Acontecendo" para quem já começou. Terminados e cancelados não aparecem.
+- Nome e bairro dos lugares vêm de `placeSummaries` (API pública de places), numa consulta só por página.
+
 ## Segurança
 
 - **RLS em `events.events`:** todos leem; só o papel `partner` cria, sempre em nome próprio; só o dono

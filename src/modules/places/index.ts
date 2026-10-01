@@ -100,6 +100,11 @@ export function placeSummary(id: string) {
   return ownership().summary(id);
 }
 
+/** Resumos de vários lugares numa consulta (ex.: listas de eventos). */
+export function placeSummaries(ids: string[]) {
+  return ownership().summaries([...new Set(ids)]);
+}
+
 /** Lugares sob responsabilidade do usuário (portal do parceiro). */
 export function placesManagedBy(userId: string) {
   return ownership().managedBy(userId);

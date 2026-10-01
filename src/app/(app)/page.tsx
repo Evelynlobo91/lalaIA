@@ -26,7 +26,16 @@ export default async function ExplorarPage({ searchParams }: PageProps<"/">) {
       </Card>
 
       <section className="grid gap-4 md:grid-cols-2">
-        <EmptyState icon={CalendarDays} title="Acontecendo agora" description="Shows, feiras, festas e exposições de Joinville vão aparecer aqui." />
+        <EmptyState
+          icon={CalendarDays}
+          title="O que fazer"
+          description="Shows, feiras, festas e exposições acontecendo ou chegando em Joinville."
+          action={
+            <ButtonLink href="/eventos" variant="secondary" size="sm">
+              Ver eventos
+            </ButtonLink>
+          }
+        />
         <EmptyState
           icon={MapPin}
           title="Onde ir"
