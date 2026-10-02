@@ -1,16 +1,16 @@
-import { Ban, Clock, XCircle } from "lucide-react";
+import { Ban, Clock, TicketCheck, XCircle } from "lucide-react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { hasRole, requireUser } from "@/modules/identity";
-import { ApplyForm, myPartnerApplication } from "@/modules/partners";
-import { Card, CardDescription, CardTitle, FormAlert } from "@/shared/ui";
+import { ApplyForm, myPartnerApplication, myTeamMemberships } from "@/modules/partners";
+import { ButtonLink, Card, CardDescription, CardTitle, FormAlert } from "@/shared/ui";
 
 export const metadata: Metadata = { title: "Portal do parceiro" };
 
 export default async function ParceiroPage() {
   const user = await requireUser("/parceiro");
 
-  const application = await myPartnerApplication(user);
+  const [application, memberships] = await Promise.all([myPartnerApplication(user), myTeamMemberships(user)]);
   if (hasRole(user, "partner") && application?.status === "approved") redirect("/parceiro/inicio");
 
   return (
@@ -19,6 +19,21 @@ export default async function ParceiroPage() {
         <h1 className="text-2xl font-bold md:text-3xl">Seja parceiro do LalaIA</h1>
         <p className="text-muted">Estabelecimentos e promotores de Joinville divulgam eventos, lives, missões e recompensas para quem está procurando o que fazer agora.</p>
       </header>
+
+      {memberships.length > 0 && (
+        <Card className="flex items-start gap-3">
+          <TicketCheck aria-hidden className="mt-0.5 size-6 shrink-0 text-brand" />
+          <div className="flex flex-col gap-3">
+            <div>
+              <CardTitle>Você faz parte de uma equipe</CardTitle>
+              <CardDescription>Atende no balcão de {memberships.map((m) => m.businessName).join(", ")}.</CardDescription>
+            </div>
+            <ButtonLink href="/parceiro/balcao" className="self-start">
+              Abrir o balcão
+            </ButtonLink>
+          </div>
+        </Card>
+      )}
 
       {application?.status === "pending" && (
         <Card className="flex items-start gap-3" role="status">

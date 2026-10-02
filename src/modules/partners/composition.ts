@@ -30,6 +30,8 @@ import { MyRedemptions, OffersForTarget } from "./features/redeem-offer/offer-vi
 import { ValidateOfferCode } from "./features/validate-code/validate-code.use-case";
 import { EndSponsorship, EndSponsorshipsWithoutPlan, ListMySponsorships, StartSponsorship, type VisibilityEntitlement } from "./features/visibility/visibility.use-cases";
 import { PostgresSponsorshipRepository } from "./infra/postgres-sponsorship-repository";
+import { InviteTeamMember, RemoveTeamMember, ValidateCodeAtCounter, type CounterStaffing } from "./features/team-members/team-members.use-case";
+import { PostgresTeamRepository } from "./infra/postgres-team-repository";
 
 export const partnerRepository = lazy(() => new PostgresPartnerRepository(sql(), usersByIds));
 export const partnerCountsReader = lazy(() => new PostgresPartnerCounts(sql()));
@@ -76,3 +78,13 @@ export const startSponsorship = lazy(() => new StartSponsorship(sponsorshipRepos
 export const endSponsorship = lazy(() => new EndSponsorship(sponsorshipRepository()));
 export const listMySponsorships = lazy(() => new ListMySponsorships(sponsorshipRepository(), targets()));
 export const endSponsorshipsWithoutPlan = lazy(() => new EndSponsorshipsWithoutPlan(sponsorshipRepository(), canSponsor));
+
+// Equipe do parceiro (#158): o dono convida; o membro só atende no balcão (valida códigos).
+export const teamRepository = lazy(() => new PostgresTeamRepository(sql()));
+export const inviteTeamMember = lazy(() => new InviteTeamMember(teamRepository()));
+export const removeTeamMember = lazy(() => new RemoveTeamMember(teamRepository()));
+const counterStaffing: CounterStaffing = async (userId) => {
+  const [own, memberships] = await Promise.all([approvedPartnerIdOf(userId), teamRepository().membershipsOf(userId)]);
+  return [...(own ? [own] : []), ...memberships.map((m) => m.partnerId)];
+};
+export const validateCodeAtCounter = lazy(() => new ValidateCodeAtCounter(counterStaffing, validateOfferCode()));

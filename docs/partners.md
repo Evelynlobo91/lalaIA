@@ -140,3 +140,37 @@ Portal /parceiro/ofertas → "Nova oferta" (lugar que gerencia ou evento que cri
 - Se a assinatura for suspensa e a conta perder o direito ao destaque, os destaques dela são encerrados (o módulo
   assina `billing.SubscriptionSuspended`).
 - Um alvo tem no máximo um destaque ativo (índice único), e o período máximo é garantido também pelo banco.
+
+## Equipe do parceiro: dono e membro (#158)
+
+O dono convida funcionários para atender no balcão sem dar acesso total ao portal.
+
+```
+Portal /parceiro/equipe → dono digita o e-mail do funcionário → entra em partners.team_members
+Funcionário entra no app com esse e-mail → /parceiro mostra "Você faz parte de uma equipe" → /parceiro/balcao
+   → valida o código que o cliente mostra (o mesmo formulário do dono em /parceiro/ofertas)
+```
+
+| O quê | Dono | Membro |
+| --- | --- | --- |
+| Validar códigos de oferta | sim | sim (`/parceiro/balcao`) |
+| Ofertas, eventos, lugares, missões, live, destaque | sim | não |
+| Dados e assinatura | sim | não |
+| Convidar e remover membros | sim | não |
+
+- **Vínculo pelo e-mail confirmado.** Não há token nem aceite: o convite vale quando existe uma conta com aquele
+  e-mail **confirmado** (a tela do dono mostra "Com acesso" ou "Aguardando cadastro"). Até 10 membros por parceiro;
+  o dono não convida o próprio e-mail.
+- **O membro não recebe o papel `partner`.** O portal (`requirePartner`) continua só do dono; o balcão é uma página
+  à parte que confere a equipe a cada requisição. A action de validar aceita quem atende em algum balcão
+  (`ValidateCodeAtCounter`: o parceiro do dono + as equipes do membro) e procura o código só nas ofertas deles.
+- **Segunda camada no banco (RLS).** `partners.is_team_member(partner_id)` e `partners.staffs_offer(offer_id)`
+  liberam ao membro **ler e validar resgates** das ofertas do parceiro, e nada mais. A tabela da equipe só é lida e
+  alterada pelo dono. Quem atende (dono ou membro) não resgata a oferta do próprio balcão.
+- **Remoção vale na hora.** Apagar a linha encerra o acesso: a próxima validação já é recusada, mesmo com a tela
+  aberta. Parceiro suspenso também tira o acesso da equipe; reativado, ele volta.
+- **LGPD.** O e-mail do convidado fica só na equipe do parceiro e some quando o dono remove o membro ou o cadastro
+  do parceiro é excluído. A validação fica registrada em nome de quem validou (`validated_by`).
+
+Limitações: o convite não envia e-mail (o dono avisa o funcionário); o membro só valida códigos de oferta — não há
+outros níveis de permissão; a entrada e a saída de membros não geram evento de domínio nem trilha de auditoria.
