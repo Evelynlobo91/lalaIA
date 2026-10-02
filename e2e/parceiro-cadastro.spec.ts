@@ -54,7 +54,7 @@ test.describe("cadastro de parceiro com aprovação (#26)", () => {
     await expect(card).toHaveCount(0);
 
     await page.reload();
-    await expect(page.getByText("Olá, Dona do Bar!")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Olá, Dona do Bar!" })).toBeVisible();
     await page.goto("/perfil");
     await expect(page.getByRole("link", { name: "Portal do parceiro" })).toBeVisible();
   });
