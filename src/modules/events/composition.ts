@@ -10,6 +10,7 @@ import { PostgresEventReader } from "./infra/postgres-event-reader";
 import type { EventPlaceNames } from "./domain/event-card";
 import { ListEvents } from "./features/list-events/list-events";
 import { GetEventDetail, type EventPlaceDetails } from "./features/event-detail/event-detail";
+import { GetEventSummaries } from "./features/event-summaries/event-summaries";
 
 const placesLookup: EventPlaceLookup = { summary: placeSummary };
 
@@ -29,3 +30,4 @@ const placeDetails: EventPlaceDetails = {
   },
 };
 export const getEventDetail = lazy(() => new GetEventDetail(eventRepository(), placeDetails));
+export const getEventSummaries = lazy(() => new GetEventSummaries(eventReader(), placeNames));

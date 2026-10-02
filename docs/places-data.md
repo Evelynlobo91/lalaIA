@@ -75,7 +75,7 @@ Para mapear uma nova tag, adicione uma linha em `src/modules/places/domain/osm/o
   (`lugares/(lista)/`), porque um skeleton acima do detalhe faria a resposta começar com 200.
 - **Sem prefetch** nos cards: o detalhe é dinâmico, e o prefetch padrão renderizaria cada card visível
   no servidor (10–20 consultas só por abrir a lista). O detalhe abre em ~340ms após o toque.
-- **Ponto de extensão:** `PlaceDetailCard` recebe `extras` (ex.: selo e player da Live, eventos do lugar).
+- **Ponto de extensão:** `PlaceDetailCard` recebe `extras` (ex.: selo e player da Live, eventos do lugar). O slot `directions` substitui o botão "Como chegar" (usado pelo "Quero ir" de favorites).
 
 ## Mapa
 

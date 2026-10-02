@@ -74,3 +74,12 @@ export async function createApprovedPartner(user: Pick<TestUser, "email">, busin
   );
   await grantRole(user, "partner");
 }
+
+/** Favorito direto no banco (ex.: eventos, enquanto a página de detalhe do evento não tem o botão). */
+export function addFavorite(user: Pick<TestUser, "email">, entityType: "place" | "event", entityId: string) {
+  return withDb(
+    (sql) => sql`insert into favorites.favorites (user_id, entity_type, entity_id)
+                 select id, ${entityType}, ${entityId} from auth.users where lower(email) = ${user.email.toLowerCase()}
+                 on conflict do nothing`,
+  );
+}

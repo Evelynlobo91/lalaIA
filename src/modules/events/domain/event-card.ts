@@ -1,4 +1,5 @@
 import type { CategoryId } from "@/shared/catalog/categories";
+import type { EventStatus } from "./event";
 
 /** Resumo para listas públicas. */
 export type EventCard = {
@@ -30,6 +31,14 @@ export type EventQuery = {
 export interface EventReader {
   /** Eventos agendados que ainda não terminaram, por início. Pede `limit + 1` para saber se há mais. */
   listUpcoming(query: EventQuery): Promise<EventCard[]>;
+}
+
+/** Evento por id em qualquer situação (inclusive terminado ou cancelado), para outros módulos. */
+export type EventSummaryRow = EventCard & { status: EventStatus };
+
+export interface EventSummaryReader {
+  /** Vários eventos numa consulta só (evita N+1). Ids inexistentes são ignorados. */
+  findByIds(ids: string[]): Promise<EventSummaryRow[]>;
 }
 
 /** Porta para nome/bairro dos lugares (API pública do módulo places), numa consulta só. */

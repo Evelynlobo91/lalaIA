@@ -7,8 +7,9 @@ import type { PlaceDetailView } from "../place-detail.use-case";
 /**
  * Detalhe de um lugar. `extras` é o ponto de extensão para outros módulos
  * (ex.: selo e player da Live, eventos do lugar) sem que este componente os conheça.
+ * `directions` substitui o botão padrão "Como chegar" (ex.: o "Quero ir" de favorites, que registra o clique).
  */
-export function PlaceDetailCard({ place, extras }: { place: PlaceDetailView; extras?: ReactNode }) {
+export function PlaceDetailCard({ place, extras, directions }: { place: PlaceDetailView; extras?: ReactNode; directions?: ReactNode }) {
   return (
     <article className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
@@ -22,10 +23,12 @@ export function PlaceDetailCard({ place, extras }: { place: PlaceDetailView; ext
 
       {extras}
 
-      <a href={place.directionsUrl} target="_blank" rel="noopener noreferrer" className={buttonClasses({ size: "lg", fullWidth: true }, "sm:w-auto sm:self-start")}>
-        <Navigation aria-hidden className="size-5" />
-        Como chegar
-      </a>
+      {directions ?? (
+        <a href={place.directionsUrl} target="_blank" rel="noopener noreferrer" className={buttonClasses({ size: "lg", fullWidth: true }, "sm:w-auto sm:self-start")}>
+          <Navigation aria-hidden className="size-5" />
+          Como chegar
+        </a>
+      )}
 
       <Card className="flex flex-col divide-y divide-border p-0">
         <Info icon={<MapPin aria-hidden className="size-5" />} label="Endereço">

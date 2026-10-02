@@ -2,10 +2,13 @@
 import { toLocalInput } from "@/shared/time/joinville-time";
 import { queryRoute } from "@/shared/http/json-route";
 import { cache } from "react";
-import { eventRepository, getEventDetail as eventDetailUseCase, listEvents, placesLookup } from "./composition";
+import { eventRepository, getEventDetail as eventDetailUseCase, getEventSummaries, listEvents, placesLookup } from "./composition";
 import { DEFAULT_PAGE_SIZE, listEventsSchema } from "./features/list-events/list-events";
 import { dateFilterValue } from "./domain/date-window";
 import type { EventRecord } from "./domain/event";
+import type { EventSummary } from "./features/event-summaries/event-summaries";
+
+export type { EventSummary } from "./features/event-summaries/event-summaries";
 
 export { EventForm, type EventFormValues } from "./features/manage-events/ui/event-form";
 export { CancelEventButton } from "./features/manage-events/ui/cancel-event-button";
@@ -62,6 +65,14 @@ export async function firstEventsPage(params: Record<string, string | string[] |
   // Mesmos filtros para o "Carregar mais" (API).
   const query = parsed.data.quando ? `quando=${encodeURIComponent(dateFilterValue(parsed.data.quando))}` : "";
   return { invalid: null, page: result.value, query, filter: parsed.data.quando };
+}
+
+/**
+ * Resumos de vários eventos por id (inclusive terminados e cancelados), numa consulta em lote.
+ * Ids inexistentes ou inválidos são ignorados. Usado por outros módulos (ex.: favoritos).
+ */
+export function eventSummaries(ids: string[]): Promise<EventSummary[]> {
+  return getEventSummaries().execute(ids);
 }
 
 export const eventsApi = {
