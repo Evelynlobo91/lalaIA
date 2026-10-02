@@ -17,6 +17,7 @@ import { ListAvailableMissions, ListMyMissions } from "./features/accept-mission
 import { ArchiveMission, SaveMission } from "./features/manage-missions/manage-missions.use-cases";
 import { ListMissionsForAdmin } from "./features/admin-missions/admin-missions";
 import { PostgresMissionRepository } from "./infra/postgres-mission-repository";
+import { PostgresMissionCounts } from "./infra/postgres-mission-counts";
 import { PostgresUserMissionRepository } from "./infra/postgres-user-mission-repository";
 import { PostgresStepCompletionRepository } from "./infra/postgres-step-completion-repository";
 import { GetMissionProgress } from "./features/mission-progress/mission-progress.use-case";
@@ -35,6 +36,7 @@ import { PostgresMissionRewardRepository, PostgresRewardClaimRepository } from "
 export const missionPlaces: MissionPlaces = { summaries: placeSummaries, managedBy: placesManagedBy };
 
 export const missionRepository = lazy(() => new PostgresMissionRepository(sql()));
+export const missionCountsReader = lazy(() => new PostgresMissionCounts(sql()));
 export const userMissionRepository = lazy(() => new PostgresUserMissionRepository(sql()));
 export const stepCompletionRepository = lazy(() => new PostgresStepCompletionRepository(sql()));
 

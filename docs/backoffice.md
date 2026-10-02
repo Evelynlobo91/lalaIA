@@ -53,3 +53,12 @@ a área responde **404**, o que não revela que ela existe (RNF05).
 - `/admin/auditoria`: filtros por período (7, 30 ou 90 dias), ação e pessoa, com as 100 ações mais recentes.
 - **Limitação:** o bus de eventos é in-process. Se o processo cair entre a ação e a gravação, o registro se perde;
   a evolução prevista é o outbox (`docs/architecture.md`).
+
+## Métricas gerais (#145)
+
+- `/admin/metricas?periodo=7|30|90`: novos usuários, parceiros aprovados, eventos publicados, missões concluídas e
+  lives transmitidas no período, com a variação contra o período anterior de mesma duração (texto e ícone, nunca só cor)
+  e a mesma informação em tabela. Usuários e parceiros mostram também o total de hoje.
+- Cada número vem da API pública do módulo dono (`userCounts`, `partnerCounts`, `eventCounts`,
+  `missionCompletionCounts`, `liveCounts`): só contagens, sem dados pessoais e sem join entre schemas.
+- Não há gráfico por dia; as visualizações e os favoritos por entidade continuam no painel do promotor (#78).

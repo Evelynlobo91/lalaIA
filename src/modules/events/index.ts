@@ -2,6 +2,7 @@
 import { toLocalInput } from "@/shared/time/joinville-time";
 import { queryRoute } from "@/shared/http/json-route";
 import { cache } from "react";
+import { eventCountsReader } from "./composition";
 import { eventRepository, findEventCandidates, getEventDetail as eventDetailUseCase, getEventSummaries, happeningNow, listEvents, listEventsForAdmin, placesLookup } from "./composition";
 import { DEFAULT_PAGE_SIZE, listEventsSchema } from "./features/list-events/list-events";
 import { eventListQuery, noEventFilters } from "./features/list-events/list-filters";
@@ -138,3 +139,6 @@ export { dateFilterParam, dateWindow, dateFilterLabels, dateFilterValue, type Da
 export function searchEvents(criteria: EventSearchCriteria) {
   return searchEventsUseCase().execute(criteria);
 }
+
+/** Contagem de eventos publicados num período, para as métricas gerais do backoffice (#145). */
+export const eventCounts = () => eventCountsReader();

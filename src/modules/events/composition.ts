@@ -7,6 +7,7 @@ import type { EventPlaceLookup } from "./domain/event";
 import { CancelEvent, SaveEvent } from "./features/manage-events/manage-events.use-cases";
 import { PostgresEventRepository } from "./infra/postgres-event-repository";
 import { PostgresEventReader } from "./infra/postgres-event-reader";
+import { PostgresEventCounts } from "./infra/postgres-event-counts";
 import type { EventPlaceNames } from "./domain/event-card";
 import { ListEvents } from "./features/list-events/list-events";
 import { GetEventDetail, type EventPlaceDetails } from "./features/event-detail/event-detail";
@@ -27,6 +28,7 @@ export { placesLookup };
 
 const placeNames: EventPlaceNames = { summaries: placeSummaries };
 export const eventReader = lazy(() => new PostgresEventReader(sql()));
+export const eventCountsReader = lazy(() => new PostgresEventCounts(sql()));
 export const listEvents = lazy(() => new ListEvents(eventReader(), placeNames));
 
 const placeDetails: EventPlaceDetails = {

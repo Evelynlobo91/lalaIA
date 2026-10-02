@@ -17,6 +17,7 @@ import {
   RequestPlaceClaim,
 } from "./features/claim-place/claim-place.use-cases";
 import { PostgresPartnerRepository } from "./infra/postgres-partner-repository";
+import { PostgresPartnerCounts } from "./infra/postgres-partner-counts";
 import { PostgresOfferRepository, PostgresRedemptionRepository } from "./infra/postgres-offer-repository";
 import { offerTargets } from "./infra/offer-targets";
 import { EndOffer, SaveOffer } from "./features/manage-offers/manage-offers.use-cases";
@@ -26,6 +27,7 @@ import { MyRedemptions, OffersForTarget } from "./features/redeem-offer/offer-vi
 import { ValidateOfferCode } from "./features/validate-code/validate-code.use-case";
 
 export const partnerRepository = lazy(() => new PostgresPartnerRepository(sql(), usersByIds));
+export const partnerCountsReader = lazy(() => new PostgresPartnerCounts(sql()));
 export const submitApplication = lazy(() => new SubmitPartnerApplication(partnerRepository()));
 export const listApplications = lazy(() => new ListPartnerApplications(partnerRepository()));
 export const approvePartner = lazy(() => new ApprovePartner(partnerRepository(), identityRoleGranter, domainEvents()));

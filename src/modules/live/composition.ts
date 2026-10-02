@@ -17,6 +17,7 @@ import { streamingProviderFrom } from "./infra/live-config";
 import { AcceptLiveGuidelines, PrivacyGate } from "./features/privacy/privacy.use-case";
 import { PostgresPrivacyAgreements } from "./infra/postgres-privacy-agreements";
 import { PostgresStreamLifecycleLog } from "./infra/postgres-stream-lifecycle-log";
+import { PostgresLiveCounts } from "./infra/postgres-live-counts";
 import { PostgresStreamRepository } from "./infra/postgres-stream-repository";
 import { ModuleStreamTargets } from "./infra/stream-targets";
 
@@ -36,6 +37,7 @@ export const revealStreamKey = lazy(() => new RevealStreamKey(streamRepository()
 export const listLiveTargets = lazy(() => new ListLiveTargets(streamRepository(), streamTargets, streamingProvider));
 
 export const lifecycleLog = lazy(() => new PostgresStreamLifecycleLog(sql()));
+export const liveCountsReader = lazy(() => new PostgresLiveCounts(sql()));
 export const handleProviderWebhook = lazy(() => new HandleProviderWebhook(streamingProvider, lifecycleLog(), domainEvents()));
 
 export const controlStream = lazy(() => new ControlStream(streamRepository(), streamRepository(), streamingProvider, domainEvents(), privacyGate()));
