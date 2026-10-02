@@ -2,12 +2,17 @@
 // Um tipo novo (ex.: GPS/geofence) entra como nova prova + nova estratégia, sem mudar `CompleteStep`.
 import type { BusinessRuleError, Result } from "@/shared/kernel";
 import { fromLocalInput, toLocalInput } from "@/shared/time/joinville-time";
+import type { GeoFix } from "./geofence";
 import type { MissionStep, ValidationKind } from "./mission";
 
 /** Prova apresentada pelo usuário para concluir uma etapa. */
-export type StepProof = { kind: "qr"; token: string };
+export type StepProof = { kind: "qr"; token: string } | { kind: "gps"; fix: GeoFix } | { kind: "qr_gps"; token: string; fix: GeoFix };
 
-export type ValidationContext = { userId: string; now: Date };
+/**
+ * `dryRun`: só a prévia (ex.: abrir o link do QR, que é GET). A estratégia não grava nada e confere
+ * só o que já veio (o QR); a localização é pedida no toque de confirmar.
+ */
+export type ValidationContext = { userId: string; now: Date; dryRun: boolean };
 
 export interface StepValidator {
   readonly kind: ValidationKind;

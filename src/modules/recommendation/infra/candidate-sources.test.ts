@@ -77,15 +77,39 @@ describe("MissionCandidateSource", () => {
     ],
   };
 
-  it("usa o lugar de etapa mais perto como distância", async () => {
-    const missions = { available: vi.fn().mockResolvedValue([mission]), distances: vi.fn().mockResolvedValue(new Map([["l1", 3_000], ["l2", 400]])) };
+  it("usa o lugar de etapa mais perto como distância; tempo e gasto viram duração e preço (#64)", async () => {
+    const missions = {
+      available: vi.fn().mockResolvedValue([{ ...mission, estimatedMinutes: 90, costCents: 0, surprise: false }]),
+      distances: vi.fn().mockResolvedValue(new Map([["l1", 3_000], ["l2", 400]])),
+      facets: vi.fn().mockResolvedValue([]),
+    };
     const [item] = await new MissionCandidateSource(missions).find(query({ origin }));
-    expect(item).toMatchObject({ kind: "mission", href: "/missoes/m1", category: null, xp: 100, distanceMeters: 400, placeName: "Café Perto" });
+    expect(item).toMatchObject({ kind: "mission", href: "/missoes/m1", category: null, xp: 100, distanceMeters: 400, placeName: "Café Perto", priceCents: 0, durationMinutes: 90 });
   });
 
-  it("com tipo de experiência escolhido, missões não entram (nem consultam)", async () => {
-    const missions = { available: vi.fn(), distances: vi.fn() };
+  it("categoria derivada dos lugares das etapas (a mais comum; empate fica com a primeira), numa consulta só", async () => {
+    const tres = { ...mission, id: "m2", places: [...mission.places, { id: "l3", name: "Bar", neighborhood: null }] };
+    const missions = {
+      available: vi.fn().mockResolvedValue([mission, tres]),
+      distances: vi.fn(),
+      facets: vi.fn().mockResolvedValue([
+        { id: "l1", category: "bares" },
+        { id: "l2", category: "cafes" },
+        { id: "l3", category: "cafes" },
+      ]),
+    };
+    const items = await new MissionCandidateSource(missions).find(query());
+    expect(missions.facets).toHaveBeenCalledWith(["l1", "l2", "l3"]);
+    expect(items.map((i) => [i.id, i.category, i.categoryLabel])).toEqual([
+      ["m1", "bares", "Bares"],
+      ["m2", "cafes", "Cafés e docerias"],
+    ]);
+    expect(missions.distances).not.toHaveBeenCalled();
+  });
+
+  it("com tipo de experiência escolhido, só entram as missões daquela categoria", async () => {
+    const missions = { available: vi.fn().mockResolvedValue([mission]), distances: vi.fn(), facets: vi.fn().mockResolvedValue([{ id: "l1", category: "cafes" }]) };
     expect(await new MissionCandidateSource(missions).find(query({ categories: ["shows"] }))).toEqual([]);
-    expect(missions.available).not.toHaveBeenCalled();
+    expect((await new MissionCandidateSource(missions).find(query({ categories: ["cafes"] }))).map((i) => i.id)).toEqual(["m1"]);
   });
 });

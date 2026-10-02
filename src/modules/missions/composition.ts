@@ -1,5 +1,12 @@
 // Composição do módulo missions (interna): usada pelas actions e pelo index.ts.
-import { placeSummaries, placesManagedBy } from "@/modules/places";
+import { consentsOf } from "@/modules/identity";
+import { placeDistances, placeSummaries, placesManagedBy } from "@/modules/places";
+import type { GeolocationConsent, PlaceDistance } from "./domain/geofence";
+import { GeofenceCheck, GeofenceValidator, QrAndGeofenceValidator } from "./features/geofence-validation/geofence-validator";
+import { GeofenceCheckIn } from "./features/geofence-validation/geofence-validation.use-case";
+import { PostgresGeofenceAttemptLog } from "./infra/postgres-geofence-attempt-log";
+import { OfferSurpriseMission, RespondSurpriseOffer } from "./features/surprise-missions/surprise-missions.use-case";
+import { PostgresSurpriseOfferRepository } from "./infra/postgres-surprise-offer-repository";
 import { publicEnv } from "@/shared/config/public-env";
 import { sql } from "@/shared/db/sql";
 import { domainEvents } from "@/shared/events";
@@ -35,14 +42,29 @@ export const acceptMission = lazy(() => new AcceptMission(missionRepository(), u
 export const listAvailableMissions = lazy(() => new ListAvailableMissions(missionRepository(), missionPlaces));
 export const listMyMissions = lazy(() => new ListMyMissions(missionRepository(), userMissionRepository(), stepCompletionRepository(), missionPlaces));
 export const missionExploration = lazy(() => new GetMissionExploration(new PostgresMissionExplorationReader(sql())));
-export const getMissionProgress = lazy(() => new GetMissionProgress(missionRepository(), userMissionRepository(), stepCompletionRepository(), missionPlaces));
+export const surpriseOfferRepository = lazy(() => new PostgresSurpriseOfferRepository(sql()));
+export const getMissionProgress = lazy(
+  () => new GetMissionProgress(missionRepository(), userMissionRepository(), stepCompletionRepository(), missionPlaces, surpriseOfferRepository()),
+);
 
-// Validação de etapa: uma estratégia por tipo (OCP). GPS entra aqui como mais um StepValidator.
+// Missões surpresa (#63): gatilho por proximidade (PostGIS via places) e horário; aceitar ou ignorar.
+export const offerSurpriseMission = lazy(() => new OfferSurpriseMission(missionRepository(), surpriseOfferRepository(), userMissionRepository(), placeDistances));
+export const respondSurpriseOffer = lazy(() => new RespondSurpriseOffer(missionRepository(), surpriseOfferRepository(), userMissionRepository()));
+
+// Validação de etapa: uma estratégia por tipo (OCP): QR, GPS (#61) e QR + GPS.
 export const stepTokens = lazy(() => new HmacStepTokens(missionsQrSecret()));
-const stepValidators = () => [new QrCodeValidator(stepTokens())];
+export const geofenceAttempts = lazy(() => new PostgresGeofenceAttemptLog(sql()));
+const placeDistance: PlaceDistance = { distanceTo: async (origin, placeId) => (await placeDistances(origin, [placeId])).get(placeId) ?? null };
+const geolocationConsent: GeolocationConsent = { allowsGeolocation: async (userId) => (await consentsOf(userId)).geolocation };
+const stepValidators = () => {
+  const qr = new QrCodeValidator(stepTokens());
+  const geofence = new GeofenceCheck(geofenceAttempts(), placeDistance, geolocationConsent);
+  return [qr, new GeofenceValidator(geofence), new QrAndGeofenceValidator(qr, geofence)];
+};
 export const completeStep = lazy(
   () => new CompleteStep(missionRepository(), userMissionRepository(), stepCompletionRepository(), stepValidators(), domainEvents()),
 );
+export const geofenceCheckIn = lazy(() => new GeofenceCheckIn(completeStep()));
 export const qrStepValidation = lazy(() => new QrStepValidation(stepTokens(), completeStep()));
 export const stepQrCodes = lazy(
   () => new GetStepQrCodes(missionRepository(), missionPlaces, stepTokens(), { svg: qrSvg }, () => publicEnv().NEXT_PUBLIC_SITE_URL),

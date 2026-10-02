@@ -84,6 +84,30 @@ export class ProximitySignal implements ScoreSignal {
   }
 }
 
+/** "1 h 30" / "45 min". */
+export function durationLabel(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`;
+  const rest = minutes % 60;
+  return `${Math.floor(minutes / 60)} h${rest ? ` ${rest}` : ""}`;
+}
+
+/**
+ * Missão que cabe no seu tempo e no seu bolso (#64): quanto mais folga no tempo disponível, mais forte (0,5 a 1),
+ * e grátis soma. Só missões (têm duração própria); os filtros duros já garantiram que cabe.
+ */
+export class MissionFitSignal implements ScoreSignal {
+  readonly id = "missionFit";
+
+  evaluate(c: Candidate, { constraints }: ScoreContext): SignalHit | null {
+    if (c.kind !== "mission" || c.durationMinutes == null || c.durationMinutes > constraints.availableMinutes) return null;
+    const slack = 1 - c.durationMinutes / constraints.availableMinutes;
+    const free = c.priceCents === 0;
+    const strength = Math.min(1, 0.5 + slack * 0.3 + (free ? 0.2 : 0));
+    const time = `Leva cerca de ${durationLabel(c.durationMinutes)}: cabe no seu tempo`;
+    return { strength, reason: free ? `${time} e é grátis` : time };
+  }
+}
+
 export const defaultSignals: readonly ScoreSignal[] = [
   new PreferenceSignal(),
   new HappeningNowSignal(),
@@ -91,4 +115,5 @@ export const defaultSignals: readonly ScoreSignal[] = [
   new NoveltySignal(),
   new FavoriteSignal(),
   new ProximitySignal(),
+  new MissionFitSignal(),
 ];

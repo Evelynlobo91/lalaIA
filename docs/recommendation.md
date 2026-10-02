@@ -29,7 +29,8 @@ O módulo não tem tabelas. Ele lê tudo pelas APIs públicas (`index.ts`) de `p
   | `FitsTimeWindow` | aberto/acontecendo por pelo menos **30 min** dentro do tempo disponível (ou o tempo todo, se for menor). Fechando em 10 min → fora. Horário desconhecido → só ao ar livre |
   | `FitsBudget` | preço por pessoa × pessoas ≤ orçamento total. **Sem preço** (lugares, missões): entra, exceto em "só grátis", em que só o que é ao ar livre entra |
   | `WithinDistance` | com localização, até a distância máxima (distância desconhecida fica de fora); sem localização, não filtra |
-  | `MatchesExperience` | só as categorias do tipo de experiência escolhido (missões não têm categoria) |
+  | `MatchesExperience` | só as categorias do tipo de experiência escolhido (missões: categoria derivada das etapas, #64) |
+  | `FitsDuration` | o que tem duração própria (missões) cabe inteiro no tempo disponível e na validade (#64) |
   | `AvoidsUsual` | "quero algo diferente": fora das categorias de sempre |
 
   "Ao ar livre" = `ar-livre` e `passeios` (`OPEN_AIR_CATEGORIES`). Um filtro novo é uma nova classe em `defaultFilters`.
@@ -130,10 +131,36 @@ O módulo não tem tabelas. Ele lê tudo pelas APIs públicas (`index.ts`) de `p
 - Deslocamento no fallback: estimado pela distância até a parada (a pé até 1,5 km, ~80 m/min; depois carro
   ou app). Sem localização, aponta o "Como chegar".
 
+## Missões para você (#64, RF27)
+
+- **Slice `features/recommend-missions/`** (no módulo `recommendation`, porque ele já depende de `missions` como
+  fonte de candidatos; o contrário criaria um ciclo entre módulos). `RecommendMissions` usa **o mesmo motor**
+  (filtros duros + `ScoreSignal` + pesos) montado com **só a fonte de missões** (`missionEngine` na composição): o top N
+  geral cortaria as missões atrás de lugares e eventos. Até 6 missões, cada uma com o porquê; se nenhum sinal pontuar,
+  o motivo é "Cabe no seu tempo e no seu orçamento".
+- **Candidato de missão (`MissionCandidateSource`) mais rico:**
+  - **categoria derivada das etapas**: a mais comum entre os lugares das etapas (empate: a da etapa mais cedo),
+    por `placeFacets` de places (uma consulta, sem join entre schemas). Com isso missões entram no tipo de experiência
+    e pontuam no sinal `preference` ("Porque você curte Cafés e docerias");
+  - **preço** = gasto por pessoa informado pelo parceiro (`cost_cents`; 0 = grátis; sem valor = "não informado");
+  - **duração** (`durationMinutes`) = tempo estimado do parceiro ou 30 min por etapa;
+  - distância = a do lugar de etapa mais perto (como antes). Missões surpresa não são candidatas (não são públicas).
+- **Filtro novo `FitsDuration`**: o que tem duração própria precisa caber **inteiro** no tempo disponível e terminar
+  antes de a missão deixar de valer. O orçamento continua em `FitsBudget` (gasto × pessoas ≤ orçamento; sem gasto
+  informado fica fora do "só grátis").
+- **Sinal novo `missionFit`** (peso 1, ajustável por `RECOMMENDATION_WEIGHTS`): só missões; mais folga no tempo pesa
+  mais e grátis soma. Motivo: "Leva cerca de 1 h 30: cabe no seu tempo e é grátis".
+- **Telas:** seção **"Missões para você"** no topo de `/missoes` (padrões do perfil; "Missões perto de mim" leva a
+  localização na URL; "Ajustar tempo e orçamento" abre `/sugestoes`) e também em `/sugestoes`, com as mesmas restrições
+  dos chips. Cards mostram XP + gasto ("100 XP · Grátis") e "Cerca de 1 h 30 · até ...".
+- **API:** `GET /api/recommendations/missions?tempo=&orcamento=&pessoas=&tipo=&lat=&lon=` (mesma validação do
+  `/for-me`; inválido → 400).
+
 ## E2E
 
 `e2e/recomendacao.spec.ts`: feed da home com GPS (distância, "Começou há", motivo), localização fora da área,
-restrições em 3 toques com o estado na URL e validação das APIs.
+restrições em 3 toques com o estado na URL e validação das APIs. `e2e/missoes-recomendadas.spec.ts`: "Missões para
+você" com motivo, tempo e orçamento, em `/missoes`, `/sugestoes` e na API.
 
 ## Privacidade (LGPD)
 

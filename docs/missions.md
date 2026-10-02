@@ -8,7 +8,7 @@ acontece num lugar e é comprovada por um **tipo de validação** (na POC, QR co
 - **Missão:** título, descrição, **XP total**, janela de validade (início e fim, no horário de
   Joinville) e status (`active` ou `archived`). De 1 a 10 etapas.
 - **Etapa:** posição (1, 2, 3...), o que fazer ("Peça o café especial"), o lugar (`place_id`, sem FK
-  entre schemas) e o tipo de validação (`qr`).
+  entre schemas) e o tipo de validação (`qr`, `gps` ou `qr_gps`; veja #61).
 - **XP:** o total é dividido entre as etapas e um bônus de conclusão (`xpSplit`): cada etapa vale
   `floor(total / (etapas + 1))` e o bônus fica com o resto. Ex.: 100 XP em 3 etapas = 25 por etapa + 25 de bônus.
   A soma é sempre exatamente o total.
@@ -91,7 +91,51 @@ Portal /parceiro/missoes/<id>/qr ──(QR na tela ou impresso)──► celular
 | Trocar o usuário no formulário (IDOR) | O id vem sempre da sessão (`withUser`), nunca da requisição. |
 
 Limitação conhecida (POC): quem está no balcão pode fotografar o QR e repassar na hora (dentro dos
-minutos de validade). A evolução natural é combinar com GPS (`GeofenceValidator`) na mesma etapa.
+minutos de validade). Para isso existe a etapa **QR + GPS** (#61, abaixo).
+
+## Validar etapa por check-in GPS com geofence (#61, RF30)
+
+```
+/missoes/<id> (próxima etapa "gps") ─► "Fazer check-in" (GPS pedido SÓ no toque; respeita o cookie lalaia-geo)
+   ► POST (Server Action) { stepId, lat, lon, accuracy }  (lat/lon arredondados, área atendida: servicePointShape)
+   ► GeofenceCheckIn ► CompleteStep ► GeofenceValidator (estratégia "gps")
+        consentimento ► limite de tentativas ► precisão ► distância PostGIS (placeDistances) ► permanência
+   ► grava a etapa ► missions.StepCompleted / MissionCompleted (iguais ao QR)
+```
+
+- **O parceiro escolhe, por etapa** (formulário da missão): **QR code no balcão** (`qr`), **check-in por GPS**
+  (`gps`) ou **QR code + GPS** (`qr_gps`). Com GPS, define o **raio** (30 a 300 m, padrão 100) em volta do lugar
+  da etapa e, só no `gps`, o **tempo mínimo no lugar** (0 a 30 min, padrão 2). Em `qr_gps` a permanência é sempre
+  0: o QR do balcão, que gira a cada minuto, já comprova a presença. Colunas `geofence_radius_m` e `dwell_minutes`
+  em `missions.mission_steps`, com `check` no banco. Etapas e geofence travam depois do primeiro aceite, como antes.
+- **Estratégias novas, `CompleteStep` intacto** (só passou a avisar a estratégia de que é uma prévia, `dryRun`):
+  - `GeofenceValidator` (`gps`): a prova é `{ kind: "gps", fix }`;
+  - `QrAndGeofenceValidator` (`qr_gps`): QR válido **e** posição no raio. Na prévia do link do QR (GET) confere só o
+    QR; a localização é pedida no toque de "Concluir etapa" (`ConfirmStepForm needsLocation`). Sem posição → recusado.
+  - As duas usam `GeofenceCheck`, que aplica as regras abaixo. As etapas `gps` não aparecem nos QR codes do portal.
+- **Permanência mínima (issue):** o primeiro check-in dentro do raio responde "Você chegou! Fique por perto e faça
+  o check-in de novo em N minutos"; o check-in seguinte, depois do tempo e ainda no raio, conclui a etapa. Um
+  check-in **fora** do raio zera a contagem, e a chegada só vale por (permanência + 30 min). Regra pura `dwellStatus`.
+- **Recompensa real (issue):** GPS é falsificável no celular. `allowsRealReward(mission)` (exportada) só é verdadeira
+  quando **toda** etapa exige o QR (`qr` ou `qr_gps`). A recompensa de parceiro (#62) deve usá-la ao vincular um prêmio;
+  o formulário avisa que etapa só por GPS vale XP, não prêmio.
+
+### Anti-fraude e privacidade do check-in
+
+| Ameaça / cuidado | Defesa |
+|------------------|--------|
+| GPS "chutado" ou de rede (Wi-Fi/antena) | `accuracy` acima de **100 m** (`MAX_ACCURACY_METERS`) é recusada ("localização imprecisa"), sem nem calcular a distância. |
+| Força bruta de posições até acertar o raio | **10 tentativas por etapa e por pessoa a cada 60 min** (`GEOFENCE_ATTEMPTS`); a 11ª é recusada sem gravar. |
+| Distância calculada no cliente | O servidor calcula com **PostGIS** (`ST_Distance` em geografia) pela API pública de places (`placeDistances`), até o lugar **da etapa**. |
+| Pular etapas / repetir / etapa de outra missão | As mesmas regras do QR em `CompleteStep`: ordem obrigatória, uso único, missão aceita, ativa e no prazo; RLS de `step_completions`. |
+| Gravar a localização da pessoa (LGPD) | A coordenada **nunca é gravada nem logada**: `missions.geofence_checkins` guarda só etapa, resultado (`inside`/`outside`/`inaccurate`), **distância arredondada para 10 m** e horário. A tabela nem tem coluna de coordenada (coberto em teste). |
+| Consentimento revogado | O navegador não pede o GPS com `lalaia-geo=0`, e o servidor confere de novo `consentsOf(userId).geolocation` antes de qualquer coisa. |
+| Forjar o histórico de tentativas | `geofence_checkins` é **append-only** (sem UPDATE/DELETE), RLS só em nome próprio e só em etapas com GPS; `attempted_at` fora do grant de INSERT (sempre o horário do banco). |
+| CSRF / IDOR | Server Action (POST) com `withUser`: o id vem da sessão, nunca do formulário. |
+
+As tentativas entram na exportação LGPD (`checkinsPorGps`, via `myGeofenceCheckIns`) e saem em cascata com a conta.
+Limitação conhecida: quem falsifica o GPS do aparelho consegue concluir etapas `gps` (por isso elas não valem prêmio);
+para etapas que precisam de garantia, use `qr_gps`.
 
 ### Configuração
 
@@ -105,6 +149,48 @@ No CI de E2E é gerada aleatoriamente a cada execução.
 - `missions.MissionCompleted { userId, missionId, xp }`: bônus de conclusão (só na primeira vez).
 
 Publicados **depois** de gravar. Missões não concedem XP: quem credita é o módulo `progression`.
+
+## Missões surpresa (#63, RF35)
+
+```
+/missoes ─► "Procurar missão surpresa por perto" (GPS só no toque; respeita lalaia-geo)
+   ► POST { lat, lon } ► OfferSurpriseMission.findNear
+        surpresas no prazo ► tira as já oferecidas/aceitas, as próprias e as que acabam em < 1 h
+        ► distância PostGIS até a 1ª etapa (placeDistances) ≤ 1 km ► a mais perto
+   ► surprise_offers (vale 30 min) ► card "Aceite até 15:40" com Aceitar surpresa / Ignorar
+   ► Aceitar ► user_missions + oferta "accepted" (mesma transação) ► /missoes/<id>: etapas uma por vez
+```
+
+- **O parceiro marca a missão como surpresa** no formulário (`missions.surprise`). Ela **sai da lista pública**
+  (`listAvailable` filtra; logo também sai dos candidatos da recomendação) e o link direto dá **404** para quem não
+  tem aceite nem oferta aberta (não revela que existe).
+- **Gatilho por proximidade e horário:** a primeira etapa a até **1 km** (`SURPRISE_RADIUS_METERS`), missão no prazo
+  e com pelo menos **1 h** pela frente (`SURPRISE_MIN_REMAINING_MINUTES`). Entre as elegíveis, a mais perto.
+- **Validade curta:** a oferta vale **30 min** (`SURPRISE_OFFER_MINUTES`), nunca depois do fim da missão. O banco
+  limita a 2 h e grava o `offered_at` com o horário dele.
+- **Aceitar ou ignorar:** uma oferta por pessoa e missão (`unique`); ignorada ou vencida, **não volta**. Enquanto há
+  uma oferta aberta, procurar de novo devolve a mesma. Com 5 missões em andamento, não oferece.
+- **Etapas escondidas:** antes do aceite, a tela mostra título, descrição, XP, quantas etapas e a distância até a
+  primeira, mas **nenhuma etapa nem lugar**. Depois do aceite, `revealedStepIds` revela as concluídas e **a próxima**;
+  as seguintes aparecem como "Etapa surpresa" (os lugares escondidos nem são consultados nem saem do servidor).
+  Nos cards de "Suas missões ativas" e no perfil, a surpresa não lista lugares.
+- **Segurança:** `AcceptMission` recusa missão surpresa (`surprise_requires_offer`) e a **RLS de `user_missions`**
+  só aceita missão surpresa com uma oferta aberta da própria pessoa. `surprise_offers` tem RLS (só a própria; não
+  recebe oferta da própria missão nem de missão comum; aceitar só antes de expirar; resposta não volta a "offered").
+  Actions com `withUser`; a posição vive só na requisição (não é gravada nem logada).
+- **Motor de recomendação:** o módulo `recommendation` depende de `missions` (fonte de candidatos), então `missions`
+  não pode chamar o motor sem criar um ciclo. A surpresa usa os mesmos sinais objetivos (proximidade por PostGIS e
+  disponibilidade no horário); as missões comuns seguem ranqueadas pelo motor (#64).
+
+## Recomendar missões (#64, RF27)
+
+- O parceiro pode informar o **tempo estimado** (10 a 600 min; sem valor, 30 min por etapa: `estimatedMinutesOf`) e o
+  **gasto por pessoa** (R$ 0 a R$ 1.000; 0 = grátis; sem valor = não informado). Colunas `estimated_minutes` e
+  `cost_cents` em `missions.missions`, com `check` no banco. Os cards de missão mostram "Cerca de 1 h 30 · Grátis".
+- `MissionCard` (de `availableMissions()`) passou a trazer `estimatedMinutes`, `costCents` e `surprise`.
+- O ranking ("Missões para você", em `/missoes` e `/sugestoes`) mora no módulo `recommendation`: veja
+  [recomendação](recommendation.md#missões-para-você-64-rf27). Missões não têm categoria própria: ela é derivada dos
+  lugares das etapas pela API pública de places.
 
 ## Livro-razão de XP (#65, RF31) — módulo `progression`
 

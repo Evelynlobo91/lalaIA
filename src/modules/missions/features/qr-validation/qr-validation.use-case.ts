@@ -1,4 +1,5 @@
 import { BusinessRuleError, err, type DomainError, type Result } from "@/shared/kernel";
+import type { GeoFix } from "../../domain/geofence";
 import type { StepTokenSigner } from "../../domain/step-validation";
 import type { CompleteStep, CompleteStepInput, StepCheck, StepCompleted } from "./complete-step.use-case";
 
@@ -17,14 +18,16 @@ export class QrStepValidation {
     return input ? this.completeStep.check(userId, input) : Promise.resolve(invalid());
   }
 
-  execute(userId: string, token: string): Promise<Result<StepCompleted, DomainError>> {
-    const input = this.input(token);
+  /** `fix`: posição do toque, nas etapas "QR + GPS" (#61). */
+  execute(userId: string, token: string, fix: GeoFix | null = null): Promise<Result<StepCompleted, DomainError>> {
+    const input = this.input(token, fix);
     return input ? this.completeStep.execute(userId, input) : Promise.resolve(invalid());
   }
 
-  private input(token: string): CompleteStepInput | null {
+  private input(token: string, fix: GeoFix | null = null): CompleteStepInput | null {
     const stepId = this.tokens.claimedStepId(token);
-    return stepId ? { stepId, proof: { kind: "qr", token } } : null;
+    if (!stepId) return null;
+    return { stepId, proof: fix ? { kind: "qr_gps", token, fix } : { kind: "qr", token } };
   }
 }
 

@@ -59,7 +59,22 @@ export class WithinDistance implements CandidateFilter {
   }
 }
 
-/** Do tipo de experiência pedido (categorias). Missões não têm categoria: só entram sem tipo escolhido. */
+/**
+ * Cabe no tempo do começo ao fim (#64): o que tem duração própria (missões) precisa caber no tempo disponível
+ * e terminar antes de deixar de valer. Sem duração própria, não filtra.
+ */
+export class FitsDuration implements CandidateFilter {
+  readonly name = "duração";
+
+  keep(c: Candidate, k: SearchConstraints): boolean {
+    if (c.durationMinutes == null) return true;
+    if (c.durationMinutes > k.availableMinutes) return false;
+    const window = c.availability.known ? c.availability.window : null;
+    return !window || window.end.getTime() - Math.max(k.now.getTime(), window.start.getTime()) >= c.durationMinutes * 60_000;
+  }
+}
+
+/** Do tipo de experiência pedido (categorias). Missão sem categoria derivada só entra sem tipo escolhido. */
 export class MatchesExperience implements CandidateFilter {
   readonly name = "tipo";
 
@@ -78,7 +93,14 @@ export class AvoidsUsual implements CandidateFilter {
   }
 }
 
-export const defaultFilters: readonly CandidateFilter[] = [new FitsTimeWindow(), new FitsBudget(), new WithinDistance(), new MatchesExperience(), new AvoidsUsual()];
+export const defaultFilters: readonly CandidateFilter[] = [
+  new FitsTimeWindow(),
+  new FitsDuration(),
+  new FitsBudget(),
+  new WithinDistance(),
+  new MatchesExperience(),
+  new AvoidsUsual(),
+];
 
 /** Aplica todos os filtros (E lógico). */
 export function applyFilters(candidates: Candidate[], filters: readonly CandidateFilter[], constraints: SearchConstraints): Candidate[] {

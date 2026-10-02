@@ -1,5 +1,6 @@
 import { BusinessRuleError, ForbiddenError, NotFoundError, ValidationError, err, ok, type DomainError, type Result } from "@/shared/kernel";
-import type { MissionDraft, MissionPlaces, MissionRecord, MissionRepository } from "../../domain/mission";
+import { geofenceFor } from "../../domain/geofence";
+import type { MissionDraft, MissionPlaces, MissionRecord, MissionRepository, StepGeofence } from "../../domain/mission";
 import type { MissionParticipation } from "../../domain/user-mission";
 
 /** Quem cria: o id vem da sessão; `isPartner`/`isAdmin` são conferidos aqui também (não só na action). */
@@ -60,9 +61,17 @@ export class SaveMission {
 function sameSteps(current: MissionRecord, draft: MissionDraft): boolean {
   return (
     current.steps.length === draft.steps.length &&
-    current.steps.every((s, i) => s.title === draft.steps[i].title && s.placeId === draft.steps[i].placeId && s.validation === draft.steps[i].validation)
+    current.steps.every(
+      (s, i) =>
+        s.title === draft.steps[i].title &&
+        s.placeId === draft.steps[i].placeId &&
+        s.validation === draft.steps[i].validation &&
+        sameGeofence(geofenceFor(s.validation, s.geofence), geofenceFor(draft.steps[i].validation, draft.steps[i].geofence)),
+    )
   );
 }
+
+const sameGeofence = (a: StepGeofence | null, b: StepGeofence | null) => a?.radiusMeters === b?.radiusMeters && a?.dwellMinutes === b?.dwellMinutes;
 
 /** Encerrar tira a missão da lista pública; quem já aceitou não consegue mais concluir etapas. Idempotente. */
 export class ArchiveMission {
