@@ -63,6 +63,9 @@ describe("PostgresCtaRepository (#178)", () => {
       ["De meia em meia hora", 3, "recurring"],
     ]);
     expect(await repo.find(ana, relative.id)).toMatchObject({ id: relative.id });
+    // Leitura do sistema (chamada ativa no player): os mesmos CTAs, sem depender de quem está logado.
+    expect((await repo.listForStream(anaStream)).map((c) => c.title)).toEqual(["Chope em dobro", "Siga o bar", "De meia em meia hora"]);
+    expect(await repo.listForStream(biaStream)).toEqual([]);
   });
 
   it("edita trocando o agendamento: as colunas do agendamento anterior são limpas", async () => {

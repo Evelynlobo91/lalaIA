@@ -1,27 +1,33 @@
 import { ok, type DomainError, type Result } from "@/shared/kernel";
 import type { StreamStatus, StreamTarget } from "../../domain/stream";
+import type { ActiveCtaView, GetActiveCta } from "../active-cta/active-cta.use-case";
 import type { GetLivePlayback, LivePlayback } from "../player/player.use-case";
 
 /**
  * Resposta do GET /api/live/status. `none` = o lugar/evento não tem transmissão. `note` (situação atual) e
- * `liveSince` (ISO, desde quando está no ar) também se atualizam sem recarregar (#53).
+ * `liveSince` (ISO, desde quando está no ar) também se atualizam sem recarregar (#53). `cta`: a chamada do
+ * anfitrião que está valendo agora (#93), só com a live ao vivo.
  */
-export type LiveStatusView = { status: StreamStatus | "none"; streamId: string | null; playbackUrl: string | null; note: string | null; liveSince: string | null };
+export type LiveStatusView = { status: StreamStatus | "none"; streamId: string | null; playbackUrl: string | null; note: string | null; liveSince: string | null; cta: ActiveCtaView | null };
 
-export const NO_STREAM: LiveStatusView = { status: "none", streamId: null, playbackUrl: null, note: null, liveSince: null };
+export const NO_STREAM: LiveStatusView = { status: "none", streamId: null, playbackUrl: null, note: null, liveSince: null, cta: null };
 
 /** O que a página recebe (e o polling devolve), a partir da leitura pública da transmissão. */
-export function liveStatusView(playback: LivePlayback | null): LiveStatusView {
+export function liveStatusView(playback: LivePlayback | null, cta: ActiveCtaView | null = null): LiveStatusView {
   if (!playback) return NO_STREAM;
-  return { status: playback.status, streamId: playback.streamId, playbackUrl: playback.playbackUrl, note: playback.note, liveSince: playback.liveSince?.toISOString() ?? null };
+  return { status: playback.status, streamId: playback.streamId, playbackUrl: playback.playbackUrl, note: playback.note, liveSince: playback.liveSince?.toISOString() ?? null, cta: playback.status === "live" ? cta : null };
 }
 
 /** RNF20 — Status atual da live de um lugar/evento, para a página trocar de estado sem recarregar. */
 export class GetLiveStatus {
-  constructor(private readonly playback: Pick<GetLivePlayback, "execute">) {}
+  constructor(
+    private readonly playback: Pick<GetLivePlayback, "execute">,
+    private readonly activeCta?: Pick<GetActiveCta, "execute">,
+  ) {}
 
   async execute(target: StreamTarget): Promise<Result<LiveStatusView, DomainError>> {
-    return ok(liveStatusView(await this.playback.execute(target)));
+    const playback = await this.playback.execute(target);
+    return ok(liveStatusView(playback, (await this.activeCta?.execute(playback)) ?? null));
   }
 }
 

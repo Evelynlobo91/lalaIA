@@ -24,6 +24,7 @@ import { PostgresLiveCounts } from "./infra/postgres-live-counts";
 import { PostgresStreamRepository } from "./infra/postgres-stream-repository";
 import { ModuleStreamTargets } from "./infra/stream-targets";
 import { ctaLinkDomainsFrom } from "./domain/cta";
+import { GetActiveCta } from "./features/active-cta/active-cta.use-case";
 import { ctaTypeHandlers } from "./features/schedule-cta/cta-types";
 import { DeleteCta, GetCtaPanel, SaveCta, type CtaEntitlement } from "./features/schedule-cta/schedule-cta.use-case";
 import { ModuleCtaCatalog } from "./infra/cta-catalog";
@@ -60,7 +61,8 @@ export const endStreamsOfDeletedUser = lazy(() => new EndStreamsOfDeletedUser(st
 
 export const getLivePlayback = lazy(() => new GetLivePlayback({ findByTarget: (target) => streamRepository().findVisibleByTarget(target) }, streamingProvider));
 export const listActiveStreamsUseCase = lazy(() => new ListActiveStreams(streamRepository()));
-export const getLiveStatus = lazy(() => new GetLiveStatus(getLivePlayback()));
+export const getActiveCta = lazy(() => new GetActiveCta(ctaRepository(), logger().child({ module: "live" })));
+export const getLiveStatus = lazy(() => new GetLiveStatus(getLivePlayback(), getActiveCta()));
 
 const targetDirectory = new ModuleLiveTargetDirectory();
 export const listLiveNow = lazy(() => new ListLiveNow(streamRepository(), targetDirectory));

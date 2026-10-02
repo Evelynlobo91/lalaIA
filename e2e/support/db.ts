@@ -248,3 +248,26 @@ export function subscribeToPlan(user: Pick<TestUser, "email">, planCode = "pro")
         current_period_start = excluded.current_period_start, current_period_end = excluded.current_period_end, cancelled_at = null`,
   );
 }
+
+/** Chamada (CTA) numa transmissão, como se o dono tivesse programado no portal (#93). */
+export function createLiveCta(
+  streamId: string,
+  cta: { title: string; href: string; buttonLabel?: string; type?: "promocao" | "missao" | "quero-ir" | "evento" | "link"; priority?: 1 | 2 | 3; body?: string } & (
+    | { startsInMinutes: number; durationMinutes: number }
+    | { offsetMinutes: number; durationMinutes: number }
+  ),
+): Promise<string> {
+  const startsIn = "startsInMinutes" in cta ? cta.startsInMinutes : null;
+  const offset = "offsetMinutes" in cta ? cta.offsetMinutes : null;
+  return withDb(async (sql) => {
+    const [row] = await sql<{ id: string }[]>`
+      insert into live.ctas (stream_id, owner_id, type, href, external, title, body, button_label, priority, schedule_kind, starts_at, ends_at, offset_minutes, duration_minutes)
+      select s.id, s.owner_id, ${cta.type ?? "link"}, ${cta.href}, ${cta.href.startsWith("https://")}, ${cta.title}, ${cta.body ?? null}, ${cta.buttonLabel ?? "Abrir"}, ${cta.priority ?? 2},
+             ${startsIn === null ? "relative" : "absolute"},
+             now() + make_interval(mins => ${startsIn}::int),
+             now() + make_interval(mins => ${startsIn === null ? null : startsIn + cta.durationMinutes}::int),
+             ${offset}::int, ${startsIn === null ? cta.durationMinutes : null}::int
+      from live.streams s where s.id = ${streamId} returning id`;
+    return row.id;
+  });
+}

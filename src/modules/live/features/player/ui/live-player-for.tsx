@@ -1,7 +1,7 @@
 import "server-only";
 import { TrackView } from "@/modules/analytics";
 import { errorReporter, logger } from "@/shared/observability";
-import { getLivePlayback, getStreamContext } from "../../../composition";
+import { getActiveCta, getLivePlayback, getStreamContext } from "../../../composition";
 import type { LiveTargetInfo, StreamEntityType } from "../../../domain/stream";
 import { liveTargetSchema } from "../player.schema";
 import type { LivePlayback } from "../player.use-case";
@@ -44,13 +44,13 @@ export async function LivePlayerFor({ entityType, entityId, title }: { entityTyp
   // Sem transmissão, ou encerrada antes de a pessoa chegar: nada na página. "Encerrada" só aparece para quem
   // estava acompanhando (transição ao vivo → encerrada, sem recarregar).
   if (!playback || playback.status === "ended") return null;
-  const { info: context, renderedAt } = await contextFor(entityType, entityId);
+  const [{ info: context, renderedAt }, cta] = await Promise.all([contextFor(entityType, entityId), getActiveCta().execute(playback)]);
 
   return (
     <LiveStage
       entityType={entityType}
       entityId={entityId}
-      initial={liveStatusView(playback)}
+      initial={liveStatusView(playback, cta)}
       context={context && { entityType: context.entityType, title: context.title, subtitle: context.subtitle, whenLabel: context.whenLabel }}
       renderedAt={renderedAt}
       title={title}
