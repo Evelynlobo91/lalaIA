@@ -4,16 +4,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { contentHref } from "@/modules/backoffice";
 import { FormAlert } from "@/shared/ui";
-import { hasRole, requireRole } from "@/modules/identity";
+import { can, requireCapability } from "@/modules/identity";
 import { EditPlaceForm, editablePlace } from "@/modules/places";
 
 export const metadata: Metadata = { title: "Editar lugar · Backoffice", robots: { index: false } };
 
 export default async function AdminEditarLugarPage({ params, searchParams }: PageProps<"/admin/conteudo/lugares/[id]/editar">) {
-  const admin = await requireRole("admin", "/admin/conteudo");
+  const admin = await requireCapability("content:edit", "/admin/conteudo");
   const { id } = await params;
   const created = (await searchParams).criado === "1";
-  const data = await editablePlace({ id: admin.id, isAdmin: hasRole(admin, "admin") }, id);
+  const data = await editablePlace({ id: admin.id, isAdmin: can(admin, "content:edit") }, id);
   if (!data) notFound();
 
   return (

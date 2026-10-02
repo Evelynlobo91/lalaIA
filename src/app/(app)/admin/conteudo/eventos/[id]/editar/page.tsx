@@ -4,15 +4,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CONTENT_RETURN, contentHref } from "@/modules/backoffice";
 import { EventForm, editableEvent } from "@/modules/events";
-import { hasRole, requireRole } from "@/modules/identity";
+import { can, requireCapability } from "@/modules/identity";
 import { PlacePicker } from "@/modules/places";
 
 export const metadata: Metadata = { title: "Editar evento · Backoffice", robots: { index: false } };
 
 export default async function AdminEditarEventoPage({ params }: PageProps<"/admin/conteudo/eventos/[id]/editar">) {
-  const admin = await requireRole("admin", "/admin/conteudo");
+  const admin = await requireCapability("content:edit", "/admin/conteudo");
   const { id } = await params;
-  const data = await editableEvent({ id: admin.id, isAdmin: hasRole(admin, "admin") }, id);
+  const data = await editableEvent({ id: admin.id, isAdmin: can(admin, "content:edit") }, id);
   if (!data) notFound();
 
   return (

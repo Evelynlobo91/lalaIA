@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { requireRole } from "@/modules/identity";
+import { requireCapability } from "@/modules/identity";
 import { ActivePartnersList, ClaimReviewQueue, ReviewQueue, activePartnersForAdmin, partnerApplicationsForReview, placeClaimsForReview } from "@/modules/partners";
 
 export const metadata: Metadata = { title: "Cadastros de parceiros · Backoffice", robots: { index: false } };
 
 export default async function AdminParceirosPage() {
-  const admin = await requireRole("admin", "/admin/parceiros");
+  const admin = await requireCapability("partners:review", "/admin/parceiros");
   const [result, claimsResult, activeResult] = await Promise.all([partnerApplicationsForReview(admin), placeClaimsForReview(admin), activePartnersForAdmin(admin)]);
   const items = result.ok ? result.value : [];
   const claims = claimsResult.ok ? claimsResult.value : [];

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentSearch, contentQuery } from "@/modules/backoffice";
 import { eventsForAdmin } from "@/modules/events";
-import { hasRole, requireRole } from "@/modules/identity";
+import { can, requireCapability } from "@/modules/identity";
 import { missionsForAdmin } from "@/modules/missions";
 import { searchPlacesByName } from "@/modules/places";
 import { formatDateTime } from "@/shared/time/joinville-time";
@@ -58,11 +58,11 @@ async function rows(tab: "lugares" | "eventos" | "missoes", text: string, viewer
 const labels = { lugares: "Lugares", eventos: "Eventos", missoes: "Missões" } as const;
 
 export default async function AdminConteudoPage({ searchParams }: PageProps<"/admin/conteudo">) {
-  const admin = await requireRole("admin", "/admin/conteudo");
+  const admin = await requireCapability("content:edit", "/admin/conteudo");
   const params = await searchParams;
   const { tab, text } = contentQuery(params);
   const needsText = tab === "lugares" && text.length < 2;
-  const items = needsText ? [] : await rows(tab, text, { isAdmin: hasRole(admin, "admin") });
+  const items = needsText ? [] : await rows(tab, text, { isAdmin: can(admin, "content:edit") });
 
   return (
     <div className="flex flex-col gap-4">

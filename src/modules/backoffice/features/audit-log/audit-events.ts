@@ -16,6 +16,8 @@ const on = <K extends keyof DomainEventMap>(mapped: Mapped<K>) => mapped;
  * com uma linha: o módulo dono publica o evento com quem agiu, e o backoffice só assina.
  */
 export const auditedEvents = {
+  "identity.RoleGranted": on<"identity.RoleGranted">({ label: "Concedeu um papel interno", targetType: "user", from: (p) => ({ actorId: p.grantedBy, targetId: p.userId }) }),
+  "identity.RoleRevoked": on<"identity.RoleRevoked">({ label: "Revogou um papel interno", targetType: "user", from: (p) => ({ actorId: p.revokedBy, targetId: p.userId }) }),
   "partners.PartnerApproved": on<"partners.PartnerApproved">({ label: "Aprovou o cadastro do parceiro", targetType: "partner", from: (p) => ({ actorId: p.approvedBy, targetId: p.partnerId }) }),
   "partners.PartnerRejected": on<"partners.PartnerRejected">({ label: "Recusou o cadastro do parceiro", targetType: "partner", from: (p) => ({ actorId: p.rejectedBy, targetId: p.partnerId }) }),
   "partners.PartnerSuspended": on<"partners.PartnerSuspended">({ label: "Suspendeu o parceiro", targetType: "partner", from: (p) => ({ actorId: p.suspendedBy, targetId: p.partnerId }) }),

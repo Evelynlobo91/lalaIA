@@ -6,12 +6,14 @@ import { cn } from "@/shared/ui";
 import { backofficeSections, isSectionActive } from "../backoffice-sections";
 
 /** Abas do backoffice: roláveis no celular, fileira completa em telas maiores. */
-export function BackofficeNav() {
+export function BackofficeNav({ hrefs }: { /** Seções que a pessoa pode ver (#157). */ hrefs: string[] }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Backoffice" className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
       <ul className="flex min-w-max gap-2 border-b border-border">
-        {backofficeSections.map(({ href, label, icon: Icon }) => {
+        {backofficeSections
+          .filter((section) => hrefs.includes(section.href))
+          .map(({ href, label, icon: Icon }) => {
           const active = isSectionActive(pathname, href);
           return (
             <li key={href}>

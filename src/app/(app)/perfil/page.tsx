@@ -1,6 +1,6 @@
 import { Heart, Lock, Map as MapIcon, Pencil, ShieldCheck, Store } from "lucide-react";
 import type { Metadata } from "next";
-import { LogoutButton, budgetOptions, groupSizes, hasRole, requireUser, userPreferences } from "@/modules/identity";
+import { budgetOptions, can, groupSizes, hasRole, LogoutButton, requireUser, userPreferences } from "@/modules/identity";
 import { ActiveMissionsCard, MyRewardsCard, myMissions, myRewards } from "@/modules/missions";
 import { MyRedemptionsCard, myRedemptions } from "@/modules/partners";
 import { AchievementsCard, ExplorerProfileCard, LevelCard, XpCard, achievementsOf, explorerProfileOf, levelOverviewOf, xpOverviewOf } from "@/modules/progression";
@@ -44,7 +44,7 @@ export default async function PerfilPage() {
               <Store aria-hidden className="size-4" /> Portal do parceiro
             </ButtonLink>
           )}
-          {hasRole(user, "admin") && (
+          {can(user, "backoffice:access") && (
             <ButtonLink href="/admin" variant="secondary">
               <ShieldCheck aria-hidden className="size-4" /> Backoffice
             </ButtonLink>

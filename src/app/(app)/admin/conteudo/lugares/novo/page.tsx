@@ -2,13 +2,13 @@ import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { contentHref } from "@/modules/backoffice";
-import { requireRole } from "@/modules/identity";
+import { requireCapability } from "@/modules/identity";
 import { CreatePlaceForm } from "@/modules/places";
 
 export const metadata: Metadata = { title: "Cadastrar estabelecimento · Backoffice", robots: { index: false } };
 
 export default async function AdminNovoLugarPage() {
-  await requireRole("admin", "/admin/conteudo/lugares/novo");
+  await requireCapability("content:edit", "/admin/conteudo/lugares/novo");
 
   return (
     <div className="flex flex-col gap-4">

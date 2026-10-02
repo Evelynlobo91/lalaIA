@@ -3,15 +3,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CONTENT_RETURN, contentHref } from "@/modules/backoffice";
-import { hasRole, requireRole } from "@/modules/identity";
+import { can, requireCapability } from "@/modules/identity";
 import { MissionForm, editableMission, missionPlaceOptions } from "@/modules/missions";
 
 export const metadata: Metadata = { title: "Editar missão · Backoffice", robots: { index: false } };
 
 export default async function AdminEditarMissaoPage({ params }: PageProps<"/admin/conteudo/missoes/[id]/editar">) {
-  const admin = await requireRole("admin", "/admin/conteudo");
+  const admin = await requireCapability("content:edit", "/admin/conteudo");
   const { id } = await params;
-  const data = await editableMission({ id: admin.id, isAdmin: hasRole(admin, "admin") }, id);
+  const data = await editableMission({ id: admin.id, isAdmin: can(admin, "content:edit") }, id);
   if (!data) notFound();
   // As opções de lugar são as de quem criou a missão (o admin não administra lugares).
   const placeOptions = await missionPlaceOptions(data.mission.ownerId);

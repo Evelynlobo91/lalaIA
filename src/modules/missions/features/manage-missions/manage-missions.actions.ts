@@ -3,13 +3,13 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { hasRole, withUser, type CurrentUser } from "@/modules/identity";
+import { can, type CurrentUser, hasRole, withUser } from "@/modules/identity";
 import { formAction, type FormState } from "@/shared/http/form-action";
 import { archiveMission, saveMission } from "../../composition";
 import type { MissionRecord } from "../../domain/mission";
 import { missionSchema } from "./mission.schema";
 
-const author = (user: CurrentUser) => ({ id: user.id, isPartner: hasRole(user, "partner"), isAdmin: hasRole(user, "admin") });
+const author = (user: CurrentUser) => ({ id: user.id, isPartner: hasRole(user, "partner"), isAdmin: can(user, "content:edit") });
 
 const save = formAction(missionSchema, withUser((input, user) => saveMission().execute(author(user), input.missionId, input.draft)), {
   name: "missions.save",

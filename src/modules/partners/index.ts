@@ -1,6 +1,6 @@
 // API pública do módulo partners.
 import type { CurrentUser } from "@/modules/identity";
-import { hasRole } from "@/modules/identity";
+import { can } from "@/modules/identity";
 import {
   approvedPartnerIdOf,
   listActivePartners,
@@ -36,12 +36,12 @@ export function myPartnerApplication(user: CurrentUser) {
 
 /** Fila de revisão (admin). */
 export function partnerApplicationsForReview(user: CurrentUser) {
-  return listApplications().execute({ id: user.id, isAdmin: hasRole(user, "admin") }, "pending");
+  return listApplications().execute({ id: user.id, isAdmin: can(user, "partners:review") }, "pending");
 }
 
 /** Parceiros aprovados e suspensos (admin), para suspender ou reativar (#144). */
 export function activePartnersForAdmin(user: CurrentUser) {
-  return listActivePartners().execute({ id: user.id, isAdmin: hasRole(user, "admin") });
+  return listActivePartners().execute({ id: user.id, isAdmin: can(user, "partners:review") });
 }
 
 /** Pedidos de vínculo do parceiro logado (com o nome dos lugares). */
@@ -88,7 +88,7 @@ export function editableOffer({ user, partner }: PartnerSession, offerId: string
 
 /** Pedidos de vínculo pendentes (admin). */
 export function placeClaimsForReview(user: CurrentUser) {
-  return listClaimsForReview().execute({ id: user.id, isAdmin: hasRole(user, "admin") });
+  return listClaimsForReview().execute({ id: user.id, isAdmin: can(user, "partners:review") });
 }
 
 /** Contagens de parceiros (aprovados num período e ativos hoje), para as métricas gerais do backoffice (#145). */

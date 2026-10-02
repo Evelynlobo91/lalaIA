@@ -1,7 +1,7 @@
 # Backoffice (`/admin`)
 
-Área de operação interna da plataforma (Epic #86). Só quem tem o papel `admin` entra; para os demais
-a área responde **404**, o que não revela que ela existe (RNF05).
+Área de operação interna da plataforma (Epic #86). Só papéis internos entram (veja "Papéis internos"); para os
+demais a área responde **404**, o que não revela que ela existe (RNF05).
 
 - **Shell** (#141): `src/app/(app)/admin/layout.tsx` confere o papel e monta o cabeçalho e as abas
   (`BackofficeNav`). Cada página confere o papel de novo com `requireRole("admin", ...)`.
@@ -62,3 +62,21 @@ a área responde **404**, o que não revela que ela existe (RNF05).
 - Cada número vem da API pública do módulo dono (`userCounts`, `partnerCounts`, `eventCounts`,
   `missionCompletionCounts`, `liveCounts`): só contagens, sem dados pessoais e sem join entre schemas.
 - Não há gráfico por dia; as visualizações e os favoritos por entidade continuam no painel do promotor (#78).
+
+## Papéis internos por capacidade (#157)
+
+| Papel | O que faz | Seções |
+|---|---|---|
+| `admin` | Acesso total; único que gerencia papéis | Todas |
+| `commercial` (Comercial) | Leads e conversão em parceiro | Leads |
+| `finance` (Financeiro) | Assinaturas, faturas e inadimplência | Financeiro |
+| `moderator` (Moderação) | Aprova e suspende parceiros, aprova vínculos, edita conteúdo | Usuários, Parceiros, Conteúdo |
+
+- **Capacidades** (ex.: `partners:review`, `content:edit`, `billing:read`): o mapa papel → capacidades fica em
+  `src/modules/identity/domain/capabilities.ts` e, no banco, em `authz.role_capabilities`. Um teste de integração
+  falha se os dois divergirem.
+- **Três camadas, como antes, agora por capacidade:** página (`requireCapability`, 404 sem ela), action
+  (`withCapability`) e banco (políticas RLS com `authz.has_capability(...)`). O menu só mostra as seções permitidas.
+- **Gerir papéis:** em `/admin/usuarios`, o admin busca a pessoa e marca Comercial, Financeiro e Moderação. A mudança
+  vale na hora e entra na auditoria. O papel `admin` não é concedido pela tela: só por `npm run role -- grant admin <email>`.
+- Os papéis se somam (uma pessoa pode ser Comercial e Financeiro).

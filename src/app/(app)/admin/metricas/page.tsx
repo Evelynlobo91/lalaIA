@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PlatformMetricsPanel, platformMetricsView } from "@/modules/backoffice";
-import { hasRole, requireRole } from "@/modules/identity";
+import { can, requireCapability } from "@/modules/identity";
 
 export const metadata: Metadata = { title: "Métricas · Backoffice", robots: { index: false } };
 // Os números mudam a cada visita.
 export const dynamic = "force-dynamic";
 
 export default async function AdminMetricasPage({ searchParams }: PageProps<"/admin/metricas">) {
-  const admin = await requireRole("admin", "/admin/metricas");
-  const result = await platformMetricsView({ isAdmin: hasRole(admin, "admin") }, await searchParams);
+  const admin = await requireCapability("metrics:read", "/admin/metricas");
+  const result = await platformMetricsView({ isAdmin: can(admin, "metrics:read") }, await searchParams);
   if (!result.ok) notFound();
 
   return (

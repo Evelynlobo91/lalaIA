@@ -1,5 +1,5 @@
 /** Papéis além do "usuário comum" (que toda conta tem). */
-export const roles = ["partner", "admin"] as const;
+export const roles = ["partner", "admin", "commercial", "finance", "moderator"] as const;
 export type Role = (typeof roles)[number];
 
 export function isRole(value: string): value is Role {
@@ -14,5 +14,6 @@ export interface RoleRepository {
 export type UserSummary = { id: string; displayName: string; email: string; roles: Role[]; createdAt: Date };
 
 export interface UserDirectory {
-  listRecent(limit: number): Promise<UserSummary[]>;
+  /** Contas mais recentes; com `text`, só as que têm o texto no nome ou no e-mail. */
+  listRecent(limit: number, text?: string): Promise<UserSummary[]>;
 }

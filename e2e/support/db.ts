@@ -13,7 +13,7 @@ async function withDb<T>(fn: (sql: postgres.Sql) => Promise<T>): Promise<T> {
   }
 }
 
-export function grantRole(user: Pick<TestUser, "email">, role: "partner" | "admin") {
+export function grantRole(user: Pick<TestUser, "email">, role: "partner" | "admin" | "commercial" | "finance" | "moderator") {
   return withDb(
     (sql) => sql`insert into identity.user_roles (user_id, role)
                  select id, ${role} from auth.users where lower(email) = ${user.email.toLowerCase()}

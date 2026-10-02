@@ -3,13 +3,13 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { hasRole, withUser, type CurrentUser } from "@/modules/identity";
+import { can, type CurrentUser, hasRole, withUser } from "@/modules/identity";
 import { formAction, type FormState } from "@/shared/http/form-action";
 import { cancelEvent, saveEvent } from "../../composition";
 import type { EventRecord } from "../../domain/event";
 import { eventSchema } from "./event.schema";
 
-const organizer = (user: CurrentUser) => ({ id: user.id, isPartner: hasRole(user, "partner"), isAdmin: hasRole(user, "admin") });
+const organizer = (user: CurrentUser) => ({ id: user.id, isPartner: hasRole(user, "partner"), isAdmin: can(user, "content:edit") });
 
 const save = formAction(eventSchema, withUser((input, user) => saveEvent().execute(organizer(user), input.eventId, input.draft)), {
   name: "events.save",

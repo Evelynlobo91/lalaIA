@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AuditLogView, auditLogView } from "@/modules/backoffice";
-import { hasRole, requireRole } from "@/modules/identity";
+import { can, requireCapability } from "@/modules/identity";
 
 export const metadata: Metadata = { title: "Auditoria · Backoffice", robots: { index: false } };
 // Registro de trabalho: sempre os dados de agora.
 export const dynamic = "force-dynamic";
 
 export default async function AdminAuditoriaPage({ searchParams }: PageProps<"/admin/auditoria">) {
-  const admin = await requireRole("admin", "/admin/auditoria");
-  const result = await auditLogView({ isAdmin: hasRole(admin, "admin") }, await searchParams);
+  const admin = await requireCapability("audit:read", "/admin/auditoria");
+  const result = await auditLogView({ isAdmin: can(admin, "audit:read") }, await searchParams);
   if (!result.ok) notFound();
 
   return (

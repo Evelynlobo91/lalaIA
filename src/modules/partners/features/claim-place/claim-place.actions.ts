@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { hasRole, withRole } from "@/modules/identity";
+import { can, withCapability, withRole } from "@/modules/identity";
 import { ForbiddenError, err } from "@/shared/kernel";
 import { formAction, type FormState } from "@/shared/http/form-action";
 import { approveClaim, partnerRepository, rejectClaim, requestClaim } from "../../composition";
@@ -26,13 +26,13 @@ export async function requestClaimAction(previous: FormState<PlaceClaim>, formDa
 
 const approve = formAction(
   claimReviewSchema,
-  withRole("admin", (input, user) => approveClaim().execute({ id: user.id, isAdmin: hasRole(user, "admin") }, input.claimId)),
+  withCapability("partners:review", (input, user) => approveClaim().execute({ id: user.id, isAdmin: can(user, "partners:review") }, input.claimId)),
   { name: "partners.approve-claim" },
 );
 
 const reject = formAction(
   claimRejectSchema,
-  withRole("admin", (input, user) => rejectClaim().execute({ id: user.id, isAdmin: hasRole(user, "admin") }, input.claimId, input.reason)),
+  withCapability("partners:review", (input, user) => rejectClaim().execute({ id: user.id, isAdmin: can(user, "partners:review") }, input.claimId, input.reason)),
   { name: "partners.reject-claim", keepValues: ["reason"] },
 );
 

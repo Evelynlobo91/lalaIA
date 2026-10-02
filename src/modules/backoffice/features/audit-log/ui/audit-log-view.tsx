@@ -5,7 +5,7 @@ import { Button, Card } from "@/shared/ui";
 import { auditActions } from "../audit-events";
 import { AUDIT_PAGE_SIZE, auditPeriods, type AuditRow, type AuditView } from "../audit-log.use-cases";
 
-const targetLabels: Record<AuditRow["targetType"], string> = { partner: "Parceiro", place_claim: "Vínculo", place: "Lugar", event: "Evento", mission: "Missão" };
+const targetLabels: Record<AuditRow["targetType"], string> = { partner: "Parceiro", place_claim: "Vínculo", place: "Lugar", event: "Evento", mission: "Missão", user: "Usuário" };
 
 /** Para onde o alvo leva, quando há uma tela para ele. */
 function targetHref(row: AuditRow): string | null {

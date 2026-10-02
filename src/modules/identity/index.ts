@@ -15,13 +15,16 @@ import { GetConsents } from "./features/lgpd/lgpd.use-case";
 
 export { RegisterForm } from "./features/register/ui/register-form";
 export { LoginForm } from "./features/login/ui/login-form";
+export { TeamRolesForm } from "./features/roles/ui/team-roles-form";
+export { teamRoles, type TeamRole } from "./features/roles/manage-team-roles";
 export { LogoutButton } from "./features/logout/ui/logout-button";
 export { EditProfileForm } from "./features/edit-profile/ui/edit-profile-form";
 export { PreferencesForm } from "./features/edit-preferences/ui/preferences-form";
 export { AvatarForm } from "./features/upload-avatar/ui/avatar-form";
 export { confirmEmailRoute } from "./features/confirm-email/confirm-email.route";
 export { getCurrentUser, requireUser, withUser } from "./features/session/current-user";
-export { hasRole, requireRole, withRole } from "./features/authorization/authorization";
+export { hasRole, requireCapability, requireRole, withCapability, withRole } from "./features/authorization/authorization";
+export { can, capabilities, internalRoleDescriptions, internalRoleLabels, internalRoles, type Capability, type InternalRole } from "./domain/capabilities";
 export { CURRENT_TERMS_VERSION } from "./domain/terms";
 export type { CurrentUser } from "./domain/session";
 export type { Role, UserSummary } from "./domain/roles";
@@ -33,8 +36,8 @@ export const userPreferences: () => UserPreferencesReader = lazy(() => new Defau
 const listUsers = lazy(() => new ListUsersForModeration(new PostgresRoleRepository(sql())));
 
 /** Moderação (admin): usuários mais recentes com seus papéis. */
-export function listUsersForModeration(actor: CurrentUser, limit?: number) {
-  return listUsers().execute(actor, limit);
+export function listUsersForModeration(actor: CurrentUser, limit?: number, text?: string) {
+  return listUsers().execute(actor, limit, text);
 }
 
 const grantRoleUseCase = lazy(() => new GrantRole(sql()));
