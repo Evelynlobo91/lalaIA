@@ -44,6 +44,8 @@ next-env.d.ts
 # playwright
 /e2e/.results/
 /e2e/.report/
+/e2e/.lighthouse/
+/.lighthouseci/
 
 # worker do MapLibre (copiado por scripts/copy-maplibre-worker.mjs)
 /public/vendor/

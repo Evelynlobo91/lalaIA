@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { LiveNowContext, liveNowKey } from "@/shared/ui";
 import { pollWhileVisible } from "../../stream-states/ui/poll-while-visible";
-import { LIVE_NOW_POLL_MS } from "../live-badge.schema";
+import { LIVE_NOW_POLL_MS } from "../live-badge.constants";
 import type { ActiveStreamsView } from "../live-badge.use-case";
 
 /**

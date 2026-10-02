@@ -95,6 +95,22 @@ jobs:
       - run: npm run test:e2e
         env:
           NEXT_TELEMETRY_DISABLED: 1
+      # Orçamento de performance (#79): Lighthouse no build que acabou de passar no E2E (falha se estourar).
+      - name: Orçamento de performance (Lighthouse CI)
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+        run: |
+          npm run start -- -p 3100 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:3100/status && break; sleep 1; done
+          export LHCI_PLACE_ID=$(psql "$DATABASE_URL" -tAc "select id from places.places where source_id not like 'e2e/%' order by name limit 1")
+          export CHROME_PATH=$(node -e "console.log(require('playwright').chromium.executablePath())")
+          npm run perf
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse
+          path: e2e/.lighthouse
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/shared/ui";
-import { roundCoordinate } from "../nearby-places.schema";
+// Sem o schema (zod) no navegador: só a função de arredondar.
+import { roundCoordinate } from "../coordinates";
 
 type Status = "idle" | "locating" | "denied" | "unavailable" | "optedOut";
 

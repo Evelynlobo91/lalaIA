@@ -1,13 +1,14 @@
 "use client";
 
 import { ChevronRight, List, MapPinned, Navigation, X } from "lucide-react";
-import { Marker, type Map as MapLibreMap } from "maplibre-gl";
+import type { Map as MapLibreMap, Marker } from "maplibre-gl";
+import type { MapLibreModule } from "@/shared/ui/map";
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { Badge, ButtonLink, buttonClasses } from "@/shared/ui";
 import { MapView } from "@/shared/ui/map";
 import { directionsUrl } from "../../../domain/place-details";
-import { roundCoordinate } from "../../nearby-places/nearby-places.schema";
+import { roundCoordinate } from "../../nearby-places/coordinates";
 import { PLACES_CLICKABLE_LAYERS, placesLayer, type SelectedPlace } from "./places-layer";
 
 type Point = { lat: number; lon: number };
@@ -42,14 +43,14 @@ export function PlacesMap({ focus }: { focus?: SelectedPlace | null }) {
     [clearPick],
   );
 
-  const onReady = useCallback((map: MapLibreMap) => {
+  const onReady = useCallback((map: MapLibreMap, lib: MapLibreModule) => {
     map.on("click", (e) => {
       // Toque já tratado por outra camada (ex.: marcador da Live).
       if (e.defaultPrevented) return;
       // Toque num lugar/cluster é tratado pela camada de lugares.
       if (map.queryRenderedFeatures(e.point, { layers: PLACES_CLICKABLE_LAYERS }).length > 0) return;
       const point = { lat: e.lngLat.lat, lon: e.lngLat.lng };
-      pin.marker ??= new Marker({ color: BRAND });
+      pin.marker ??= new lib.Marker({ color: BRAND });
       pin.marker.setLngLat([point.lon, point.lat]).addTo(map);
       setSelected(null);
       setPicked(point);
