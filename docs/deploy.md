@@ -91,7 +91,7 @@ diferente para cada variável e para cada ambiente.
 | `NEXT_PUBLIC_MAP_STYLE_URL` | estilo do MapTiler | Mapa em produção (os tiles públicos do OSM não podem ser usados com tráfego real) |
 | `ANTHROPIC_API_KEY` | chave do Claude | Roteiro do ME SURPREENDA. Sem ela (ou se a chamada falhar), sai do motor local |
 | `BILLING_PROVIDER` | vazio | Pagamento simulado (único implementado) |
-| `BILLING_FAKE_WEBHOOK_SECRET` | **vazio** | Vazio = simulador de pagamento **desligado**. Veja "Pagamento no piloto" |
+| `BILLING_FAKE_WEBHOOK_SECRET` | **vazio** | Vazio = simulador de pagamento **desligado**; o time confirma os pagamentos pelo painel financeiro |
 | `BILLING_GRACE_DAYS` | vazio (5) | Carência entre o vencimento e a suspensão |
 | `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN` | opcional | Monitoramento de erros. Sem DSN, os alertas críticos de consumo ficam só no log |
 
@@ -131,18 +131,17 @@ sozinho quando a variável existe no projeto; as rotas também aceitam POST (out
 
 ### Pagamento no piloto
 
-Sem gateway real, ninguém paga de verdade, e **hoje não existe uma ação do time para confirmar um pagamento**.
-O plano pago só passa a valer quando chega o webhook de "pago", e no provedor simulado quem dispara esse webhook
-é o botão "Simular pagamento" da própria cobrança. As duas configurações possíveis:
+Sem gateway real, ninguém paga de verdade. O plano pago só passa a valer quando o pagamento é confirmado, e há
+dois jeitos de confirmar:
 
-| `BILLING_FAKE_WEBHOOK_SECRET` | Efeito |
-|---|---|
-| **vazio** (recomendado para abrir o piloto) | Simulador desligado. Todos ficam no Básico (gratuito, com live, missões e ofertas). Quem tentar assinar o Pro fica com a fatura pendente e nada muda |
-| segredo definido | O botão aparece para o dono da cobrança: **qualquer parceiro ativa o Pro de graça** |
+- **Pelo time (recomendado no piloto):** em `/admin/financeiro` → Faturas → "Confirmar pagamento" (capacidade
+  `billing:write`; fica na auditoria). O parceiro pede o Pro em Assinatura, a fatura fica em aberto e o time
+  confirma só para quem deve ter o plano. Veja [billing.md](billing.md#confirmação-manual-de-pagamento) (PR #203).
+- **Pelo simulador:** com `BILLING_FAKE_WEBHOOK_SECRET` definido, o botão "Simular pagamento" aparece para o dono
+  da cobrança, e **qualquer parceiro ativa o Pro de graça**. Por isso a variável fica **vazia** em produção.
 
-Para liberar o Pro só a parceiros escolhidos, falta um slice pequeno no painel financeiro ("confirmar pagamento
-manualmente", com auditoria). Editar a fatura direto no banco **não** ativa o plano. Quando houver gateway real,
-entra uma implementação nova de `BillingGateway` (veja [billing.md](billing.md)).
+Com os planos como estão, o Básico (gratuito) inclui live, missões e ofertas; o Pro (R$ 149) acrescenta destaque,
+chamadas e chat. Quando houver gateway real, entra uma implementação nova de `BillingGateway`.
 
 ### O que este guia não cobre
 
