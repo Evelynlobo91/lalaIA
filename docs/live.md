@@ -252,6 +252,26 @@ plataforma nunca recebe o vídeo original. Detecção, nunca reconhecimento; nad
 falhar, o agente borra o quadro inteiro. A exigência de "modo privacidade confirmado" para ativar a live
 entra no portal junto com o checklist de privacidade (#55).
 
+### Heartbeat do agente na plataforma (#198)
+
+- `POST /api/live/agent/heartbeat`, com `Authorization: Bearer <chave de transmissão>` (o agente já tem a chave
+  para transmitir). Corpo: `privacy_mode`, `blur_mode` (`faces` ou `full`), `fps`, `faces_per_frame`,
+  `detector_status`. Só números; nunca imagem. Guarda só o último de cada transmissão (`live.agent_heartbeats`,
+  sem acesso para usuários).
+- **Situação**: `protected` (heartbeat há até 30 s, privacidade ligada), `stale` (sem sinal), `off`, `none`
+  (nunca conectou).
+- **Privacidade desligada com a transmissão ativa → a plataforma pausa a live** na hora (registro `system` no log
+  de ciclo de vida). Quadro inteiro borrado (`full`) continua protegido e não pausa.
+- **Quem vê**: o público lê "Rostos desfocados automaticamente" junto do player só enquanto o agente protege; o
+  parceiro vê a situação em cada transmissão do portal (alerta se a live está no ar e o agente sumiu); o time vê
+  as lives no ar e quais estão sem a proteção automática em `/admin/conteudo/lives`.
+- **Sem agente a live ainda vai ao ar** (fase 1: vale a declaração do parceiro nas diretrizes). Exigir o agente
+  para ativar é uma decisão de produto que depende da caixinha da fase 2.
+
+Fora do que dá para fazer em código agora: o hardware da fase 2, a atualização remota do modelo, a auditoria por
+amostragem de quadros no servidor (fase 3, precisa do vídeo real do Mux) e os documentos jurídicos (LIA, RIPD,
+contrato com o parceiro).
+
 ## Plano do parceiro
 
 Gerar a chave e ativar a transmissão exigem que o plano do dono libere o recurso `live` (veja [cobrança](billing.md)).

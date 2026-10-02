@@ -2,7 +2,7 @@ import "server-only";
 import { TrackView } from "@/modules/analytics";
 import { can, getCurrentUser } from "@/modules/identity";
 import { errorReporter, logger } from "@/shared/observability";
-import { chatEntitled, chatRepository, getActiveCta, getLivePlayback, getStreamContext } from "../../../composition";
+import { chatEntitled, chatRepository, getAgentStatus, getActiveCta, getLivePlayback, getStreamContext } from "../../../composition";
 import type { LiveTargetInfo, StreamEntityType } from "../../../domain/stream";
 import { liveTargetSchema } from "../player.schema";
 import type { LivePlayback } from "../player.use-case";
@@ -65,13 +65,18 @@ export async function LivePlayerFor({ entityType, entityId, title }: { entityTyp
   // estava acompanhando (transição ao vivo → encerrada, sem recarregar).
   if (!playback || playback.status === "ended") return null;
   const href = `${entityType === "place" ? "/lugares" : "/eventos"}/${entityId}`;
-  const [{ info: context, renderedAt }, cta, chat] = await Promise.all([contextFor(entityType, entityId), getActiveCta().execute(playback), chatFor(playback.streamId, href)]);
+  const [{ info: context, renderedAt }, cta, chat, facesBlurred] = await Promise.all([
+    contextFor(entityType, entityId),
+    getActiveCta().execute(playback),
+    chatFor(playback.streamId, href),
+    getAgentStatus().isProtected(playback.streamId).catch(() => false),
+  ]);
 
   return (
     <LiveStage
       entityType={entityType}
       entityId={entityId}
-      initial={liveStatusView(playback, cta)}
+      initial={liveStatusView(playback, cta, facesBlurred)}
       context={context && { entityType: context.entityType, title: context.title, subtitle: context.subtitle, whenLabel: context.whenLabel }}
       renderedAt={renderedAt}
       title={title}

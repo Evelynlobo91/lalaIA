@@ -30,10 +30,10 @@ describe("GetLiveStatus", () => {
     const live = new GetLiveStatus({ execute: async () => ({ streamId: "s1", status: "live", playbackUrl: "https://hls/x.m3u8", note: "Casa cheia", liveSince: since }) });
     expect(await live.execute({ entityType: "place", entityId: ENTITY })).toEqual({
       ok: true,
-      value: { status: "live", streamId: "s1", playbackUrl: "https://hls/x.m3u8", note: "Casa cheia", liveSince: "2026-10-01T22:00:00.000Z", cta: null },
+      value: { status: "live", streamId: "s1", playbackUrl: "https://hls/x.m3u8", note: "Casa cheia", liveSince: "2026-10-01T22:00:00.000Z", cta: null, facesBlurred: false },
     });
     const none = new GetLiveStatus({ execute: async () => null });
-    expect(await none.execute({ entityType: "place", entityId: ENTITY })).toEqual({ ok: true, value: { status: "none", streamId: null, playbackUrl: null, note: null, liveSince: null, cta: null } });
+    expect(await none.execute({ entityType: "place", entityId: ENTITY })).toEqual({ ok: true, value: { status: "none", streamId: null, playbackUrl: null, note: null, liveSince: null, cta: null, facesBlurred: false } });
   });
 });
 
@@ -62,7 +62,7 @@ describe("GET /api/live/status", () => {
     const response = await route(new Request(`http://localhost/api/live/status?entityType=event&entityId=${ENTITY}`));
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("no-store");
-    expect(await response.json()).toEqual({ status: "paused", streamId: "s1", playbackUrl: null, note: "Volta às 23h", liveSince: null, cta: null });
+    expect(await response.json()).toEqual({ status: "paused", streamId: "s1", playbackUrl: null, note: "Volta às 23h", liveSince: null, cta: null, facesBlurred: false });
   });
 
   it("400 para parâmetros inválidos", async () => {

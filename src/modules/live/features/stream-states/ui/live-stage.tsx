@@ -89,7 +89,7 @@ export function LiveStage({ entityType, entityId, initial, title, onWatch, conte
               onVisitorTap={() => engagement.setNotice("Entre para curtir e reagir.")}
             />
           )}
-          <PublicLiveNotice />
+          <PublicLiveNotice facesBlurred={status.facesBlurred} />
         </>
       ) : (
         <div role="status" className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-4">
