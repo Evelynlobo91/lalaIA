@@ -42,6 +42,8 @@ import { InMemoryRateLimiter, SendReactions, ToggleLiveLike } from "./features/r
 import { PostgresReactionRepository } from "./infra/postgres-reaction-repository";
 import { LiftChatRestriction, ListChatRestrictions, ModerateChatMessage, SaveChatSettings } from "./features/moderate-chat/moderate-chat.use-case";
 import { PostgresChatModeration } from "./infra/postgres-chat-moderation";
+import { ListChatReports, ReportChatMessage, ResolveChatReports } from "./features/report-chat-message/report-chat-message.use-case";
+import { PostgresChatReports } from "./infra/postgres-chat-reports";
 import { publicProfiles } from "@/modules/identity";
 import { PostgresCtaRepository } from "./infra/postgres-cta-repository";
 
@@ -138,3 +140,10 @@ export const liftChatRestriction = lazy(() => new LiftChatRestriction(chatModera
 export const listChatRestrictions = lazy(
   () => new ListChatRestrictions(chatModeration(), async (ids) => new Map((await publicProfiles(ids)).map((p) => [p.id, p.displayName]))),
 );
+
+// Denúncia de mensagem do chat (#193).
+const chatReports = lazy(() => new PostgresChatReports(sql()));
+const profileNames = async (ids: string[]) => new Map((await publicProfiles(ids)).map((p) => [p.id, p.displayName]));
+export const reportChatMessage = lazy(() => new ReportChatMessage(chatReports()));
+export const listChatReports = lazy(() => new ListChatReports(chatReports(), profileNames));
+export const resolveChatReports = lazy(() => new ResolveChatReports(chatReports(), chatModeration(), domainEvents()));

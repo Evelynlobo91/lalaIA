@@ -49,8 +49,12 @@ test.describe("moderação do chat pelo anfitrião (#192)", () => {
     await chat.getByRole("button", { name: "Fixar no topo" }).click();
     await expect(chat.getByRole("note", { name: "Mensagem fixada" })).toContainText("Happy hour até 20h");
     await expect(chatOf(leoPage).getByRole("note", { name: "Mensagem fixada" })).toContainText("Happy hour até 20h", soon);
-    // Quem não modera não vê os controles do anfitrião, só o de apagar a própria mensagem.
-    await expect(chatOf(leoPage).getByRole("button", { name: "Opções da mensagem de Bar Moderado" })).toHaveCount(0);
+    // Quem não modera não vê os controles do anfitrião: na mensagem dos outros, só "Denunciar".
+    await chatOf(leoPage).getByRole("button", { name: "Opções da mensagem de Bar Moderado" }).click();
+    const opcoesDoLeo = chatOf(leoPage).getByRole("group", { name: "Opções para a mensagem de Bar Moderado" });
+    await expect(opcoesDoLeo.getByRole("button", { name: "Denunciar" })).toBeVisible();
+    await expect(opcoesDoLeo.getByRole("button")).toHaveCount(1);
+    await chatOf(leoPage).getByRole("button", { name: "Opções da mensagem de Bar Moderado" }).click();
 
     // Apagar: some para todos. O autor também apaga a própria.
     await say(leoPage, "mensagem que vai sumir");

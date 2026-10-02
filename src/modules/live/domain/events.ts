@@ -11,6 +11,8 @@ declare module "@/shared/events/domain-event" {
     /** A moderação desativou/reativou uma chamada (CTA) de uma live (#182). */
     "live.CtaDisabledByAdmin": { ctaId: string; streamId: string; disabledBy: string };
     "live.CtaEnabledByAdmin": { ctaId: string; streamId: string; enabledBy: string };
+    /** A moderação resolveu as denúncias de uma mensagem do chat (#193): apagou ou manteve. */
+    "live.ChatReportResolved": { messageId: string; resolvedBy: string; resolution: "removed" | "kept" };
   }
 }
 

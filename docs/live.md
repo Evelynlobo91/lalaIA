@@ -396,3 +396,23 @@ apaga a própria mensagem.
 Limitações: sem aviso para a pessoa no momento em que é silenciada (ela vê ao tentar enviar); ações de moderação
 do chat não entram na trilha de auditoria do backoffice; a moderação da plataforma modera pelo próprio chat
 (não há tela no backoffice) e não altera as opções do chat de um parceiro.
+
+### Denúncia, retenção e LGPD do chat (#193)
+
+- **Denunciar**: no menu "⋮" de uma mensagem de outra pessoa, qualquer pessoa logada escolhe o motivo (ofensa,
+  assédio, spam, outro). `POST /api/live/chat/reports`; uma denúncia por pessoa e mensagem. A mensagem continua no
+  chat até a moderação decidir (o anfitrião pode apagar antes).
+- **Fila da moderação**: `/admin/conteudo/denuncias` (capacidade `content:edit`), com o texto, quem escreveu, quantas
+  denúncias e os motivos. "Apagar mensagem" tira do chat para todos; "Manter" só fecha as denúncias. As duas
+  saídas entram na auditoria (`live.ChatReportResolved`).
+- **Retenção**: `live.purge_old_chat_messages()` apaga de vez as mensagens com mais de 30 dias (curtidas e
+  denúncias saem em cascata). Agendada todo dia às 03:30 pelo `pg_cron` (`live-chat-retention`).
+- **Exclusão de conta**: as mensagens ficam sem autor ("Usuário removido"); denúncias feitas pela pessoa ficam sem
+  denunciante; curtidas, silêncios e banimentos dela saem em cascata.
+- **Exportação**: `mensagensNoChatDasLives` (texto, data e se foi apagada) entra no JSON de dados pessoais.
+- "Quem apagou" e "quem resolveu" são só ids, sem FK para a conta: duas colunas `on delete set null` na mesma
+  linha quebravam a exclusão da conta do anfitrião que tinha apagado uma mensagem própria.
+
+Limitações do chat como um todo (#95): atualização por polling (2,5 s no chat, 5 s no pulso), não em 1 s; o teste
+de carga com 200 espectadores fica com o #56; sem XP por participar do chat; os eventos `live_chat_message`,
+`live_like` e `live_reaction` não vão para o Analytics (os totais ficam nas tabelas da live).
