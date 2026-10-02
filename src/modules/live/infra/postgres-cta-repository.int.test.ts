@@ -9,6 +9,7 @@ const repo = new PostgresCtaRepository(db);
 const ana = crypto.randomUUID(); // parceira, dona
 const bia = crypto.randomUUID(); // outra parceira
 const adm = crypto.randomUUID(); // admin
+const mod = crypto.randomUUID(); // moderação (content:edit, sem ser admin)
 let anaStream: string;
 let biaStream: string;
 
@@ -34,16 +35,16 @@ const cta = (streamId: string, patch: Partial<CtaToSave> = {}): CtaToSave => ({
 });
 
 beforeAll(async () => {
-  for (const id of [ana, bia, adm]) {
+  for (const id of [ana, bia, adm, mod]) {
     await db`insert into auth.users (id, email, raw_user_meta_data) values (${id}, ${`cta-${id}@lalaia.test`}, ${db.json({ terms_version: "2026-09" })})`;
   }
-  await db`insert into identity.user_roles (user_id, role) values (${ana}, 'partner'), (${bia}, 'partner'), (${adm}, 'admin')`;
+  await db`insert into identity.user_roles (user_id, role) values (${ana}, 'partner'), (${bia}, 'partner'), (${adm}, 'admin'), (${mod}, 'moderator')`;
   anaStream = await stream(ana);
   biaStream = await stream(bia);
 });
 
 afterAll(async () => {
-  await db`delete from auth.users where id in (${ana}, ${bia}, ${adm})`;
+  await db`delete from auth.users where id in (${ana}, ${bia}, ${adm}, ${mod})`;
   await db.end();
 });
 
@@ -121,6 +122,36 @@ describe("PostgresCtaRepository (#178)", () => {
     await expect(repo.setTrigger(ana, mine.id, { at, until: new Date("2026-10-03T01:00:00Z") })).rejects.toThrow(/ctas_trigger_shape/);
     expect(await repo.setTrigger(bia, mine.id, null)).toBeNull();
     expect(await repo.setTrigger(ana, mine.id, null)).toMatchObject({ triggeredAt: null, triggeredUntil: null });
+  });
+
+  it("moderação (#182): só quem tem content:edit desativa e reativa; a dona não reativa nem a moderação reescreve", async () => {
+    const [mine] = await repo.listByStream(ana, anaStream);
+    // A dona e outra parceira não desativam (o gatilho recusa a dona; a RLS esconde da outra).
+    await expect(repo.setDisabled(ana, mine.id, true)).rejects.toThrow(/só a moderação/);
+    expect(await repo.setDisabled(bia, mine.id, true)).toBeNull();
+
+    const disabled = await repo.setDisabled(mod, mine.id, true);
+    expect(disabled?.disabledAt).toBeInstanceOf(Date);
+    const [row] = await db`select disabled_by from live.ctas where id = ${mine.id}`;
+    expect(row.disabled_by).toBe(mod);
+    expect((await repo.listAll(mod, 50)).find((c) => c.id === mine.id)).toMatchObject({ title: mine.title, entityType: "place" });
+    expect((await repo.listAll(bia, 50)).some((c) => c.id === mine.id)).toBe(false);
+
+    // Desativada: a dona ainda edita o conteúdo, mas não reativa; a moderação não altera o conteúdo.
+    expect(await repo.update(ana, mine.id, cta(anaStream, { title: "Título corrigido", schedule: { kind: "recurring", intervalMinutes: 20, durationMinutes: 5 } }))).toMatchObject({ title: "Título corrigido", disabledAt: disabled!.disabledAt });
+    await expect(repo.setDisabled(ana, mine.id, false)).rejects.toThrow(/só a moderação/);
+    await expect(asUser(adm, (tx) => tx`update live.ctas set title = 'Reescrito' where id = ${mine.id}`, db)).rejects.toThrow(/só o dono/);
+
+    expect(await repo.setDisabled(adm, mine.id, false)).toMatchObject({ disabledAt: null });
+    expect(await repo.setDisabled(adm, crypto.randomUUID(), true)).toBeNull();
+  });
+
+  it("analytics aceita impressão e toque só para a entidade chamada", async () => {
+    const id = crypto.randomUUID();
+    await db`insert into analytics.events (kind, entity_type, entity_id, source) values ('cta_impression', 'cta', ${id}, 'ui'), ('cta_click', 'cta', ${id}, 'ui')`;
+    await expect(db`insert into analytics.events (kind, entity_type, entity_id, source) values ('view', 'cta', ${id}, 'ui')`).rejects.toThrow(/events_cta_kind_check/);
+    await expect(db`insert into analytics.events (kind, entity_type, entity_id, source) values ('cta_click', 'place', ${id}, 'ui')`).rejects.toThrow(/events_cta_kind_check/);
+    await db`delete from analytics.events where entity_id = ${id}`;
   });
 
   it("remove o próprio CTA; os CTAs somem com a transmissão", async () => {

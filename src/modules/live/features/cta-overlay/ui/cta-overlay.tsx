@@ -25,6 +25,17 @@ function rememberClosed(id: string) {
   }
 }
 
+/**
+ * #182 — Impressão e toque vão para o tracking (POST /api/analytics/track), sem quem viu. Respeita o
+ * consentimento (#25): com "métricas de uso" desligadas neste navegador, nada é enviado. Nunca atrasa a tela.
+ */
+function track(kind: "cta_impression" | "cta_click", ctaId: string) {
+  if (/(?:^|;\s*)lalaia-analytics=0(?:;|$)/.test(document.cookie)) return;
+  const body = JSON.stringify({ kind, entityType: "cta", entityId: ctaId });
+  const sent = typeof navigator.sendBeacon === "function" && navigator.sendBeacon("/api/analytics/track", new Blob([body], { type: "application/json" }));
+  if (!sent) void fetch("/api/analytics/track", { method: "POST", body, headers: { "content-type": "application/json" }, keepalive: true }).catch(() => {});
+}
+
 type Props = {
   cta: ActiveCtaView | null;
   /** Lugar/evento transmitido: o "Quero ir" é registrado para ele. */
@@ -55,14 +66,30 @@ export function CtaOverlay({ cta, entityType, entityId }: Props) {
     return () => clearTimeout(timer);
   }, [cta, key]);
 
-  if (!cta || closed === null || closed.includes(cta.id) || expired === key) return null;
+  const visible = Boolean(cta && closed !== null && !closed.includes(cta.id) && expired !== key);
+  const visibleId = visible && cta ? cta.id : null;
+  useEffect(() => {
+    if (!visibleId) return;
+    // Uma impressão por aba e por chamada: recarregar (ou a recorrência) não infla o número.
+    const seenKey = `lalaia:track:cta_impression:${visibleId}`;
+    try {
+      if (sessionStorage.getItem(seenKey)) return;
+      sessionStorage.setItem(seenKey, "1");
+    } catch {
+      // Sem sessionStorage: registra assim mesmo.
+    }
+    track("cta_impression", visibleId);
+  }, [visibleId]);
+
+  if (!cta || !visible) return null;
 
   const close = () => {
     rememberClosed(cta.id);
     setClosed((ids) => [...(ids ?? []), cta.id]);
   };
 
-  const recordWantToGo = () => {
+  const recordClick = () => {
+    track("cta_click", cta.id);
     if (cta.type !== "quero-ir") return;
     fetch("/api/favorites/want-to-go", {
       method: "POST",
@@ -86,13 +113,13 @@ export function CtaOverlay({ cta, entityType, entityId }: Props) {
           {cta.body && <p className="text-sm text-muted">{cta.body}</p>}
         </div>
         {cta.external ? (
-          <a href={cta.href} target="_blank" rel="noopener noreferrer" onClick={recordWantToGo} onAuxClick={recordWantToGo} className={buttonClass}>
+          <a href={cta.href} target="_blank" rel="noopener noreferrer" onClick={recordClick} onAuxClick={recordClick} className={buttonClass}>
             {cta.buttonLabel}
             <ExternalLink aria-hidden className="size-4" />
             <span className="sr-only">(abre em nova aba)</span>
           </a>
         ) : (
-          <Link href={cta.href} className={buttonClass}>
+          <Link href={cta.href} onClick={recordClick} className={buttonClass}>
             {cta.buttonLabel}
           </Link>
         )}

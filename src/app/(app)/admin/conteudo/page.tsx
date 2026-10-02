@@ -77,6 +77,10 @@ export default async function AdminConteudoPage({ searchParams }: PageProps<"/ad
 
       <ContentSearch tab={tab} text={text} />
 
+      <Link href="/admin/conteudo/chamadas" className="inline-flex min-h-11 items-center self-start text-sm font-medium text-brand underline">
+        Chamadas nas lives
+      </Link>
+
       {tab === "lugares" && (
         <ButtonLink href="/admin/conteudo/lugares/novo" variant="secondary" className="self-start">
           Cadastrar estabelecimento

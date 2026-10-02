@@ -3,7 +3,9 @@ import type { Sql } from "@/shared/db/sql";
 import type { CtaPriority, CtaRecord, CtaSchedule, CtaType } from "../domain/cta";
 import type { StreamCtaReader } from "../features/active-cta/active-cta.use-case";
 import type { CtaRepository, CtaToSave } from "../features/schedule-cta/schedule-cta.use-case";
+import type { CtaForModeration, CtaModerationStore } from "../features/moderate-cta/moderate-cta.use-case";
 import type { CtaTriggerStore } from "../features/trigger-cta/trigger-cta.use-case";
+import type { StreamEntityType } from "../domain/stream";
 
 type CtaRow = {
   id: string;
@@ -25,11 +27,12 @@ type CtaRow = {
   interval_minutes: number | null;
   triggered_at: Date | null;
   triggered_until: Date | null;
+  disabled_at: Date | null;
   created_at: Date;
 };
 
 export const CTA_COLUMNS =
-  "id, stream_id, owner_id, type, ref_id, href, external, title, body, button_label, priority, schedule_kind, starts_at, ends_at, offset_minutes, duration_minutes, interval_minutes, triggered_at, triggered_until, created_at";
+  "id, stream_id, owner_id, type, ref_id, href, external, title, body, button_label, priority, schedule_kind, starts_at, ends_at, offset_minutes, duration_minutes, interval_minutes, triggered_at, triggered_until, disabled_at, created_at";
 
 function scheduleOf(r: CtaRow): CtaSchedule {
   if (r.schedule_kind === "absolute") return { kind: "absolute", startsAt: r.starts_at!, endsAt: r.ends_at! };
@@ -52,6 +55,7 @@ export const toCta = (r: CtaRow): CtaRecord => ({
   schedule: scheduleOf(r),
   triggeredAt: r.triggered_at,
   triggeredUntil: r.triggered_until,
+  disabledAt: r.disabled_at,
   createdAt: r.created_at,
 });
 
@@ -66,7 +70,7 @@ function scheduleValues(s: CtaSchedule): [Date | null, Date | null, number | nul
 
 const contentValues = (c: CtaToSave) => [c.type, c.refId, c.href, c.external, c.title, c.body, c.buttonLabel, c.priority, c.schedule.kind, ...scheduleValues(c.schedule)];
 
-export class PostgresCtaRepository implements CtaRepository, StreamCtaReader, CtaTriggerStore {
+export class PostgresCtaRepository implements CtaRepository, StreamCtaReader, CtaTriggerStore, CtaModerationStore {
   constructor(private readonly sql: Sql) {}
 
   async listByStream(actorId: string, streamId: string): Promise<CtaRecord[]> {
@@ -123,6 +127,35 @@ export class PostgresCtaRepository implements CtaRepository, StreamCtaReader, Ct
     const [row] = await asUser(
       actorId,
       (tx) => tx.unsafe<CtaRow[]>(`update live.ctas set triggered_at = $3, triggered_until = $4 where id = $1 and owner_id = $2 returning ${CTA_COLUMNS}`, [ctaId, actorId, window?.at ?? null, window?.until ?? null]),
+      this.sql,
+    );
+    return row ? toCta(row) : null;
+  }
+
+  async listAll(actorId: string, limit: number): Promise<CtaForModeration[]> {
+    // As chamadas saem sob RLS (só a moderação lê as de todos). O lugar/evento de cada transmissão vem por uma
+    // leitura do sistema: é informação pública, e a RLS de live.streams só abre para o dono e o admin.
+    const rows = await asUser(actorId, (tx) => tx.unsafe<CtaRow[]>(`select ${CTA_COLUMNS} from live.ctas order by created_at desc limit $1`, [limit]), this.sql);
+    if (rows.length === 0) return [];
+    const streams = await this.sql<{ id: string; entity_type: StreamEntityType; entity_id: string }[]>`
+      select id, entity_type, entity_id from live.streams where id in ${this.sql([...new Set(rows.map((r) => r.stream_id))])}`;
+    const targets = new Map(streams.map((st) => [st.id, st]));
+    return rows.flatMap((r) => {
+      const target = targets.get(r.stream_id);
+      if (!target) return [];
+      const { id, type, title, body, buttonLabel, href, external, disabledAt, createdAt } = toCta(r);
+      return [{ id, type, title, body, buttonLabel, href, external, disabledAt, createdAt, entityType: target.entity_type, entityId: target.entity_id }];
+    });
+  }
+
+  async setDisabled(actorId: string, ctaId: string, disabled: boolean): Promise<CtaRecord | null> {
+    const [row] = await asUser(
+      actorId,
+      (tx) =>
+        tx.unsafe<CtaRow[]>(
+          `update live.ctas set disabled_at = case when $2 then coalesce(disabled_at, now()) end, disabled_by = case when $2 then $3::uuid end where id = $1 returning ${CTA_COLUMNS}`,
+          [ctaId, disabled, actorId],
+        ),
       this.sql,
     );
     return row ? toCta(row) : null;

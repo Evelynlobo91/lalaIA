@@ -1,7 +1,9 @@
 // API pública do módulo live (transmissões ao vivo de lugares e eventos).
 import { hasRole, type CurrentUser } from "@/modules/identity";
 import type { ModuleSubscriptions } from "@/shared/events";
-import { getCtaPanel, liveCountsReader } from "./composition";
+import { getCtaMetrics, getCtaPanel, listCtasForModeration, liveCountsReader } from "./composition";
+import type { CtaMetrics } from "./features/cta-metrics/cta-metrics.use-case";
+import type { CtaModerator } from "./features/moderate-cta/moderate-cta.use-case";
 import { toLocalInput } from "@/shared/time/joinville-time";
 import type { CtaRecord } from "./domain/cta";
 import type { CtaPanel } from "./features/schedule-cta/schedule-cta.use-case";
@@ -48,6 +50,30 @@ export type { ActiveCtaView } from "./features/active-cta/active-cta.use-case";
 export function liveCtaPanel(user: CurrentUser, streamId: string): Promise<CtaPanel | null> {
   if (!UUID.test(streamId)) return Promise.resolve(null);
   return getCtaPanel().execute({ id: user.id, isPartner: hasRole(user, "partner"), isAdmin: hasRole(user, "admin") }, streamId);
+}
+
+export { CtaMetricsLine } from "./features/cta-metrics/ui/cta-metrics-line";
+export { ModerateCtaButton } from "./features/moderate-cta/ui/moderate-cta-button";
+export type { CtaMetrics } from "./features/cta-metrics/cta-metrics.use-case";
+export type { CtaForModeration } from "./features/moderate-cta/moderate-cta.use-case";
+
+/**
+ * Impressões e toques de cada chamada (#182), por id. Só contagens (o Analytics não guarda quem). Se o Analytics
+ * falhar, o portal segue sem os números.
+ */
+export async function ctaMetrics(panel: Pick<CtaPanel, "ctas">): Promise<Record<string, CtaMetrics>> {
+  try {
+    return await getCtaMetrics().execute(panel.ctas.map((c) => c.id));
+  } catch (error) {
+    logger().error("falha ao carregar as métricas das chamadas", { err: error });
+    errorReporter().capture(error);
+    return {};
+  }
+}
+
+/** Backoffice: chamadas de toda a plataforma, para a moderação desativar ou reativar (#182). */
+export function ctasForModeration(moderator: CtaModerator) {
+  return listCtasForModeration().execute(moderator);
 }
 
 /** Valores de um CTA para preencher o formulário de edição. */

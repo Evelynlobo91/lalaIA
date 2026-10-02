@@ -2,7 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CTA_LIMITS, CTA_PRIORITY_LABELS, CTA_TYPE_LABELS, CtaForm, DeleteCtaButton, StreamStatusBadge, TriggerCtaButton, describeSchedule, liveCtaPanel, livePortal } from "@/modules/live";
+import { CTA_LIMITS, CTA_PRIORITY_LABELS, CTA_TYPE_LABELS, CtaForm, CtaMetricsLine, DeleteCtaButton, StreamStatusBadge, TriggerCtaButton, ctaMetrics, describeSchedule, liveCtaPanel, livePortal } from "@/modules/live";
 import { requirePartner } from "@/modules/partners";
 import { formatTime } from "@/shared/time/joinville-time";
 import { Badge, ButtonLink, Card, FormAlert } from "@/shared/ui";
@@ -18,6 +18,7 @@ export default async function ChamadasLivePage({ params, searchParams }: PagePro
   if (!panel) notFound();
   const label = portal.targets.find((t) => t.stream?.id === streamId)?.label ?? "Transmissão";
   const { ctas, agenda } = panel;
+  const metrics = await ctaMetrics(panel);
   const now = new Date();
 
   return (
@@ -80,13 +81,15 @@ export default async function ChamadasLivePage({ params, searchParams }: PagePro
                     </p>
                   </div>
                   <Badge variant="neutral">{CTA_TYPE_LABELS[cta.type]}</Badge>
+                  {cta.disabledAt && <Badge variant="danger">Desativada pela moderação</Badge>}
+                  {metrics[cta.id] && <CtaMetricsLine metrics={metrics[cta.id]!} title={cta.title} />}
                   <div className="flex w-full items-center gap-3 sm:w-auto">
                     <Link href={`/parceiro/live/chamadas/${streamId}/${cta.id}`} className="inline-flex min-h-11 items-center text-sm font-medium text-brand underline" aria-label={`Editar a chamada ${cta.title}`}>
                       Editar
                     </Link>
                     <DeleteCtaButton ctaId={cta.id} title={cta.title} />
                   </div>
-                  {panel.entitled && panel.stream.status !== "ended" && (
+                  {panel.entitled && panel.stream.status !== "ended" && !cta.disabledAt && (
                     <TriggerCtaButton ctaId={cta.id} title={cta.title} live={panel.stream.status === "live"} runningUntil={cta.triggeredUntil && cta.triggeredUntil > now ? cta.triggeredUntil.toISOString() : null} />
                   )}
                 </Card>

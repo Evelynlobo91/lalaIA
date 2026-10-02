@@ -60,6 +60,8 @@ export type CtaRecord = {
   /** Disparo manual (#181): solta pelo parceiro em `triggeredAt`, fica no ar até `triggeredUntil`. */
   triggeredAt: Date | null;
   triggeredUntil: Date | null;
+  /** Desativada pela moderação (#182): não aparece no player até ser reativada. */
+  disabledAt: Date | null;
   createdAt: Date;
 };
 
@@ -131,10 +133,12 @@ export type CtaAgendaEntry = { ctaId: string; title: string; priority: CtaPriori
 export function agendaOfDay(ctas: CtaRecord[], now: Date, liveSince: Date | null): { timed: CtaAgendaEntry[]; whenLive: CtaRecord[] } {
   const dayStart = localMidnight(localDate(now));
   const dayEnd = localMidnight(localDate(now), 1);
-  const timed = ctas
+  // Desativada pela moderação: fora da agenda.
+  const active = ctas.filter((cta) => !cta.disabledAt);
+  const timed = active
     .flatMap((cta) => [...windowsBetween(cta.schedule, dayStart, dayEnd, liveSince, 48), ...(cta.triggeredAt && cta.triggeredUntil && cta.triggeredUntil > now ? [{ start: cta.triggeredAt, end: cta.triggeredUntil }] : [])].map((w) => ({ ctaId: cta.id, title: cta.title, priority: cta.priority, start: w.start, end: w.end })))
     .sort((a, b) => a.start.getTime() - b.start.getTime() || a.priority - b.priority);
-  const whenLive = liveSince ? [] : ctas.filter((cta) => cta.schedule.kind !== "absolute");
+  const whenLive = liveSince ? [] : active.filter((cta) => cta.schedule.kind !== "absolute");
   return { timed, whenLive };
 }
 

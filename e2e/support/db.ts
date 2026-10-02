@@ -271,3 +271,11 @@ export function createLiveCta(
     return row.id;
   });
 }
+
+/** Impressões e toques registrados para uma chamada (CTA) no Analytics. */
+export function ctaCounts(ctaId: string): Promise<Record<string, number>> {
+  return withDb(async (sql) => {
+    const rows = await sql<{ kind: string; total: number }[]>`select kind, count(*)::int as total from analytics.events where entity_type = 'cta' and entity_id = ${ctaId} group by kind`;
+    return Object.fromEntries(rows.map((r) => [r.kind, r.total]));
+  });
+}
