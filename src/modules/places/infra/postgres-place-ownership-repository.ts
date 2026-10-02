@@ -32,6 +32,12 @@ export class PostgresPlaceOwnershipRepository implements PlaceOwnershipRepositor
     return row ? toSummary(row) : null;
   }
 
+  async summaries(ids: string[]): Promise<PlaceSummary[]> {
+    if (ids.length === 0) return [];
+    const rows = await this.sql<SummaryRow[]>`select id, name, category, neighborhood, managed_by from places.places where id in ${this.sql(ids)}`;
+    return rows.map(toSummary);
+  }
+
   async assignOwner(placeId: string, userId: string): Promise<boolean> {
     const rows = await this.sql`update places.places set managed_by = ${userId} where id = ${placeId} returning id`;
     return rows.length > 0;

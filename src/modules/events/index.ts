@@ -1,10 +1,14 @@
 // API pública do módulo events ("O que fazer").
 import { toLocalInput } from "@/shared/time/joinville-time";
-import { eventRepository, placesLookup } from "./composition";
+import { queryRoute } from "@/shared/http/json-route";
+import { eventRepository, listEvents, placesLookup } from "./composition";
+import { DEFAULT_PAGE_SIZE, listEventsSchema } from "./features/list-events/list-events";
 import type { EventRecord } from "./domain/event";
 
 export { EventForm, type EventFormValues } from "./features/manage-events/ui/event-form";
 export { CancelEventButton } from "./features/manage-events/ui/cancel-event-button";
+export { EventList, EventListCard, EventListSkeleton } from "./features/list-events/ui/event-list";
+export type { EventListItem, EventListPage } from "./features/list-events/list-events";
 export { formatPrice, type EventRecord, type EventStatus } from "./domain/event";
 
 export type OwnerEventItem = EventRecord & { placeName: string };
@@ -39,3 +43,15 @@ export async function editableEvent(editor: { id: string; isAdmin: boolean }, ev
     },
   };
 }
+
+/** Primeira página da lista pública (renderizada no servidor). */
+export async function firstEventsPage() {
+  const result = await listEvents().execute({ cursor: null, limit: DEFAULT_PAGE_SIZE });
+  if (!result.ok) throw result.error;
+  return result.value;
+}
+
+export const eventsApi = {
+  /** GET /api/events?cursor= */
+  list: queryRoute(listEventsSchema, (input) => listEvents().execute(input)),
+};
