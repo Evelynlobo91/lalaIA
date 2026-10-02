@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { TrackView } from "@/modules/analytics";
 import { EventDetailCard, getEventDetail } from "@/modules/events";
 import { FavoriteToggle, WantToGoButton } from "@/modules/favorites";
 
@@ -38,6 +39,7 @@ export default async function EventoPage({ params }: PageProps<"/eventos/[id]">)
         extras={<FavoriteToggle entityType="event" entityId={event.id} className="sm:self-start" />}
         directions={event.place && <WantToGoButton href={event.place.directionsUrl} entityType="event" entityId={event.id} className="sm:w-auto sm:self-start" />}
       />
+      <TrackView entityType="event" entityId={event.id} />
     </div>
   );
 }

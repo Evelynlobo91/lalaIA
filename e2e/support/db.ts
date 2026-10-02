@@ -119,3 +119,12 @@ export function addFavorite(user: Pick<TestUser, "email">, entityType: "place" |
                  on conflict do nothing`,
   );
 }
+
+/** Interações registradas pelo Analytics para uma entidade (contagem por tipo). */
+export function interactionCounts(entityId: string): Promise<Record<string, number>> {
+  return withDb(async (sql) => {
+    const rows = await sql<{ kind: string; total: number }[]>`
+      select kind, count(*)::int as total from analytics.events where entity_id = ${entityId} group by kind`;
+    return Object.fromEntries(rows.map((r) => [r.kind, r.total]));
+  });
+}
