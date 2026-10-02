@@ -35,7 +35,7 @@ export function EventDateFilter({ filters, basePath = "/eventos" }: { filters: E
           type="date"
           name="quando"
           defaultValue={active?.kind === "data" ? active.date : undefined}
-          className={cn("h-11 rounded-full border px-4 text-sm", active?.kind === "data" ? "border-brand" : "border-border", "bg-bg")}
+          className={cn("h-11 rounded-full border px-4 text-sm", active?.kind === "data" ? "border-brand" : "border-border", "bg-surface")}
         />
         <Button type="submit" size="sm" variant="secondary">
           Ver

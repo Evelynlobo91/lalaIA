@@ -9,7 +9,7 @@ import type { OfferFormValues } from "../partner-offers";
 
 export type OfferTargetOption = { value: string; label: string; type: "place" | "event" };
 
-const fieldClass = "rounded-xl border border-border bg-bg px-4 text-base font-normal aria-invalid:border-danger";
+const fieldClass = "rounded-xl border border-border bg-surface px-4 text-base font-normal aria-invalid:border-danger";
 
 /**
  * Formulário de oferta. `targetOptions`: lugares que o parceiro gerencia e eventos que criou.

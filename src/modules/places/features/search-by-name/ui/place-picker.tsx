@@ -85,10 +85,10 @@ export function PlacePicker({ name, label, initial, errors }: { name: string; la
                 choose(results[active]);
               } else if (e.key === "Escape") setResults([]);
             }}
-            className="h-12 w-full rounded-xl border border-border bg-bg px-4 text-base aria-invalid:border-danger"
+            className="h-12 w-full rounded-xl border border-border bg-surface px-4 text-base aria-invalid:border-danger"
           />
           {results.length > 0 && (
-            <ul id={listId} role="listbox" aria-label="Sugestões de lugares" className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-border bg-bg shadow-lg">
+            <ul id={listId} role="listbox" aria-label="Sugestões de lugares" className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-border bg-surface shadow-lg">
               {results.map((place, i) => (
                 <li
                   key={place.id}

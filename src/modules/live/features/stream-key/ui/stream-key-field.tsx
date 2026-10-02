@@ -73,7 +73,7 @@ export function StreamKeyField({ streamId }: { streamId: string }) {
       </span>
       <output
         aria-label="Chave de transmissão"
-        className="block min-h-11 select-all break-all rounded-xl border border-border bg-bg px-3 py-2.5 font-mono text-sm"
+        className="block min-h-11 select-all break-all rounded-xl border border-border bg-surface px-3 py-2.5 font-mono text-sm"
       >
         {visible && key ? key : MASK}
       </output>

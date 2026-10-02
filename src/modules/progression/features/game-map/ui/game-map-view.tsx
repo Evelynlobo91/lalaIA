@@ -60,7 +60,7 @@ export function GameMapView({ counts, initial }: Props) {
                 {state === "inexplorado" ? (
                   <Lock aria-hidden className="size-4 text-muted" />
                 ) : (
-                  <span aria-hidden className="size-3.5 rounded-full ring-2 ring-bg" style={{ backgroundColor: GAME_COLORS[state] }} />
+                  <span aria-hidden className="size-3.5 rounded-full ring-2 ring-surface" style={{ backgroundColor: GAME_COLORS[state] }} />
                 )}
                 <span className="flex-1 text-sm">{gameStateLabels[state]}</span>
                 <span className="text-sm tabular-nums text-muted">{counts[state]}</span>

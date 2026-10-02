@@ -13,7 +13,7 @@ export function AppNav() {
     <nav
       aria-label="Navegação principal"
       className={cn(
-        "fixed inset-x-0 bottom-0 z-40 border-t border-border bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur",
+        "fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur",
         "md:inset-y-0 md:left-0 md:right-auto md:w-60 md:border-r md:border-t-0 md:pb-0",
       )}
     >
@@ -38,7 +38,7 @@ export function AppNav() {
                 <span
                   className={cn(
                     "flex items-center justify-center rounded-full",
-                    highlight && "size-9 bg-accent text-accent-fg md:size-7",
+                    highlight && "size-9 bg-brand text-brand-fg md:size-7",
                   )}
                 >
                   <Icon aria-hidden className={cn("size-5", highlight && "md:size-4")} strokeWidth={active ? 2.5 : 2} />

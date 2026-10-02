@@ -20,7 +20,7 @@ type SearchFiltersProps = {
   keep: Record<string, string>;
 };
 
-const control = "h-11 w-full rounded-xl border border-border bg-bg px-3 text-base text-fg";
+const control = "h-11 w-full rounded-xl border border-border bg-surface px-3 text-base text-fg";
 
 function Select({ name, label, options, value, anyLabel }: { name: Field; label: string; options: FilterOption[]; value?: string; anyLabel: string }) {
   const id = `filtro-${name}`;

@@ -15,8 +15,8 @@ export default async function Image({ params }: { params: Promise<{ id: string }
 
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 72, background: "#3b1d8f", color: "#ffffff", fontFamily: "sans-serif" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 20, fontSize: 40, fontWeight: 700, color: "#ffc94d" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 72, background: "#02407f", color: "#ffffff", fontFamily: "sans-serif" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 20, fontSize: 40, fontWeight: 700, color: "#bcd4f2" }}>
           <svg height="72" width="125" viewBox={`0 0 ${LOGO_VIEWBOX.width} ${LOGO_VIEWBOX.height}`}>
             <path d={LOGO_WORDMARK_PATH} fill="#ffffff" fillRule="evenodd" />
             <path d={LOGO_PIN_PATH} fill={LOGO_COLORS.red} fillRule="evenodd" />
@@ -26,7 +26,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           <div style={{ fontSize: name.length > 40 ? 64 : 84, fontWeight: 800, lineHeight: 1.05 }}>{name}</div>
           <div style={{ fontSize: 40, opacity: 0.9 }}>{subtitle}</div>
         </div>
-        <div style={{ display: "flex", fontSize: 30, color: "#ffc94d" }}>Descobrir → Ver → Decidir → Viver</div>
+        <div style={{ display: "flex", fontSize: 30, color: "#bcd4f2" }}>Descobrir → Ver → Decidir → Viver</div>
       </div>
     ),
     size,
