@@ -1,6 +1,7 @@
 import type { BusinessRuleError, Result } from "@/shared/kernel";
+import type { Role } from "./roles";
 
-export type CurrentUser = { id: string; email: string; displayName: string; avatarUrl: string | null };
+export type CurrentUser = { id: string; email: string; displayName: string; avatarUrl: string | null; roles: Role[] };
 
 /** Porta para autenticar e encerrar sessão no provedor (Supabase Auth). */
 export interface SessionGateway {

@@ -8,6 +8,7 @@ import { loginSchema } from "./login.schema";
 import { LoginUser, type LoginResult } from "./login.use-case";
 
 const handle = formAction(loginSchema, async (input) => new LoginUser(new SupabaseSessionGateway(await createSupabaseServerClient())).execute(input), {
+  name: "identity.login",
   keepValues: ["email"],
 });
 

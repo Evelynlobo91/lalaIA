@@ -38,7 +38,44 @@ A regra de negócio mora no código, mas os invariantes também ficam no banco:
 ### Segurança
 - Schemas de módulo não são expostos na API REST automática do Supabase
   (`revoke all ... from anon, authenticated`); o acesso passa pelo backend.
-- As políticas RLS por papel chegam no slice de autorização (#24).
+- **Tabelas com dono** (ex.: eventos de um parceiro) usam RLS como segunda camada de proteção.
+  O backend grava e lê nelas com `asUser(userId, tx => ...)` (`src/shared/db/as-user.ts`), que roda
+  a transação como o papel `authenticated` com `auth.uid()` igual ao usuário da sessão. Assim, mesmo
+  que um caso de uso esqueça o filtro por dono, o banco não deixa acessar dados de outra pessoa.
+
+#### Papéis
+`identity.user_roles` guarda os papéis além do usuário comum: `partner` e `admin`. Nas políticas,
+use `authz.has_role('partner')` / `authz.has_role('admin')` junto de `auth.uid()`. Revogar um papel
+vale na hora. Para conceder ou revogar localmente:
+
+```bash
+npm run role -- grant admin voce@exemplo.com
+npm run role -- revoke partner voce@exemplo.com
+npm run role -- list voce@exemplo.com
+```
+
+#### Exemplo de tabela com dono
+
+```sql
+create schema if not exists events;
+revoke all on schema events from anon;
+grant usage on schema events to authenticated;          -- só para asUser; o schema segue fora da API REST
+
+create table events.events (
+  id       uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references auth.users (id),
+  title    text not null
+);
+alter table events.events enable row level security;
+grant select, insert, update, delete on events.events to authenticated;
+
+create policy "dono ou admin lê" on events.events for select to authenticated
+  using (owner_id = (select auth.uid()) or (select authz.has_role('admin')));
+create policy "parceiro cria o próprio" on events.events for insert to authenticated
+  with check (owner_id = (select auth.uid()) and (select authz.has_role('partner')));
+create policy "dono ou admin altera" on events.events for update to authenticated
+  using (owner_id = (select auth.uid()) or (select authz.has_role('admin')));
+```
 
 ## Exemplo de migration de módulo
 

@@ -139,5 +139,13 @@ Para reagir a algo que acontece em outro módulo, **assine um evento de domínio
 - **Foto de perfil:** bucket `avatars` do Supabase Storage (público para leitura, até 2 MB, JPG/PNG/WebP).
   O formato é validado pelos bytes reais do arquivo. As políticas do Storage só deixam cada usuário
   gravar em `avatars/<seu id>/`, e a foto anterior é apagada ao trocar.
+- **Papéis (RNF05):** todo usuário é "comum"; `partner` e `admin` ficam em `identity.user_roles`
+  e chegam em `user.roles`, lidos do banco a cada requisição (revogar vale na hora).
+  - Páginas: `requireRole("admin", "/admin")`. Sem sessão leva ao login; sem o papel devolve **404**,
+    o que não revela que a área existe.
+  - Actions: `withRole("partner", (input, user) => ...)` devolve `ForbiddenError` sem o papel.
+  - Casos de uso sensíveis conferem o papel **de novo** (ex.: `ListUsersForModeration`), sem confiar
+    que quem chama já checou.
+  - No banco, RLS com `asUser` + `authz.has_role()` (veja [banco de dados](database.md)).
 - Template do e-mail em `supabase/templates/confirmation.html`. Localmente, os e-mails chegam no
   Mailpit (http://127.0.0.1:54324).

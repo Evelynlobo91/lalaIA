@@ -1,6 +1,6 @@
-import { Pencil } from "lucide-react";
+import { Pencil, ShieldCheck, Store } from "lucide-react";
 import type { Metadata } from "next";
-import { LogoutButton, budgetOptions, groupSizes, requireUser, userPreferences } from "@/modules/identity";
+import { LogoutButton, budgetOptions, groupSizes, hasRole, requireUser, userPreferences } from "@/modules/identity";
 import { categories } from "@/shared/catalog/categories";
 import { Avatar, Badge, ButtonLink, Card, CardDescription, CardTitle } from "@/shared/ui";
 
@@ -27,6 +27,16 @@ export default async function PerfilPage() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          {hasRole(user, "partner") && (
+            <ButtonLink href="/parceiro" variant="secondary">
+              <Store aria-hidden className="size-4" /> Portal do parceiro
+            </ButtonLink>
+          )}
+          {hasRole(user, "admin") && (
+            <ButtonLink href="/admin" variant="secondary">
+              <ShieldCheck aria-hidden className="size-4" /> Moderação
+            </ButtonLink>
+          )}
           <ButtonLink href="/perfil/editar" variant="secondary">
             <Pencil aria-hidden className="size-4" /> Editar perfil
           </ButtonLink>

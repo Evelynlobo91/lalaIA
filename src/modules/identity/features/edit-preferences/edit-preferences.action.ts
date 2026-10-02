@@ -11,7 +11,7 @@ import { EditPreferences, editPreferencesSchema } from "./edit-preferences";
 const handle = formAction(
   editPreferencesSchema,
   withUser((input, user) => new EditPreferences(new PostgresPreferencesRepository(sql())).execute(user.id, input)),
-  { arrays: ["categories"] },
+  { name: "identity.edit-preferences", arrays: ["categories"] },
 );
 
 export async function editPreferencesAction(previous: FormState<UserPreferences>, formData: FormData) {
