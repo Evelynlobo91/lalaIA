@@ -252,3 +252,7 @@ plataforma nunca recebe o vídeo original. Detecção, nunca reconhecimento; nad
 falhar, o agente borra o quadro inteiro. A exigência de "modo privacidade confirmado" para ativar a live
 entra no portal junto com o checklist de privacidade (#55).
 
+## Plano do parceiro
+
+Gerar a chave e ativar a transmissão exigem que o plano do dono libere o recurso `live` (veja [cobrança](billing.md)).
+O plano padrão inicial libera, então o comportamento só muda se o time tirar a live de um plano.
