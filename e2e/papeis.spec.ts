@@ -16,7 +16,8 @@ test.describe("papéis e autorização (RNF05)", () => {
     expect(admin?.status()).toBe(404);
 
     await page.goto("/parceiro");
-    await expect(page.getByText("Área exclusiva para parceiros")).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Seja parceiro do LalaIA" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Enviar para análise" })).toBeVisible();
 
     await page.goto("/perfil");
     await expect(page.getByRole("link", { name: "Portal do parceiro" })).toHaveCount(0);

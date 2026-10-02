@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { listUsersForModeration, requireRole } from "@/modules/identity";
-import { Avatar, Badge, Card } from "@/shared/ui";
+import { Avatar, Badge, ButtonLink, Card } from "@/shared/ui";
 
 export const metadata: Metadata = { title: "Moderação", robots: { index: false } };
 
@@ -17,6 +17,10 @@ export default async function AdminPage() {
         <h1 className="text-2xl font-bold md:text-3xl">Moderação</h1>
         <p className="text-muted">Contas mais recentes e seus papéis.</p>
       </header>
+
+      <ButtonLink href="/admin/parceiros" variant="secondary" className="self-start">
+        Cadastros de parceiros
+      </ButtonLink>
 
       <Card className="p-0">
         <ul className="divide-y divide-border" aria-label="Usuários">
