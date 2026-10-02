@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Eye, EyeOff, MailCheck, X } from "lucide-react";
+import { ArrowRight, Check, Eye, EyeOff, Lock, Mail, MailCheck, User, X } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { idleFormState, type FormState } from "@/shared/http/form-state";
@@ -33,7 +33,17 @@ export function RegisterForm() {
     <form action={action} className="flex flex-col gap-5" noValidate>
       {state.status === "error" && state.message && <FormAlert>{state.message}</FormAlert>}
 
-      <TextField label="Nome" name="displayName" autoComplete="name" required maxLength={80} defaultValue={values.displayName} errors={errors.displayName} />
+      <TextField
+        label="Nome"
+        name="displayName"
+        autoComplete="name"
+        placeholder="Como quer ser chamado(a)"
+        required
+        maxLength={80}
+        defaultValue={values.displayName}
+        errors={errors.displayName}
+        leading={<User />}
+      />
 
       <TextField
         label="E-mail"
@@ -41,9 +51,11 @@ export function RegisterForm() {
         type="email"
         autoComplete="email"
         inputMode="email"
+        placeholder="voce@email.com"
         required
         defaultValue={values.email}
         errors={errors.email}
+        leading={<Mail />}
       />
 
       <TextField
@@ -56,6 +68,7 @@ export function RegisterForm() {
         onChange={(e) => setPassword(e.target.value)}
         // As regras já aparecem na lista acima; o erro só aponta para ela.
         errors={errors.password ? ["A senha não atende a todos os requisitos."] : undefined}
+        leading={<Lock />}
         trailing={
           <button
             type="button"
@@ -104,7 +117,8 @@ export function RegisterForm() {
       />
 
       <Button type="submit" size="lg" fullWidth loading={pending}>
-        Criar conta
+        Criar minha conta
+        <ArrowRight aria-hidden className="size-5" />
       </Button>
     </form>
   );

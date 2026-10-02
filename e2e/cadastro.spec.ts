@@ -16,7 +16,7 @@ test.describe("cadastro de usuário (RF01)", () => {
     await page.getByLabel("E-mail").fill(email);
     await page.getByLabel("Senha", { exact: true }).fill("joinville2026");
     await page.getByLabel(/Li e aceito/).check();
-    await page.getByRole("button", { name: "Criar conta" }).click();
+    await page.getByRole("button", { name: "Criar minha conta" }).click();
   }
 
   test("cadastra, recebe e-mail e confirma a conta pelo link", async ({ page, baseURL }) => {
@@ -44,7 +44,7 @@ test.describe("cadastro de usuário (RF01)", () => {
     await page.getByLabel("Nome").fill("Pessoa");
     await page.getByLabel("E-mail").fill("invalido@");
     await page.getByLabel("Senha", { exact: true }).fill("abc");
-    await page.getByRole("button", { name: "Criar conta" }).click();
+    await page.getByRole("button", { name: "Criar minha conta" }).click();
 
     await expect(page.getByText("Informe um e-mail válido.")).toBeVisible();
     await expect(page.getByText("Você precisa aceitar os Termos de Uso")).toBeVisible();

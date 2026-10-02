@@ -5,12 +5,14 @@ type TextFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   errors?: string[];
   hint?: ReactNode;
+  /** Ícone decorativo à esquerda dentro do campo (ex.: envelope no e-mail). */
+  leading?: ReactNode;
   /** Elemento à direita dentro do campo (ex.: botão mostrar senha). */
   trailing?: ReactNode;
 };
 
 /** Campo de texto acessível: label associado, erros anunciados e ligados ao input. */
-export function TextField({ label, errors, hint, trailing, className, id, ...props }: TextFieldProps) {
+export function TextField({ label, errors, hint, leading, trailing, className, id, ...props }: TextFieldProps) {
   const autoId = useId();
   const inputId = id ?? autoId;
   const hintId = `${inputId}-dica`;
@@ -20,10 +22,15 @@ export function TextField({ label, errors, hint, trailing, className, id, ...pro
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={inputId} className="text-sm font-medium">
+      <label htmlFor={inputId} className="text-xs font-semibold uppercase tracking-wide text-muted">
         {label}
       </label>
       <div className="relative">
+        {leading && (
+          <div aria-hidden className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-muted [&_svg]:size-5">
+            {leading}
+          </div>
+        )}
         <input
           id={inputId}
           aria-invalid={hasError || undefined}
@@ -31,6 +38,7 @@ export function TextField({ label, errors, hint, trailing, className, id, ...pro
           className={cn(
             "h-12 w-full rounded-xl border border-border bg-surface px-4 text-base text-fg placeholder:text-muted",
             "aria-invalid:border-danger",
+            Boolean(leading) && "pl-12",
             Boolean(trailing) && "pr-12",
             className,
           )}

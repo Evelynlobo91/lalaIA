@@ -25,7 +25,7 @@ test.describe("shell do app", () => {
     await page.goto("/");
     await page.getByRole("navigation", { name: "Navegação principal" }).getByRole("link", { name: "Perfil" }).click();
     await expect(page).toHaveURL(/\/entrar\?next=%2Fperfil$/);
-    await expect(page.getByRole("heading", { level: 1, name: "Entrar" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Boas-vindas!" })).toBeVisible();
   });
 
   test("não tem rolagem horizontal e a navegação fica visível", async ({ page }) => {

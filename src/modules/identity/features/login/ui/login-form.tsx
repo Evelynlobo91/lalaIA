@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useActionState, useState } from "react";
 import { idleFormState, type FormState } from "@/shared/http/form-state";
 import { Button, FormAlert, TextField } from "@/shared/ui";
@@ -19,7 +19,18 @@ export function LoginForm({ next }: { next?: string }) {
       {state.status === "error" && state.message && <FormAlert>{state.message}</FormAlert>}
       {next && <input type="hidden" name="next" value={next} />}
 
-      <TextField label="E-mail" name="email" type="email" autoComplete="email" inputMode="email" required defaultValue={values.email} errors={errors.email} />
+      <TextField
+        label="E-mail"
+        name="email"
+        type="email"
+        autoComplete="email"
+        inputMode="email"
+        placeholder="voce@email.com"
+        required
+        defaultValue={values.email}
+        errors={errors.email}
+        leading={<Mail />}
+      />
 
       <TextField
         label="Senha"
@@ -28,6 +39,7 @@ export function LoginForm({ next }: { next?: string }) {
         autoComplete="current-password"
         required
         errors={errors.password}
+        leading={<Lock />}
         trailing={
           <button
             type="button"
@@ -42,7 +54,8 @@ export function LoginForm({ next }: { next?: string }) {
       />
 
       <Button type="submit" size="lg" fullWidth loading={pending}>
-        Entrar
+        Entrar e explorar
+        <ArrowRight aria-hidden className="size-5" />
       </Button>
     </form>
   );
