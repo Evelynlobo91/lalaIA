@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BroadcastInstructions, LivePrivacyGuidelines, LivePrivacyNotice, LiveTargetsList, liveMetrics, livePortal, livePrivacyAcceptedAt } from "@/modules/live";
+import { BroadcastInstructions, LivePrivacyGuidelines, LivePrivacyNotice, LiveTargetsList, liveMetrics, livePortal, livePrivacyAcceptedAt, liveViewersNow } from "@/modules/live";
 import { requirePartner } from "@/modules/partners";
 
 export const metadata: Metadata = { title: "Live · Portal do parceiro" };
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function LivePortalPage() {
   const { user } = await requirePartner("/parceiro/live");
-  const [view, metrics, acceptedAt] = await Promise.all([livePortal(user), liveMetrics(user), livePrivacyAcceptedAt(user)]);
+  const [view, metrics, acceptedAt, viewers] = await Promise.all([livePortal(user), liveMetrics(user), livePrivacyAcceptedAt(user), liveViewersNow(user)]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -22,7 +22,7 @@ export default async function LivePortalPage() {
         <h2 id="live-transmissoes" className="text-lg font-semibold">
           Seus lugares e eventos
         </h2>
-        <LiveTargetsList targets={view.targets} metrics={metrics} canBroadcast={acceptedAt !== null} />
+        <LiveTargetsList targets={view.targets} metrics={metrics} viewers={viewers} canBroadcast={acceptedAt !== null} />
         <p className="text-sm text-muted">
           Métricas: &quot;Assistiram&quot; conta quantas vezes o vídeo começou a tocar (uma vez por aba) e &quot;Acessos à
           página&quot;, as visitas à página do lugar ou evento. Só contagens: não registramos quem assistiu.

@@ -58,6 +58,7 @@ export class ChatPresenter implements ChatMessagePresenter {
         author: authorOf(m),
         isHost: m.isHost,
         replyTo: quoted ? { id: quoted.id, authorName: authorOf(quoted).name, excerpt: excerptOf(quoted.body) } : null,
+        likes: m.likes,
         createdAt: m.createdAt.toISOString(),
       };
     });

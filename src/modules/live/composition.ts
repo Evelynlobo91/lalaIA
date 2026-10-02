@@ -36,6 +36,10 @@ import { ChatPresenter, GetChatFeed } from "./features/chat-feed/chat-feed.use-c
 import { SendChatMessage, type ChatEntitlement } from "./features/send-chat-message/send-chat-message.use-case";
 import { ModuleChatAuthors } from "./infra/chat-authors";
 import { PostgresChatRepository } from "./infra/postgres-chat-repository";
+import { ToggleMessageLike } from "./features/like-chat-message/like-chat-message.use-case";
+import { LivePulse } from "./features/live-presence/live-presence.use-case";
+import { InMemoryRateLimiter, SendReactions, ToggleLiveLike } from "./features/react-to-live/react-to-live.use-case";
+import { PostgresReactionRepository } from "./infra/postgres-reaction-repository";
 import { PostgresCtaRepository } from "./infra/postgres-cta-repository";
 
 /** Mux com MUX_TOKEN_ID; senão, o simulado. Criado no primeiro uso (páginas sem live não exigem a configuração). */
@@ -114,3 +118,11 @@ const chatPresenter = lazy(() => new ChatPresenter(chatRepository(), new ModuleC
 const chatFilter = lazy(() => new WordListFilter(blockedWordsFrom(process.env.LIVE_CHAT_BLOCKED_WORDS)));
 export const sendChatMessage = lazy(() => new SendChatMessage(chatRepository(), chatRepository(), chatFilter(), chatRepository(), chatEntitled, chatPresenter()));
 export const getChatFeed = lazy(() => new GetChatFeed(chatRepository(), chatRepository(), chatEntitled, chatPresenter()));
+
+// Curtidas, reações e espectadores (#189, #190, #191): valem com a live no ar e o recurso `chat` no plano.
+export const reactionRepository = lazy(() => new PostgresReactionRepository(sql()));
+const reactionLimiter = new InMemoryRateLimiter();
+export const toggleLiveLike = lazy(() => new ToggleLiveLike(chatRepository(), reactionRepository(), chatEntitled));
+export const sendReactions = lazy(() => new SendReactions(chatRepository(), reactionRepository(), chatEntitled, reactionLimiter));
+export const toggleMessageLike = lazy(() => new ToggleMessageLike(reactionRepository()));
+export const livePulse = lazy(() => new LivePulse(chatRepository(), reactionRepository(), reactionRepository(), chatEntitled));

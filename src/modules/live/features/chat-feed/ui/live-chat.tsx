@@ -1,9 +1,9 @@
 "use client";
 
-import { ChevronDown, ChevronUp, CornerUpLeft, MessageCircle, Send, X } from "lucide-react";
+import { ChevronDown, ChevronUp, CornerUpLeft, Heart, MessageCircle, Send, X } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { Avatar, Badge, Button } from "@/shared/ui";
+import { Avatar, Badge, Button, cn } from "@/shared/ui";
 import { CHAT_LIMITS, type ChatMessageView } from "../../../domain/chat";
 import { pollWhileVisible } from "../../stream-states/ui/poll-while-visible";
 import { CHAT_POLL_MS, type ChatFeedView } from "../chat-feed.use-case";
@@ -14,6 +14,8 @@ type Props = {
   viewer: { name: string } | null;
   /** Para onde o visitante vai para entrar e voltar a esta página. */
   loginHref: string;
+  /** Mensagens que a pessoa logada já tinha curtido (#190), vindas do servidor ao entrar. */
+  likedMessageIds?: string[];
 };
 
 const CLOSED_TEXT: Record<string, string> = {
@@ -26,13 +28,16 @@ const CLOSED_TEXT: Record<string, string> = {
  * ser recolhido. Na POC a atualização é um polling curto, só com a aba visível (como o status da live);
  * este componente é a fachada para trocar por Supabase Realtime depois.
  */
-export function LiveChat({ streamId, viewer, loginHref }: Props) {
+export function LiveChat({ streamId, viewer, loginHref, likedMessageIds }: Props) {
   const [feed, setFeed] = useState<{ open: boolean; reason: string | null; messages: ChatMessageView[] } | null>(null);
   const [expanded, setExpanded] = useState(true);
   const [text, setText] = useState("");
   const [replyTo, setReplyTo] = useState<ChatMessageView | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  // Curtidas da própria pessoa: o que veio do servidor, mais o que ela mudou nesta tela.
+  const [likeChanges, setLikeChanges] = useState<Record<string, boolean>>({});
+  const isLiked = (id: string) => likeChanges[id] ?? likedMessageIds?.includes(id) ?? false;
   const version = useRef<string | undefined>(undefined);
   const list = useRef<HTMLOListElement>(null);
   const stick = useRef(true);
@@ -68,6 +73,14 @@ export function LiveChat({ streamId, viewer, loginHref }: Props) {
     const el = list.current;
     if (el && stick.current) el.scrollTop = el.scrollHeight;
   }, [lastId, expanded]);
+
+  const toggleLike = async (message: ChatMessageView) => {
+    const response = await fetch("/api/live/chat/likes", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ messageId: message.id }) }).catch(() => null);
+    if (!response?.ok) return;
+    const result = (await response.json()) as { liked: boolean; likes: number };
+    setLikeChanges((current) => ({ ...current, [message.id]: result.liked }));
+    setFeed((current) => current && { ...current, messages: current.messages.map((m) => (m.id === message.id ? { ...m, likes: result.likes } : m)) });
+  };
 
   if (!feed || feed.reason === "unavailable") return null;
 
@@ -144,6 +157,24 @@ export function LiveChat({ streamId, viewer, loginHref }: Props) {
                     )}
                     <p className="[overflow-wrap:anywhere]">{m.body}</p>
                   </div>
+                  {viewer ? (
+                    <button
+                      type="button"
+                      onClick={() => void toggleLike(m)}
+                      aria-pressed={isLiked(m.id)}
+                      aria-label={`${isLiked(m.id) ? "Descurtir" : "Curtir"} a mensagem de ${m.author.name}`}
+                      className={cn("flex h-9 shrink-0 items-center gap-1 rounded-full px-1.5 text-xs", isLiked(m.id) ? "text-danger" : "text-muted hover:text-fg")}
+                    >
+                      <Heart aria-hidden className={cn("size-4", isLiked(m.id) && "fill-current")} />
+                      {m.likes > 0 && <span>{m.likes}</span>}
+                    </button>
+                  ) : (
+                    m.likes > 0 && (
+                      <span className="flex h-9 shrink-0 items-center gap-1 px-1.5 text-xs text-muted" aria-label={`${m.likes} curtidas`}>
+                        <Heart aria-hidden className="size-4" /> {m.likes}
+                      </span>
+                    )
+                  )}
                   {viewer && (
                     <button type="button" onClick={() => setReplyTo(m)} aria-label={`Responder a ${m.author.name}`} className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted hover:text-fg">
                       <CornerUpLeft aria-hidden className="size-4" />

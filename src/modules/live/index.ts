@@ -3,6 +3,9 @@ import { hasRole, type CurrentUser } from "@/modules/identity";
 import type { ModuleSubscriptions } from "@/shared/events";
 import { getChatFeed, getCtaMetrics, getCtaPanel, listCtasForModeration, liveCountsReader, sendChatMessage } from "./composition";
 import { chatFeedRoute, sendChatMessageRoute } from "./features/chat-feed/chat.route";
+import { livePulse, reactionRepository, sendReactions, toggleLiveLike, toggleMessageLike } from "./composition";
+import { PRESENCE_WINDOW_SECONDS } from "./features/live-presence/live-presence.use-case";
+import { liveLikeRoute, messageLikeRoute, myLikesRoute, pulseRoute, reactionsRoute } from "./features/react-to-live/reactions.route";
 import type { CtaMetrics } from "./features/cta-metrics/cta-metrics.use-case";
 import type { CtaModerator } from "./features/moderate-cta/moderate-cta.use-case";
 import { toLocalInput } from "@/shared/time/joinville-time";
@@ -130,6 +133,21 @@ export async function liveStreamsOf(ownerId: string): Promise<Array<{ streamId: 
   return (await streamRepository().listByOwner(ownerId)).map((s) => ({ streamId: s.id, entityType: s.entityType, entityId: s.entityId }));
 }
 
+/**
+ * Quantas abas estão assistindo agora a cada transmissão do parceiro (#191), por id da transmissão. Só contagem.
+ * Se a consulta falhar, o portal segue sem o número.
+ */
+export async function liveViewersNow(user: CurrentUser): Promise<Record<string, number>> {
+  try {
+    const mine = await streamRepository().listByOwner(user.id);
+    return await reactionRepository().viewersNow(mine.filter((s) => s.status === "live").map((s) => s.id), PRESENCE_WINDOW_SECONDS);
+  } catch (error) {
+    logger().error("falha ao carregar os espectadores da live", { err: error });
+    errorReporter().capture(error);
+    return {};
+  }
+}
+
 /** Transmissões ao vivo agora (para Recomendação e Mapa). Só ids: quem chama busca os próprios dados. */
 export function listActiveStreams(limit?: number): Promise<ActiveStream[]> {
   return listActiveStreamsUseCase().execute(limit);
@@ -167,6 +185,16 @@ export const liveApi = {
   chatFeed: chatFeedRoute(getChatFeed),
   /** POST /api/live/chat — enviar mensagem (só logado). */
   chatSend: sendChatMessageRoute(sendChatMessage),
+  /** POST /api/live/pulse — batimento de quem assiste; devolve espectadores, curtidas e reações. */
+  pulse: pulseRoute(livePulse),
+  /** POST /api/live/likes — curtir a live (só logado). */
+  like: liveLikeRoute(toggleLiveLike),
+  /** POST /api/live/reactions — lote de reações rápidas (só logado). */
+  reactions: reactionsRoute(sendReactions),
+  /** POST /api/live/chat/likes — curtir uma mensagem (só logado). */
+  messageLike: messageLikeRoute(toggleMessageLike),
+  /** GET /api/live/chat/likes?streamId= — o que a pessoa logada já curtiu nesta live. */
+  myLikes: myLikesRoute(reactionRepository),
 };
 
 /**

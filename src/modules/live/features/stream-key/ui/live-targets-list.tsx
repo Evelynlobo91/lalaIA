@@ -1,4 +1,4 @@
-import { CalendarDays, MapPin, Megaphone, Radio } from "lucide-react";
+import { CalendarDays, MapPin, Megaphone, Radio, Users } from "lucide-react";
 import Link from "next/link";
 import { Badge, Card, EmptyState, LiveBadge } from "@/shared/ui";
 import { STATUS_LABELS, type StreamStatus } from "../../../domain/stream";
@@ -22,10 +22,13 @@ export function StreamStatusBadge({ status }: { status: StreamStatus }) {
 export function LiveTargetsList({
   targets,
   metrics = {},
+  viewers = {},
   canBroadcast = true,
 }: {
   targets: LiveTargetView[];
   metrics?: Record<string, StreamMetrics>;
+  /** Quantas abas estão assistindo agora, por id da transmissão (#191). */
+  viewers?: Record<string, number>;
   /** false sem o aceite das diretrizes de privacidade (#55): gerar a chave e ativar ficam bloqueados. */
   canBroadcast?: boolean;
 }) {
@@ -62,6 +65,12 @@ export function LiveTargetsList({
               <>
                 <StreamControls streamId={t.stream.id} status={t.stream.status} label={t.label} canActivate={canBroadcast} />
                 {t.stream.status !== "ended" && <StreamNoteForm streamId={t.stream.id} note={t.stream.note} label={t.label} />}
+                {t.stream.status === "live" && (
+                  <p className="flex items-center gap-1.5 text-sm" aria-label={`Assistindo agora a ${t.label}`}>
+                    <Users aria-hidden className="size-4" />
+                    <span className="font-semibold">{viewers[t.stream.id] ?? 0}</span> assistindo agora
+                  </p>
+                )}
                 {metrics[t.stream.id] && <StreamMetricsLine metrics={metrics[t.stream.id]!} label={t.label} />}
                 {t.stream.status !== "ended" && (
                   <Link href={`/parceiro/live/chamadas/${t.stream.id}`} className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-medium text-brand underline" aria-label={`Chamadas na live de ${t.label}`}>
