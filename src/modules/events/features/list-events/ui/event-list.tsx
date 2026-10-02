@@ -1,13 +1,17 @@
 "use client";
 
-import { CalendarX, MapPin } from "lucide-react";
+import { CalendarX, ChevronRight, MapPin } from "lucide-react";
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { Badge, Button, Card, EmptyState, FormAlert, LiveBadge } from "@/shared/ui";
 import type { EventListItem, EventListPage } from "../list-events";
 
 export function EventListCard({ event }: { event: EventListItem }) {
+  // Sem prefetch: o detalhe é dinâmico (evita uma consulta por card visível).
+  // Card como div dentro do link, para o link ter nome acessível.
   return (
-    <Card className="flex flex-col gap-2">
+    <Link href={`/eventos/${event.id}`} prefetch={false} className="block rounded-2xl transition hover:-translate-y-0.5 hover:shadow-sm">
+      <Card as="div" className="flex flex-col gap-2">
       <div className="flex items-start justify-between gap-3">
         <h2 className="text-base font-semibold leading-snug">{event.title}</h2>
         {event.happeningNow ? <LiveBadge>Acontecendo</LiveBadge> : <Badge>{event.priceLabel}</Badge>}
@@ -20,8 +24,10 @@ export function EventListCard({ event }: { event: EventListItem }) {
           {event.placeName}
           {event.neighborhood ? ` · ${event.neighborhood}` : ""}
         </span>
+        <ChevronRight aria-hidden className="ml-auto size-5 text-muted" />
       </p>
-    </Card>
+      </Card>
+    </Link>
   );
 }
 

@@ -68,6 +68,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Arquivos de terceiros copiados no build (worker do MapLibre).
     "public/vendor/**",
+    // Worktrees de agentes (cópias isoladas do repositório) não são código deste checkout.
+    ".claude/**",
   ]),
 ]);
 

@@ -1,5 +1,5 @@
 // Composição do módulo events (interna): usada pelas actions e pelo index.ts.
-import { placeSummaries, placeSummary } from "@/modules/places";
+import { getPlaceDetail, placeSummaries, placeSummary } from "@/modules/places";
 import { domainEvents } from "@/shared/events";
 import { sql } from "@/shared/db/sql";
 import { lazy } from "@/shared/kernel";
@@ -9,6 +9,7 @@ import { PostgresEventRepository } from "./infra/postgres-event-repository";
 import { PostgresEventReader } from "./infra/postgres-event-reader";
 import type { EventPlaceNames } from "./domain/event-card";
 import { ListEvents } from "./features/list-events/list-events";
+import { GetEventDetail, type EventPlaceDetails } from "./features/event-detail/event-detail";
 
 const placesLookup: EventPlaceLookup = { summary: placeSummary };
 
@@ -20,3 +21,11 @@ export { placesLookup };
 const placeNames: EventPlaceNames = { summaries: placeSummaries };
 export const eventReader = lazy(() => new PostgresEventReader(sql()));
 export const listEvents = lazy(() => new ListEvents(eventReader(), placeNames));
+
+const placeDetails: EventPlaceDetails = {
+  async detail(placeId) {
+    const place = await getPlaceDetail(placeId);
+    return place ? { id: place.id, name: place.name, address: place.address, directionsUrl: place.directionsUrl } : null;
+  },
+};
+export const getEventDetail = lazy(() => new GetEventDetail(eventRepository(), placeDetails));

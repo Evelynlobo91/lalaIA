@@ -47,3 +47,6 @@ next-env.d.ts
 
 # worker do MapLibre (copiado por scripts/copy-maplibre-worker.mjs)
 /public/vendor/
+
+# worktrees de agentes do Claude Code (cópias isoladas do repositório)
+/.claude/

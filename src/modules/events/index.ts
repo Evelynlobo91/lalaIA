@@ -1,7 +1,8 @@
 // API pública do módulo events ("O que fazer").
 import { toLocalInput } from "@/shared/time/joinville-time";
 import { queryRoute } from "@/shared/http/json-route";
-import { eventRepository, listEvents, placesLookup } from "./composition";
+import { cache } from "react";
+import { eventRepository, getEventDetail as eventDetailUseCase, listEvents, placesLookup } from "./composition";
 import { DEFAULT_PAGE_SIZE, listEventsSchema } from "./features/list-events/list-events";
 import type { EventRecord } from "./domain/event";
 
@@ -9,6 +10,8 @@ export { EventForm, type EventFormValues } from "./features/manage-events/ui/eve
 export { CancelEventButton } from "./features/manage-events/ui/cancel-event-button";
 export { EventList, EventListCard, EventListSkeleton } from "./features/list-events/ui/event-list";
 export type { EventListItem, EventListPage } from "./features/list-events/list-events";
+export { EventDetailCard } from "./features/event-detail/ui/event-detail-card";
+export type { EventDetailView, EventPhase } from "./features/event-detail/event-detail";
 export { formatPrice, type EventRecord, type EventStatus } from "./domain/event";
 
 export type OwnerEventItem = EventRecord & { placeName: string };
@@ -55,3 +58,9 @@ export const eventsApi = {
   /** GET /api/events?cursor= */
   list: queryRoute(listEventsSchema, (input) => listEvents().execute(input)),
 };
+
+/** Detalhe do evento ou null. Memoizado por requisição (página + metadados + imagem = uma consulta). */
+export const getEventDetail = cache(async (id: string) => {
+  const result = await eventDetailUseCase().execute(id);
+  return result.ok ? result.value : null;
+});

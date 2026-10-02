@@ -7,6 +7,7 @@ const CI = Boolean(process.env.CI);
 export default defineConfig({
   testDir: "./e2e",
   globalSetup: "./e2e/global-setup.ts",
+  globalTeardown: "./e2e/global-teardown.ts",
   outputDir: "./e2e/.results",
   fullyParallel: true,
   // Localmente o Supabase completo roda no Docker junto do app e dos navegadores. Em máquinas com
