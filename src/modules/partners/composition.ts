@@ -16,6 +16,8 @@ import {
   RejectPlaceClaim,
   RequestPlaceClaim,
 } from "./features/claim-place/claim-place.use-cases";
+import { ActivatePartner } from "./features/activate-partner/activate-partner";
+import { PostgresPartnerActivation } from "./infra/postgres-partner-activation";
 import { PostgresPartnerRepository } from "./infra/postgres-partner-repository";
 import { PostgresPartnerCounts } from "./infra/postgres-partner-counts";
 import { PostgresOfferRepository, PostgresRedemptionRepository } from "./infra/postgres-offer-repository";
@@ -31,6 +33,7 @@ export const partnerCountsReader = lazy(() => new PostgresPartnerCounts(sql()));
 export const submitApplication = lazy(() => new SubmitPartnerApplication(partnerRepository()));
 export const listApplications = lazy(() => new ListPartnerApplications(partnerRepository()));
 export const approvePartner = lazy(() => new ApprovePartner(partnerRepository(), identityRoleGranter, domainEvents()));
+export const activatePartnerUseCase = lazy(() => new ActivatePartner(new PostgresPartnerActivation(sql()), placesLookup, identityRoleGranter, domainEvents()));
 export const rejectPartner = lazy(() => new RejectPartner(partnerRepository(), domainEvents()));
 export const listActivePartners = lazy(() => new ListActivePartners(partnerRepository()));
 export const suspendPartner = lazy(() => new SuspendPartner(partnerRepository(), domainEvents()));

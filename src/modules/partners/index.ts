@@ -2,6 +2,7 @@
 import type { CurrentUser } from "@/modules/identity";
 import { can } from "@/modules/identity";
 import {
+  activatePartnerUseCase,
   approvedPartnerIdOf,
   listActivePartners,
   listApplications,
@@ -93,3 +94,15 @@ export function placeClaimsForReview(user: CurrentUser) {
 
 /** Contagens de parceiros (aprovados num período e ativos hoje), para as métricas gerais do backoffice (#145). */
 export const partnerCounts = () => partnerCountsReader();
+
+// Ativação a partir de dados coletados pelo time (#150): o CRM converte o lead sem duplicar o cadastro.
+export type { PartnerActivation, ActivatedPartner } from "./features/activate-partner/activate-partner";
+import type { PartnerActivation } from "./features/activate-partner/activate-partner";
+
+/**
+ * Cria (ou completa) o cadastro de parceiro já aprovado para uma conta e vincula o lugar, se houver.
+ * Quem chama responde pela autorização (ex.: convite validado). Idempotente.
+ */
+export function activatePartner(input: PartnerActivation) {
+  return activatePartnerUseCase().execute(input);
+}
