@@ -1,4 +1,4 @@
-import { CalendarDays, MapPin, Radio } from "lucide-react";
+import { CalendarDays, MapPin, Megaphone, Radio } from "lucide-react";
 import Link from "next/link";
 import { Badge, Card, EmptyState, LiveBadge } from "@/shared/ui";
 import { STATUS_LABELS, type StreamStatus } from "../../../domain/stream";
@@ -63,6 +63,11 @@ export function LiveTargetsList({
                 <StreamControls streamId={t.stream.id} status={t.stream.status} label={t.label} canActivate={canBroadcast} />
                 {t.stream.status !== "ended" && <StreamNoteForm streamId={t.stream.id} note={t.stream.note} label={t.label} />}
                 {metrics[t.stream.id] && <StreamMetricsLine metrics={metrics[t.stream.id]!} label={t.label} />}
+                {t.stream.status !== "ended" && (
+                  <Link href={`/parceiro/live/chamadas/${t.stream.id}`} className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-medium text-brand underline" aria-label={`Chamadas na live de ${t.label}`}>
+                    <Megaphone aria-hidden className="size-4" /> Chamadas na live
+                  </Link>
+                )}
                 <StreamKeyField streamId={t.stream.id} />
               </>
             ) : (

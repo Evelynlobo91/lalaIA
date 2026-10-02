@@ -1,7 +1,13 @@
 // API pública do módulo live (transmissões ao vivo de lugares e eventos).
 import { hasRole, type CurrentUser } from "@/modules/identity";
 import type { ModuleSubscriptions } from "@/shared/events";
-import { liveCountsReader } from "./composition";
+import { getCtaPanel, liveCountsReader } from "./composition";
+import { toLocalInput } from "@/shared/time/joinville-time";
+import type { CtaRecord } from "./domain/cta";
+import type { CtaPanel } from "./features/schedule-cta/schedule-cta.use-case";
+import type { CtaFormValues } from "./features/schedule-cta/ui/cta-form";
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 import { endStreamsWithoutPlan } from "./composition";
 import { endStreamOfCancelledEvent, endStreamsOfDeletedUser, getActiveStreams, getStreamMetrics, privacyGate, getLiveNowGeo, getLiveStatus, handleProviderWebhook, listActiveStreamsUseCase, listLiveNow, listLiveTargets, streamRepository } from "./composition";
 import { liveNowRoute } from "./features/live-badge/live-badge.route";
@@ -29,6 +35,39 @@ export { LiveMapLayers } from "./features/live-badge/ui/live-map-layers";
 export { LiveNowList } from "./features/live-badge/ui/live-now-list";
 export type { LiveNowItem } from "./features/live-badge/live-badge.use-case";
 export { STATUS_LABELS, type StreamStatus, type StreamEntityType } from "./domain/stream";
+
+// CTAs programados (#93).
+export { CtaForm, type CtaFormValues } from "./features/schedule-cta/ui/cta-form";
+export { DeleteCtaButton } from "./features/schedule-cta/ui/delete-cta-button";
+export { CTA_LIMITS, CTA_PRIORITY_LABELS, CTA_TYPE_LABELS, describeSchedule, type CtaRecord } from "./domain/cta";
+export type { CtaPanel } from "./features/schedule-cta/schedule-cta.use-case";
+
+/** Chamadas (CTAs) de uma transmissão do parceiro, com a agenda do dia; null se a transmissão não é dele. */
+export function liveCtaPanel(user: CurrentUser, streamId: string): Promise<CtaPanel | null> {
+  if (!UUID.test(streamId)) return Promise.resolve(null);
+  return getCtaPanel().execute({ id: user.id, isPartner: hasRole(user, "partner"), isAdmin: hasRole(user, "admin") }, streamId);
+}
+
+/** Valores de um CTA para preencher o formulário de edição. */
+export function ctaFormValues(cta: CtaRecord): CtaFormValues {
+  const s = cta.schedule;
+  return {
+    ctaId: cta.id,
+    type: cta.type,
+    refId: cta.refId ?? "",
+    url: cta.type === "link" ? cta.href : "",
+    title: cta.title,
+    body: cta.body ?? "",
+    buttonLabel: cta.buttonLabel,
+    priority: String(cta.priority),
+    scheduleKind: s.kind,
+    startsAt: s.kind === "absolute" ? toLocalInput(s.startsAt) : "",
+    endsAt: s.kind === "absolute" ? toLocalInput(s.endsAt) : "",
+    offsetMinutes: s.kind === "relative" ? String(s.offsetMinutes) : "",
+    durationMinutes: s.kind === "absolute" ? "" : String(s.durationMinutes),
+    intervalMinutes: s.kind === "recurring" ? String(s.intervalMinutes) : "",
+  };
+}
 
 /** Portal /parceiro/live: lugares e eventos do parceiro com a transmissão de cada um (sem a chave). */
 export function livePortal(user: CurrentUser): Promise<LivePortalView> {

@@ -256,3 +256,37 @@ entra no portal junto com o checklist de privacidade (#55).
 
 Gerar a chave e ativar a transmissão exigem que o plano do dono libere o recurso `live` (veja [cobrança](billing.md)).
 O plano padrão inicial libera, então o comportamento só muda se o time tirar a live de um plano.
+
+## Chamadas na live — CTAs programados (#93)
+
+Uma **chamada** (CTA) é um cartão que aparece sobre o player na hora que o parceiro definir, para levar quem
+assiste a agir. O parceiro programa em `/parceiro/live/chamadas/<transmissão>` (link "Chamadas na live" em cada
+transmissão do portal).
+
+| Tipo | O que o parceiro escolhe | Para onde o toque leva |
+| --- | --- | --- |
+| `promocao` | uma oferta sua, valendo ou agendada | página do lugar/evento onde a oferta é resgatada |
+| `missao` | uma missão sua ativa | página da missão (onde se aceita) |
+| `evento` | um evento seu que não terminou | página do evento |
+| `quero-ir` | nada | rota até o lugar no app de mapas |
+| `link` | um endereço https | o endereço (só domínios permitidos) |
+
+- **Tipos são estratégias** (`features/schedule-cta/cta-types.ts`, `CtaTypeHandler`): cada um diz que campo pede,
+  que opções oferece e resolve o destino. Tipo novo = implementação nova na lista, sem `if` nos casos de uso. Os
+  outros módulos são consultados pela porta `CtaCatalog` (`infra/cta-catalog.ts`, APIs públicas de partners,
+  missions e events).
+- **Agendamento** (`domain/cta.ts`): horário marcado (até 24 h); relativo ao início da live ("15 min depois de
+  entrar ao vivo, por 10 min"); ou recorrente ("a cada 30 min, por 5 min", a primeira aparição um intervalo depois
+  do início). Horários no fuso de Joinville. A **agenda de hoje** mostra as aparições com hora; relativas e
+  recorrentes ganham hora quando a live entra no ar.
+- **Prioridade** (alta, normal, baixa): se duas coincidirem, aparece a de maior prioridade.
+- **Limites**: 20 chamadas por transmissão; título até 60 caracteres, texto até 140, botão até 24.
+- **Plano**: recurso `cta` (porta pública do billing). Sem ele, a tela leva aos planos e o caso de uso recusa.
+- **Links**: só `https` de domínios permitidos. Padrão em `DEFAULT_CTA_LINK_DOMAINS`; `LIVE_CTA_LINK_DOMAINS`
+  (lista separada por vírgula) substitui a lista.
+- **Banco**: `live.ctas`, com RLS — o dono lê, cria, altera e remove só os próprios; admin só lê. O público não
+  lê a tabela: a chamada ativa sai pelo backend, junto do status da live.
+
+Limitações: sem imagem na chamada; o destino é resolvido ao salvar (se a oferta mudar de lugar depois, é preciso
+salvar a chamada de novo); quem perde o recurso no plano não cria novas chamadas, mas as já programadas não são
+apagadas.
