@@ -37,7 +37,7 @@ test.describe("papéis e autorização (RNF05)", () => {
     expect((await page.goto("/admin"))?.status()).toBe(404);
   });
 
-  test("admin acessa a moderação e vê usuários com papéis", async ({ page }) => {
+  test("admin acessa o backoffice e vê usuários com papéis", async ({ page }) => {
     const parceiro = await createConfirmedUser("Parceiro Listado");
     await grantRole(parceiro, "partner");
     const admin = await createConfirmedUser("Admin E2E");
@@ -45,8 +45,10 @@ test.describe("papéis e autorização (RNF05)", () => {
     await loginAs(page, admin);
 
     await page.goto("/perfil");
-    await page.getByRole("link", { name: "Moderação" }).click();
-    await expect(page.getByRole("heading", { name: "Moderação" })).toBeVisible();
+    await page.getByRole("link", { name: "Backoffice" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Backoffice" })).toBeVisible();
+    await page.getByRole("navigation", { name: "Backoffice" }).getByRole("link", { name: "Usuários" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Usuários" })).toBeVisible();
 
     const linha = page.getByRole("list", { name: "Usuários" }).getByRole("listitem").filter({ hasText: parceiro.email });
     await expect(linha.getByText("Parceiro", { exact: true })).toBeVisible();

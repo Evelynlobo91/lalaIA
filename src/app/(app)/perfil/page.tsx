@@ -46,7 +46,7 @@ export default async function PerfilPage() {
           )}
           {hasRole(user, "admin") && (
             <ButtonLink href="/admin" variant="secondary">
-              <ShieldCheck aria-hidden className="size-4" /> Moderação
+              <ShieldCheck aria-hidden className="size-4" /> Backoffice
             </ButtonLink>
           )}
           <ButtonLink href="/perfil/mapa" variant="secondary">
