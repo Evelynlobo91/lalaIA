@@ -98,7 +98,8 @@ test.describe("pagamento confirmado por webhook (#154)", () => {
     await loginAs(dela, outra);
     await dela.goto(href!);
     await dela.getByRole("button", { name: "Simular pagamento" }).click();
-    await expect(dela.getByRole("alert")).toBeVisible();
+    // O anunciador de rota do Next também é um alerta: filtra pelo texto do erro.
+    await expect(dela.getByRole("alert").filter({ hasText: "Cobrança" })).toBeVisible();
     await expect(dela.getByText("Pagamento simulado confirmado.")).toHaveCount(0);
     await context.close();
 
