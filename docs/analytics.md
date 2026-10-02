@@ -8,7 +8,7 @@ registrados de forma uniforme numa tabela só.
 | Tipo | Origem | Entidade |
 |------|--------|----------|
 | `view` | Tela: `<TrackView>` na página do lugar e do evento → `POST /api/analytics/track` | `place`, `event` |
-| `live_view` | Tela (quando a Live existir): `<TrackView kind="live_view" entityType="live">` | `live` |
+| `live_view` | Tela: o player da Live renderiza `<TrackView kind="live_view" entityType="live">` quando o vídeo começa a tocar ([live](live.md)) | `live` (id da transmissão) |
 | `favorite` | Evento de domínio `favorites.FavoriteAdded` | `place`, `event` |
 | `quero_ir` | Evento de domínio `favorites.WantToGoClicked` | `place`, `event` |
 | `checkin` | Evento de domínio `missions.StepCompleted` (QR validado no balcão) | `mission` |

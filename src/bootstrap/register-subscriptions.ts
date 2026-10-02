@@ -6,6 +6,7 @@ const modulesWithSubscriptions: Array<() => Promise<ModuleSubscriptions>> = [
   () => import("@/modules/places").then((m) => m.subscriptions),
   () => import("@/modules/progression").then((m) => m.subscriptions),
   () => import("@/modules/analytics").then((m) => m.subscriptions),
+  () => import("@/modules/live").then((m) => m.subscriptions),
 ];
 
 export async function registerSubscriptions(): Promise<void> {

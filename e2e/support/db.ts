@@ -120,6 +120,46 @@ export function addFavorite(user: Pick<TestUser, "email">, entityType: "place" |
   );
 }
 
+/** Transmissão ao vivo de um lugar/evento (módulo live), ou null se ainda não foi gerada. */
+export function liveStreamOf(entityId: string): Promise<{ id: string; providerStreamId: string; status: string; streamKey: string } | null> {
+  return withDb(async (sql) => {
+    const [row] = await sql<{ id: string; provider_stream_id: string; status: string; stream_key: string }[]>`
+      select s.id, s.provider_stream_id, s.status, c.stream_key
+      from live.streams s join live.stream_credentials c on c.stream_id = s.id
+      where s.entity_id = ${entityId}`;
+    return row ? { id: row.id, providerStreamId: row.provider_stream_id, status: row.status, streamKey: row.stream_key } : null;
+  });
+}
+
+/** Transmissão simulada (provedor fake) já vinculada a um lugar/evento, como se o dono tivesse gerado a chave. */
+export function createLiveStream(owner: Pick<TestUser, "email">, entityType: "place" | "event", entityId: string): Promise<{ id: string; providerStreamId: string }> {
+  return withDb((sql) =>
+    sql.begin(async (tx) => {
+      const providerStreamId = `fake-${crypto.randomUUID()}`;
+      const [row] = await tx<{ id: string; owner_id: string }[]>`
+        insert into live.streams (owner_id, entity_type, entity_id, provider, provider_stream_id, playback_id)
+        select id, ${entityType}, ${entityId}, 'fake', ${providerStreamId}, ${providerStreamId}
+        from auth.users where lower(email) = ${owner.email.toLowerCase()}
+        returning id, owner_id`;
+      await tx`insert into live.stream_credentials (stream_id, owner_id, stream_key) values (${row.id}, ${row.owner_id}, ${`chave-e2e-${crypto.randomUUID()}`})`;
+      return { id: row.id, providerStreamId };
+    }),
+  );
+}
+
+/** Muda o controle da transmissão direto no banco (como se o dono tivesse pausado/encerrado no portal). */
+export function setLiveControl(streamId: string, control: "on" | "paused" | "ended") {
+  return withDb((sql) => sql`update live.streams set control = ${control} where id = ${streamId}`);
+}
+
+/** Quantos eventos de ciclo de vida a transmissão tem (log append-only do módulo live). */
+export function lifecycleCount(streamId: string): Promise<number> {
+  return withDb(async (sql) => {
+    const [row] = await sql<{ n: number }[]>`select count(*)::int as n from live.stream_lifecycle_events where stream_id = ${streamId}`;
+    return row.n;
+  });
+}
+
 /** Interações registradas pelo Analytics para uma entidade (contagem por tipo). */
 export function interactionCounts(entityId: string): Promise<Record<string, number>> {
   return withDb(async (sql) => {
