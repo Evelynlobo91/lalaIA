@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { SimulatePaymentForm, paymentSimulatorEnabled } from "@/modules/billing";
 import { requireUser } from "@/modules/identity";
 import { ButtonLink, Card, CardDescription, CardTitle } from "@/shared/ui";
 
@@ -20,6 +21,7 @@ export default async function PagamentoSimuladoPage({ params }: PageProps<"/paga
           O provedor de pagamento ainda não está configurado: este link existe para testar o fluxo. Com o provedor real, aqui abriria a tela de Pix, boleto ou cartão.
         </CardDescription>
         <p className="text-sm text-muted">Cobrança: {id}</p>
+        {paymentSimulatorEnabled() && <SimulatePaymentForm gatewayInvoiceId={id} />}
         <ButtonLink href="/parceiro/assinatura" variant="secondary" className="self-start">
           Voltar para a assinatura
         </ButtonLink>

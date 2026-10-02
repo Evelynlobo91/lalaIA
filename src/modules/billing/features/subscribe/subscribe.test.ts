@@ -165,27 +165,28 @@ describe("subscriptionPlanResolver", () => {
 describe("rota do ciclo mensal", () => {
   const secret = "s".repeat(40);
   const renew = { execute: vi.fn().mockResolvedValue({ invoiced: 2, skipped: 0, failed: 0 }) } as unknown as RenewSubscriptions;
+  const overdue = () => ({ execute: vi.fn().mockResolvedValue({ overdue: 1, suspended: 0 }) });
   const call = (route: (request: Request) => Promise<Response>, authorization?: string) =>
     route(new Request("http://localhost/api/billing/cycle", { method: "POST", headers: authorization ? { authorization } : {} }));
 
   it("com o segredo certo, roda o ciclo e devolve o resumo", async () => {
-    const response = await call(cycleRoute(() => renew, () => secret), `Bearer ${secret}`);
+    const response = await call(cycleRoute({ renew: () => renew, overdue }, () => secret), `Bearer ${secret}`);
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ data: { invoiced: 2, skipped: 0, failed: 0 } });
+    expect(await response.json()).toEqual({ invoiced: 2, skipped: 0, failed: 0, overdue: 1, suspended: 0 });
   });
 
   it("sem segredo, com segredo errado ou sem o prefixo Bearer: 401 e nada roda", async () => {
     const execute = vi.fn();
-    const route = cycleRoute(() => ({ execute }) as unknown as RenewSubscriptions, () => secret);
+    const route = cycleRoute({ renew: () => ({ execute }) as unknown as RenewSubscriptions, overdue: () => ({ execute }) }, () => secret);
     for (const header of [undefined, "Bearer errado", secret, `Bearer ${secret}x`]) expect((await call(route, header)).status).toBe(401);
     expect(execute).not.toHaveBeenCalled();
   });
 
   it("sem CRON_SECRET configurado (ou curto demais), a rota fica desligada", async () => {
     const execute = vi.fn();
-    const useCase = () => ({ execute }) as unknown as RenewSubscriptions;
-    expect((await call(cycleRoute(useCase, () => undefined), "Bearer ")).status).toBe(503);
-    expect((await call(cycleRoute(useCase, () => "curto"), "Bearer curto")).status).toBe(503);
+    const cycle = { renew: () => ({ execute }) as unknown as RenewSubscriptions, overdue: () => ({ execute }) };
+    expect((await call(cycleRoute(cycle, () => undefined), "Bearer ")).status).toBe(503);
+    expect((await call(cycleRoute(cycle, () => "curto"), "Bearer curto")).status).toBe(503);
     expect(execute).not.toHaveBeenCalled();
   });
 });

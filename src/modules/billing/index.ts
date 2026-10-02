@@ -1,6 +1,8 @@
 // API pública do módulo billing (planos, assinaturas e cobrança dos parceiros).
 import type { CurrentUser } from "@/modules/identity";
-import { getPlan, listPlans, planEntitlements, planRepository, renewSubscriptions, subscriptionStore } from "./composition";
+import "./domain/events";
+import { enforceOverdue, getPlan, handlePaymentWebhook, listPlans, planEntitlements, planRepository, renewSubscriptions, subscriptionStore } from "./composition";
+import { paymentWebhooksRoute } from "./features/payment-webhooks/payment-webhooks.route";
 import { cycleRoute } from "./features/subscribe/cycle.route";
 import type { PlanChoice } from "./features/subscribe/ui/plan-picker";
 import type { PlanFeature } from "./domain/plan";
@@ -11,6 +13,7 @@ import type { PlanFormValues } from "./features/plans/ui/plan-form";
 export { PlanForm, type PlanFormValues } from "./features/plans/ui/plan-form";
 export { PlanList } from "./features/plans/ui/plan-list";
 export { PlanPicker, type PlanChoice } from "./features/subscribe/ui/plan-picker";
+export { SimulatePaymentForm } from "./features/payment-webhooks/ui/simulate-payment-form";
 export { subscriptionStatusLabels, type SubscriptionStatus } from "./domain/subscription";
 export { featureLabel, formatPlanPrice, planFeatures, type Plan, type PlanFeature } from "./domain/plan";
 
@@ -79,5 +82,15 @@ export async function subscriptionOverview(ownerId: string): Promise<{ status: S
   };
 }
 
-/** POST /api/billing/cycle: ciclo mensal (emite as faturas do próximo ciclo). Protegido por segredo; veja docs/billing.md. */
-export const billingApi = { cycle: cycleRoute(() => renewSubscriptions(), () => process.env.CRON_SECRET) };
+/**
+ * - POST /api/billing/cycle: ciclo diário (faturas do próximo ciclo, vencidas e suspensão). Protegido por segredo.
+ * - POST /api/billing/webhooks: eventos de pagamento do provedor, com assinatura verificada.
+ * Veja docs/billing.md.
+ */
+export const billingApi = {
+  cycle: cycleRoute({ renew: () => renewSubscriptions(), overdue: () => enforceOverdue() }, () => process.env.CRON_SECRET),
+  webhooks: paymentWebhooksRoute(() => handlePaymentWebhook()),
+};
+
+/** O simulador de pagamento está ligado neste ambiente? (só com o provedor simulado e o segredo configurado) */
+export const paymentSimulatorEnabled = () => handlePaymentWebhook() !== null;

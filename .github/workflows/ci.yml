@@ -89,6 +89,8 @@ jobs:
             echo "MISSIONS_QR_SECRET=$(openssl rand -hex 32)"
             # Live com o provedor simulado (sem Mux no CI): segredo dos webhooks, aleatório a cada execução.
             echo "LIVE_FAKE_WEBHOOK_SECRET=$(openssl rand -hex 32)"
+            # Cobrança com o provedor simulado: segredo dos webhooks de pagamento, aleatório a cada execução.
+            echo "BILLING_FAKE_WEBHOOK_SECRET=$(openssl rand -hex 32)"
           } >> "$GITHUB_ENV"
       # Lugares reais de Joinville (snapshot do OpenStreetMap) para as telas de "Onde ir".
       - run: npm run places:seed

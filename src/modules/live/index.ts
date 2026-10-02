@@ -2,6 +2,7 @@
 import { hasRole, type CurrentUser } from "@/modules/identity";
 import type { ModuleSubscriptions } from "@/shared/events";
 import { liveCountsReader } from "./composition";
+import { endStreamsWithoutPlan } from "./composition";
 import { endStreamOfCancelledEvent, endStreamsOfDeletedUser, getActiveStreams, getStreamMetrics, privacyGate, getLiveNowGeo, getLiveStatus, handleProviderWebhook, listActiveStreamsUseCase, listLiveNow, listLiveTargets, streamRepository } from "./composition";
 import { liveNowRoute } from "./features/live-badge/live-badge.route";
 import type { LiveNowItem } from "./features/live-badge/live-badge.use-case";
@@ -107,6 +108,10 @@ export const subscriptions: ModuleSubscriptions = (bus) => {
   });
   bus.subscribe("identity.UserDeleted", async (event) => {
     await endStreamsOfDeletedUser().execute(event.payload.userId);
+  });
+  // Inadimplência (#154): sem direito à live no plano que sobrou, as transmissões do dono são encerradas.
+  bus.subscribe("billing.SubscriptionSuspended", async (event) => {
+    await endStreamsWithoutPlan().execute(event.payload.ownerId);
   });
 };
 
