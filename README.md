@@ -29,7 +29,7 @@ npm run test:int   # testes de integração (precisa do db:start)
 npm run db:reset   # recria o banco do zero a partir das migrations
 ```
 
-Veja também [convenções do banco](docs/database.md).
+Veja também [convenções do banco](docs/database.md), [observabilidade](docs/observability.md) e [CI/CD e deploy](docs/deploy.md).
 
 ## Arquitetura
 
