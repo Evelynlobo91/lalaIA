@@ -19,6 +19,8 @@ export default async function globalTeardown() {
     await sql`delete from places.places where source = 'osm' and source_id like 'e2e/%'`;
     // Estabelecimentos cadastrados por admins de teste no backoffice (#143); antes das contas, senão `created_by` vira null.
     await sql`delete from places.places where source = 'admin' and created_by in (select id from auth.users where email like 'e2e-%@lalaia.test')`;
+    // Leads cadastrados por contas de teste (#147); antes das contas, senão `created_by` vira null e eles ficam.
+    await sql`delete from crm.leads where created_by in (select id from auth.users where email like 'e2e-%@lalaia.test')`;
     await sql`delete from auth.users where email like 'e2e-%@lalaia.test'`;
   } catch (error) {
     // Limpeza é melhor-esforço: não pode transformar uma execução verde em vermelha.
