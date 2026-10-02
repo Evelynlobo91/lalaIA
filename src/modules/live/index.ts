@@ -1,7 +1,7 @@
 // API pública do módulo live (transmissões ao vivo de lugares e eventos).
 import { hasRole, type CurrentUser } from "@/modules/identity";
 import type { ModuleSubscriptions } from "@/shared/events";
-import { endStreamOfCancelledEvent, getActiveStreams, getStreamMetrics, privacyGate, getLiveNowGeo, getLiveStatus, handleProviderWebhook, listActiveStreamsUseCase, listLiveNow, listLiveTargets } from "./composition";
+import { endStreamOfCancelledEvent, getActiveStreams, getStreamMetrics, privacyGate, getLiveNowGeo, getLiveStatus, handleProviderWebhook, listActiveStreamsUseCase, listLiveNow, listLiveTargets, streamRepository } from "./composition";
 import { liveNowRoute } from "./features/live-badge/live-badge.route";
 import type { LiveNowItem } from "./features/live-badge/live-badge.use-case";
 import { errorReporter, logger } from "@/shared/observability";
@@ -50,6 +50,14 @@ export async function liveMetrics(user: CurrentUser): Promise<Record<string, Str
     errorReporter().capture(error);
     return {};
   }
+}
+
+/**
+ * Transmissões de um parceiro (qualquer situação), com o lugar/evento de cada uma. Usado pelo painel de
+ * dados do promotor (Analytics) para ligar os `live_view` (por transmissão) ao recurso. O id vem da sessão.
+ */
+export async function liveStreamsOf(ownerId: string): Promise<Array<{ streamId: string; entityType: "place" | "event"; entityId: string }>> {
+  return (await streamRepository().listByOwner(ownerId)).map((s) => ({ streamId: s.id, entityType: s.entityType, entityId: s.entityId }));
 }
 
 /** Transmissões ao vivo agora (para Recomendação e Mapa). Só ids: quem chama busca os próprios dados. */
