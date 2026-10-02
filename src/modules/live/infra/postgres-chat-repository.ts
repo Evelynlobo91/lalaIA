@@ -68,6 +68,17 @@ export class PostgresChatRepository implements ChatRoomReader, ChatMessageWriter
     return row ? { kind: row.kind, until: row.expires_at } : null;
   }
 
+  /** O que a pessoa escreveu nos chats (exportação LGPD). Como a própria pessoa: a RLS só mostra as dela. */
+  async writtenBy(userId: string): Promise<Array<{ body: string; createdAt: Date; deleted: boolean }>> {
+    const rows = await asUser(
+      userId,
+      (tx) => tx<{ body: string; created_at: Date; deleted_at: Date | null }[]>`
+        select body, created_at, deleted_at from live.chat_messages where user_id = ${userId} order by created_at desc limit 5000`,
+      this.sql,
+    );
+    return rows.map((r) => ({ body: r.body, createdAt: r.created_at, deleted: r.deleted_at !== null }));
+  }
+
   async pinned(streamId: string): Promise<ChatMessage | null> {
     const [row] = await this.sql.unsafe<Row[]>(`select ${COLUMNS} from live.chat_messages where stream_id = $1 and pinned_at is not null and deleted_at is null`, [streamId]);
     return row ? toMessage(row) : null;

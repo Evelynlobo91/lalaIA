@@ -1,7 +1,7 @@
 import { eventsByOwner } from "@/modules/events";
 import { myFavorites } from "@/modules/favorites";
 import type { PersonalDataSource } from "@/modules/identity";
-import { livePrivacyAcceptedAt, liveStreamsOf } from "@/modules/live";
+import { livePrivacyAcceptedAt, liveStreamsOf, myChatMessages } from "@/modules/live";
 import { missionsByOwner, myGeofenceCheckIns, myMissions, myRewards } from "@/modules/missions";
 import { myPartnerApplication, myRedemptions, offersCreatedBy } from "@/modules/partners";
 import { placesManagedBy } from "@/modules/places";
@@ -27,6 +27,7 @@ export const personalDataSources: PersonalDataSource[] = [
   { name: "missoesQueCriei", export: (user) => missionsByOwner(user.id) },
   { name: "ofertasResgatadas", export: (user) => myRedemptions(user.id) },
   { name: "ofertasQueCriei", export: (user) => offersCreatedBy(user.id) },
+  { name: "mensagensNoChatDasLives", export: (user) => myChatMessages(user.id) },
   {
     name: "transmissoes",
     export: async (user) => ({ transmissoes: await liveStreamsOf(user.id), diretrizesDePrivacidadeAceitasEm: await livePrivacyAcceptedAt(user) }),

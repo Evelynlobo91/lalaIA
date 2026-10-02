@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import { Avatar, Badge, Button, cn } from "@/shared/ui";
 import { CHAT_LIMITS, type ChatMessageView } from "../../../domain/chat";
 import type { ChatModerationAction } from "../../moderate-chat/moderate-chat.use-case";
+import { REPORT_REASONS, REPORT_REASON_LABELS, type ReportReason } from "../../report-chat-message/report-chat-message.use-case";
 import { pollWhileVisible } from "../../stream-states/ui/poll-while-visible";
 import { CHAT_POLL_MS, type ChatFeedView } from "../chat-feed.use-case";
 
@@ -53,6 +54,7 @@ export function LiveChat({ streamId, viewer, loginHref, likedMessageIds, ownMess
   const [notice, setNotice] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [menuFor, setMenuFor] = useState<string | null>(null);
+  const [reporting, setReporting] = useState<string | null>(null);
   // Curtidas da própria pessoa: o que veio do servidor, mais o que ela mudou nesta tela.
   const [likeChanges, setLikeChanges] = useState<Record<string, boolean>>({});
   const isLiked = (id: string) => likeChanges[id] ?? likedMessageIds?.includes(id) ?? false;
@@ -120,6 +122,17 @@ export function LiveChat({ streamId, viewer, loginHref, likedMessageIds, ownMess
     } else {
       const body = (await response?.json().catch(() => null)) as { error?: { message?: string } } | null;
       setNotice(body?.error?.message ?? "Não foi possível agora. Tente de novo.");
+    }
+  };
+
+  const report = async (message: ChatMessageView, reason: ReportReason) => {
+    setMenuFor(null);
+    setReporting(null);
+    const response = await fetch("/api/live/chat/reports", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ messageId: message.id, reason }) }).catch(() => null);
+    if (response?.ok) setNotice("Denúncia enviada. A moderação vai analisar.");
+    else {
+      const body = (await response?.json().catch(() => null)) as { error?: { message?: string } } | null;
+      setNotice(body?.error?.message ?? "Não foi possível denunciar agora. Tente de novo.");
     }
   };
 
@@ -203,7 +216,7 @@ export function LiveChat({ streamId, viewer, loginHref, likedMessageIds, ownMess
               {count === 0 && <li className="text-sm text-muted">Ninguém escreveu ainda. Comece a conversa.</li>}
               {feed.messages.map((m) => {
                 const mine = isMine(m.id);
-                const canAct = viewer !== null && (viewer.canModerate || mine);
+                const canDelete = viewer !== null && (viewer.canModerate || mine);
                 return (
                   <li key={m.id} className="flex flex-col gap-1 text-sm">
                     <div className="flex items-start gap-2">
@@ -243,7 +256,7 @@ export function LiveChat({ streamId, viewer, loginHref, likedMessageIds, ownMess
                           <CornerUpLeft aria-hidden className="size-4" />
                         </button>
                       )}
-                      {canAct && (
+                      {viewer && (
                         <button
                           type="button"
                           onClick={() => setMenuFor((current) => (current === m.id ? null : m.id))}
@@ -255,11 +268,27 @@ export function LiveChat({ streamId, viewer, loginHref, likedMessageIds, ownMess
                         </button>
                       )}
                     </div>
-                    {canAct && menuFor === m.id && (
-                      <div role="group" aria-label={`Moderar a mensagem de ${m.author.name}`} className="ml-9 flex flex-col rounded-xl border border-border bg-surface p-1">
-                        <button type="button" className={cn(menuButton, "text-danger")} onClick={() => void moderate(m, "delete", "Mensagem apagada.")}>
-                          Apagar mensagem
-                        </button>
+                    {viewer && menuFor === m.id && (
+                      <div role="group" aria-label={`Opções para a mensagem de ${m.author.name}`} className="ml-9 flex flex-col rounded-xl border border-border bg-surface p-1">
+                        {canDelete && (
+                          <button type="button" className={cn(menuButton, "text-danger")} onClick={() => void moderate(m, "delete", "Mensagem apagada.")}>
+                            Apagar mensagem
+                          </button>
+                        )}
+                        {!mine &&
+                          (reporting === m.id ? (
+                            <div role="group" aria-label="Motivo da denúncia" className="flex flex-col border-t border-border pt-1">
+                              {REPORT_REASONS.map((reason) => (
+                                <button key={reason} type="button" className={menuButton} onClick={() => void report(m, reason)}>
+                                  {REPORT_REASON_LABELS[reason]}
+                                </button>
+                              ))}
+                            </div>
+                          ) : (
+                            <button type="button" className={menuButton} onClick={() => setReporting(m.id)}>
+                              Denunciar
+                            </button>
+                          ))}
                         {viewer?.canModerate &&
                           MODERATION.filter(({ action }) => action === "pin" || (!m.isHost && !mine)).map(({ action, label }) => (
                             <button

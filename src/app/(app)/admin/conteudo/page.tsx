@@ -77,9 +77,14 @@ export default async function AdminConteudoPage({ searchParams }: PageProps<"/ad
 
       <ContentSearch tab={tab} text={text} />
 
-      <Link href="/admin/conteudo/chamadas" className="inline-flex min-h-11 items-center self-start text-sm font-medium text-brand underline">
-        Chamadas nas lives
-      </Link>
+      <div className="flex flex-wrap gap-x-4">
+        <Link href="/admin/conteudo/chamadas" className="inline-flex min-h-11 items-center text-sm font-medium text-brand underline">
+          Chamadas nas lives
+        </Link>
+        <Link href="/admin/conteudo/denuncias" className="inline-flex min-h-11 items-center text-sm font-medium text-brand underline">
+          Denúncias do chat
+        </Link>
+      </div>
 
       {tab === "lugares" && (
         <ButtonLink href="/admin/conteudo/lugares/novo" variant="secondary" className="self-start">

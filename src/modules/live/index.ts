@@ -7,6 +7,9 @@ import { livePulse, reactionRepository, sendReactions, toggleLiveLike, toggleMes
 import { PRESENCE_WINDOW_SECONDS } from "./features/live-presence/live-presence.use-case";
 import { chatRepository, listChatRestrictions, moderateChatMessage } from "./composition";
 import { moderateChatRoute } from "./features/moderate-chat/moderate-chat.route";
+import { listChatReports, reportChatMessage } from "./composition";
+import { reportChatMessageRoute } from "./features/report-chat-message/report-chat-message.route";
+import type { ReportModerator } from "./features/report-chat-message/report-chat-message.use-case";
 import { liveLikeRoute, messageLikeRoute, myLikesRoute, pulseRoute, reactionsRoute } from "./features/react-to-live/reactions.route";
 import type { CtaMetrics } from "./features/cta-metrics/cta-metrics.use-case";
 import type { CtaModerator } from "./features/moderate-cta/moderate-cta.use-case";
@@ -150,6 +153,20 @@ export async function liveViewersNow(user: CurrentUser): Promise<Record<string, 
   }
 }
 
+// Denúncias do chat (#193).
+export { ResolveReportButtons } from "./features/report-chat-message/ui/resolve-report-buttons";
+export { REPORT_REASON_LABELS, type ReportedMessageView } from "./features/report-chat-message/report-chat-message.use-case";
+
+/** Backoffice: mensagens do chat com denúncia em aberto, para a moderação apagar ou manter. */
+export function chatReportsForModeration(moderator: ReportModerator) {
+  return listChatReports().execute(moderator);
+}
+
+/** Mensagens que a pessoa escreveu nos chats das lives (exportação LGPD): texto, quando e se foi apagada. */
+export function myChatMessages(userId: string) {
+  return chatRepository().writtenBy(userId);
+}
+
 // Moderação do chat (#192).
 export { ChatSettingsForm } from "./features/moderate-chat/ui/chat-settings-form";
 export { LiftRestrictionButton } from "./features/moderate-chat/ui/lift-restriction-button";
@@ -214,6 +231,8 @@ export const liveApi = {
   messageLike: messageLikeRoute(toggleMessageLike),
   /** POST /api/live/chat/moderation — apagar, fixar, silenciar e banir (anfitrião, moderação; o autor apaga a própria). */
   chatModeration: moderateChatRoute(moderateChatMessage),
+  /** POST /api/live/chat/reports — denunciar uma mensagem (só logado). */
+  chatReport: reportChatMessageRoute(reportChatMessage),
   /** GET /api/live/chat/likes?streamId= — o que a pessoa logada já curtiu (e escreveu) nesta live. */
   myLikes: myLikesRoute(reactionRepository),
 };
