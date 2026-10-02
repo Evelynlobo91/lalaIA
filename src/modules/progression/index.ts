@@ -1,8 +1,9 @@
 // API pública do módulo progression (XP, níveis e conquistas).
+import { cache } from "react";
 import type { ModuleSubscriptions } from "@/shared/events";
 import "./domain/events";
 import { gameMapRoute } from "./features/game-map/game-map.route";
-import { achievementsOverview, explorerProfile, grantXp, levelOverview, trackLevelUp, unlockAchievements, xpOverview, gameMap } from "./composition";
+import { achievementsOverview, explorerProfile, grantXp, levelOverview, trackLevelUp, unlockAchievements, xpOverview, gameMap, sharedAchievement } from "./composition";
 import type { AchievementsOverview } from "./features/achievements/achievements.use-case";
 import type { ExplorerProfile } from "./features/explorer-profile/explorer-profile.use-case";
 import type { LevelOverview } from "./features/levels/levels.use-case";
@@ -52,6 +53,12 @@ export type { GameMapView as GameMapData } from "./features/game-map/game-map.us
 export function gameMapOf(userId: string) {
   return gameMap().execute(userId);
 }
+
+// Compartilhar conquista (#70)
+export type { SharedAchievementView } from "./features/share/share.use-case";
+
+/** Conquista compartilhada (página pública /conquistas/[id]) ou null. Memoizada por requisição (página + OG). */
+export const sharedAchievementOf = cache(async (unlockId: string) => sharedAchievement().execute(unlockId));
 
 export const progressionApi = {
   /** GET /api/progression/game-map */

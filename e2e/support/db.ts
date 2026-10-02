@@ -200,3 +200,14 @@ export function creditTestXp(user: Pick<TestUser, "email">, amount: number, desc
       from auth.users where lower(email) = ${user.email.toLowerCase()}`,
   );
 }
+
+/** Desbloqueia uma conquista direto no banco (sem bônus de XP). Devolve o id do desbloqueio (link de compartilhar). */
+export function unlockTestAchievement(user: Pick<TestUser, "email">, achievementId: string): Promise<string> {
+  return withDb(async (sql) => {
+    const [row] = await sql<{ id: string }[]>`
+      insert into progression.achievements (user_id, achievement_id)
+      select id, ${achievementId} from auth.users where lower(email) = ${user.email.toLowerCase()}
+      returning id`;
+    return row.id;
+  });
+}

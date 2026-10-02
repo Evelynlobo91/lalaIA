@@ -2,6 +2,7 @@ import { Lock, Trophy } from "lucide-react";
 import { formatDateTime } from "@/shared/time/joinville-time";
 import { Badge, Card, CardDescription, CardTitle } from "@/shared/ui";
 import type { AchievementsOverview, AchievementView } from "../achievements.use-case";
+import { ShareAchievementButton } from "../../share/ui/share-achievement-button";
 
 /** Galeria do perfil: conquistas desbloqueadas e, abaixo, as bloqueadas com a dica de como conseguir. */
 export function AchievementsCard({ overview }: { overview: AchievementsOverview }) {
@@ -42,6 +43,7 @@ function AchievementItem({ achievement: a }: { achievement: AchievementView }) {
           <>
             <p className="text-sm">{a.description}</p>
             <p className="text-xs text-muted">Desbloqueada em {formatDateTime(a.unlockedAt!)}</p>
+            {a.unlockId && <ShareAchievementButton unlockId={a.unlockId} title={a.title} />}
           </>
         ) : (
           <p className="text-sm">
