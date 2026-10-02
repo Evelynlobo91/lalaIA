@@ -6,7 +6,7 @@ import { hasRole, requireRole } from "@/modules/identity";
 import { missionsForAdmin } from "@/modules/missions";
 import { searchPlacesByName } from "@/modules/places";
 import { formatDateTime } from "@/shared/time/joinville-time";
-import { Badge, Card, FormAlert } from "@/shared/ui";
+import { Badge, ButtonLink, Card, FormAlert } from "@/shared/ui";
 
 export const metadata: Metadata = { title: "Conteúdo · Backoffice", robots: { index: false } };
 // Lista de trabalho do admin: sempre os dados de agora.
@@ -76,6 +76,12 @@ export default async function AdminConteudoPage({ searchParams }: PageProps<"/ad
       )}
 
       <ContentSearch tab={tab} text={text} />
+
+      {tab === "lugares" && (
+        <ButtonLink href="/admin/conteudo/lugares/novo" variant="secondary" className="self-start">
+          Cadastrar estabelecimento
+        </ButtonLink>
+      )}
 
       {needsText ? (
         <p className="text-muted">Digite pelo menos 2 letras do nome do lugar para buscar.</p>
