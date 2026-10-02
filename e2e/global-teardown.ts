@@ -22,6 +22,8 @@ export default async function globalTeardown() {
     // Leads cadastrados por contas de teste (#147); antes das contas, senão `created_by` vira null e eles ficam.
     await sql`delete from crm.leads where created_by in (select id from auth.users where email like 'e2e-%@lalaia.test')`;
     await sql`delete from auth.users where email like 'e2e-%@lalaia.test'`;
+    // Planos criados pelos testes do financeiro (#152): código começando com `e2e-`.
+    await sql`delete from billing.plans where code like 'e2e-%' and not is_default`;
   } catch (error) {
     // Limpeza é melhor-esforço: não pode transformar uma execução verde em vermelha.
     console.warn("Limpeza dos dados de teste falhou:", error instanceof Error ? error.message : error);

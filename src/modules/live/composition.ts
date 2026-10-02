@@ -1,4 +1,6 @@
 // Composição do módulo live (interna): usada pelas actions, rotas e pelo index.ts.
+import { hasPlanFeature } from "@/modules/billing";
+import { liveGateWith } from "./features/privacy/live-gate";
 import { sql } from "@/shared/db/sql";
 import { logger } from "@/shared/observability";
 import { domainEvents } from "@/shared/events";
@@ -29,9 +31,12 @@ const streamTargets = new ModuleStreamTargets();
 
 export const privacyAgreements = lazy(() => new PostgresPrivacyAgreements(sql()));
 export const privacyGate = lazy(() => new PrivacyGate(privacyAgreements()));
+
+// Trava para colocar uma live no ar: plano com live (porta pública do módulo billing, #152) + diretrizes (#55).
+export const liveGate = lazy(() => liveGateWith((ownerId) => hasPlanFeature(ownerId, "live"), privacyGate()));
 export const acceptLiveGuidelines = lazy(() => new AcceptLiveGuidelines(privacyAgreements()));
 
-export const provisionStream = lazy(() => new ProvisionStream(streamRepository(), streamTargets, streamingProvider, privacyGate()));
+export const provisionStream = lazy(() => new ProvisionStream(streamRepository(), streamTargets, streamingProvider, liveGate()));
 export const rotateStreamKey = lazy(() => new RotateStreamKey(streamRepository(), streamingProvider));
 export const revealStreamKey = lazy(() => new RevealStreamKey(streamRepository()));
 export const listLiveTargets = lazy(() => new ListLiveTargets(streamRepository(), streamTargets, streamingProvider));
@@ -40,7 +45,7 @@ export const lifecycleLog = lazy(() => new PostgresStreamLifecycleLog(sql()));
 export const liveCountsReader = lazy(() => new PostgresLiveCounts(sql()));
 export const handleProviderWebhook = lazy(() => new HandleProviderWebhook(streamingProvider, lifecycleLog(), domainEvents()));
 
-export const controlStream = lazy(() => new ControlStream(streamRepository(), streamRepository(), streamingProvider, domainEvents(), privacyGate()));
+export const controlStream = lazy(() => new ControlStream(streamRepository(), streamRepository(), streamingProvider, domainEvents(), liveGate()));
 export const endStreamOfCancelledEvent = lazy(() => new EndStreamOfCancelledEvent(streamRepository(), streamRepository(), streamingProvider, domainEvents()));
 export const endStreamsOfDeletedUser = lazy(() => new EndStreamsOfDeletedUser(streamRepository(), streamingProvider, logger().child({ module: "live" })));
 
