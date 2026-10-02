@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 // Destinos públicos da navegação (visitante sem login).
 const destinos = [
-  { label: "Explorar", path: "/buscar", heading: "Buscar" },
+  { label: "Explorar", path: "/buscar", heading: "Explorar" },
   { label: "Mapa", path: "/mapa", heading: "Mapa" },
   { label: "Me Surpreenda", path: "/surpreenda", heading: "Me Surpreenda" },
   { label: "Início", path: "/", heading: "Oi! Bora viver?" },

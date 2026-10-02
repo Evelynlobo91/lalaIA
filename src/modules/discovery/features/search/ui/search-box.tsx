@@ -64,15 +64,15 @@ export function SearchBox({ defaultValue, keep = {}, live = false, className }: 
           maxLength={80}
           autoComplete="off"
           enterKeyHint="search"
-          placeholder="Restaurante, samba, museu..."
+          placeholder="Evento, lugar ou sabor..."
           aria-busy={pending || undefined}
-          className="h-12 w-full rounded-xl border border-border bg-surface pr-4 pl-12 text-base text-fg placeholder:text-muted"
+          className="h-12 w-full rounded-full border border-border bg-surface pr-4 pl-12 text-base text-fg shadow-sm placeholder:text-muted"
         />
       </div>
       {Object.entries(keep).map(([name, value]) => (
         <input key={name} type="hidden" name={name} value={value} />
       ))}
-      <Button type="submit" size="lg" loading={pending}>
+      <Button type="submit" size="lg" loading={pending} className="rounded-full">
         Buscar
       </Button>
     </Form>
