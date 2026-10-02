@@ -15,12 +15,14 @@ import { HappeningNow, type EventPlaceDistances } from "./features/happening-now
 import { SearchEvents } from "./features/search-events/search-events";
 import { PostgresEventSearch } from "./infra/postgres-event-search";
 import { FindEventCandidates } from "./features/event-candidates/event-candidates";
+import { ListEventsForAdmin } from "./features/admin-events/admin-events";
 
 const placesLookup: EventPlaceLookup = { summary: placeSummary };
 
 export const eventRepository = lazy(() => new PostgresEventRepository(sql()));
 export const saveEvent = lazy(() => new SaveEvent(eventRepository(), placesLookup, domainEvents()));
 export const cancelEvent = lazy(() => new CancelEvent(eventRepository(), domainEvents()));
+export const listEventsForAdmin = lazy(() => new ListEventsForAdmin(eventRepository()));
 export { placesLookup };
 
 const placeNames: EventPlaceNames = { summaries: placeSummaries };

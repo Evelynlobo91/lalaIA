@@ -20,3 +20,14 @@ a área responde **404**, o que não revela que ela existe (RNF05).
 | Financeiro | `/admin/financeiro` | #152 a #156 |
 | Métricas | `/admin/metricas` | #145 |
 | Auditoria | `/admin/auditoria` | #146 |
+
+## Conteúdo (#142)
+
+- `/admin/conteudo?tipo=lugares|eventos|missoes&q=`: abas e busca por nome, sem JavaScript (links e formulário GET).
+  Lugares pedem pelo menos 2 letras; eventos e missões listam os 50 mais recentes quando a busca está vazia.
+- A lista do admin mostra **tudo**: eventos passados e cancelados, missões encerradas e surpresa, e o conteúdo
+  de parceiros suspensos. Vem das APIs públicas `eventsForAdmin`, `missionsForAdmin` e `searchPlacesByName`.
+- A edição reaproveita os formulários e os casos de uso dos módulos donos, que já aceitam admin (e a RLS também).
+  Eventos cancelados ou encerrados e missões encerradas não são editáveis, como no portal do parceiro.
+- Depois de salvar, o formulário volta para o backoffice (`returnTo="admin"`, um valor fixo, nunca um caminho
+  vindo do formulário).

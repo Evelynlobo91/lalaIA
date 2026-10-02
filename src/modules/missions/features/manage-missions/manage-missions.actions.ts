@@ -21,6 +21,8 @@ export async function saveMissionAction(previous: FormState<MissionRecord>, form
   if (state.status === "success") {
     revalidatePath("/parceiro/missoes");
     revalidatePath("/missoes");
+    // Edição vinda do backoffice volta para o backoffice (valor fixo: nunca um caminho vindo do formulário).
+    if (formData.get("returnTo") === "admin") redirect(`/admin/conteudo?tipo=missoes&salvo=${state.data.id}`);
     redirect(`/parceiro/missoes?salvo=${state.data.id}`);
   }
   return state;

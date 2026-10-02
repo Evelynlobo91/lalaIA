@@ -48,7 +48,20 @@ let rowSeq = 0;
  * `placeOptions` são os lugares que quem cria pode usar (no portal: os que o parceiro administra).
  * Envio manual (sem `action` no <form>): o React não limpa os campos depois de um erro de validação.
  */
-export function MissionForm({ initial, placeOptions, submitLabel, stepsLocked = false }: { initial?: MissionFormValues; placeOptions: PlaceOption[]; submitLabel: string; stepsLocked?: boolean }) {
+export function MissionForm({
+  initial,
+  placeOptions,
+  submitLabel,
+  stepsLocked = false,
+  returnTo,
+}: {
+  initial?: MissionFormValues;
+  placeOptions: PlaceOption[];
+  submitLabel: string;
+  stepsLocked?: boolean;
+  /** "admin": depois de salvar, volta para o backoffice. */
+  returnTo?: "admin";
+}) {
   const [state, dispatch, pending] = useActionState<FormState<MissionRecord>, FormData>(saveMissionAction, idleFormState);
   const errors = state.status === "error" ? (state.fieldErrors ?? {}) : {};
   const values: Partial<MissionFormValues> = state.status === "error" ? (state.values ?? {}) : (initial ?? {});
@@ -73,6 +86,7 @@ export function MissionForm({ initial, placeOptions, submitLabel, stepsLocked = 
   return (
     <form onSubmit={submit} className="flex flex-col gap-5" noValidate>
       {values.missionId && <input type="hidden" name="missionId" value={values.missionId} />}
+      {returnTo && <input type="hidden" name="returnTo" value={returnTo} />}
       <input
         type="hidden"
         name="steps"

@@ -2,6 +2,7 @@ import { isCategoryId, type CategoryId } from "@/shared/catalog/categories";
 import { asUser } from "@/shared/db/as-user";
 import type { Sql } from "@/shared/db/sql";
 import type { EventDraft, EventRecord, EventRepository, EventStatus } from "../domain/event";
+import type { AdminEventItem, EventAdminReader } from "../features/admin-events/admin-events";
 
 type Row = {
   id: string;
@@ -33,7 +34,7 @@ const toRecord = (r: Row): EventRecord => ({
   createdAt: r.created_at,
 });
 
-export class PostgresEventRepository implements EventRepository {
+export class PostgresEventRepository implements EventRepository, EventAdminReader {
   constructor(private readonly sql: Sql) {}
 
   async findById(id: string): Promise<EventRecord | null> {
@@ -45,6 +46,13 @@ export class PostgresEventRepository implements EventRepository {
   async findVisibleById(id: string): Promise<EventRecord | null> {
     const [row] = await this.sql.unsafe<Row[]>(`select ${COLUMNS} from events.events where id = $1 and not platform.owner_suspended(owner_id)`, [id]);
     return row ? toRecord(row) : null;
+  }
+
+  /** Backoffice: todos os eventos (sem filtro de status nem de suspensão). O texto é tratado como literal no `ilike`. */
+  async searchAll(text: string, limit: number): Promise<AdminEventItem[]> {
+    const pattern = `%${text.replace(/[\\%_]/g, "\\$&")}%`;
+    const rows = await this.sql.unsafe<Row[]>(`select ${COLUMNS} from events.events where title ilike $1 order by starts_at desc, id limit $2`, [pattern, limit]);
+    return rows.map((r) => ({ id: r.id, title: r.title, status: r.status, startsAt: r.starts_at, endsAt: r.ends_at, ownerId: r.owner_id, placeId: r.place_id }));
   }
 
   async listByOwner(ownerId: string): Promise<EventRecord[]> {

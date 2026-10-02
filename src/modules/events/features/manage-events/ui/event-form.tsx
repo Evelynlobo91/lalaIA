@@ -13,7 +13,7 @@ export type EventFormValues = { eventId?: string; title: string; description: st
  * Formulário de evento. `placeField` é o seletor de lugar montado pela página (vem do módulo places):
  * assim este módulo não depende de componentes de outro módulo no navegador.
  */
-export function EventForm({ initial, placeField, submitLabel }: { initial?: EventFormValues; placeField: ReactNode; submitLabel: string }) {
+export function EventForm({ initial, placeField, submitLabel, returnTo }: { initial?: EventFormValues; placeField: ReactNode; submitLabel: string; /** "admin": depois de salvar, volta para o backoffice. */ returnTo?: "admin" }) {
   const [state, action, pending] = useActionState<FormState<EventRecord>, FormData>(saveEventAction, idleFormState);
   const errors = state.status === "error" ? (state.fieldErrors ?? {}) : {};
   const values: Partial<EventFormValues> = state.status === "error" ? (state.values ?? {}) : (initial ?? {});
@@ -21,6 +21,7 @@ export function EventForm({ initial, placeField, submitLabel }: { initial?: Even
   return (
     <form action={action} className="flex flex-col gap-5" noValidate>
       {values.eventId && <input type="hidden" name="eventId" value={values.eventId} />}
+      {returnTo && <input type="hidden" name="returnTo" value={returnTo} />}
       {state.status === "error" && state.message && <FormAlert>{state.message}</FormAlert>}
 
       <TextField label="Título" name="title" maxLength={120} required defaultValue={values.title} errors={errors.title} />

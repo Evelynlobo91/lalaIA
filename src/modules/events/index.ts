@@ -2,7 +2,7 @@
 import { toLocalInput } from "@/shared/time/joinville-time";
 import { queryRoute } from "@/shared/http/json-route";
 import { cache } from "react";
-import { eventRepository, findEventCandidates, getEventDetail as eventDetailUseCase, getEventSummaries, happeningNow, listEvents, placesLookup } from "./composition";
+import { eventRepository, findEventCandidates, getEventDetail as eventDetailUseCase, getEventSummaries, happeningNow, listEvents, listEventsForAdmin, placesLookup } from "./composition";
 import { DEFAULT_PAGE_SIZE, listEventsSchema } from "./features/list-events/list-events";
 import { eventListQuery, noEventFilters } from "./features/list-events/list-filters";
 import { happeningNowSchema } from "./features/happening-now/happening-now.schema";
@@ -40,6 +40,13 @@ export async function eventsByOwner(ownerId: string): Promise<OwnerEventItem[]> 
     names.set(placeId, (await placesLookup.summary(placeId))?.name ?? "Lugar removido");
   }
   return events.map((e) => ({ ...e, placeName: names.get(e.placeId)! }));
+}
+
+export type { AdminEventItem } from "./features/admin-events/admin-events";
+
+/** Backoffice (#142): todos os eventos, por título (vazio = todos). Só admin. */
+export function eventsForAdmin(viewer: { isAdmin: boolean }, text: string) {
+  return listEventsForAdmin().execute(viewer, text);
 }
 
 /** Evento para o formulário de edição, só para o dono (ou admin); null para os demais. */

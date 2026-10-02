@@ -18,6 +18,7 @@ export async function editPlaceAction(previous: FormState<{ placeId: string }>, 
   if (state.status === "success") {
     revalidatePath(`/lugares/${state.data.placeId}`);
     revalidatePath("/parceiro/lugares");
+    revalidatePath("/admin/conteudo");
   }
   return state;
 }
