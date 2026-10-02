@@ -1,16 +1,25 @@
 import { asUser, type Tx } from "@/shared/db/as-user";
 import type { Sql } from "@/shared/db/sql";
 import type { InvoiceStatus, SubscriptionStatus } from "../domain/subscription";
+import type { InvoiceLookup, InvoiceToConfirm } from "../features/confirm-payment/confirm-payment.use-case";
 import type { Delinquent, FinanceInvoice, FinanceReader, FinanceTotals } from "../features/finance-panel/finance-panel";
 
 const emptyCounts = (): Record<SubscriptionStatus, number> => ({ pending: 0, active: 0, past_due: 0, suspended: 0, cancelled: 0 });
 
 /** Tudo como a pessoa do time (asUser): sem a capacidade billing:read, a RLS devolve tudo vazio. */
-export class PostgresFinanceReader implements FinanceReader {
+export class PostgresFinanceReader implements FinanceReader, InvoiceLookup {
   constructor(private readonly sql: Sql) {}
 
   private as<T>(actorId: string, fn: (tx: Tx) => Promise<T>) {
     return asUser(actorId, fn, this.sql);
+  }
+
+  async find(actorId: string, invoiceId: string): Promise<InvoiceToConfirm | null> {
+    const [r] = await this.as(actorId, (tx) => tx<{ id: string; owner_id: string; gateway: string; gateway_invoice_id: string; status: InvoiceStatus }[]>`
+      select i.id, s.owner_id, i.gateway, i.gateway_invoice_id, i.status
+      from billing.invoices i join billing.subscriptions s on s.id = i.subscription_id
+      where i.id = ${invoiceId}`);
+    return r ? { id: r.id, ownerId: r.owner_id, gateway: r.gateway, gatewayInvoiceId: r.gateway_invoice_id, status: r.status } : null;
   }
 
   async totals(actorId: string, since: Date): Promise<FinanceTotals> {

@@ -21,7 +21,7 @@ export default async function AdminFinanceiroPage({ searchParams }: PageProps<"/
 
       {typeof params.salvo === "string" && <FormAlert variant="success">Plano salvo.</FormAlert>}
 
-      {panel.ok && <FinancePanel view={panel.value} />}
+      {panel.ok && <FinancePanel view={panel.value} canWrite={canWrite} />}
 
       <section className="flex flex-col gap-3" aria-labelledby="planos">
         <h2 id="planos" className="text-xl font-semibold">

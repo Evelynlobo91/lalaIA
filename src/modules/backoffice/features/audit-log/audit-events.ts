@@ -33,6 +33,7 @@ export const auditedEvents = {
   "live.CtaDisabledByAdmin": on<"live.CtaDisabledByAdmin">({ label: "Desativou a chamada da live", targetType: "live_cta", from: (p) => ({ actorId: p.disabledBy, targetId: p.ctaId }) }),
   "live.CtaEnabledByAdmin": on<"live.CtaEnabledByAdmin">({ label: "Reativou a chamada da live", targetType: "live_cta", from: (p) => ({ actorId: p.enabledBy, targetId: p.ctaId }) }),
   "live.ChatReportResolved": on<"live.ChatReportResolved">({ label: "Resolveu denúncia de mensagem do chat", targetType: "chat_message", from: (p) => ({ actorId: p.resolvedBy, targetId: p.messageId }) }),
+  "billing.PaymentConfirmedManually": on<"billing.PaymentConfirmedManually">({ label: "Confirmou pagamento manualmente", targetType: "invoice", from: (p) => ({ actorId: p.confirmedBy, targetId: p.invoiceId }) }),
 } satisfies { [K in keyof DomainEventMap]?: Mapped<K> };
 
 export type AuditedEvent = keyof typeof auditedEvents;

@@ -89,3 +89,18 @@ Planos, assinaturas e faturas dos parceiros (Epic #86). As telas do time ficam e
   O período e o filtro ficam na URL.
 
 Tudo é lido como a pessoa do time (`asUser`): sem `billing:read`, a RLS devolve tudo vazio.
+
+## Confirmação manual de pagamento
+
+Para o piloto sem gateway real (e, depois, para pagamentos recebidos por fora: Pix direto, cortesia), quem tem
+`billing:write` confirma o pagamento de uma fatura **em aberto ou vencida** em `/admin/financeiro` → Faturas →
+"Confirmar pagamento" (com um passo de confirmação).
+
+- Passa pelo **mesmo caminho do webhook de "pago"** (`PaymentLedger.apply`, evento `manual:<fatura>`): a fatura fica
+  paga, o plano dela passa a valer e a assinatura fica em dia. Por isso é idempotente e não há um segundo jeito de
+  "pagar".
+- Publica `billing.PaymentConfirmedManually`, que entra na auditoria do backoffice com quem confirmou. Se a
+  assinatura estava suspensa, publica também `billing.SubscriptionReactivated`.
+- Não se desfaz por esta tela (não há estorno manual). Não registra valor, forma de pagamento nem comprovante.
+- Com isto, o piloto pode deixar `BILLING_FAKE_WEBHOOK_SECRET` vazio em produção (simulador desligado): o parceiro
+  pede o Pro, a fatura fica em aberto e o time confirma só para quem deve ter o plano.
