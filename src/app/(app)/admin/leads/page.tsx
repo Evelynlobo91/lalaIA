@@ -24,11 +24,12 @@ export default async function AdminLeadsPage({ searchParams }: PageProps<"/admin
 
       {typeof params.salvo === "string" && <FormAlert variant="success">Lead salvo.</FormAlert>}
 
-      {canWrite && (
-        <ButtonLink href="/admin/leads/novo" className="self-start">
-          Novo lead
+      <div className="flex flex-wrap gap-2">
+        {canWrite && <ButtonLink href="/admin/leads/novo">Novo lead</ButtonLink>}
+        <ButtonLink href="/admin/leads/funil" variant="secondary">
+          Ver funil
         </ButtonLink>
-      )}
+      </div>
 
       {leads.length === 0 ? (
         <p className="text-muted">Nenhum lead cadastrado ainda.</p>
