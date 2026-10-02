@@ -34,5 +34,5 @@ Tudo isso é coberto por testes de integração (`postgres-partner-repository.in
 
 ## Próximos slices
 
-- #27 estrutura do portal (navegação de parceiro);
+- #27 estrutura do portal: ✅ `/parceiro/(inicio|lugares|eventos|live|missoes|dados)`, protegida por `requirePartner` (sem sessão → login; sem papel/cadastro aprovado → `/parceiro`). As seções vivem em `features/portal/portal-sections.ts` (arquivo comum, sem "use client", porque páginas de servidor também usam);
 - #28 reivindicar um lugar importado do OpenStreetMap.

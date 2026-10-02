@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { grantRole } from "./support/db";
+import { createApprovedPartner, grantRole } from "./support/db";
 import { loginAs } from "./support/session";
 import { createConfirmedUser } from "./support/users";
 
@@ -26,12 +26,12 @@ test.describe("papéis e autorização (RNF05)", () => {
 
   test("parceiro acessa o portal e vê o atalho no perfil", async ({ page }) => {
     const user = await createConfirmedUser("Bar do Parceiro");
-    await grantRole(user, "partner");
+    await createApprovedPartner(user, "Bar do Parceiro Ltda");
     await loginAs(page, user);
 
     await page.goto("/perfil");
     await page.getByRole("link", { name: "Portal do parceiro" }).click();
-    await expect(page).toHaveURL(/\/parceiro$/);
+    await expect(page).toHaveURL(/\/parceiro\/inicio$/);
     await expect(page.getByText("Olá, Bar do Parceiro!")).toBeVisible();
 
     expect((await page.goto("/admin"))?.status()).toBe(404);
