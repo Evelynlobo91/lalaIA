@@ -2,7 +2,9 @@ import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { LeadActivityPanel, LeadForm, LeadHistory, MoveLeadForm, editableLead, leadActivityFor, leadHistory, leadOwnerOptions, leadsToday, stageLabel } from "@/modules/crm";
+import { PlacePicker } from "@/modules/places";
+import { formatDateTime } from "@/shared/time/joinville-time";
+import { ConvertLeadForm, LeadActivityPanel, LeadForm, LeadHistory, MoveLeadForm, editableLead, leadActivityFor, leadHistory, leadOwnerOptions, leadsToday, openInviteFor, stageLabel } from "@/modules/crm";
 import { requireCapability } from "@/modules/identity";
 import { Badge, Card } from "@/shared/ui";
 
@@ -12,7 +14,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminEditarLeadPage({ params }: PageProps<"/admin/leads/[id]">) {
   const user = await requireCapability("leads:write", "/admin/leads");
   const { id } = await params;
-  const [data, owners, history, activity] = await Promise.all([editableLead(user, id), leadOwnerOptions(), leadHistory(user, id), leadActivityFor(user, id)]);
+  const [data, owners, history, activity, invite] = await Promise.all([editableLead(user, id), leadOwnerOptions(), leadHistory(user, id), leadActivityFor(user, id), openInviteFor(user, id)]);
   if (!data) notFound();
 
   return (
@@ -38,6 +40,25 @@ export default async function AdminEditarLeadPage({ params }: PageProps<"/admin/
       </section>
 
       {activity && <LeadActivityPanel leadId={id} activity={activity} today={leadsToday()} />}
+
+      {data.stage !== "ativo" && data.stage !== "perdido" && (
+        <section className="flex flex-col gap-3" aria-labelledby="converter">
+          <h2 id="converter" className="text-xl font-semibold">
+            Converter em parceiro
+          </h2>
+          {invite && (
+            <p className="text-sm" role="status">
+              Convite em aberto, gerado em {formatDateTime(invite.createdAt)} e válido até {formatDateTime(invite.expiresAt)}.
+            </p>
+          )}
+          <ConvertLeadForm
+            leadId={id}
+            phone={data.contactPhone}
+            hasOpenInvite={Boolean(invite)}
+            placeField={<PlacePicker name="placeId" label="Lugar do parceiro (opcional)" />}
+          />
+        </section>
+      )}
 
       <section className="flex flex-col gap-3" aria-labelledby="dados">
         <h2 id="dados" className="text-xl font-semibold">

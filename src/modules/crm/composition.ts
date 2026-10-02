@@ -1,12 +1,16 @@
 // Composição do módulo crm (interna): usada pelas actions e pelo index.ts.
 import { usersByIds, usersWithCapability } from "@/modules/identity";
+import { activatePartner } from "@/modules/partners";
 import { sql } from "@/shared/db/sql";
 import { lazy } from "@/shared/kernel";
 import { localDate } from "@/shared/time/joinville-time";
 import type { LeadOwners } from "./domain/lead";
 import { GetLead, ListLeads, SaveLead } from "./features/leads/leads.use-cases";
+import { AcceptInvite, GetInvite, StartConversion } from "./features/convert-lead/convert-lead.use-cases";
 import { AddLeadNote, CompleteFollowUp, GetLeadActivity, ListMyFollowUps, SetNextStep } from "./features/follow-ups/follow-ups.use-cases";
 import { GetLeadHistory, MoveLead } from "./features/pipeline/pipeline.use-cases";
+import { inviteTokens } from "./infra/invite-tokens";
+import { PostgresInviteStore } from "./infra/postgres-invite-store";
 import { PostgresLeadActivity } from "./infra/postgres-lead-activity";
 import { PostgresLeadPipeline } from "./infra/postgres-lead-pipeline";
 import { PostgresLeadRepository } from "./infra/postgres-lead-repository";
@@ -35,3 +39,9 @@ export const setNextStep = lazy(() => new SetNextStep(leadActivity(), crmToday))
 export const completeFollowUp = lazy(() => new CompleteFollowUp(leadActivity()));
 export const getLeadActivity = lazy(() => new GetLeadActivity(leadActivity(), userNames, crmToday));
 export const listMyFollowUps = lazy(() => new ListMyFollowUps(leadActivity(), crmToday));
+
+// Conversão em parceiro por convite (#150). O parceiro é criado pela API pública do módulo partners.
+export const inviteStore = lazy(() => new PostgresInviteStore(sql()));
+export const startConversion = lazy(() => new StartConversion(leadRepository(), inviteStore(), inviteTokens));
+export const getInvite = lazy(() => new GetInvite(inviteStore(), inviteTokens));
+export const acceptInvite = lazy(() => new AcceptInvite(inviteStore(), inviteTokens, { activate: activatePartner }));

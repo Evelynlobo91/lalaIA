@@ -34,3 +34,18 @@ Captação de estabelecimentos e promotores (Epic #86). Funil: **lead → contat
 - **"Meus follow-ups de hoje"** (`/admin/leads/follow-ups`): os de hoje e os atrasados, dos leads sob a
   responsabilidade de quem está logado, com atalho para concluir. A contagem aparece no botão da lista de leads.
 - **Datas** são dias de calendário de Joinville (`America/Sao_Paulo`), sem hora: "hoje" muda à meia-noite local.
+
+## Converter em parceiro (#150)
+
+1. Na página do lead (etapa aberta), o comercial completa o que o cadastro de parceiro exige e o lead não tem
+   (tipo, telefone do negócio, descrição e, se quiser, o lugar) e **gera o link de convite**.
+2. Ele envia o link para a pessoa de contato (WhatsApp, e-mail...). O link vale 14 dias e aparece uma vez; gerar
+   outro invalida o anterior. No banco fica só o hash do token (`crm.partner_invites`).
+3. A pessoa abre o link, entra ou cria a conta, e **aceita**. Ela vira parceira **já aprovada** com os dados do lead,
+   sem preencher o cadastro de novo; o lugar é vinculado, se ainda não tiver outro responsável.
+4. O lead vai para **parceiro ativo**, com o registro no histórico.
+
+- O parceiro é criado pela API pública do módulo partners (`activatePartner`), que é idempotente: aceitar de novo
+  com a mesma conta não cria um segundo parceiro, e um cadastro suspenso não é reativado por aqui.
+- A aceitação roda como operação do sistema (fora da RLS): quem aceita não é do time, e a autorização é o token.
+- **Limitação:** o app não envia o convite por e-mail; o link é copiado e enviado pela pessoa do comercial.
