@@ -2,6 +2,7 @@ import type { Sql } from "@/shared/db/sql";
 import { isCategoryId, type CategoryId } from "@/shared/catalog/categories";
 import type { PlaceCard, PlaceCursor, PlaceReader } from "../domain/place-card";
 import type { PlaceDetails, PlaceDetailsReader } from "../domain/place-details";
+import type { PlacePoint, PlacePointsReader } from "../features/places-map/places-geo";
 
 type Row = { id: string; name: string; category: string; neighborhood: string | null; opening_hours: string | null };
 
@@ -17,8 +18,16 @@ type DetailsRow = Row & {
   lon: number;
 };
 
-export class PostgresPlaceReader implements PlaceReader, PlaceDetailsReader {
+export class PostgresPlaceReader implements PlaceReader, PlaceDetailsReader, PlacePointsReader {
   constructor(private readonly sql: Sql) {}
+
+  async allPoints(): Promise<PlacePoint[]> {
+    const rows = await this.sql<{ id: string; name: string; category: string; lat: number; lon: number }[]>`
+      select id, name, category,
+             extensions.st_y(location::extensions.geometry) as lat, extensions.st_x(location::extensions.geometry) as lon
+      from places.places`;
+    return rows.filter((r) => isCategoryId(r.category)).map((r) => ({ ...r, category: r.category as CategoryId }));
+  }
 
   async findById(id: string): Promise<PlaceDetails | null> {
     const [r] = await this.sql<DetailsRow[]>`

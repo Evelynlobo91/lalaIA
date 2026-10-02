@@ -1,14 +1,19 @@
-import { Map } from "lucide-react";
 import type { Metadata } from "next";
-import { EmptyState } from "@/shared/ui";
+import { PlacesMap, mapFocus } from "@/modules/places";
 
-export const metadata: Metadata = { title: "Mapa" };
+export const metadata: Metadata = { title: "Mapa", description: "Lugares de Joinville no mapa." };
 
-export default function MapaPage() {
+export default async function MapaPage({ searchParams }: PageProps<"/mapa">) {
+  const { lugar } = await searchParams;
+  const focus = await mapFocus(typeof lugar === "string" ? lugar : undefined);
+
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold md:text-3xl">Mapa</h1>
-      <EmptyState icon={Map} title="O mapa de Joinville está chegando" description="Lugares, eventos acontecendo agora e transmissões ao vivo, tudo no mapa." />
+    <div className="flex flex-col gap-4">
+      <h1 className="sr-only md:not-sr-only md:text-3xl md:font-bold">Mapa</h1>
+      {/* Altura: tela inteira menos cabeçalho/navegação (celular) ou título (desktop). */}
+      <div className="-mx-4 h-[calc(100dvh-10.5rem)] min-h-80 md:mx-0 md:h-[calc(100dvh-10rem)]">
+        <PlacesMap focus={focus} />
+      </div>
     </div>
   );
 }

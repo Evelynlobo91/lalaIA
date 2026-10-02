@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { categories } from "@/shared/catalog/categories";
+import { categories, type CategoryId } from "@/shared/catalog/categories";
 import { NotFoundError, err, ok, type Result } from "@/shared/kernel";
 import { describeOpeningHours, isOpenAt } from "../../domain/opening-hours";
 import { directionsUrl, formatAddress, openStreetMapUrl, splitPhones, telHref, type PlaceDetailsReader } from "../../domain/place-details";
@@ -7,6 +7,7 @@ import { directionsUrl, formatAddress, openStreetMapUrl, splitPhones, telHref, t
 export type PlaceDetailView = {
   id: string;
   name: string;
+  category: CategoryId;
   categoryLabel: string;
   address: string | null;
   neighborhood: string | null;
@@ -42,6 +43,7 @@ export class GetPlaceDetail {
     return ok({
       id: place.id,
       name: place.name,
+      category: place.category,
       categoryLabel: labels.get(place.category) ?? place.category,
       address: formatAddress(place.address),
       neighborhood: place.address.neighborhood,

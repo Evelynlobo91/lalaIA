@@ -1,4 +1,5 @@
 import { Clock, ExternalLink, Globe, MapPin, Navigation, Phone } from "lucide-react";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { Badge, Card, OsmAttribution, buttonClasses, cn } from "@/shared/ui";
 import type { PlaceDetailView } from "../place-detail.use-case";
@@ -29,9 +30,14 @@ export function PlaceDetailCard({ place, extras }: { place: PlaceDetailView; ext
       <Card className="flex flex-col divide-y divide-border p-0">
         <Info icon={<MapPin aria-hidden className="size-5" />} label="Endereço">
           {place.address ?? <span className="text-muted">Endereço não informado</span>}
-          <a href={place.mapUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1 text-sm text-brand underline">
-            Ver no mapa <ExternalLink aria-hidden className="size-3.5" />
-          </a>
+          <span className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+            <Link href={`/mapa?lugar=${place.id}`} className="text-brand underline">
+              Ver no mapa
+            </Link>
+            <a href={place.mapUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-muted underline">
+              Abrir no OpenStreetMap <ExternalLink aria-hidden className="size-3.5" />
+            </a>
+          </span>
         </Info>
 
         {place.phones.length > 0 && (
