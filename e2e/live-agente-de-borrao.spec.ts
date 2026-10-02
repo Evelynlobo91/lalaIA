@@ -16,6 +16,9 @@ test.describe("agente de borrão de rostos: heartbeat na plataforma (#198)", () 
   test("sem CRON_SECRET no ambiente de teste, a checagem agendada de consumo fica desligada", async ({ request }) => {
     expect((await request.post("/api/live/scale/check")).status()).toBe(503);
     expect((await request.post("/api/live/scale/check", { headers: { authorization: "Bearer qualquer" } })).status()).toBe(503);
+    // O Vercel Cron chama com GET: mesma regra.
+    expect((await request.get("/api/live/scale/check", { headers: { authorization: "Bearer qualquer" } })).status()).toBe(503);
+    expect((await request.get("/api/billing/cycle", { headers: { authorization: "Bearer qualquer" } })).status()).toBe(503);
   });
 
   test("com o agente protegendo, o público vê 'rostos desfocados'; privacidade desligada pausa a live", async ({ page, request, browser }) => {
