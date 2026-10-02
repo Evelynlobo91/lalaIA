@@ -1,8 +1,20 @@
 // API pública do módulo partners.
 import type { CurrentUser } from "@/modules/identity";
 import { hasRole } from "@/modules/identity";
-import { listApplications, listClaimsForReview, listMyClaims, partnerRepository } from "./composition";
+import {
+  approvedPartnerIdOf,
+  listApplications,
+  listClaimsForReview,
+  listMyClaims,
+  listPartnerOffers,
+  myRedemptionsUseCase,
+  offerRepository,
+  offerTargetOptions,
+  partnerRepository,
+} from "./composition";
 import type { PartnerSession } from "./features/portal/require-partner";
+import { editableOffer as editableOfferValues } from "./features/manage-offers/partner-offers";
+import type { OfferTargetOption } from "./features/manage-offers/ui/offer-form";
 
 export { ApplyForm } from "./features/apply/ui/apply-form";
 export { ReviewQueue } from "./features/review/ui/review-queue";
@@ -27,6 +39,43 @@ export function partnerApplicationsForReview(user: CurrentUser) {
 /** Pedidos de vínculo do parceiro logado (com o nome dos lugares). */
 export function myPlaceClaims({ user, partner }: PartnerSession) {
   return listMyClaims().execute({ userId: user.id, partnerId: partner.id });
+}
+
+// Descontos e promoções (#30).
+export { OffersSection } from "./features/redeem-offer/ui/offers-section";
+export { MyRedemptionsCard } from "./features/redeem-offer/ui/my-redemptions-card";
+export { OfferForm, type OfferTargetOption } from "./features/manage-offers/ui/offer-form";
+export { EndOfferButton } from "./features/manage-offers/ui/end-offer-button";
+export { ValidateCodeForm } from "./features/validate-code/ui/validate-code-form";
+export type { MyRedemptionItem } from "./features/redeem-offer/offer-views";
+export type { PartnerOfferItem } from "./features/manage-offers/partner-offers";
+export type { OfferAvailability } from "./domain/offer";
+
+/** "Meus resgates" (perfil e exportação LGPD): códigos, ofertas e onde valem. */
+export function myRedemptions(userId: string) {
+  return myRedemptionsUseCase().execute(userId);
+}
+
+/** Ofertas do parceiro logado (portal), com o nome do lugar/evento e quantos códigos já foram usados. */
+export function myOffers({ user, partner }: PartnerSession) {
+  return listPartnerOffers().execute({ userId: user.id, partnerId: partner.id });
+}
+
+/** Ofertas criadas pela pessoa (exportação LGPD); vazio se ela não é parceira aprovada. */
+export async function offersCreatedBy(userId: string) {
+  const partnerId = await approvedPartnerIdOf(userId);
+  return partnerId ? listPartnerOffers().execute({ userId, partnerId }) : [];
+}
+
+/** Lugares que o parceiro gerencia e eventos seus que ainda não terminaram (opções do formulário de oferta). */
+export async function offerTargetChoices({ user }: PartnerSession): Promise<OfferTargetOption[]> {
+  const owned = await offerTargetOptions(user.id);
+  return owned.map((t) => ({ value: `${t.type}:${t.id}`, label: t.name, type: t.type }));
+}
+
+/** Valores para editar a oferta; null se não for do parceiro ou já tiver sido resgatada/encerrada. */
+export function editableOffer({ user, partner }: PartnerSession, offerId: string) {
+  return editableOfferValues(offerRepository(), { userId: user.id, partnerId: partner.id }, offerId);
 }
 
 /** Pedidos de vínculo pendentes (admin). */

@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { TrackView } from "@/modules/analytics";
 import { LiveNowProvider, LivePlayerFor, liveNowKeys } from "@/modules/live";
 import { FavoriteToggle, WantToGoButton } from "@/modules/favorites";
+import { OffersSection } from "@/modules/partners";
 import { PlaceDetailCard, getPlaceDetail } from "@/modules/places";
 
 // "Aberto agora" depende da hora da visita.
@@ -53,6 +54,9 @@ export default async function LugarPage({ params }: PageProps<"/lugares/[id]">) 
                 <LivePlayerFor entityType="place" entityId={place.id} title={place.name} />
               </Suspense>
               <FavoriteToggle entityType="place" entityId={place.id} className="sm:self-start" />
+              <Suspense fallback={null}>
+                <OffersSection targetType="place" targetId={place.id} returnTo={`/lugares/${place.id}`} />
+              </Suspense>
             </>
           }
           directions={<WantToGoButton href={place.directionsUrl} entityType="place" entityId={place.id} className="sm:w-auto sm:self-start" />}

@@ -13,6 +13,8 @@ export const domainInteractions = {
   "favorites.FavoriteAdded": (p) => ({ kind: "favorite", entityType: p.entityType, entityId: p.entityId }),
   "favorites.WantToGoClicked": (p) => ({ kind: "quero_ir", entityType: p.entityType, entityId: p.entityId }),
   "missions.StepCompleted": (p) => ({ kind: "checkin", entityType: "mission", entityId: p.missionId }),
+  // Código de oferta validado no balcão = a pessoa esteve no lugar/evento (resgatar sem ir não conta).
+  "partners.OfferValidated": (p) => ({ kind: "checkin", entityType: p.targetType, entityId: p.targetId }),
 } satisfies { [K in keyof DomainEventMap]?: (payload: DomainEventMap[K]) => Target };
 
 export type TrackedDomainEvent = keyof typeof domainInteractions;

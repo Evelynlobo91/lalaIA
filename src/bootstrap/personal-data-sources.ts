@@ -3,7 +3,7 @@ import { myFavorites } from "@/modules/favorites";
 import type { PersonalDataSource } from "@/modules/identity";
 import { livePrivacyAcceptedAt, liveStreamsOf } from "@/modules/live";
 import { missionsByOwner, myGeofenceCheckIns, myMissions } from "@/modules/missions";
-import { myPartnerApplication } from "@/modules/partners";
+import { myPartnerApplication, myRedemptions, offersCreatedBy } from "@/modules/partners";
 import { placesManagedBy } from "@/modules/places";
 import { achievementsOf, explorerProfileOf, levelOverviewOf, xpOverviewOf } from "@/modules/progression";
 
@@ -24,6 +24,8 @@ export const personalDataSources: PersonalDataSource[] = [
   { name: "lugaresQueGerencio", export: (user) => placesManagedBy(user.id) },
   { name: "eventosQueCriei", export: (user) => eventsByOwner(user.id) },
   { name: "missoesQueCriei", export: (user) => missionsByOwner(user.id) },
+  { name: "ofertasResgatadas", export: (user) => myRedemptions(user.id) },
+  { name: "ofertasQueCriei", export: (user) => offersCreatedBy(user.id) },
   {
     name: "transmissoes",
     export: async (user) => ({ transmissoes: await liveStreamsOf(user.id), diretrizesDePrivacidadeAceitasEm: await livePrivacyAcceptedAt(user) }),
