@@ -63,3 +63,16 @@ Planos, assinaturas e faturas dos parceiros (Epic #86). As telas do time ficam e
 - **Simulador de pagamento:** com o provedor simulado e `BILLING_FAKE_WEBHOOK_SECRET` (mínimo de 32 caracteres), a
   página `/pagamento/simulado/<id>` mostra "Simular pagamento", que entrega ao app o mesmo webhook assinado que o
   provedor entregaria. Só o dono da cobrança consegue simular o próprio pagamento.
+
+## Tela de assinatura do parceiro (#155)
+
+`/parceiro/assinatura` reúne:
+
+- **Plano atual:** o plano que vale agora, a situação da assinatura, a próxima renovação e, se houver, o plano que
+  aguarda pagamento. Fatura vencida e suspensão aparecem com um aviso do que fazer.
+- **Planos:** upgrade (plano mais caro: gera fatura e vale depois do pagamento) e downgrade (para o gratuito vale na
+  hora; para outro plano pago, depois do pagamento).
+- **Faturas:** as 24 mais recentes, com plano, valor, vencimento ou data do pagamento e a situação. Fatura em aberto
+  tem o link **Pagar**; vencida, **Segunda via** (o mesmo link de pagamento do provedor).
+- A assinatura e as faturas são lidas como o próprio parceiro (`asUser`): a RLS garante que uma conta não vê as
+  faturas de outra, mesmo que a consulta esquecesse o filtro por dono.

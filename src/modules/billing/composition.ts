@@ -7,8 +7,10 @@ import { localDate } from "@/shared/time/joinville-time";
 import type { BillingCustomers } from "./domain/subscription";
 import { GetPlan, ListPlans, PlanEntitlements, SavePlan, defaultPlanResolver } from "./features/plans/plans.use-cases";
 import { RenewSubscriptions, Subscribe, subscriptionPlanResolver } from "./features/subscribe/subscribe.use-cases";
+import { GetMySubscription } from "./features/partner-subscription/partner-subscription";
 import { EnforceOverdue, HandlePaymentWebhook } from "./features/payment-webhooks/payment-webhooks.use-cases";
 import { billingGatewayFrom, graceDaysFrom, paymentWebhooksFrom } from "./infra/billing-config";
+import { PostgresMySubscriptionReader } from "./infra/postgres-my-subscription-reader";
 import { PostgresPaymentLedger } from "./infra/postgres-payment-ledger";
 import { PostgresPlanRepository } from "./infra/postgres-plan-repository";
 import { PostgresSubscriptionStore } from "./infra/postgres-subscription-store";
@@ -45,3 +47,6 @@ export const handlePaymentWebhook = lazy(() => {
   return webhooks ? new HandlePaymentWebhook(() => webhooks, paymentLedger(), domainEvents()) : null;
 });
 export const enforceOverdue = lazy(() => new EnforceOverdue(paymentLedger(), domainEvents(), () => graceDaysFrom(process.env), now, localDate));
+
+// Tela do parceiro (#155): assinatura e faturas lidas como o próprio parceiro (RLS).
+export const getMySubscription = lazy(() => new GetMySubscription(new PostgresMySubscriptionReader(sql()), planRepository()));

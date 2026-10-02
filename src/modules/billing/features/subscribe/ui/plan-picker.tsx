@@ -9,11 +9,13 @@ import { subscribeAction, type SubscribeResult } from "../subscribe.actions";
 export type PlanChoice = Pick<Plan, "id" | "name" | "description" | "priceCents" | "features"> & {
   /** current: vale agora · pending: escolhido, aguardando pagamento · available: pode assinar. */
   state: "current" | "pending" | "available";
+  /** Em relação ao plano que vale agora: mais caro (upgrade), mais barato (downgrade) ou igual. */
+  change: "upgrade" | "downgrade" | "same";
 };
 
 function PlanCard({ plan }: { plan: PlanChoice }) {
   const [state, action, pending] = useActionState<FormState<SubscribeResult>, FormData>(subscribeAction, idleFormState);
-  const paid = plan.priceCents > 0;
+  const actionLabel = plan.change === "upgrade" ? "Fazer upgrade" : plan.change === "downgrade" ? "Fazer downgrade" : "Assinar";
 
   return (
     <Card className="flex h-full flex-col gap-3" aria-label={`Plano ${plan.name}`}>
@@ -48,8 +50,8 @@ function PlanCard({ plan }: { plan: PlanChoice }) {
       {plan.state !== "current" && state.status !== "success" && (
         <form action={action} className="mt-auto">
           <input type="hidden" name="planId" value={plan.id} />
-          <Button type="submit" loading={pending} variant={plan.state === "pending" ? "secondary" : "primary"} aria-label={`${plan.state === "pending" ? "Ver pagamento do plano" : "Assinar o plano"} ${plan.name}`}>
-            {plan.state === "pending" ? "Ver pagamento" : paid ? "Assinar" : "Mudar para este plano"}
+          <Button type="submit" loading={pending} variant={plan.state === "pending" ? "secondary" : "primary"} aria-label={`${plan.state === "pending" ? "Ver pagamento do plano" : `${actionLabel} para o plano`} ${plan.name}`}>
+            {plan.state === "pending" ? "Ver pagamento" : actionLabel}
           </Button>
         </form>
       )}

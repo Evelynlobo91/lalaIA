@@ -73,6 +73,12 @@ export class PostgresPlanRepository implements PlanRepository, PlanCatalog {
     }
   }
 
+  /** Plano pelo id, ativo ou não (para mostrar o nome do plano que a conta já tem). Sistema, sem asUser. */
+  async byId(planId: string): Promise<Plan | null> {
+    const [row] = await this.sql.unsafe<Row[]>(`select ${PLAN_COLUMNS} from billing.plans where id = $1`, [planId]);
+    return row ? toPlan(row) : null;
+  }
+
   // Sistema (sem asUser): quem pergunta o plano de um parceiro é outro módulo, não uma pessoa do financeiro.
   async defaultPlan(): Promise<Plan | null> {
     const [row] = await this.sql.unsafe<Row[]>(`select ${PLAN_COLUMNS} from billing.plans where is_default`);
