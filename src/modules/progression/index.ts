@@ -1,7 +1,8 @@
 // API pública do módulo progression (XP, níveis e conquistas).
 import type { ModuleSubscriptions } from "@/shared/events";
 import "./domain/events";
-import { achievementsOverview, explorerProfile, grantXp, levelOverview, trackLevelUp, unlockAchievements, xpOverview } from "./composition";
+import { gameMapRoute } from "./features/game-map/game-map.route";
+import { achievementsOverview, explorerProfile, grantXp, levelOverview, trackLevelUp, unlockAchievements, xpOverview, gameMap } from "./composition";
 import type { AchievementsOverview } from "./features/achievements/achievements.use-case";
 import type { ExplorerProfile } from "./features/explorer-profile/explorer-profile.use-case";
 import type { LevelOverview } from "./features/levels/levels.use-case";
@@ -40,6 +41,22 @@ export function achievementsOf(userId: string): Promise<AchievementsOverview> {
 export function explorerProfileOf(userId: string): Promise<ExplorerProfile> {
   return explorerProfile().execute(userId);
 }
+
+// Mapa de exploração (#69)
+export { GameMapView } from "./features/game-map/ui/game-map-view";
+export { gameLayersParam, type GameLayer } from "./features/game-map/game-map.schema";
+export { gameStateLabels, type GameState } from "./domain/game-map";
+export type { GameMapView as GameMapData } from "./features/game-map/game-map.use-case";
+
+/** Mapa de exploração da pessoa (GeoJSON + contagem por estado). O id vem sempre da sessão. */
+export function gameMapOf(userId: string) {
+  return gameMap().execute(userId);
+}
+
+export const progressionApi = {
+  /** GET /api/progression/game-map */
+  gameMap: gameMapRoute(gameMap),
+};
 
 /**
  * Reações a eventos (registradas no boot, em src/bootstrap).
