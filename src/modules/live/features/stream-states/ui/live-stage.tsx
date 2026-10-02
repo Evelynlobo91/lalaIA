@@ -9,6 +9,7 @@ import { useLiveStatus } from "./use-live-status";
 import { StreamContextLine, type StreamContextInfo } from "../../stream-context/ui/stream-context-line";
 import { PublicLiveNotice } from "../../privacy/ui/public-live-notice";
 import { CtaOverlay } from "../../cta-overlay/ui/cta-overlay";
+import { LiveChat } from "../../chat-feed/ui/live-chat";
 
 // O player (e o hls.js, quando preciso) só é baixado quando a live está no ar: não pesa a página.
 const HlsPlayer = dynamic(() => import("../../player/ui/hls-player"), {
@@ -35,13 +36,15 @@ type Props = {
   context?: StreamContextInfo | null;
   /** Hora do render no servidor (ms), para o "há X min" não divergir na hidratação. */
   renderedAt?: number;
+  /** Chat da live (#95): presente quando o plano do anfitrião tem chat. `viewer` null = visitante (só lê). */
+  chat?: { viewer: { name: string } | null; loginHref: string } | null;
 };
 
 /**
  * Live na página do lugar/evento com estados claros (RNF20): aguardando sinal, ao vivo, pausada,
  * encerrada e indisponível (erro do player). Troca de estado sozinha, sem recarregar a página.
  */
-export function LiveStage({ entityType, entityId, initial, title, onWatch, context = null, renderedAt = 0 }: Props) {
+export function LiveStage({ entityType, entityId, initial, title, onWatch, context = null, renderedAt = 0, chat = null }: Props) {
   const status = useLiveStatus(entityType, entityId, initial);
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -94,6 +97,7 @@ export function LiveStage({ entityType, entityId, initial, title, onWatch, conte
         </div>
       )}
       {view.kind !== "ended" && <StreamContextLine info={context} status={status} renderedAt={renderedAt} />}
+      {chat && status.streamId && view.kind === "live" && <LiveChat streamId={status.streamId} viewer={chat.viewer} loginHref={chat.loginHref} />}
       {watching && onWatch}
     </section>
   );

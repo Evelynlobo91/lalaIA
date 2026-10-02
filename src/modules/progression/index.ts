@@ -3,7 +3,8 @@ import { cache } from "react";
 import type { ModuleSubscriptions } from "@/shared/events";
 import "./domain/events";
 import { gameMapRoute } from "./features/game-map/game-map.route";
-import { achievementsOverview, explorerProfile, grantXp, levelOverview, trackLevelUp, unlockAchievements, xpOverview, gameMap, sharedAchievement } from "./composition";
+import { achievementsOverview, explorerProfile, grantXp, levelOverview, trackLevelUp, unlockAchievements, xpOverview, gameMap, sharedAchievement, xpLedger } from "./composition";
+import { levelFor } from "./domain/levels";
 import type { AchievementsOverview } from "./features/achievements/achievements.use-case";
 import type { ExplorerProfile } from "./features/explorer-profile/explorer-profile.use-case";
 import type { LevelOverview } from "./features/levels/levels.use-case";
@@ -28,6 +29,16 @@ export function xpOverviewOf(userId: string, limit = 10): Promise<XpOverview> {
 /** Nível atual, progresso até o próximo e subida recente (perfil). O id vem sempre da sessão. */
 export function levelOverviewOf(userId: string): Promise<LevelOverview> {
   return levelOverview().execute(userId);
+}
+
+/**
+ * Nível de explorador de várias pessoas, por id (ex.: ao lado do nome no chat da live). Só o número do nível, que
+ * é público; o saldo de XP e o histórico continuam só da própria pessoa. Quem não tem XP está no nível 1.
+ */
+export async function levelsOf(userIds: string[]): Promise<Record<string, number>> {
+  const ids = [...new Set(userIds)];
+  const balances = await xpLedger().balancesOf(ids);
+  return Object.fromEntries(ids.map((id) => [id, levelFor(balances.get(id) ?? 0).level]));
 }
 
 /** Galeria de conquistas (desbloqueadas e bloqueadas com dica). O id vem sempre da sessão. */

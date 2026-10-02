@@ -9,6 +9,7 @@ import type { Role } from "./domain/roles";
 import { DefaultingPreferencesReader } from "./features/preferences-reader/preferences-reader";
 import { PostgresPreferencesRepository } from "./infra/postgres-preferences-repository";
 import { PostgresRoleRepository } from "./infra/postgres-role-repository";
+import { avatarPublicUrl } from "./infra/supabase-avatar-storage";
 import { PostgresUserCounts } from "./infra/postgres-user-counts";
 import { PostgresConsentRepository } from "./infra/postgres-consent-repository";
 import { GetConsents } from "./features/lgpd/lgpd.use-case";
@@ -53,6 +54,16 @@ const directory = lazy(() => new PostgresRoleRepository(sql()));
 /** Nome e e-mail de usuários por id (ex.: fila de revisão de parceiros). Uso restrito a telas de admin/dono. */
 export function usersByIds(ids: string[]) {
   return directory().byIds([...new Set(ids)]);
+}
+
+/**
+ * Perfil público de usuários por id: nome de exibição e foto (ex.: autor de uma mensagem no chat da live).
+ * Nunca o e-mail. Conta inexistente fica de fora.
+ */
+export async function publicProfiles(ids: string[]): Promise<Array<{ id: string; displayName: string; avatarUrl: string | null }>> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const rows = await directory().publicByIds([...new Set(ids)]);
+  return rows.map((r) => ({ id: r.id, displayName: r.displayName, avatarUrl: r.avatarPath && supabaseUrl ? avatarPublicUrl(supabaseUrl, r.avatarPath) : null }));
 }
 
 /** Pessoas do time que têm a capacidade (ex.: quem pode ser responsável por um lead). Só id e nome. */

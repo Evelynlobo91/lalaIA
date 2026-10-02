@@ -20,6 +20,14 @@ export class PostgresXpLedger implements XpLedger {
     return rows.length > 0;
   }
 
+  // Sistema (sem asUser): saldo de várias pessoas para mostrar o NÍVEL delas em público (ex.: chat da live).
+  async balancesOf(userIds: string[]): Promise<Map<string, number>> {
+    if (userIds.length === 0) return new Map();
+    const rows = await this.sql<{ user_id: string; xp: number }[]>`
+      select user_id, sum(amount)::int as xp from progression.xp_transactions where user_id in ${this.sql(userIds)} group by user_id`;
+    return new Map(rows.map((r) => [r.user_id, r.xp]));
+  }
+
   async balanceOf(userId: string): Promise<number> {
     const [row] = await asUser(userId, (tx) => tx<{ xp: number }[]>`select xp from progression.xp_balances where user_id = ${userId}`, this.sql);
     return row?.xp ?? 0;

@@ -20,6 +20,14 @@ export class PostgresRoleRepository implements RoleRepository, UserDirectory, Te
     return rows.map((r) => ({ id: r.id, displayName: r.display_name, email: r.email }));
   }
 
+  /** Só o que é público: nome de exibição e foto. Nunca o e-mail. */
+  async publicByIds(ids: string[]): Promise<Array<{ id: string; displayName: string; avatarPath: string | null }>> {
+    if (ids.length === 0) return [];
+    const rows = await this.sql<{ user_id: string; display_name: string; avatar_path: string | null }[]>`
+      select user_id, display_name, avatar_path from identity.profiles where user_id in ${this.sql(ids)}`;
+    return rows.map((r) => ({ id: r.user_id, displayName: r.display_name, avatarPath: r.avatar_path }));
+  }
+
   async listRecent(limit: number, text?: string): Promise<UserSummary[]> {
     // O texto é tratado como literal no `ilike` (% e _ não viram curinga).
     const pattern = text ? `%${text.replace(/[\\%_]/g, "\\$&")}%` : null;
