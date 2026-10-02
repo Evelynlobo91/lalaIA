@@ -3,6 +3,7 @@ import type { CurrentUser } from "@/modules/identity";
 import { hasRole } from "@/modules/identity";
 import {
   approvedPartnerIdOf,
+  listActivePartners,
   listApplications,
   listClaimsForReview,
   listMyClaims,
@@ -18,6 +19,7 @@ import type { OfferTargetOption } from "./features/manage-offers/ui/offer-form";
 
 export { ApplyForm } from "./features/apply/ui/apply-form";
 export { ReviewQueue } from "./features/review/ui/review-queue";
+export { ActivePartnersList } from "./features/suspend-partner/ui/active-partners-list";
 export { PortalNav } from "./features/portal/ui/portal-nav";
 export { portalSections } from "./features/portal/portal-sections";
 export { requirePartner, type PartnerSession } from "./features/portal/require-partner";
@@ -34,6 +36,11 @@ export function myPartnerApplication(user: CurrentUser) {
 /** Fila de revisão (admin). */
 export function partnerApplicationsForReview(user: CurrentUser) {
   return listApplications().execute({ id: user.id, isAdmin: hasRole(user, "admin") }, "pending");
+}
+
+/** Parceiros aprovados e suspensos (admin), para suspender ou reativar (#144). */
+export function activePartnersForAdmin(user: CurrentUser) {
+  return listActivePartners().execute({ id: user.id, isAdmin: hasRole(user, "admin") });
 }
 
 /** Pedidos de vínculo do parceiro logado (com o nome dos lugares). */

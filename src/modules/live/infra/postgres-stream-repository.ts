@@ -54,13 +54,22 @@ export class PostgresStreamRepository implements StreamRepository, PublicStreamR
     return row ? toStream(row) : null;
   }
 
+  /** Para o player público: transmissão de parceiro suspenso não existe (#144). */
+  async findVisibleByTarget({ entityType, entityId }: StreamTarget): Promise<StreamRecord | null> {
+    const [row] = await this.sql.unsafe<StreamRow[]>(
+      `select ${STREAM_COLUMNS} from live.streams where entity_type = $1 and entity_id = $2 and not platform.owner_suspended(owner_id)`,
+      [entityType, entityId],
+    );
+    return row ? toStream(row) : null;
+  }
+
   async listByOwner(ownerId: string): Promise<StreamRecord[]> {
     const rows = await this.sql.unsafe<StreamRow[]>(`select ${STREAM_COLUMNS} from live.streams where owner_id = $1 order by created_at desc`, [ownerId]);
     return rows.map(toStream);
   }
 
   async listLive(limit: number): Promise<StreamRecord[]> {
-    const rows = await this.sql.unsafe<StreamRow[]>(`select ${STREAM_COLUMNS} from live.streams where status = 'live' order by signal_changed_at desc limit $1`, [limit]);
+    const rows = await this.sql.unsafe<StreamRow[]>(`select ${STREAM_COLUMNS} from live.streams where status = 'live' and not platform.owner_suspended(owner_id) order by signal_changed_at desc limit $1`, [limit]);
     return rows.map(toStream);
   }
 

@@ -4,7 +4,7 @@ export const partnerKinds = [
 ] as const;
 
 export type PartnerKind = (typeof partnerKinds)[number]["id"];
-export type PartnerStatus = "pending" | "approved" | "rejected";
+export type PartnerStatus = "pending" | "approved" | "rejected" | "suspended";
 
 export type PartnerApplicationData = {
   kind: PartnerKind;
@@ -22,6 +22,8 @@ export type PartnerApplication = PartnerApplicationData & {
   ownerId: string;
   status: PartnerStatus;
   rejectionReason: string | null;
+  /** Motivo da suspensão (só enquanto `status` é "suspended"); o parceiro vê no portal. */
+  suspensionReason: string | null;
   createdAt: Date;
 };
 
@@ -39,6 +41,12 @@ export interface PartnerRepository {
   listForReview(actorId: string, status: PartnerStatus): Promise<PartnerReviewItem[]>;
   /** Muda o status (admin). Devolve o cadastro atualizado ou null se não existir. */
   review(actorId: string, partnerId: string, decision: { status: "approved" } | { status: "rejected"; reason: string }): Promise<PartnerApplication | null>;
+  /** Parceiros aprovados e suspensos, por nome (admin). */
+  listActive(actorId: string): Promise<PartnerReviewItem[]>;
+  /** Suspende um parceiro aprovado (admin). null se não existir ou não estiver aprovado. */
+  suspend(actorId: string, partnerId: string, reason: string): Promise<PartnerApplication | null>;
+  /** Reativa um parceiro suspenso (admin). null se não existir ou não estiver suspenso. */
+  reactivate(actorId: string, partnerId: string): Promise<PartnerApplication | null>;
 }
 
 /** Porta para conceder o papel de parceiro (implementada pela API pública do módulo identity). */

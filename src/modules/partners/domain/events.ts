@@ -2,6 +2,9 @@
 declare module "@/shared/events/domain-event" {
   interface DomainEventMap {
     "partners.PartnerApproved": { partnerId: string; userId: string };
+    /** Admin suspendeu o parceiro: o que ele publicou some do app (os módulos filtram por `platform.owner_suspended`). */
+    "partners.PartnerSuspended": { partnerId: string; userId: string; suspendedBy: string };
+    "partners.PartnerReactivated": { partnerId: string; userId: string; reactivatedBy: string };
     /** Vínculo parceiro ↔ lugar aprovado: o módulo places marca o responsável pelo lugar. */
     "partners.PlaceClaimApproved": { claimId: string; placeId: string; userId: string };
     /** Explorador resgatou uma oferta (só na primeira vez; repetir o resgate não publica). */

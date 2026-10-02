@@ -16,7 +16,7 @@ export class PostgresEventSearch implements EventSearchReader {
 
   async search(filter: EventSearchFilter, cursor: EventCursor | null, limit: number): Promise<EventCard[]> {
     const sql = this.sql;
-    const conditions = [sql`status = 'scheduled'`, sql`ends_at > ${filter.now}`];
+    const conditions = [sql`status = 'scheduled'`, sql`not platform.owner_suspended(owner_id)`, sql`ends_at > ${filter.now}`];
 
     if (filter.text) {
       const cats = categoriesMatching(filter.text);

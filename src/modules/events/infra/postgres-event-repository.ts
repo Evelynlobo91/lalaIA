@@ -41,6 +41,12 @@ export class PostgresEventRepository implements EventRepository {
     return row ? toRecord(row) : null;
   }
 
+  /** Para as telas públicas: evento de parceiro suspenso não existe (#144). */
+  async findVisibleById(id: string): Promise<EventRecord | null> {
+    const [row] = await this.sql.unsafe<Row[]>(`select ${COLUMNS} from events.events where id = $1 and not platform.owner_suspended(owner_id)`, [id]);
+    return row ? toRecord(row) : null;
+  }
+
   async listByOwner(ownerId: string): Promise<EventRecord[]> {
     const rows = await this.sql.unsafe<Row[]>(`select ${COLUMNS} from events.events where owner_id = $1 order by starts_at desc`, [ownerId]);
     return rows.map(toRecord);

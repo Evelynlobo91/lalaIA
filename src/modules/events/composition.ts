@@ -33,7 +33,7 @@ const placeDetails: EventPlaceDetails = {
     return place ? { id: place.id, name: place.name, address: place.address, directionsUrl: place.directionsUrl } : null;
   },
 };
-export const getEventDetail = lazy(() => new GetEventDetail(eventRepository(), placeDetails));
+export const getEventDetail = lazy(() => new GetEventDetail({ findById: (id) => eventRepository().findVisibleById(id) }, placeDetails));
 export const getEventSummaries = lazy(() => new GetEventSummaries(eventReader(), placeNames));
 
 const distances: EventPlaceDistances = { distances: placeDistances, format: formatDistance };

@@ -18,7 +18,7 @@ const toCard = (r: Row): EventCard => ({
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** Leitura pública (dados abertos): consulta direta, sem asUser. */
+/** Leitura pública (dados abertos): consulta direta, sem asUser. Eventos de parceiro suspenso ficam de fora (#144). */
 export class PostgresEventReader implements EventReader, EventSummaryReader, EventCandidateReader {
   constructor(private readonly sql: Sql) {}
 
@@ -29,7 +29,7 @@ export class PostgresEventReader implements EventReader, EventSummaryReader, Eve
     const rows = await this.sql<Array<Row & { status: EventStatus }>>`
       select id, title, category, place_id, starts_at, ends_at, price_cents, status
       from events.events
-      where id in ${this.sql(valid)}`;
+      where id in ${this.sql(valid)} and not platform.owner_suspended(owner_id)`;
     return rows.filter((r) => isCategoryId(r.category)).map((r) => ({ ...toCard(r), status: r.status }));
   }
 
@@ -37,7 +37,7 @@ export class PostgresEventReader implements EventReader, EventSummaryReader, Eve
     const rows = await this.sql<Array<Row & { created_at: Date }>>`
       select id, title, category, place_id, starts_at, ends_at, price_cents, created_at
       from events.events
-      where status = 'scheduled' and starts_at < ${to} and ends_at > ${from}
+      where status = 'scheduled' and starts_at < ${to} and ends_at > ${from} and not platform.owner_suspended(owner_id)
       order by starts_at, id
       limit ${limit}`;
     return rows.filter((r) => isCategoryId(r.category)).map((r) => ({ ...toCard(r), createdAt: r.created_at }));
@@ -50,6 +50,7 @@ export class PostgresEventReader implements EventReader, EventSummaryReader, Eve
       select id, title, category, place_id, starts_at, ends_at, price_cents
       from events.events
       where status = 'scheduled'
+        and not platform.owner_suspended(owner_id)
         and ends_at > ${q.now}
         ${q.window ? this.sql`and starts_at < ${q.window.to} and ends_at > ${q.window.from}` : this.sql``}
         ${q.categories?.length ? this.sql`and category in ${this.sql(q.categories)}` : this.sql``}
