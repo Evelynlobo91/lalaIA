@@ -7,6 +7,7 @@ import {
   getMissionReward,
   getPartnerRewardPanel,
   listAvailableMissions,
+  missionCountsReader,
   listMissionsForAdmin,
   offerSurpriseMission,
   missionExploration,
@@ -215,3 +216,6 @@ export function xpBreakdown(mission: Pick<MissionRecord, "xp" | "steps">): strin
   const { perStep, completionBonus } = xpSplit(mission.xp, mission.steps.length);
   return `${perStep} XP por etapa + ${completionBonus} XP de bônus`;
 }
+
+/** Contagem de missões concluídas num período, para as métricas gerais do backoffice (#145). */
+export const missionCompletionCounts = () => missionCountsReader();

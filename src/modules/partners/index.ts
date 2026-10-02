@@ -5,6 +5,7 @@ import {
   approvedPartnerIdOf,
   listActivePartners,
   listApplications,
+  partnerCountsReader,
   listClaimsForReview,
   listMyClaims,
   listPartnerOffers,
@@ -89,3 +90,6 @@ export function editableOffer({ user, partner }: PartnerSession, offerId: string
 export function placeClaimsForReview(user: CurrentUser) {
   return listClaimsForReview().execute({ id: user.id, isAdmin: hasRole(user, "admin") });
 }
+
+/** Contagens de parceiros (aprovados num período e ativos hoje), para as métricas gerais do backoffice (#145). */
+export const partnerCounts = () => partnerCountsReader();

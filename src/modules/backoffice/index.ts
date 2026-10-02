@@ -1,6 +1,6 @@
 // API pública do módulo backoffice (operação interna da plataforma, área /admin).
 import type { ModuleSubscriptions } from "@/shared/events";
-import { listAuditLog, recordAudit } from "./composition";
+import { getPlatformMetrics, listAuditLog, recordAudit } from "./composition";
 import { auditedEventTypes } from "./features/audit-log/audit-events";
 export { BackofficeNav } from "./features/shell/ui/backoffice-nav";
 export { BACKOFFICE_HOME, backofficeSections, type BackofficeSection } from "./features/shell/backoffice-sections";
@@ -22,3 +22,12 @@ export const subscriptions: ModuleSubscriptions = (bus) => {
     bus.subscribe(type, (event) => recordAudit().fromEvent(event));
   }
 };
+
+// Métricas gerais (#145).
+export { PlatformMetricsPanel } from "./features/platform-metrics/ui/platform-metrics-panel";
+export type { PlatformMetricsView } from "./features/platform-metrics/platform-metrics.use-case";
+
+/** Números gerais da plataforma para /admin/metricas (só admin), com o período da URL. */
+export function platformMetricsView(viewer: { isAdmin: boolean }, params: Record<string, unknown>) {
+  return getPlatformMetrics().execute(viewer, params);
+}

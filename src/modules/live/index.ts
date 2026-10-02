@@ -1,6 +1,7 @@
 // API pública do módulo live (transmissões ao vivo de lugares e eventos).
 import { hasRole, type CurrentUser } from "@/modules/identity";
 import type { ModuleSubscriptions } from "@/shared/events";
+import { liveCountsReader } from "./composition";
 import { endStreamOfCancelledEvent, endStreamsOfDeletedUser, getActiveStreams, getStreamMetrics, privacyGate, getLiveNowGeo, getLiveStatus, handleProviderWebhook, listActiveStreamsUseCase, listLiveNow, listLiveTargets, streamRepository } from "./composition";
 import { liveNowRoute } from "./features/live-badge/live-badge.route";
 import type { LiveNowItem } from "./features/live-badge/live-badge.use-case";
@@ -108,3 +109,6 @@ export const subscriptions: ModuleSubscriptions = (bus) => {
     await endStreamsOfDeletedUser().execute(event.payload.userId);
   });
 };
+
+/** Contagem de transmissões que estiveram no ar num período, para as métricas gerais do backoffice (#145). */
+export const liveCounts = () => liveCountsReader();

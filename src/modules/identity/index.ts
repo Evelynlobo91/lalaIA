@@ -9,6 +9,7 @@ import type { Role } from "./domain/roles";
 import { DefaultingPreferencesReader } from "./features/preferences-reader/preferences-reader";
 import { PostgresPreferencesRepository } from "./infra/postgres-preferences-repository";
 import { PostgresRoleRepository } from "./infra/postgres-role-repository";
+import { PostgresUserCounts } from "./infra/postgres-user-counts";
 import { PostgresConsentRepository } from "./infra/postgres-consent-repository";
 import { GetConsents } from "./features/lgpd/lgpd.use-case";
 
@@ -49,6 +50,9 @@ const directory = lazy(() => new PostgresRoleRepository(sql()));
 export function usersByIds(ids: string[]) {
   return directory().byIds([...new Set(ids)]);
 }
+
+/** Contagens de contas (criadas num período e total), para as métricas gerais do backoffice (#145). */
+export const userCounts = lazy(() => new PostgresUserCounts(sql()));
 
 // ---------------------------------------------------------------------------------------------------
 // LGPD (#25): consentimentos, exportação e exclusão de conta
