@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { isAvailable, xpSplit, type MissionDraft, type MissionPlaces, type MissionRecord, type MissionRepository } from "../../domain/mission";
+import { estimatedMinutesOf, isAvailable, xpSplit, type MissionDraft, type MissionPlaces, type MissionRecord, type MissionRepository } from "../../domain/mission";
 import { missionSchema } from "./mission.schema";
 import { ArchiveMission, SaveMission } from "./manage-missions.use-cases";
 
@@ -31,6 +31,33 @@ describe("missionSchema", () => {
     ]);
   });
 
+  it("tempo estimado e gasto por pessoa (#64): opcionais; gasto em reais vira centavos; surpresa pelo checkbox", () => {
+    expect(missionSchema.parse(form()).draft).toMatchObject({ estimatedMinutes: null, costCents: null, surprise: false });
+    expect(missionSchema.parse(form({ estimatedMinutes: "90", cost: "12,50", surprise: "on" })).draft).toMatchObject({ estimatedMinutes: 90, costCents: 1250, surprise: true });
+    expect(missionSchema.parse(form({ cost: "0" })).draft.costCents).toBe(0);
+    expect(estimatedMinutesOf({ estimatedMinutes: null, steps: [{}, {}, {}] as never })).toBe(90);
+    expect(estimatedMinutesOf({ estimatedMinutes: 45, steps: [{}, {}, {}] as never })).toBe(45);
+  });
+
+  it("etapas com GPS (#61): raio e permanência; em QR + GPS a permanência é zero; QR ignora a geofence", () => {
+    const { draft } = missionSchema.parse(
+      form({
+        steps: JSON.stringify([
+          { title: "Chegue à praça", placeId: CAFE, validation: "gps", radiusMeters: 80, dwellMinutes: 5 },
+          { title: "Peça um chope", placeId: BAR, validation: "qr_gps", radiusMeters: 50, dwellMinutes: 5 },
+          { title: "Peça um café", placeId: CAFE, validation: "qr", radiusMeters: 999 },
+          { title: "Volte à praça", placeId: CAFE, validation: "gps" },
+        ]),
+      }),
+    );
+    expect(draft.steps).toEqual([
+      { title: "Chegue à praça", placeId: CAFE, validation: "gps", geofence: { radiusMeters: 80, dwellMinutes: 5 } },
+      { title: "Peça um chope", placeId: BAR, validation: "qr_gps", geofence: { radiusMeters: 50, dwellMinutes: 0 } },
+      { title: "Peça um café", placeId: CAFE, validation: "qr" },
+      { title: "Volte à praça", placeId: CAFE, validation: "gps", geofence: { radiusMeters: 100, dwellMinutes: 2 } },
+    ]);
+  });
+
   it.each([
     ["fim antes do início", { endsAt: "2026-10-09T08:00" }, "endsAt", "O fim precisa ser depois do início."],
     ["XP fora da faixa", { xp: "5000" }, "xp", "O XP máximo é 1000."],
@@ -39,6 +66,10 @@ describe("missionSchema", () => {
     ["etapa sem descrição", { steps: JSON.stringify([{ title: "", placeId: CAFE }]) }, "steps", "Etapa 1: diga o que fazer (3 a 80 caracteres)."],
     ["etapas que não são JSON", { steps: "{" }, "steps", "Etapas inválidas."],
     ["mais de 10 etapas", { steps: JSON.stringify(Array.from({ length: 11 }, () => ({ title: "Etapa", placeId: CAFE }))) }, "steps", "Use no máximo 10 etapas."],
+    ["tempo estimado fora da faixa", { estimatedMinutes: "5" }, "estimatedMinutes", "O tempo estimado vai de 10 a 600 minutos."],
+    ["gasto inválido", { cost: "abc" }, "cost", "Informe o gasto por pessoa em reais (de 0 a 1000)."],
+    ["raio do GPS fora da faixa", { steps: JSON.stringify([{ title: "Chegue à praça", placeId: CAFE, validation: "gps", radiusMeters: 1000, dwellMinutes: 2 }]) }, "steps", "Etapa 1: o raio do check-in vai de 30 a 300 m."],
+    ["permanência fora da faixa", { steps: JSON.stringify([{ title: "Chegue à praça", placeId: CAFE, validation: "gps", radiusMeters: 80, dwellMinutes: 90 }]) }, "steps", "Etapa 1: o tempo no lugar vai de 0 a 30 minutos."],
   ])("recusa %s", (_, patch, field, message) => {
     const res = missionSchema.safeParse(form(patch));
     expect(res.success).toBe(false);
@@ -82,6 +113,7 @@ describe("SaveMission / ArchiveMission", () => {
     findById: vi.fn().mockResolvedValue(record()),
     listByOwner: vi.fn(),
     listAvailable: vi.fn(),
+    listAvailableSurprises: vi.fn(),
     findByIds: vi.fn(),
     findByStepId: vi.fn(),
     create: vi.fn().mockResolvedValue(record()),
@@ -160,6 +192,9 @@ describe("SaveMission / ArchiveMission", () => {
     expect(!xp.ok && xp.error.code).toBe("mission_locked");
     const steps = await save.execute(parceiro, "m1", { ...draft, steps: [draft.steps[1], draft.steps[0]] });
     expect(!steps.ok && steps.error.code).toBe("mission_locked");
+    // Trocar QR por GPS (ou mexer no raio) também muda a etapa que quem aceitou viu.
+    const gps = await save.execute(parceiro, "m1", { ...draft, steps: [{ ...draft.steps[0], validation: "gps", geofence: { radiusMeters: 300, dwellMinutes: 0 } }, draft.steps[1]] });
+    expect(!gps.ok && gps.error.code).toBe("mission_locked");
     expect(missions.update).not.toHaveBeenCalled();
 
     expect((await save.execute(parceiro, "m1", { ...draft, title: "Rota do Café II" })).ok).toBe(true);

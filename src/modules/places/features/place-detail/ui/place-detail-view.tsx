@@ -1,7 +1,7 @@
-import { Clock, ExternalLink, Globe, MapPin, Navigation, Phone } from "lucide-react";
+import { Clock, ExternalLink, Globe, MapPin, Navigation, Phone, Store } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Badge, Card, LiveNowBadge, OsmAttribution, buttonClasses, cn } from "@/shared/ui";
+import { Badge, Card, DetailHero, Eyebrow, InfoItem as Info, LiveNowBadge, OsmAttribution, buttonClasses, cn } from "@/shared/ui";
 import type { PlaceDetailView } from "../place-detail.use-case";
 
 /**
@@ -12,14 +12,16 @@ import type { PlaceDetailView } from "../place-detail.use-case";
 export function PlaceDetailCard({ place, extras, directions }: { place: PlaceDetailView; extras?: ReactNode; directions?: ReactNode }) {
   return (
     <article className="flex flex-col gap-6">
-      <header className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-2">
+      <header className="flex flex-col gap-4">
+        <DetailHero icon={Store}>
           <LiveNowBadge entityType="place" entityId={place.id} />
-          <Badge variant="brand">{place.categoryLabel}</Badge>
           {place.openNow !== null && <Badge variant={place.openNow ? "success" : "neutral"}>{place.openNow ? "Aberto agora" : "Fechado agora"}</Badge>}
+        </DetailHero>
+        <div className="flex flex-col gap-1">
+          <Eyebrow>{place.categoryLabel}</Eyebrow>
+          <h1 className="text-3xl font-bold leading-tight">{place.name}</h1>
+          {place.neighborhood && <p className="text-muted">{place.neighborhood}, Joinville</p>}
         </div>
-        <h1 className="text-3xl font-bold leading-tight">{place.name}</h1>
-        {place.neighborhood && <p className="text-muted">{place.neighborhood}, Joinville</p>}
       </header>
 
       {extras}
@@ -32,7 +34,7 @@ export function PlaceDetailCard({ place, extras, directions }: { place: PlaceDet
       )}
 
       <Card className="flex flex-col divide-y divide-border p-0">
-        <Info icon={<MapPin aria-hidden className="size-5" />} label="Endereço">
+        <Info icon={<MapPin aria-hidden />} label="Endereço">
           {place.address ?? <span className="text-muted">Endereço não informado</span>}
           <span className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm">
             <Link href={`/mapa?lugar=${place.id}`} className="text-brand underline">
@@ -45,7 +47,7 @@ export function PlaceDetailCard({ place, extras, directions }: { place: PlaceDet
         </Info>
 
         {place.phones.length > 0 && (
-          <Info icon={<Phone aria-hidden className="size-5" />} label="Telefone">
+          <Info icon={<Phone aria-hidden />} label="Telefone">
             {place.phones.map((phone) =>
               phone.href ? (
                 <a key={phone.label} href={phone.href} className="text-brand underline">
@@ -59,7 +61,7 @@ export function PlaceDetailCard({ place, extras, directions }: { place: PlaceDet
         )}
 
         {place.website && (
-          <Info icon={<Globe aria-hidden className="size-5" />} label="Site">
+          <Info icon={<Globe aria-hidden />} label="Site">
             <a href={place.website} target="_blank" rel="noopener noreferrer nofollow" className="break-all text-brand underline">
               {place.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
             </a>
@@ -67,7 +69,7 @@ export function PlaceDetailCard({ place, extras, directions }: { place: PlaceDet
         )}
 
         {(place.weeklyHours || place.rawHours) && (
-          <Info icon={<Clock aria-hidden className="size-5" />} label="Horário de funcionamento">
+          <Info icon={<Clock aria-hidden />} label="Horário de funcionamento">
             {place.weeklyHours ? (
               <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-0.5 text-sm">
                 {place.weeklyHours.map(({ day, hours }) => (
@@ -89,14 +91,3 @@ export function PlaceDetailCard({ place, extras, directions }: { place: PlaceDet
   );
 }
 
-function Info({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
-  return (
-    <section className="flex gap-3 px-4 py-4" aria-label={label}>
-      <span className="mt-0.5 text-brand">{icon}</span>
-      <div className="flex min-w-0 flex-col">
-        <h2 className="text-sm font-medium text-muted">{label}</h2>
-        <div className="flex flex-col">{children}</div>
-      </div>
-    </section>
-  );
-}

@@ -13,7 +13,7 @@ const author = (user: CurrentUser) => ({ id: user.id, isPartner: hasRole(user, "
 
 const save = formAction(missionSchema, withUser((input, user) => saveMission().execute(author(user), input.missionId, input.draft)), {
   name: "missions.save",
-  keepValues: ["missionId", "title", "description", "xp", "startsAt", "endsAt"],
+  keepValues: ["missionId", "title", "description", "xp", "startsAt", "endsAt", "surprise", "estimatedMinutes", "cost"],
 });
 
 export async function saveMissionAction(previous: FormState<MissionRecord>, formData: FormData) {

@@ -12,7 +12,7 @@ import { PLACES_CLICKABLE_LAYERS, placesLayer, type SelectedPlace } from "./plac
 
 type Point = { lat: number; lon: number };
 
-const BRAND = "#3b1d8f";
+const BRAND = "#02407f";
 
 /**
  * Mapa de lugares (RF11): clusters, toque no marcador abre o resumo e `focus` abre já centralizado.
@@ -108,7 +108,7 @@ export function PlacesMap({ focus }: { focus?: SelectedPlace | null }) {
 
 function Panel({ label, onClose, closeLabel, children }: { label: string; onClose: () => void; closeLabel: string; children: React.ReactNode }) {
   return (
-    <section aria-label={label} aria-live="polite" className="absolute inset-x-3 bottom-9 flex flex-col gap-3 rounded-2xl border border-border bg-bg p-4 shadow-lg md:left-auto md:w-96">
+    <section aria-label={label} aria-live="polite" className="absolute inset-x-3 bottom-9 flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 shadow-lg md:left-auto md:w-96">
       <button type="button" onClick={onClose} aria-label={closeLabel} className="absolute right-2 top-2 rounded-full p-2 hover:bg-surface">
         <X aria-hidden className="size-5" />
       </button>

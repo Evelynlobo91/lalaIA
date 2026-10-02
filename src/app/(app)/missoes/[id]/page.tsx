@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/modules/identity";
-import { AcceptMissionButton, MissionProgressPanel, missionProgress } from "@/modules/missions";
+import { AcceptMissionButton, MissionProgressPanel, SurpriseOfferButtons, missionProgress } from "@/modules/missions";
+import { formatTime } from "@/shared/time/joinville-time";
 import { ButtonLink, Card, FormAlert } from "@/shared/ui";
 
 // Progresso pessoal e janela de validade: sempre na hora.
@@ -25,9 +26,16 @@ export default async function MissaoPage({ params, searchParams }: PageProps<"/m
   // ?etapa=<id> depois de validar o QR: só vale se a etapa estiver mesmo concluída.
   const completedStep = typeof etapa === "string" ? view.steps.find((s) => s.id === etapa && s.state === "done") : undefined;
 
-  const action = !view.mission.available ? null : user ? (
+  const action = !view.mission.available ? null : view.surpriseOffer ? (
     <Card className="flex flex-col gap-3">
-      <p>Aceite a missão para começar. Depois é só ir aos lugares e escanear o QR code no balcão de cada etapa.</p>
+      <p>
+        Missão surpresa! As etapas são reveladas uma por vez depois do aceite. Aceite até <strong>{formatTime(view.surpriseOffer.expiresAt)}</strong>.
+      </p>
+      <SurpriseOfferButtons missionId={view.mission.id} title={view.mission.title} />
+    </Card>
+  ) : user ? (
+    <Card className="flex flex-col gap-3">
+      <p>Aceite a missão para começar. Depois é só ir aos lugares e validar cada etapa: QR code no balcão ou check-in por GPS.</p>
       <AcceptMissionButton missionId={view.mission.id} title={view.mission.title} />
     </Card>
   ) : (

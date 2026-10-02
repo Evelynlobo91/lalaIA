@@ -17,7 +17,7 @@ export type Candidate = {
   kind: CandidateKind;
   id: string;
   title: string;
-  /** Categoria do catálogo; missões não têm. */
+  /** Categoria do catálogo. Missões: a mais comum entre os lugares das etapas (#64); null se não der para saber. */
   category: CategoryId | null;
   categoryLabel: string | null;
   placeName: string | null;
@@ -33,6 +33,8 @@ export type Candidate = {
   newSince: Date | null;
   /** XP da missão. */
   xp: number | null;
+  /** Quanto tempo leva (missões, #64); ausente/null = sem duração própria (lugares e eventos). */
+  durationMinutes?: number | null;
 };
 
 export const candidateKey = (c: Pick<Candidate, "kind" | "id">) => `${c.kind}:${c.id}`;

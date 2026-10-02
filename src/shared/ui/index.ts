@@ -8,3 +8,6 @@ export { Sheet } from "./sheet";
 export { TextField, Checkbox, FormAlert } from "./field";
 export { Avatar } from "./avatar";
 export { OsmAttribution } from "./osm-attribution";
+export { Logo } from "./logo";
+export { LOGO_COLORS, LOGO_PIN_PATH, LOGO_VIEWBOX, LOGO_WORDMARK_PATH } from "./logo-paths";
+export { DetailHero, Eyebrow, InfoItem } from "./detail";

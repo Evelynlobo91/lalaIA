@@ -18,7 +18,7 @@ export function StreamControls({ streamId, status, label, canActivate = true }: 
       <input type="hidden" name="streamId" value={streamId} />
       <div className="flex flex-wrap items-center gap-2">
         {(status === "paused" || status === "ended") && (
-          <Button type="submit" name="action" value="activate" size="sm" loading={pending} disabled={!canActivate} aria-label={`Ativar a transmissão de ${label}`}>
+          <Button type="submit" name="action" value="activate" size="sm" variant="accent" loading={pending} disabled={!canActivate} aria-label={`Ativar a transmissão de ${label}`}>
             <Play aria-hidden className="size-4" /> Ativar
           </Button>
         )}

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { ActiveFilters, KindTabs, SearchBox, SearchFilters, SearchResults, filterOptions, searchPage } from "@/modules/discovery";
 import { EmptyState, FormAlert, OsmAttribution } from "@/shared/ui";
 
-export const metadata: Metadata = { title: "Buscar", description: "Busque lugares e eventos de Joinville." };
+export const metadata: Metadata = { title: "Explorar", description: "Busque lugares e eventos de Joinville." };
 // Resultados dependem do momento (eventos que já terminaram somem, "aberto agora").
 export const dynamic = "force-dynamic";
 
@@ -17,8 +17,8 @@ export default async function BuscarPage({ searchParams }: PageProps<"/buscar">)
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold md:text-3xl">Buscar</h1>
-        <p className="text-muted">Lugares e eventos de Joinville, num lugar só.</p>
+        <h1 className="text-2xl font-bold md:text-3xl">Explorar</h1>
+        <p className="text-muted">Descubra o que fazer em Joinville: lugares e eventos num lugar só.</p>
       </header>
       <SearchBox live defaultValue={state.q} keep={keepForText} />
       <KindTabs active={state.tipo} keep={{ ...(state.q && { q: state.q }), ...state.filters }} />

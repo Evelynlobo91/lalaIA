@@ -2,52 +2,55 @@
 
 /*
  * Design tokens do LalaIA. Cores são semânticas (papel, não tom): use `bg-surface`, `text-muted`,
- * `bg-brand text-brand-fg`... Cada par cor/texto é verificado para contraste AA em
+ * `bg-brand text-brand-fg`... Identidade: azul-marinho (brand), vermelho (accent/live) e fundo cinza (bg)
+ * com cards brancos (surface). Cada par cor/texto é verificado para contraste AA em
  * src/shared/ui/tokens.test.ts, nos dois temas.
  */
 :root {
-  --bg: #ffffff;
-  --fg: #1a1530;
-  --surface: #f6f4fb;
-  --surface-2: #ece8f7;
-  --muted: #5b5670;
-  --border: #dcd6ea;
-  --brand: #3b1d8f;
+  --bg: #eef0f3;
+  --fg: #141a24;
+  --surface: #ffffff;
+  --surface-2: #e3e6eb;
+  --muted: #555c6b;
+  --border: #d5d9e0;
+  --brand: #02407f;
   --brand-fg: #ffffff;
-  --accent: #ffc94d;
-  --accent-fg: #1a1530;
-  --success: #0f7a3d;
+  --accent: #c81e1e;
+  --accent-fg: #ffffff;
+  --success: #137a3e;
   --success-fg: #ffffff;
   --warning: #8a5a00;
   --warning-fg: #ffffff;
   --danger: #b42318;
   --danger-fg: #ffffff;
-  --live: #d92d20;
+  --live: #c81e1e;
   --live-fg: #ffffff;
-  --focus: #3b1d8f;
+  --focus: #02407f;
+  --logo: #02407f;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0f0c1a;
-    --fg: #f3f1fa;
-    --surface: #1a1629;
-    --surface-2: #241f36;
-    --muted: #a9a3bd;
-    --border: #342d4a;
-    --brand: #b9a4ff;
-    --brand-fg: #1a1530;
-    --accent: #ffc94d;
-    --accent-fg: #1a1530;
+    --bg: #0f1319;
+    --fg: #eef1f6;
+    --surface: #171c24;
+    --surface-2: #212834;
+    --muted: #a3abba;
+    --border: #2c3442;
+    --brand: #8cb8f2;
+    --brand-fg: #0b1e36;
+    --accent: #ff5c5c;
+    --accent-fg: #0f1319;
     --success: #4ade80;
-    --success-fg: #0f0c1a;
+    --success-fg: #0f1319;
     --warning: #fbbf24;
-    --warning-fg: #0f0c1a;
+    --warning-fg: #0f1319;
     --danger: #f87171;
-    --danger-fg: #0f0c1a;
-    --live: #ff6b5e;
-    --live-fg: #0f0c1a;
-    --focus: #ffc94d;
+    --danger-fg: #0f1319;
+    --live: #ff5c5c;
+    --live-fg: #0f1319;
+    --focus: #8cb8f2;
+    --logo: #ffffff;
   }
 }
 
@@ -71,6 +74,7 @@
   --color-live: var(--live);
   --color-live-fg: var(--live-fg);
   --color-focus: var(--focus);
+  --color-logo: var(--logo);
   --font-sans: var(--font-geist-sans);
 }
 

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { MissionRecord } from "../../domain/mission";
 import { progressOf, stepStates } from "../../domain/progress";
+import type { SurpriseOffer } from "../../domain/surprise";
 import type { UserMission } from "../../domain/user-mission";
 import { GetMissionProgress } from "./mission-progress.use-case";
 import { missionIdSchema } from "./mission-progress.schema";
@@ -27,7 +28,7 @@ const mission = (patch: Partial<MissionRecord> = {}): MissionRecord => ({
 const accepted: UserMission = { id: "um1", userId: "ana", missionId: "m1", status: "active", acceptedAt: now(), completedAt: null };
 const places = { summaries: vi.fn(async (ids: string[]) => ids.filter((id) => id !== "sumiu").map((id) => ({ id, name: id === "cafe" ? "Café Central" : "Bar do Zé", neighborhood: "Centro" }))) };
 
-function useCase(opts: { m?: MissionRecord | null; um?: UserMission | null; done?: string[] } = {}) {
+function useCase(opts: { m?: MissionRecord | null; um?: UserMission | null; done?: string[]; offer?: SurpriseOffer | null } = {}) {
   const completions = { listFor: vi.fn().mockResolvedValue((opts.done ?? []).map((stepId) => ({ stepId, completedAt: now() }))) };
   return {
     completions,
@@ -36,6 +37,7 @@ function useCase(opts: { m?: MissionRecord | null; um?: UserMission | null; done
       { find: vi.fn().mockResolvedValue(opts.um === undefined ? accepted : opts.um) },
       completions,
       places,
+      { find: vi.fn().mockResolvedValue(opts.offer ?? null) },
       now,
     ),
   };
@@ -90,5 +92,55 @@ describe("GetMissionProgress", () => {
   it("id da URL precisa ser uuid", () => {
     expect(missionIdSchema.safeParse("1 or 1=1").success).toBe(false);
     expect(missionIdSchema.safeParse("8f0e2c6a-6a1e-4b8e-9d2a-3f4b5c6d7e8f").success).toBe(true);
+  });
+});
+
+describe("missão surpresa na tela da missão (#63)", () => {
+  const surpresa = () => mission({ surprise: true });
+  const offer = (patch: Partial<SurpriseOffer> = {}): SurpriseOffer => ({
+    id: "o1",
+    userId: "ana",
+    missionId: "m1",
+    offeredAt: now(),
+    expiresAt: new Date(now().getTime() + 20 * 60_000),
+    status: "offered",
+    ...patch,
+  });
+
+  it("não é pública: visitante, quem não recebeu a oferta ou com oferta vencida/ignorada não vê", async () => {
+    expect((await useCase({ m: surpresa(), um: null }).get.execute(null, "m1")).ok).toBe(false);
+    expect((await useCase({ m: surpresa(), um: null }).get.execute("ana", "m1")).ok).toBe(false);
+    expect((await useCase({ m: surpresa(), um: null, offer: offer({ expiresAt: new Date(now().getTime() - 1) }) }).get.execute("ana", "m1")).ok).toBe(false);
+    expect((await useCase({ m: surpresa(), um: null, offer: offer({ status: "dismissed" }) }).get.execute("ana", "m1")).ok).toBe(false);
+  });
+
+  it("com a oferta aberta: vê a missão e quantas etapas tem, mas nenhuma etapa nem lugar", async () => {
+    places.summaries.mockClear();
+    const res = await useCase({ m: surpresa(), um: null, offer: offer() }).get.execute("ana", "m1");
+    if (!res.ok) throw res.error;
+    expect(res.value.surpriseOffer).toEqual({ expiresAt: offer().expiresAt });
+    expect(res.value.steps.map((s) => [s.title, s.hidden, s.place])).toEqual([
+      ["Etapa surpresa", true, null],
+      ["Etapa surpresa", true, null],
+      ["Etapa surpresa", true, null],
+    ]);
+    // Os lugares escondidos nem são consultados.
+    expect(places.summaries).toHaveBeenCalledWith([]);
+  });
+
+  it("depois do aceite revela uma etapa por vez: as concluídas e a próxima", async () => {
+    const res = await useCase({ m: surpresa(), done: ["s1"] }).get.execute("ana", "m1");
+    if (!res.ok) throw res.error;
+    expect(res.value.surpriseOffer).toBeNull();
+    expect(res.value.steps.map((s) => [s.title, s.hidden, s.place?.name ?? null])).toEqual([
+      ["Espresso", false, "Café Central"],
+      ["Bolo", false, "Café Central"],
+      ["Etapa surpresa", true, null],
+    ]);
+  });
+
+  it("concluída: tudo revelado", async () => {
+    const res = await useCase({ m: surpresa(), um: { ...accepted, status: "completed", completedAt: now() }, done: ["s1", "s2", "s3"] }).get.execute("ana", "m1");
+    expect(res.ok && res.value.steps.every((s) => !s.hidden)).toBe(true);
   });
 });

@@ -1,5 +1,5 @@
 import { NotFoundError, err, ok, type Result } from "@/shared/kernel";
-import type { MissionPlaces, MissionRepository } from "../../domain/mission";
+import { usesQr, type MissionPlaces, type MissionRepository } from "../../domain/mission";
 import { printTokenExpiry, screenTokenExpiry, type StepTokenSigner } from "../../domain/step-validation";
 
 export type QrMode = "screen" | "print";
@@ -34,8 +34,9 @@ export class GetStepQrCodes {
     const expiresAt = mode === "print" ? printTokenExpiry(now) : screenTokenExpiry(now);
     const names = new Map((await this.places.summaries([...new Set(mission.steps.map((s) => s.placeId))])).map((p) => [p.id, p.name]));
 
+    // Etapas só por GPS (#61) não têm QR: o explorador faz check-in no lugar.
     const steps = await Promise.all(
-      mission.steps.map(async (step) => {
+      mission.steps.filter((step) => usesQr(step.validation)).map(async (step) => {
         const url = new URL("/missoes/validar", this.siteUrl());
         url.searchParams.set("t", this.tokens.sign(step.id, expiresAt));
         return {

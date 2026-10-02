@@ -47,7 +47,7 @@ function Group({ group, query }: { group: ResultGroup; query: string }) {
           <ul className="grid gap-3 md:grid-cols-2" aria-label={`${label} encontrados`}>
             {items.map((hit) => (
               <li key={hit.id}>
-                <ResultCard hit={hit} />
+                <ResultCard hit={hit} kind={group.kind} />
               </li>
             ))}
           </ul>

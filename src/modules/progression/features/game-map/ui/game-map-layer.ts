@@ -8,7 +8,7 @@ export const gameLayerId = (state: GameState) => `game-${state}`;
 // Cores fixas (o canvas do mapa não lê variáveis CSS), na convenção da issue #69. Identidade nunca só pela cor:
 // a legenda tem texto e ícone, e o toque abre o nome e a situação.
 export const GAME_COLORS: Record<GameState, string> = {
-  missao: "#2563eb",
+  missao: "#02407f",
   evento: "#eab308",
   especial: "#b91c1c",
   conhecido: "#16a34a",

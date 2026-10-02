@@ -56,7 +56,7 @@ function ClaimCard({ item }: { item: PlaceClaimView }) {
           <input type="hidden" name="claimId" value={item.id} />
           <label className="flex flex-col gap-1.5 text-sm font-medium">
             Motivo da recusa
-            <textarea name="reason" required minLength={5} maxLength={500} rows={2} className="rounded-xl border border-border bg-bg px-3 py-2 text-base font-normal" />
+            <textarea name="reason" required minLength={5} maxLength={500} rows={2} className="rounded-xl border border-border bg-surface px-3 py-2 text-base font-normal" />
           </label>
           {rejectState.status === "error" && <p className="text-sm text-danger">{rejectState.fieldErrors?.reason?.[0] ?? rejectState.message}</p>}
           <Button type="submit" size="sm" variant="danger" loading={rejecting} className="self-start">

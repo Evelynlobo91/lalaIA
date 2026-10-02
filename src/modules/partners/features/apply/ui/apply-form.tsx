@@ -59,7 +59,7 @@ export function ApplyForm({ current, submitLabel = "Enviar para análise" }: { c
           rows={4}
           defaultValue={values.description}
           aria-invalid={errors.description ? true : undefined}
-          className="rounded-xl border border-border bg-bg px-4 py-3 text-base font-normal aria-invalid:border-danger"
+          className="rounded-xl border border-border bg-surface px-4 py-3 text-base font-normal aria-invalid:border-danger"
         />
         {errors.description && <span className="text-sm font-normal text-danger">{errors.description[0]}</span>}
       </label>

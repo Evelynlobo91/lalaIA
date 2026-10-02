@@ -50,17 +50,17 @@ export function GameMapView({ counts, initial }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-sm font-medium">Camadas</legend>
+      <fieldset className="flex flex-col gap-2 rounded-2xl border border-border bg-surface p-4 shadow-sm">
+        <legend className="float-left mb-2 w-full font-semibold">Seu mapa de descobertas</legend>
         <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {GAME_STATES.map((state) => (
             <li key={state}>
-              <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-border px-3 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-focus">
+              <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl bg-surface-2 px-3 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-focus">
                 <input type="checkbox" checked={visible.has(state)} onChange={() => toggle(state)} className="size-4 accent-brand" />
                 {state === "inexplorado" ? (
                   <Lock aria-hidden className="size-4 text-muted" />
                 ) : (
-                  <span aria-hidden className="size-3.5 rounded-full ring-2 ring-bg" style={{ backgroundColor: GAME_COLORS[state] }} />
+                  <span aria-hidden className="size-3.5 rounded-full ring-2 ring-surface" style={{ backgroundColor: GAME_COLORS[state] }} />
                 )}
                 <span className="flex-1 text-sm">{gameStateLabels[state]}</span>
                 <span className="text-sm tabular-nums text-muted">{counts[state]}</span>
@@ -68,7 +68,7 @@ export function GameMapView({ counts, initial }: Props) {
             </li>
           ))}
           <li>
-            <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-border px-3 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-focus">
+            <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl bg-surface-2 px-3 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-focus">
               <input type="checkbox" checked={visible.has("live")} onChange={() => toggle("live")} className="size-4 accent-brand" />
               <Radio aria-hidden className="size-4 text-live" />
               <span className="flex-1 text-sm">Live (transmissão ativa)</span>
@@ -76,7 +76,7 @@ export function GameMapView({ counts, initial }: Props) {
           </li>
         </ul>
       </fieldset>
-      <MapView layers={layers} onReady={onReady} label="Mapa de exploração: lugares por situação" className="h-[60vh] min-h-80" />
+      <MapView layers={layers} onReady={onReady} label="Mapa de exploração: lugares por situação" className="h-[60vh] min-h-80 overflow-hidden rounded-3xl shadow-sm" />
     </div>
   );
 }

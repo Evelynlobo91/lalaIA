@@ -16,6 +16,13 @@ import {
   RequestPlaceClaim,
 } from "./features/claim-place/claim-place.use-cases";
 import { PostgresPartnerRepository } from "./infra/postgres-partner-repository";
+import { PostgresOfferRepository, PostgresRedemptionRepository } from "./infra/postgres-offer-repository";
+import { offerTargets } from "./infra/offer-targets";
+import { EndOffer, SaveOffer } from "./features/manage-offers/manage-offers.use-cases";
+import { ListPartnerOffers } from "./features/manage-offers/partner-offers";
+import { RedeemOffer } from "./features/redeem-offer/redeem-offer.use-case";
+import { MyRedemptions, OffersForTarget } from "./features/redeem-offer/offer-views";
+import { ValidateOfferCode } from "./features/validate-code/validate-code.use-case";
 
 export const partnerRepository = lazy(() => new PostgresPartnerRepository(sql(), usersByIds));
 export const submitApplication = lazy(() => new SubmitPartnerApplication(partnerRepository()));
@@ -29,3 +36,23 @@ export const listMyClaims = lazy(() => new ListMyClaims(claimRepository(), place
 export const listClaimsForReview = lazy(() => new ListClaimsForReview(claimRepository(), placesLookup));
 export const approveClaim = lazy(() => new ApprovePlaceClaim(claimRepository(), domainEvents()));
 export const rejectClaim = lazy(() => new RejectPlaceClaim(claimRepository()));
+
+// Descontos e promoções (#30).
+export const offerRepository = lazy(() => new PostgresOfferRepository(sql()));
+export const redemptionRepository = lazy(() => new PostgresRedemptionRepository(sql()));
+const targets = lazy(() => offerTargets());
+
+/** Cadastro de parceiro aprovado da pessoa (null se não tiver). */
+export async function approvedPartnerIdOf(userId: string): Promise<string | null> {
+  const partner = await partnerRepository().findByOwner(userId);
+  return partner?.status === "approved" ? partner.id : null;
+}
+
+export const saveOffer = lazy(() => new SaveOffer(offerRepository(), targets()));
+export const endOffer = lazy(() => new EndOffer(offerRepository()));
+export const listPartnerOffers = lazy(() => new ListPartnerOffers(offerRepository(), targets()));
+export const redeemOffer = lazy(() => new RedeemOffer(offerRepository(), redemptionRepository(), approvedPartnerIdOf, domainEvents()));
+export const offersForTarget = lazy(() => new OffersForTarget(offerRepository(), redemptionRepository(), approvedPartnerIdOf));
+export const myRedemptionsUseCase = lazy(() => new MyRedemptions(redemptionRepository(), targets()));
+export const validateOfferCode = lazy(() => new ValidateOfferCode(redemptionRepository(), domainEvents()));
+export const offerTargetOptions = (userId: string) => targets().ownedBy(userId);

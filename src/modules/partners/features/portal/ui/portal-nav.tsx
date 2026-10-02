@@ -9,7 +9,7 @@ import { portalSections } from "../portal-sections";
 export function PortalNav() {
   const pathname = usePathname();
   return (
-    <nav aria-label="Portal do parceiro" className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
+    <nav aria-label="Portal do parceiro" className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:px-0">
       <ul className="flex min-w-max gap-2 border-b border-border">
         {portalSections.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(`${href}/`);

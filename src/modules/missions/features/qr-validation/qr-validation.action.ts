@@ -11,7 +11,7 @@ import { completeStepSchema } from "./qr-validation.schema";
 const complete = formAction(
   completeStepSchema,
   // O id do usuário vem da sessão (withUser), nunca do formulário.
-  withUser((input, user) => qrStepValidation().execute(user.id, input.token)),
+  withUser((input, user) => qrStepValidation().execute(user.id, input.token, input.fix)),
   { name: "missions.complete-step" },
 );
 

@@ -20,7 +20,7 @@ type SearchFiltersProps = {
   keep: Record<string, string>;
 };
 
-const control = "h-11 w-full rounded-xl border border-border bg-bg px-3 text-base text-fg";
+const control = "h-11 w-full rounded-xl border border-border bg-surface px-3 text-base text-fg";
 
 function Select({ name, label, options, value, anyLabel }: { name: Field; label: string; options: FilterOption[]; value?: string; anyLabel: string }) {
   const id = `filtro-${name}`;
@@ -71,8 +71,8 @@ export function SearchFilters({ options, active, keep }: SearchFiltersProps) {
   };
 
   return (
-    <details open={count > 0 || undefined} className="group rounded-2xl border border-border bg-surface">
-      <summary className="flex min-h-11 cursor-pointer items-center gap-2 px-4 py-2 font-medium">
+    <details open={count > 0 || undefined} className="group rounded-2xl border border-border bg-surface shadow-sm">
+      <summary className="flex min-h-11 cursor-pointer items-center gap-2 px-4 py-2 font-semibold text-brand">
         <SlidersHorizontal aria-hidden className="size-4" />
         Filtros{count > 0 ? ` (${count})` : ""}
       </summary>

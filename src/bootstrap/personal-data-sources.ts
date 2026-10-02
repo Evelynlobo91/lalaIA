@@ -2,8 +2,8 @@ import { eventsByOwner } from "@/modules/events";
 import { myFavorites } from "@/modules/favorites";
 import type { PersonalDataSource } from "@/modules/identity";
 import { livePrivacyAcceptedAt, liveStreamsOf } from "@/modules/live";
-import { missionsByOwner, myMissions } from "@/modules/missions";
-import { myPartnerApplication } from "@/modules/partners";
+import { missionsByOwner, myGeofenceCheckIns, myMissions } from "@/modules/missions";
+import { myPartnerApplication, myRedemptions, offersCreatedBy } from "@/modules/partners";
 import { placesManagedBy } from "@/modules/places";
 import { achievementsOf, explorerProfileOf, levelOverviewOf, xpOverviewOf } from "@/modules/progression";
 
@@ -15,6 +15,7 @@ import { achievementsOf, explorerProfileOf, levelOverviewOf, xpOverviewOf } from
 export const personalDataSources: PersonalDataSource[] = [
   { name: "favoritos", export: (user) => myFavorites(user) },
   { name: "missoes", export: (user) => myMissions(user.id) },
+  { name: "checkinsPorGps", export: (user) => myGeofenceCheckIns(user.id) },
   { name: "xp", export: (user) => xpOverviewOf(user.id, 10_000) },
   { name: "nivel", export: (user) => levelOverviewOf(user.id) },
   { name: "conquistas", export: (user) => achievementsOf(user.id) },
@@ -23,6 +24,8 @@ export const personalDataSources: PersonalDataSource[] = [
   { name: "lugaresQueGerencio", export: (user) => placesManagedBy(user.id) },
   { name: "eventosQueCriei", export: (user) => eventsByOwner(user.id) },
   { name: "missoesQueCriei", export: (user) => missionsByOwner(user.id) },
+  { name: "ofertasResgatadas", export: (user) => myRedemptions(user.id) },
+  { name: "ofertasQueCriei", export: (user) => offersCreatedBy(user.id) },
   {
     name: "transmissoes",
     export: async (user) => ({ transmissoes: await liveStreamsOf(user.id), diretrizesDePrivacidadeAceitasEm: await livePrivacyAcceptedAt(user) }),

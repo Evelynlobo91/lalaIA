@@ -2,13 +2,14 @@ import Link from "next/link";
 import type { ButtonHTMLAttributes, ComponentProps } from "react";
 import { cn } from "./cn";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+export type ButtonVariant = "primary" | "accent" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
 
 type Style = { variant?: ButtonVariant; size?: ButtonSize; fullWidth?: boolean };
 
 const variants: Record<ButtonVariant, string> = {
   primary: "bg-brand text-brand-fg hover:opacity-90",
+  accent: "bg-accent text-accent-fg hover:opacity-90",
   secondary: "bg-surface-2 text-fg hover:bg-border",
   ghost: "text-fg hover:bg-surface",
   danger: "bg-danger text-danger-fg hover:opacity-90",

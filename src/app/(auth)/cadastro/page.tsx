@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { RegisterForm } from "@/modules/identity";
 import { FormAlert } from "@/shared/ui";
 
@@ -11,20 +10,13 @@ export default async function CadastroPage({ searchParams }: PageProps<"/cadastr
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold">Criar conta</h1>
-        <p className="text-muted">Salve favoritos, faça missões e receba recomendações que combinam com você.</p>
+        <h1 className="text-2xl font-bold">Comece a explorar</h1>
+        <p className="text-muted">Crie seu perfil para salvar lugares, ganhar XP e desbloquear experiências.</p>
       </header>
 
       {erro === "link-invalido" && <FormAlert>O link de confirmação é inválido ou expirou. Cadastre-se novamente para receber um novo link.</FormAlert>}
 
       <RegisterForm />
-
-      <p className="text-center text-sm text-muted">
-        Já tem conta?{" "}
-        <Link href="/entrar" className="font-semibold text-brand underline">
-          Entrar
-        </Link>
-      </p>
     </div>
   );
 }

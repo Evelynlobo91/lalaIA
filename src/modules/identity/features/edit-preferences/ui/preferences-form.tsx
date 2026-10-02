@@ -36,7 +36,7 @@ export function PreferencesForm({ preferences }: { preferences: UserPreferences 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="flex flex-col gap-1.5 text-sm font-medium">
           Quanto costuma gastar por saída?
-          <select name="budgetMax" defaultValue={current.budgetMax === null ? "" : String(current.budgetMax)} className="h-12 rounded-xl border border-border bg-bg px-3 text-base">
+          <select name="budgetMax" defaultValue={current.budgetMax === null ? "" : String(current.budgetMax)} className="h-12 rounded-xl border border-border bg-surface px-3 text-base">
             <option value="">Sem limite definido</option>
             {budgetOptions.map((b) => (
               <option key={b.value} value={b.value}>
@@ -48,7 +48,7 @@ export function PreferencesForm({ preferences }: { preferences: UserPreferences 
 
         <label className="flex flex-col gap-1.5 text-sm font-medium">
           Até que distância você topa ir?
-          <select name="radiusKm" defaultValue={String(current.radiusKm)} className="h-12 rounded-xl border border-border bg-bg px-3 text-base">
+          <select name="radiusKm" defaultValue={String(current.radiusKm)} className="h-12 rounded-xl border border-border bg-surface px-3 text-base">
             {radiusOptions.map((r) => (
               <option key={r} value={r}>
                 Até {r} km

@@ -2,10 +2,10 @@ import { expect, test } from "@playwright/test";
 
 // Destinos públicos da navegação (visitante sem login).
 const destinos = [
+  { label: "Explorar", path: "/buscar", heading: "Explorar" },
   { label: "Mapa", path: "/mapa", heading: "Mapa" },
   { label: "Me Surpreenda", path: "/surpreenda", heading: "Me Surpreenda" },
-  { label: "Missões", path: "/missoes", heading: "Missões" },
-  { label: "Explorar", path: "/", heading: "O que você quer fazer hoje?" },
+  { label: "Início", path: "/", heading: "Oi! Bora viver?" },
 ];
 
 test.describe("shell do app", () => {
@@ -25,7 +25,7 @@ test.describe("shell do app", () => {
     await page.goto("/");
     await page.getByRole("navigation", { name: "Navegação principal" }).getByRole("link", { name: "Perfil" }).click();
     await expect(page).toHaveURL(/\/entrar\?next=%2Fperfil$/);
-    await expect(page.getByRole("heading", { level: 1, name: "Entrar" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Boas-vindas!" })).toBeVisible();
   });
 
   test("não tem rolagem horizontal e a navegação fica visível", async ({ page }) => {

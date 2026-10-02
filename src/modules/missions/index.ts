@@ -1,7 +1,7 @@
 // API pública do módulo missions (missões urbanas).
 import { cache } from "react";
 import { toLocalInput } from "@/shared/time/joinville-time";
-import { getMissionProgress, listAvailableMissions, missionExploration, listMyMissions, missionPlaces, missionRepository, qrStepValidation, stepQrCodes, userMissionRepository } from "./composition";
+import { geofenceAttempts, getMissionProgress, listAvailableMissions, offerSurpriseMission, missionExploration, listMyMissions, missionPlaces, missionRepository, qrStepValidation, stepQrCodes, userMissionRepository } from "./composition";
 import { qrModeSchema, qrTokenSchema } from "./features/qr-validation/qr-validation.schema";
 import "./domain/events";
 import { missionIdSchema } from "./features/mission-progress/mission-progress.schema";
@@ -10,7 +10,13 @@ import type { MissionFormValues, PlaceOption } from "./features/manage-missions/
 
 export { MissionForm, type MissionFormValues, type PlaceOption } from "./features/manage-missions/ui/mission-form";
 export { ArchiveMissionButton } from "./features/manage-missions/ui/archive-mission-button";
-export { isAvailable, xpSplit, type MissionRecord, type MissionStatus, type MissionStep } from "./domain/mission";
+export { allowsRealReward, isAvailable, xpSplit, type MissionRecord, type MissionStatus, type MissionStep, type StepGeofence, type ValidationKind } from "./domain/mission";
+export { GEOFENCE_RADIUS_METERS, MAX_ACCURACY_METERS } from "./domain/geofence";
+export { SURPRISE_OFFER_MINUTES, SURPRISE_RADIUS_METERS } from "./domain/surprise";
+export type { SurpriseTeaser } from "./features/surprise-missions/surprise-missions.use-case";
+export { SurpriseFinder } from "./features/surprise-missions/ui/surprise-finder";
+export { SurpriseOfferCard } from "./features/surprise-missions/ui/surprise-offer-card";
+export { SurpriseOfferButtons } from "./features/surprise-missions/ui/surprise-offer-buttons";
 export { MAX_ACTIVE_MISSIONS, type UserMission, type UserMissionStatus } from "./domain/user-mission";
 export type { MissionCard, MyMission } from "./features/accept-mission/mission-catalog";
 export { MissionCardView } from "./features/accept-mission/ui/mission-card";
@@ -60,6 +66,19 @@ export function missionExplorationOf(userId: string) {
   return missionExploration().execute(userId);
 }
 
+/**
+ * Tentativas de check-in por GPS da pessoa (exportação LGPD): etapa, resultado, distância arredondada e horário.
+ * A coordenada nunca é gravada. O id vem sempre da sessão.
+ */
+export function myGeofenceCheckIns(userId: string) {
+  return geofenceAttempts().listByUser(userId);
+}
+
+/** Missões surpresa oferecidas à pessoa e ainda abertas (#63). Só leitura: a oferta nasce no POST "Procurar". */
+export function openSurpriseOffers(userId: string) {
+  return offerSurpriseMission().listOpen(userId);
+}
+
 /** Missões aceitas pelo usuário (ativas e concluídas). O id vem sempre da sessão. */
 export function myMissions(userId: string) {
   return listMyMissions().execute(userId);
@@ -98,7 +117,7 @@ export async function inspectStepQr(userId: string, token: string) {
       ok: true as const,
       token: parsed.data,
       mission: { id: mission.id, title: mission.title, totalSteps: mission.steps.length },
-      step: { id: step.id, position: step.position, title: step.title, placeName: place?.name ?? null },
+      step: { id: step.id, position: step.position, title: step.title, placeName: place?.name ?? null, validation: step.validation },
       stepXp,
     };
   }
@@ -122,7 +141,16 @@ export async function editableMission(editor: { id: string; isAdmin: boolean }, 
       xp: String(mission.xp),
       startsAt: toLocalInput(mission.startsAt),
       endsAt: toLocalInput(mission.endsAt),
-      steps: mission.steps.map((s) => ({ title: s.title, placeId: s.placeId })),
+      surprise: mission.surprise ?? false,
+      estimatedMinutes: mission.estimatedMinutes == null ? "" : String(mission.estimatedMinutes),
+      cost: mission.costCents == null ? "" : (mission.costCents / 100).toFixed(2).replace(".", ","),
+      steps: mission.steps.map((s) => ({
+        title: s.title,
+        placeId: s.placeId,
+        validation: s.validation,
+        radiusMeters: s.geofence?.radiusMeters,
+        dwellMinutes: s.geofence?.dwellMinutes,
+      })),
     },
   };
 }

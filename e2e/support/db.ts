@@ -69,23 +69,34 @@ export function createTestMission(opts: {
   ownerEmail: string;
   title: string;
   xp?: number;
-  steps: Array<{ title: string; placeId: string }>;
+  /** `validation` (#61): "qr" (padrão), "gps" ou "qr_gps"; com GPS, raio (m) e permanência (min). */
+  steps: Array<{ title: string; placeId: string; validation?: "qr" | "gps" | "qr_gps"; radiusMeters?: number; dwellMinutes?: number }>;
   startsInHours?: number;
   endsInHours?: number;
+  /** Missão surpresa (#63): fora da lista, oferecida por proximidade. */
+  surprise?: boolean;
+  /** Tempo estimado (min) e gasto por pessoa (centavos) (#64). */
+  estimatedMinutes?: number;
+  costCents?: number;
 }): Promise<{ missionId: string; stepIds: string[] }> {
   return withDb((sql) =>
     sql.begin(async (tx) => {
       const [mission] = await tx<{ id: string }[]>`
-        insert into missions.missions (owner_id, title, description, xp, starts_at, ends_at)
+        insert into missions.missions (owner_id, title, description, xp, starts_at, ends_at, surprise, estimated_minutes, cost_cents)
         select id, ${opts.title}, 'Missão criada pelos testes automatizados.', ${opts.xp ?? 100},
                now() + make_interval(mins => ${Math.round((opts.startsInHours ?? -1) * 60)}),
-               now() + make_interval(mins => ${Math.round((opts.endsInHours ?? 72) * 60)})
+               now() + make_interval(mins => ${Math.round((opts.endsInHours ?? 72) * 60)}),
+               ${opts.surprise ?? false}, ${opts.estimatedMinutes ?? null}, ${opts.costCents ?? null}
         from auth.users where lower(email) = ${opts.ownerEmail.toLowerCase()}
         returning id`;
       const stepIds: string[] = [];
       for (const [i, step] of opts.steps.entries()) {
+        const validation = step.validation ?? "qr";
+        const radius = validation === "qr" ? null : (step.radiusMeters ?? 100);
+        const dwell = validation === "qr" ? null : validation === "qr_gps" ? 0 : (step.dwellMinutes ?? 0);
         const [row] = await tx<{ id: string }[]>`
-          insert into missions.mission_steps (mission_id, position, title, place_id) values (${mission.id}, ${i + 1}, ${step.title}, ${step.placeId}) returning id`;
+          insert into missions.mission_steps (mission_id, position, title, place_id, validation, geofence_radius_m, dwell_minutes)
+          values (${mission.id}, ${i + 1}, ${step.title}, ${step.placeId}, ${validation}, ${radius}, ${dwell}) returning id`;
         stepIds.push(row.id);
       }
       return { missionId: mission.id, stepIds };

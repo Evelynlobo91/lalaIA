@@ -37,6 +37,9 @@ const pairs: Array<[string, string, number]> = [
   ["brand", "surface", 4.5],
   ["brand-fg", "brand", 4.5],
   ["accent-fg", "accent", 4.5],
+  // Vermelho também é usado como texto (categoria acima do título).
+  ["accent", "bg", 4.5],
+  ["accent", "surface", 4.5],
   ["success-fg", "success", 4.5],
   ["warning-fg", "warning", 4.5],
   ["danger-fg", "danger", 4.5],
