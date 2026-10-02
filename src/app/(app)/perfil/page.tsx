@@ -1,5 +1,6 @@
-import { Heart, Lock, Map as MapIcon, Pencil, ShieldCheck, Store } from "lucide-react";
+import { Heart, Lock, Map as MapIcon, Pencil, ShieldCheck, Store, Target, type LucideIcon } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LogoutButton, budgetOptions, groupSizes, hasRole, requireUser, userPreferences } from "@/modules/identity";
 import { ActiveMissionsCard, myMissions } from "@/modules/missions";
 import { MyRedemptionsCard, myRedemptions } from "@/modules/partners";
@@ -24,45 +25,58 @@ export default async function PerfilPage() {
   const labels = prefs.categories.map((id) => categories.find((c) => c.id === id)?.label ?? id);
   const budget = prefs.budgetMax === null ? "Sem limite definido" : budgetOptions.find((b) => b.value === prefs.budgetMax)?.label;
   const group = groupSizes.find((g) => g.id === prefs.groupSize)?.label ?? "Depende";
+  const shortcuts: Array<{ href: string; label: string; icon: LucideIcon }> = [
+    { href: "/perfil/mapa", label: "Meu mapa", icon: MapIcon },
+    { href: "/missoes", label: "Missões", icon: Target },
+    { href: "/perfil/favoritos", label: "Meus favoritos", icon: Heart },
+    { href: "/perfil/privacidade", label: "Privacidade e dados", icon: Lock },
+    ...(hasRole(user, "partner") ? [{ href: "/parceiro", label: "Portal do parceiro", icon: Store }] : []),
+    ...(hasRole(user, "admin") ? [{ href: "/admin", label: "Moderação", icon: ShieldCheck }] : []),
+  ];
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold md:text-3xl">Perfil</h1>
+      <h1 className="text-2xl font-bold md:text-3xl">Meu perfil</h1>
 
-      <Card className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <Avatar name={user.displayName} src={user.avatarUrl} />
-          <div className="min-w-0">
-            <CardTitle className="truncate">{user.displayName}</CardTitle>
-            <CardDescription className="truncate">{user.email}</CardDescription>
-          </div>
+      <Card className="flex flex-col items-center gap-3 overflow-hidden p-0 pb-5 text-center">
+        {/* Capa azul (no protótipo, ilustração da cidade) com a foto sobreposta. */}
+        <div
+          aria-hidden
+          className="h-24 w-full bg-brand [background-image:radial-gradient(circle_at_85%_20%,rgb(255_50_50/0.45),transparent_40%),radial-gradient(circle_at_10%_100%,rgb(255_255_255/0.2),transparent_45%)]"
+        />
+        <Avatar name={user.displayName} src={user.avatarUrl} size="lg" className="-mt-16 ring-4 ring-surface" />
+        <div className="flex min-w-0 max-w-full flex-col gap-0.5 px-4">
+          <CardTitle className="truncate text-xl">{user.displayName}</CardTitle>
+          <CardDescription className="truncate">{user.email}</CardDescription>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {hasRole(user, "partner") && (
-            <ButtonLink href="/parceiro" variant="secondary">
-              <Store aria-hidden className="size-4" /> Portal do parceiro
-            </ButtonLink>
-          )}
-          {hasRole(user, "admin") && (
-            <ButtonLink href="/admin" variant="secondary">
-              <ShieldCheck aria-hidden className="size-4" /> Moderação
-            </ButtonLink>
-          )}
-          <ButtonLink href="/perfil/mapa" variant="secondary">
-            <MapIcon aria-hidden className="size-4" /> Meu mapa
-          </ButtonLink>
-          <ButtonLink href="/perfil/favoritos" variant="secondary">
-            <Heart aria-hidden className="size-4" /> Meus favoritos
-          </ButtonLink>
-          <ButtonLink href="/perfil/editar" variant="secondary">
-            <Pencil aria-hidden className="size-4" /> Editar perfil
-          </ButtonLink>
-          <ButtonLink href="/perfil/privacidade" variant="secondary">
-            <Lock aria-hidden className="size-4" /> Privacidade e dados
-          </ButtonLink>
-          <LogoutButton />
-        </div>
+        <Badge variant="brand">
+          Nível {level.level} · {level.name}
+        </Badge>
+        <ButtonLink href="/perfil/editar" variant="secondary" size="sm">
+          <Pencil aria-hidden className="size-4" /> Editar perfil
+        </ButtonLink>
       </Card>
+
+      <nav aria-label="Atalhos do perfil">
+        <ul className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+          {shortcuts.map(({ href, label, icon: Icon }) => (
+            <li key={href}>
+              <Link
+                href={href}
+                className="flex h-full min-h-20 flex-col items-center justify-center gap-1.5 rounded-2xl border border-border bg-surface p-2 text-center text-xs font-semibold shadow-sm transition hover:border-brand"
+              >
+                <span className="flex size-9 items-center justify-center rounded-xl bg-surface-2 text-brand">
+                  <Icon aria-hidden className="size-5" />
+                </span>
+                {label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <div className="self-center">
+        <LogoutButton />
+      </div>
 
       <LevelCard overview={level} />
 
