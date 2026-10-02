@@ -16,6 +16,8 @@ export function RecommendationCard({ item }: { item: RecommendationItem }) {
               {recommendationKindLabel(item.kind)}
               {item.categoryLabel ? ` · ${item.categoryLabel}` : ""}
             </span>
+            {/* Destaque pago sempre sinalizado, mesmo quando outros motivos pesam mais. */}
+            {item.sponsored && <span className="text-xs font-semibold text-muted">Patrocinado</span>}
             <h3 className="text-base font-semibold leading-snug">{item.title}</h3>
           </div>
           {item.live ? <LiveBadge /> : item.priceLabel && <Badge>{item.priceLabel}</Badge>}

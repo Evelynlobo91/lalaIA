@@ -15,7 +15,8 @@ import { RealtimeFeed } from "./features/realtime-feed/realtime-feed.use-case";
 import { FindCandidates } from "./features/rec-candidates/rec-candidates.use-case";
 import { RecommendWithConstraints } from "./features/rec-constraints/rec-constraints.use-case";
 import { RecommendNow } from "./features/rec-score/rec-score.use-case";
-import { RecommendationEngine } from "./features/rec-score/recommendation-engine";
+import { sponsoredKeysNow } from "@/modules/partners";
+import { RecommendationEngine , type SponsoredReader } from "./features/rec-score/recommendation-engine";
 import { EventCandidateSource } from "./infra/event-candidate-source";
 import { MissionCandidateSource } from "./infra/mission-candidate-source";
 import { LiveStreamsStatus } from "./infra/live-streams-status";
@@ -51,7 +52,12 @@ const weights = lazy(() => {
 const tasteProfiles = lazy(() => new TasteProfileFromModules({ preferencesOf: (id) => userPreferences().preferencesOf(id), favoriteKeysOf }, log()));
 
 /** Motor determinístico (porta para o "ME SURPREENDA", #74). */
-export const recommendationEngine = lazy(() => new RecommendationEngine(findCandidates(), new LiveStreamsStatus(() => listActiveStreams()), new Ranker(defaultSignals, weights()), log()));
+// Destaques patrocinados (#29): pela API pública do módulo partners.
+const sponsored: SponsoredReader = { sponsoredNow: async () => new Set(await sponsoredKeysNow()) };
+
+export const recommendationEngine = lazy(
+  () => new RecommendationEngine(findCandidates(), new LiveStreamsStatus(() => listActiveStreams()), new Ranker(defaultSignals, weights()), log(), sponsored),
+);
 
 export const recommendNow = lazy(() => new RecommendNow(tasteProfiles(), recommendationEngine()));
 
