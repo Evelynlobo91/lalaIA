@@ -20,6 +20,10 @@ import { MissionCandidateSource } from "./infra/mission-candidate-source";
 import { NoLiveYet } from "./infra/no-live-yet";
 import { PlaceCandidateSource } from "./infra/place-candidate-source";
 import { TasteProfileFromModules } from "./infra/taste-profile-from-modules";
+import { SurpriseMe } from "./features/surprise-me/surprise-me.use-case";
+import { ClaudeItineraryPlanner } from "./infra/claude-itinerary-planner";
+import { LocalItineraryPlanner } from "./infra/local-itinerary-planner";
+import { claudePlannerConfig } from "./infra/planner-config";
 
 const log = lazy(() => logger().child({ module: "recommendation" }));
 
@@ -49,3 +53,9 @@ export const recommendNow = lazy(() => new RecommendNow(tasteProfiles(), recomme
 export const recommendWithConstraints = lazy(() => new RecommendWithConstraints(recommendNow()));
 
 export const realtimeFeed = lazy(() => new RealtimeFeed(recommendNow()));
+
+/** "ME SURPREENDA" (#74): Claude quando há `ANTHROPIC_API_KEY`; senão (ou se falhar), o motor local. */
+export const surpriseMe = lazy(() => {
+  const config = claudePlannerConfig();
+  return new SurpriseMe(tasteProfiles(), recommendationEngine(), config ? new ClaudeItineraryPlanner(config) : null, new LocalItineraryPlanner(), log());
+});
