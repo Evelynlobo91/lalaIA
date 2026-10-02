@@ -9,7 +9,7 @@ const POINTS = "live-points";
 const LABEL = "live-label";
 
 // Cores fixas (o canvas do mapa não lê variáveis CSS): vermelho do selo "Ao vivo", borda branca para contraste.
-const LIVE = "#d6204e";
+const LIVE = "#d62828";
 
 /**
  * Camada "lives" do mapa (RF20): marcador vermelho com o texto "AO VIVO" nos lugares/eventos transmitindo
