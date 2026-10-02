@@ -4,6 +4,10 @@ declare module "@/shared/events/domain-event" {
   interface DomainEventMap {
     "missions.StepCompleted": { userId: string; missionId: string; stepId: string; xp: number };
     "missions.MissionCompleted": { userId: string; missionId: string; xp: number };
+    /** Quem concluiu a missão resgatou a recompensa do parceiro (#62); só na primeira vez. */
+    "missions.RewardClaimed": { userId: string; missionId: string; claimId: string };
+    /** O parceiro validou o código da recompensa no balcão. `userId` é quem resgatou. */
+    "missions.RewardValidated": { userId: string; missionId: string; claimId: string; validatedBy: string };
   }
 }
 

@@ -117,8 +117,8 @@ minutos de validade). Para isso existe a etapa **QR + GPS** (#61, abaixo).
   o check-in de novo em N minutos"; o check-in seguinte, depois do tempo e ainda no raio, conclui a etapa. Um
   check-in **fora** do raio zera a contagem, e a chegada só vale por (permanência + 30 min). Regra pura `dwellStatus`.
 - **Recompensa real (issue):** GPS é falsificável no celular. `allowsRealReward(mission)` (exportada) só é verdadeira
-  quando **toda** etapa exige o QR (`qr` ou `qr_gps`). A recompensa de parceiro (#62) deve usá-la ao vincular um prêmio;
-  o formulário avisa que etapa só por GPS vale XP, não prêmio.
+  quando **toda** etapa exige o QR (`qr` ou `qr_gps`). A recompensa de parceiro (#62, abaixo) a usa ao vincular um
+  prêmio e no resgate; o formulário avisa que etapa só por GPS vale XP, não prêmio.
 
 ### Anti-fraude e privacidade do check-in
 
@@ -147,6 +147,7 @@ No CI de E2E é gerada aleatoriamente a cada execução.
 
 - `missions.StepCompleted { userId, missionId, stepId, xp }`: XP da etapa.
 - `missions.MissionCompleted { userId, missionId, xp }`: bônus de conclusão (só na primeira vez).
+- `missions.RewardClaimed` / `missions.RewardValidated`: recompensa do parceiro (#62, abaixo).
 
 Publicados **depois** de gravar. Missões não concedem XP: quem credita é o módulo `progression`.
 
@@ -191,6 +192,69 @@ Publicados **depois** de gravar. Missões não concedem XP: quem credita é o m�
 - O ranking ("Missões para você", em `/missoes` e `/sugestoes`) mora no módulo `recommendation`: veja
   [recomendação](recommendation.md#missões-para-você-64-rf27). Missões não têm categoria própria: ela é derivada dos
   lugares das etapas pela API pública de places.
+
+## Recompensa do parceiro (#62, RF36)
+
+```
+Portal /parceiro/missoes ─► "Recompensa" ─► descrição ("1 chope grátis") + estoque opcional
+   (só se allowsRealReward: TODA etapa por QR; senão a tela explica por quê)
+/missoes/<id> ─► card "Recompensa" (incentivo) ─► conclui a missão ─► "Resgatar recompensa" ─► código ABCD-EFGH
+   ─► também em "Minhas recompensas" (/perfil) ─► no balcão, o parceiro digita o código na página da recompensa da missão
+```
+
+- **Vincular:** uma recompensa por missão (`missions.mission_rewards`, chave = `mission_id`): descrição (3 a 120
+  caracteres) e estoque total opcional (1 a 100.000; vazio = sem limite). Só o **parceiro dono** da missão (caso de uso
+  `SaveMissionReward` + RLS `missions.is_reward_owner`, que exige o papel `partner`), só em missão ativa e só se
+  `allowsRealReward(mission)`: etapa só por GPS é falsificável no celular e vale XP, nunca prêmio. A tela explica isso no
+  lugar do formulário. **Edição livre até o primeiro resgate**; depois, caso de uso + trigger `lock_reward_after_claim`
+  recusam (quem resgatou fica com o prêmio que viu).
+- **Direito à recompensa = missão concluída.** Não há assinatura de `MissionCompleted` nem linha criada na conclusão:
+  o direito é **derivado** de `user_missions.status = 'completed'` (a mesma fonte do progresso), conferido no caso de
+  uso (`ClaimMissionReward`) e de novo na RLS do insert em `reward_claims`. Assim não depende do bus in-process (um
+  evento perdido não tira o prêmio de ninguém) e `CompleteStep` não muda.
+- **Resgatar** gera um código curto com o **mesmo alfabeto das ofertas** (`shared/kernel/short-code.ts`, agora usado
+  pelos dois módulos): 8 símbolos sem 0/O, 1/I/L, `unique` no banco (colisão → sorteia outro).
+- **Esgotou** → "As recompensas desta missão esgotaram. Sua missão continua concluída, com o XP." (o resgate é outra
+  tabela: a missão e o XP não são tocados).
+- **Validar no balcão:** seção "Validar código da recompensa" na página `/parceiro/missoes/<id>/recompensa` (link
+  "Recompensa" em cada missão do portal, também nas encerradas: código emitido continua valendo). Vale uma vez; grava
+  quem validou e quando.
+- **Por que não reusar o `StepValidator`** (sugestão da issue): ele prova a **presença do explorador** numa etapa, com
+  QR assinado pelo parceiro e lido pelo celular da pessoa. Na recompensa a prova vai no sentido contrário: o **parceiro**
+  precisa confirmar, no balcão, que entregou o prêmio a quem tem direito, e registrar isso. Isso é o fluxo de código +
+  validação das ofertas, que os parceiros já conhecem. A presença já foi provada pelo QR das etapas, que é justamente o que
+  `allowsRealReward` exige.
+
+### Garantias
+
+| Regra | Como |
+|-------|------|
+| Só missão com todas as etapas por QR | `allowsRealReward` no caso de uso **e** `missions.allows_real_reward()` na RLS do insert/update da recompensa **e** do insert do resgate. Se o dono trocar uma etapa para GPS antes do primeiro aceite (as etapas travam depois), a recompensa fica **suspensa**: some da tela da missão e ninguém resgata |
+| Só quem concluiu, uma vez por pessoa, idempotente | RLS do insert exige `user_missions.status = 'completed'` da própria pessoa; `unique (mission_id, user_id)` + `on conflict do nothing`; resgatar de novo devolve o mesmo código e **não publica evento** |
+| Estoque sob concorrência | Trigger `AFTER INSERT` (`count_reward_claim`, security definer) faz `update ... set claimed_count = claimed_count + 1 where claimed_count < stock`: o lock na linha da recompensa serializa os resgates; sem linha atualizada → erro `LARSG` e o resgate é desfeito. `check (claimed_count <= stock)` como rede de segurança. Teste de integração com 12 resgates simultâneos e estoque 5 |
+| Contador e dono imutáveis | Column grants: `claimed_count` fora de insert/update; resgate só insere `mission_id, user_id, code` |
+| Validar: só o dono da missão, só nesta missão, uma vez | `findForOwner` filtra pela missão e roda com `asUser` (RLS: dono com papel `partner`); `update ... where validated_at is null`; política de UPDATE só em `validated_at`/`validated_by`, com `validated_by = auth.uid()` |
+| Não vazar códigos | Código de outra missão (do mesmo parceiro ou de outro) e código inexistente recebem a mesma resposta: **"Código inválido."** |
+| IDOR / CSRF | Server Actions (POST) com `withUser`/`withRole("partner")`: os ids vêm da sessão; o portal dá 404 para missão alheia |
+
+### Eventos e analytics
+
+- `missions.RewardClaimed { userId, missionId, claimId }` (só no primeiro resgate).
+- `missions.RewardValidated { userId, missionId, claimId, validatedBy }`.
+- **A validação não vira `checkin` no analytics** (diferente das ofertas): a visita ao lugar já foi registrada pelo
+  `missions.StepCompleted` da etapa (QR no balcão), e contar de novo inflaria os check-ins da missão. Os eventos ficam
+  disponíveis para notificações ou métricas futuras.
+
+### LGPD
+
+- Exportação: `recompensasDeMissoes` (código, prêmio, missão, datas de resgate e de uso), via `myRewards`.
+- Exclusão da conta: resgates saem em **cascata** (`user_id ... on delete cascade`). Se o parceiro excluir a conta, as
+  missões dele saem e levam recompensas e códigos emitidos. Se quem validou excluir a conta, `validated_by` vira `null`.
+
+### API pública
+
+`MissionRewardCard`, `MyRewardsCard`, `RewardForm`, `ValidateRewardCodeForm`, `REWARD_MESSAGES`,
+`missionReward(userId, missionId)`, `myRewards(userId)`, `partnerRewardPanel(owner, missionId)`.
 
 ## Livro-razão de XP (#65, RF31) — módulo `progression`
 

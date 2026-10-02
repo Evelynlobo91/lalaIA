@@ -1,7 +1,24 @@
 // API pública do módulo missions (missões urbanas).
 import { cache } from "react";
 import { toLocalInput } from "@/shared/time/joinville-time";
-import { geofenceAttempts, getMissionProgress, listAvailableMissions, offerSurpriseMission, missionExploration, listMyMissions, missionPlaces, missionRepository, qrStepValidation, stepQrCodes, userMissionRepository } from "./composition";
+import {
+  geofenceAttempts,
+  getMissionProgress,
+  getMissionReward,
+  getPartnerRewardPanel,
+  listAvailableMissions,
+  offerSurpriseMission,
+  missionExploration,
+  listMyMissions,
+  missionPlaces,
+  missionRepository,
+  qrStepValidation,
+  rewardClaimRepository,
+  stepQrCodes,
+  userMissionRepository,
+} from "./composition";
+import type { RewardFormValues } from "./features/rewards/ui/reward-form";
+import type { PartnerRewardPanel as PartnerRewardPanelData } from "./features/rewards/rewards.use-case";
 import { qrModeSchema, qrTokenSchema } from "./features/qr-validation/qr-validation.schema";
 import "./domain/events";
 import { missionIdSchema } from "./features/mission-progress/mission-progress.schema";
@@ -33,6 +50,13 @@ export { QR_ROTATION_SECONDS } from "./domain/step-validation";
 export type { MissionQrCodes, QrMode } from "./features/qr-validation/step-qr-codes.use-case";
 export type { StepCheck, StepCompleted } from "./features/qr-validation/complete-step.use-case";
 export type { MissionExploration } from "./features/exploration/exploration";
+// Recompensa do parceiro (#62).
+export { MissionRewardCard } from "./features/rewards/ui/mission-reward-card";
+export { MyRewardsCard } from "./features/rewards/ui/my-rewards-card";
+export { RewardForm, type RewardFormValues } from "./features/rewards/ui/reward-form";
+export { ValidateRewardCodeForm } from "./features/rewards/ui/validate-reward-code-form";
+export { REWARD_MESSAGES, type MissionRewardView, type PartnerRewardPanel, type RewardState } from "./features/rewards/rewards.use-case";
+export type { MissionReward, MyRewardClaim } from "./domain/reward";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -153,6 +177,29 @@ export async function editableMission(editor: { id: string; isAdmin: boolean }, 
       })),
     },
   };
+}
+
+/**
+ * Recompensa na tela da missão (#62): incentivo, botão de resgate ou o código já resgatado.
+ * null se a missão não tem recompensa (ou deixou de dar prêmio real). O id vem sempre da sessão.
+ */
+export async function missionReward(userId: string | null, missionId: string) {
+  if (!UUID.test(missionId)) return null;
+  return getMissionReward().execute(userId, missionId);
+}
+
+/** "Minhas recompensas" (perfil e exportação LGPD): códigos, prêmio, missão e datas. O id vem sempre da sessão. */
+export function myRewards(userId: string) {
+  return rewardClaimRepository().listMine(userId);
+}
+
+/** Portal (/parceiro/missoes/<id>/recompensa): só o parceiro dono; null para os demais. */
+export async function partnerRewardPanel(owner: { id: string; isPartner: boolean }, missionId: string): Promise<(PartnerRewardPanelData & { values?: RewardFormValues }) | null> {
+  if (!UUID.test(missionId)) return null;
+  const panel = await getPartnerRewardPanel().execute(owner, missionId);
+  if (!panel) return null;
+  const values = panel.reward ? { description: panel.reward.description, stock: panel.reward.stock == null ? "" : String(panel.reward.stock) } : undefined;
+  return { ...panel, values };
 }
 
 /** "25 XP por etapa + 25 XP de bônus" (para telas). */

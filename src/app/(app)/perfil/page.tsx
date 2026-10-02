@@ -1,7 +1,7 @@
 import { Heart, Lock, Map as MapIcon, Pencil, ShieldCheck, Store } from "lucide-react";
 import type { Metadata } from "next";
 import { LogoutButton, budgetOptions, groupSizes, hasRole, requireUser, userPreferences } from "@/modules/identity";
-import { ActiveMissionsCard, myMissions } from "@/modules/missions";
+import { ActiveMissionsCard, MyRewardsCard, myMissions, myRewards } from "@/modules/missions";
 import { MyRedemptionsCard, myRedemptions } from "@/modules/partners";
 import { AchievementsCard, ExplorerProfileCard, LevelCard, XpCard, achievementsOf, explorerProfileOf, levelOverviewOf, xpOverviewOf } from "@/modules/progression";
 import { categories } from "@/shared/catalog/categories";
@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Perfil" };
 
 export default async function PerfilPage() {
   const user = await requireUser("/perfil");
-  const [prefs, missions, xp, level, achievements, explorer, redemptions] = await Promise.all([
+  const [prefs, missions, xp, level, achievements, explorer, redemptions, rewards] = await Promise.all([
     userPreferences().preferencesOf(user.id),
     myMissions(user.id),
     xpOverviewOf(user.id),
@@ -19,6 +19,7 @@ export default async function PerfilPage() {
     achievementsOf(user.id),
     explorerProfileOf(user.id),
     myRedemptions(user.id),
+    myRewards(user.id),
   ]);
 
   const labels = prefs.categories.map((id) => categories.find((c) => c.id === id)?.label ?? id);
@@ -73,6 +74,8 @@ export default async function PerfilPage() {
       <AchievementsCard overview={achievements} />
 
       <ActiveMissionsCard missions={missions} />
+
+      <MyRewardsCard items={rewards} />
 
       <MyRedemptionsCard items={redemptions} />
 
