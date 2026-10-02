@@ -11,6 +11,8 @@ import { listChatReports, reportChatMessage } from "./composition";
 import { reportChatMessageRoute } from "./features/report-chat-message/report-chat-message.route";
 import { getAgentStatus, recordAgentHeartbeat } from "./composition";
 import { agentHeartbeatRoute } from "./features/privacy-heartbeat/privacy-heartbeat.route";
+import { checkScaleAlerts, getLiveLoad } from "./composition";
+import { scaleCheckRoute } from "./features/scale/scale.route";
 import type { AgentStatusView } from "./features/privacy-heartbeat/privacy-heartbeat.use-case";
 import type { ReportModerator } from "./features/report-chat-message/report-chat-message.use-case";
 import { liveLikeRoute, messageLikeRoute, myLikesRoute, pulseRoute, reactionsRoute } from "./features/react-to-live/reactions.route";
@@ -156,6 +158,15 @@ export async function liveViewersNow(user: CurrentUser): Promise<Record<string, 
   }
 }
 
+// Dimensionamento (#56).
+export { LiveLoadCard } from "./features/scale/ui/live-load-card";
+export type { LiveLoad } from "./features/scale/scale.use-case";
+
+/** Backoffice: carga das lives agora, consumo do mês e alertas. Quem chama confere a capacidade. */
+export function liveLoad() {
+  return getLiveLoad().execute();
+}
+
 // Agente de borrão de rostos (#198).
 export { AgentStatusLine } from "./features/privacy-heartbeat/ui/agent-status-line";
 export type { AgentStatusView, PrivacyStatus } from "./features/privacy-heartbeat/privacy-heartbeat.use-case";
@@ -260,6 +271,8 @@ export const liveApi = {
   messageLike: messageLikeRoute(toggleMessageLike),
   /** POST /api/live/chat/moderation — apagar, fixar, silenciar e banir (anfitrião, moderação; o autor apaga a própria). */
   chatModeration: moderateChatRoute(moderateChatMessage),
+  /** POST /api/live/scale/check — checagem agendada dos alertas de consumo (Bearer = CRON_SECRET). */
+  scaleCheck: scaleCheckRoute(checkScaleAlerts, () => process.env.CRON_SECRET),
   /** POST /api/live/agent/heartbeat — heartbeat do agente de borrão (Bearer = chave de transmissão). */
   agentHeartbeat: agentHeartbeatRoute(recordAgentHeartbeat),
   /** POST /api/live/chat/reports — denunciar uma mensagem (só logado). */

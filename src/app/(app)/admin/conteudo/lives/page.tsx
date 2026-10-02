@@ -2,7 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireCapability } from "@/modules/identity";
-import { AgentStatusLine, livePrivacyOverview } from "@/modules/live";
+import { AgentStatusLine, LiveLoadCard, liveLoad, livePrivacyOverview } from "@/modules/live";
 import { Badge, Card } from "@/shared/ui";
 
 export const metadata: Metadata = { title: "Lives no ar · Backoffice", robots: { index: false } };
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminLivesPage() {
   await requireCapability("content:edit", "/admin/conteudo/lives");
-  const lives = await livePrivacyOverview();
+  const [lives, load] = await Promise.all([livePrivacyOverview(), liveLoad()]);
   const unprotected = lives.filter((l) => l.agent.status !== "protected").length;
 
   return (
@@ -24,6 +24,7 @@ export default async function AdminLivesPage() {
           Transmissões ao vivo agora e a situação do agente que desfoca os rostos antes de o vídeo sair do local. {lives.length > 0 && `${unprotected} de ${lives.length} sem a proteção automática.`}
         </p>
       </header>
+      <LiveLoadCard load={load} />
       {lives.length === 0 ? (
         <p className="text-muted">Nenhuma live no ar.</p>
       ) : (

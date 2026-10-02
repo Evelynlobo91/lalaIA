@@ -436,3 +436,46 @@ do chat não entram na trilha de auditoria do backoffice; a moderação da plata
 Limitações do chat como um todo (#95): atualização por polling (2,5 s no chat, 5 s no pulso), não em 1 s; o teste
 de carga com 200 espectadores fica com o #56; sem XP por participar do chat; os eventos `live_chat_message`,
 `live_like` e `live_reaction` não vão para o Analytics (os totais ficam nas tabelas da live).
+
+## Dimensionamento para espectadores simultâneos (#56)
+
+Duas cargas diferentes: o **vídeo**, que sai do CDN do provedor (Mux) e não passa pela plataforma, e as
+**consultas da página** (status a cada 12 s, chat a cada 2,5 s, pulso a cada 5 s), que batem na aplicação e no
+banco. Cada espectador com a aba visível gera ~0,68 requisição por segundo.
+
+### Teste de carga da aplicação
+
+`npm run load:live -- --setup --viewers 200 --seconds 60 --base http://localhost:3000` simula espectadores fazendo
+o que a tela faz e mede latência e erros (`scripts/load/live-audience.mjs`). `--setup` cria uma live de teste com
+50 mensagens no chat e apaga no fim — **nunca use contra o banco de produção**; para um ambiente real, passe
+`--stream` e `--entity` de uma live existente.
+
+Resultado de 2026-10-02, build de produção (`next start`), uma instância, Supabase local em Docker, tudo no mesmo
+notebook de desenvolvimento:
+
+| Espectadores | req/s | Erros | p50 | p95 | p99 | Leitura |
+| --- | --- | --- | --- | --- | --- | --- |
+| 200 por 60 s | 136 | 0 | 10–13 ms | 32–34 ms | 275–459 ms | folgado: é a meta do chat (#95) |
+| 500 por 40 s | 331 | 0 | ~2,1 s | ~2,7 s | 2,7–4,3 s | saturado: responde tudo, mas com segundos de atraso |
+
+Nos dois casos a plataforma contou exatamente os espectadores simulados. Entre 200 e 500 a aplicação satura numa
+instância só; a causa (CPU do notebook, tamanho do pool de conexões ou o banco) **não foi investigada**. Antes de
+passar de ~200 simultâneos em produção: repetir o teste no ambiente hospedado, e trocar o polling por Supabase
+Realtime (o chat responde por 58% das requisições).
+
+**Não testado aqui: o vídeo.** O teste de carga do player/CDN depende de uma conta Mux real (o provedor simulado
+não entrega vídeo). Com a conta: uma live de teste, espectadores sintéticos abrindo o HLS, e conferir no painel
+do Mux a taxa de rebuffering e os minutos entregues.
+
+### Alertas de consumo
+
+- **Amostra por minuto**: `live.sample_audience()` (pg_cron, a cada minuto) guarda quantas abas assistiam a cada
+  live (`live.audience_samples`, 90 dias). Daí saem os **minutos de vídeo entregues no mês** (a unidade em que o
+  provedor cobra) e o **pico** de audiência.
+- **Limites** (ambiente; vazio ou 0 = sem alerta): `LIVE_MAX_CONCURRENT_VIEWERS` e
+  `LIVE_MONTHLY_VIEWER_MINUTES_BUDGET`. A partir de 80% vira "perto do limite"; 100% ou mais, "acima do limite".
+- **Onde aparecem**: no backoffice, em Conteúdo → "Lives no ar" (carga agora, estimativa de req/s, pico e minutos
+  do mês, com os alertas). E em `POST /api/live/scale/check` (`Authorization: Bearer <CRON_SECRET>`), para o
+  agendador chamar a cada 5 min: cada alerta vai para o log e o crítico vai para o monitoramento de erros.
+- Os minutos são uma **estimativa pela presença** (abas com a página aberta), não a fatura do Mux: servem para
+  avisar cedo. O alerta de cobrança do próprio Mux deve ser ligado no painel dele quando a conta existir.
