@@ -1,8 +1,13 @@
 // API pública do módulo partners.
 import type { CurrentUser } from "@/modules/identity";
+import type { ModuleSubscriptions } from "@/shared/events";
 import { can } from "@/modules/identity";
 import {
   activatePartnerUseCase,
+  canSponsor,
+  endSponsorshipsWithoutPlan,
+  listMySponsorships,
+  sponsorshipRepository,
   approvedPartnerIdOf,
   listActivePartners,
   listApplications,
@@ -106,3 +111,28 @@ import type { PartnerActivation } from "./features/activate-partner/activate-par
 export function activatePartner(input: PartnerActivation) {
   return activatePartnerUseCase().execute(input);
 }
+
+// Destaque patrocinado (#29).
+export { EndSponsorshipButton, StartSponsorshipForm } from "./features/visibility/ui/sponsorship-forms";
+export { MAX_ACTIVE_SPONSORSHIPS, type SponsorshipItem } from "./features/visibility/visibility.use-cases";
+
+/** Destaques do parceiro logado e se o plano dele libera o destaque. */
+export async function mySponsorships({ user, partner }: PartnerSession) {
+  const [items, entitled] = await Promise.all([listMySponsorships().execute({ userId: user.id, partnerId: partner.id }), canSponsor(user.id)]);
+  return { items, entitled };
+}
+
+/** Lugares e eventos com destaque valendo agora, como chaves `place:<id>` / `event:<id>` (para a Recomendação). */
+export function sponsoredKeysNow(): Promise<string[]> {
+  return sponsorshipRepository().activeKeys(new Date());
+}
+
+/**
+ * Reações a eventos de outros módulos (registradas no boot, em src/bootstrap).
+ * Assinatura suspensa → se a conta perdeu o direito ao destaque, os destaques dela são encerrados.
+ */
+export const subscriptions: ModuleSubscriptions = (bus) => {
+  bus.subscribe("billing.SubscriptionSuspended", async (event) => {
+    await endSponsorshipsWithoutPlan().execute(event.payload.ownerId);
+  });
+};

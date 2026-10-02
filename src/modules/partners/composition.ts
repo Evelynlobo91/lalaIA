@@ -1,4 +1,5 @@
 // Composição do módulo (injeção de dependências). Interno: usado pelas actions e pelo index.ts.
+import { hasPlanFeature } from "@/modules/billing";
 import { usersByIds } from "@/modules/identity";
 import { domainEvents } from "@/shared/events";
 import { sql } from "@/shared/db/sql";
@@ -27,6 +28,8 @@ import { ListPartnerOffers } from "./features/manage-offers/partner-offers";
 import { RedeemOffer } from "./features/redeem-offer/redeem-offer.use-case";
 import { MyRedemptions, OffersForTarget } from "./features/redeem-offer/offer-views";
 import { ValidateOfferCode } from "./features/validate-code/validate-code.use-case";
+import { EndSponsorship, EndSponsorshipsWithoutPlan, ListMySponsorships, StartSponsorship, type VisibilityEntitlement } from "./features/visibility/visibility.use-cases";
+import { PostgresSponsorshipRepository } from "./infra/postgres-sponsorship-repository";
 
 export const partnerRepository = lazy(() => new PostgresPartnerRepository(sql(), usersByIds));
 export const partnerCountsReader = lazy(() => new PostgresPartnerCounts(sql()));
@@ -65,3 +68,11 @@ export const offersForTarget = lazy(() => new OffersForTarget(offerRepository(),
 export const myRedemptionsUseCase = lazy(() => new MyRedemptions(redemptionRepository(), targets()));
 export const validateOfferCode = lazy(() => new ValidateOfferCode(redemptionRepository(), domainEvents()));
 export const offerTargetOptions = (userId: string) => targets().ownedBy(userId);
+
+// Destaque patrocinado (#29). O direito vem do plano, pela porta pública do módulo billing.
+export const canSponsor: VisibilityEntitlement = (ownerId) => hasPlanFeature(ownerId, "destaque");
+export const sponsorshipRepository = lazy(() => new PostgresSponsorshipRepository(sql()));
+export const startSponsorship = lazy(() => new StartSponsorship(sponsorshipRepository(), targets(), canSponsor));
+export const endSponsorship = lazy(() => new EndSponsorship(sponsorshipRepository()));
+export const listMySponsorships = lazy(() => new ListMySponsorships(sponsorshipRepository(), targets()));
+export const endSponsorshipsWithoutPlan = lazy(() => new EndSponsorshipsWithoutPlan(sponsorshipRepository(), canSponsor));

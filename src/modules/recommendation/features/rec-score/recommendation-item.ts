@@ -23,6 +23,8 @@ export type RecommendationItem = {
   distanceLabel: string | null;
   priceLabel: string | null;
   live: boolean;
+  /** Destaque pago pelo parceiro (#29): a tela sinaliza como "Patrocinado". */
+  sponsored: boolean;
   score: number;
   /** Do motivo que mais pesou para o que menos: "Porque você curte Shows e música". */
   reasons: string[];
@@ -64,6 +66,7 @@ export function toRecommendationItem({ candidate: c, score, reasons }: Recommend
     priceLabel,
     live: reasons.some((r) => r.signal === "live"),
     score,
-    reasons: reasons.map((r) => r.text),
+    sponsored: reasons.some((r) => r.signal === "sponsored"),
+    reasons: reasons.filter((r) => r.signal !== "sponsored").map((r) => r.text),
   };
 }

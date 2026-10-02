@@ -8,6 +8,8 @@ export type ScoreContext = {
   profile: TasteProfile;
   /** Chaves `kind:id` com live ativa agora. */
   liveKeys: ReadonlySet<string>;
+  /** Chaves `kind:id` com destaque patrocinado valendo agora (#29). */
+  sponsoredKeys?: ReadonlySet<string>;
 };
 
 /** Resultado de um sinal: força de 0 a 1 e o porquê, em português, para a pessoa. */

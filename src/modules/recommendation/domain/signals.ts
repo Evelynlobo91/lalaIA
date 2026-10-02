@@ -45,6 +45,18 @@ export class LiveSignal implements ScoreSignal {
   }
 }
 
+/** Rótulo do destaque pago: é assim que o item patrocinado é sinalizado para a pessoa. */
+export const SPONSORED_LABEL = "Patrocinado";
+
+/** Destaque patrocinado pelo parceiro (#29): entra no score como um sinal próprio, nunca disfarçado de outro motivo. */
+export class SponsoredSignal implements ScoreSignal {
+  readonly id = "sponsored";
+
+  evaluate(c: Candidate, { sponsoredKeys }: ScoreContext): SignalHit | null {
+    return sponsoredKeys?.has(candidateKey(c)) ? { strength: 1, reason: SPONSORED_LABEL } : null;
+  }
+}
+
 /** Dias em que algo continua sendo "novidade" (a força cai linearmente até zero). */
 export const NOVELTY_DAYS = 14;
 
@@ -116,4 +128,5 @@ export const defaultSignals: readonly ScoreSignal[] = [
   new FavoriteSignal(),
   new ProximitySignal(),
   new MissionFitSignal(),
+  new SponsoredSignal(),
 ];

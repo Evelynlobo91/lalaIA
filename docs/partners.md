@@ -126,3 +126,17 @@ Portal /parceiro/ofertas → "Nova oferta" (lugar que gerencia ou evento que cri
   (auditoria, notificações).
 - **Limitações:** quem já tinha aceitado uma missão continua vendo o progresso dela; códigos de oferta já
   emitidos continuam no perfil de quem resgatou.
+
+## Destaque patrocinado (#29)
+
+- Em `/parceiro/destaque`, o parceiro destaca um **lugar que gerencia** ou um **evento seu** por 7, 15 ou 30 dias,
+  com até 3 destaques ao mesmo tempo, e pode encerrar antes do fim.
+- **O direito vem do plano:** o recurso `destaque` (módulo billing, consultado por `hasPlanFeature`). Não há cobrança
+  avulsa por destaque. Sem o recurso, a tela explica e leva a `/parceiro/assinatura`.
+- **Na recomendação**, o destaque é um sinal de score próprio (`sponsored`, peso 2, ajustável em
+  `RECOMMENDATION_WEIGHTS`) e o item é sempre sinalizado como **“Patrocinado”** no card, separado dos motivos
+  ("Por que sugerimos"). Ele ajuda no ranking, mas não passa por cima de tudo.
+- A recomendação lê os destaques pela API pública `sponsoredKeysNow()`; destaques de parceiro suspenso ficam de fora.
+- Se a assinatura for suspensa e a conta perder o direito ao destaque, os destaques dela são encerrados (o módulo
+  assina `billing.SubscriptionSuspended`).
+- Um alvo tem no máximo um destaque ativo (índice único), e o período máximo é garantido também pelo banco.
