@@ -9,7 +9,7 @@ test.describe("destaque patrocinado (#29)", () => {
   });
 
   test("plano sem destaque leva aos planos; com o Pro pago, o parceiro destaca o próprio lugar e encerra", async ({ page }) => {
-    const lugar = `Bar em Destaque ${Date.now()}`;
+    const lugar = `Bar e Restaurante em Destaque do Centro ${Date.now()}`;
     const dono = await createConfirmedUser("Dona do Destaque");
     await createApprovedPartner(dono, "Bar do Destaque");
     const placeId = await createTestPlace(lugar, isolatedPoint());
@@ -35,6 +35,8 @@ test.describe("destaque patrocinado (#29)", () => {
     // Agora destaca o próprio lugar por 15 dias.
     await page.goto("/parceiro/destaque");
     const form = page.getByRole("form", { name: "Novo destaque" });
+    // Nome comprido no seletor não alarga a página no celular.
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
     await form.locator('select[name="target"]').selectOption({ label: `Lugar: ${lugar}` });
     await form.locator('select[name="days"]').selectOption("15");
     await form.getByRole("button", { name: "Destacar" }).click();

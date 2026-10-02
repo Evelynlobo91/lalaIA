@@ -6,7 +6,7 @@ import { Button, FormAlert } from "@/shared/ui";
 import { endSponsorshipAction, startSponsorshipAction } from "../visibility.actions";
 import { sponsorshipDays, type Sponsorship } from "../visibility.use-cases";
 
-const selectClass = "h-12 rounded-xl border border-border bg-surface px-3 text-base font-normal";
+const selectClass = "h-12 w-full min-w-0 rounded-xl border border-border bg-surface px-3 text-base font-normal";
 
 /** Contratar um destaque (#29): o que destacar (lugar ou evento do parceiro) e por quantos dias. */
 export function StartSponsorshipForm({ targets }: { targets: Array<{ value: string; label: string }> }) {
@@ -19,7 +19,7 @@ export function StartSponsorshipForm({ targets }: { targets: Array<{ value: stri
       {state.status === "error" && state.message && <FormAlert>{state.message}</FormAlert>}
       {state.status === "success" && <FormAlert variant="success">Destaque no ar. Ele aparece como “Patrocinado” nas sugestões.</FormAlert>}
       <div className="grid gap-4 sm:grid-cols-[1fr_12rem]">
-        <label className="flex flex-col gap-1.5 text-sm font-medium">
+        <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium">
           O que destacar
           {/* `key`: depois de um erro o React restaura os campos; o select só reaplica o valor se for remontado. */}
           <select key={values.target ?? ""} name="target" required defaultValue={values.target ?? ""} className={selectClass}>
@@ -34,7 +34,7 @@ export function StartSponsorshipForm({ targets }: { targets: Array<{ value: stri
           </select>
           {errors.target && <span className="text-sm font-normal text-danger">{errors.target[0]}</span>}
         </label>
-        <label className="flex flex-col gap-1.5 text-sm font-medium">
+        <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium">
           Por quanto tempo
           <select key={values.days ?? ""} name="days" required defaultValue={values.days ?? String(sponsorshipDays[0])} className={selectClass}>
             {sponsorshipDays.map((days) => (
