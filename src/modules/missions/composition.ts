@@ -38,8 +38,8 @@ export const missionRepository = lazy(() => new PostgresMissionRepository(sql())
 export const userMissionRepository = lazy(() => new PostgresUserMissionRepository(sql()));
 export const stepCompletionRepository = lazy(() => new PostgresStepCompletionRepository(sql()));
 
-export const saveMission = lazy(() => new SaveMission(missionRepository(), missionPlaces, userMissionRepository()));
-export const archiveMission = lazy(() => new ArchiveMission(missionRepository()));
+export const saveMission = lazy(() => new SaveMission(missionRepository(), missionPlaces, userMissionRepository(), undefined, domainEvents()));
+export const archiveMission = lazy(() => new ArchiveMission(missionRepository(), domainEvents()));
 export const listMissionsForAdmin = lazy(() => new ListMissionsForAdmin(missionRepository()));
 
 export const acceptMission = lazy(() => new AcceptMission({ findById: (id) => missionRepository().findVisibleById(id) }, userMissionRepository()));

@@ -8,6 +8,9 @@ declare module "@/shared/events/domain-event" {
     "missions.RewardClaimed": { userId: string; missionId: string; claimId: string };
     /** O parceiro validou o código da recompensa no balcão. `userId` é quem resgatou. */
     "missions.RewardValidated": { userId: string; missionId: string; claimId: string; validatedBy: string };
+    /** Admin editou ou encerrou a missão de outra pessoa (auditoria, #146). */
+    "missions.MissionEditedByAdmin": { missionId: string; editedBy: string };
+    "missions.MissionArchivedByAdmin": { missionId: string; archivedBy: string };
   }
 }
 

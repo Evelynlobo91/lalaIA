@@ -38,19 +38,23 @@ export class ApprovePartner {
     if (!approved) return err(new NotFoundError("Cadastro de parceiro"));
 
     await this.roles.grantPartner(approved.ownerId, reviewer.id);
-    await this.events.publish("partners.PartnerApproved", { partnerId: approved.id, userId: approved.ownerId });
+    await this.events.publish("partners.PartnerApproved", { partnerId: approved.id, userId: approved.ownerId, approvedBy: reviewer.id });
     return ok(approved);
   }
 }
 
 /** Recusa com motivo obrigatório; a pessoa pode corrigir e reenviar. */
 export class RejectPartner {
-  constructor(private readonly partners: PartnerRepository) {}
+  constructor(
+    private readonly partners: PartnerRepository,
+    private readonly events: DomainEventPublisher,
+  ) {}
 
   async execute(reviewer: Reviewer, partnerId: string, reason: string): Promise<Result<PartnerApplication, DomainError>> {
     if (!reviewer.isAdmin) return err(new ForbiddenError());
     const rejected = await this.partners.review(reviewer.id, partnerId, { status: "rejected", reason });
     if (!rejected) return err(new NotFoundError("Cadastro de parceiro"));
+    await this.events.publish("partners.PartnerRejected", { partnerId: rejected.id, userId: rejected.ownerId, rejectedBy: reviewer.id });
     return ok(rejected);
   }
 }

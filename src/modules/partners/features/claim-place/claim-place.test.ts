@@ -42,7 +42,7 @@ describe("ApprovePlaceClaim / RejectPlaceClaim", () => {
     const events = { publish: vi.fn().mockResolvedValue(undefined) };
     const res = await new ApprovePlaceClaim(repo(), events).execute(admin, "c1");
     expect(res.ok).toBe(true);
-    expect(events.publish).toHaveBeenCalledWith("partners.PlaceClaimApproved", { claimId: "c1", placeId: "lugar", userId: "dono" });
+    expect(events.publish).toHaveBeenCalledWith("partners.PlaceClaimApproved", { claimId: "c1", placeId: "lugar", userId: "dono", approvedBy: "admin" });
   });
 
   it("segundo dono para o mesmo lugar (índice único) vira conflito, sem evento", async () => {
@@ -55,7 +55,7 @@ describe("ApprovePlaceClaim / RejectPlaceClaim", () => {
   it("quem não é admin não revisa", async () => {
     const claims = repo();
     expect((await new ApprovePlaceClaim(claims, { publish: vi.fn() }).execute({ id: "x", isAdmin: false }, "c1")).ok).toBe(false);
-    expect((await new RejectPlaceClaim(claims).execute({ id: "x", isAdmin: false }, "c1", "motivo")).ok).toBe(false);
+    expect((await new RejectPlaceClaim(claims, { publish: vi.fn() }).execute({ id: "x", isAdmin: false }, "c1", "motivo")).ok).toBe(false);
     expect(claims.review).not.toHaveBeenCalled();
   });
 });

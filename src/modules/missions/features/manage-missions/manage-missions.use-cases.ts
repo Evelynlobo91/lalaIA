@@ -2,6 +2,8 @@ import { BusinessRuleError, ForbiddenError, NotFoundError, ValidationError, err,
 import { geofenceFor } from "../../domain/geofence";
 import type { MissionDraft, MissionPlaces, MissionRecord, MissionRepository, StepGeofence } from "../../domain/mission";
 import type { MissionParticipation } from "../../domain/user-mission";
+import type { DomainEventPublisher } from "@/shared/events";
+import "../../domain/events";
 
 /** Quem cria: o id vem da sessão; `isPartner`/`isAdmin` são conferidos aqui também (não só na action). */
 export type MissionAuthor = { id: string; isPartner: boolean; isAdmin: boolean };
@@ -16,6 +18,7 @@ export class SaveMission {
     private readonly places: MissionPlaces,
     private readonly participation: MissionParticipation,
     private readonly now: () => Date = () => new Date(),
+    private readonly events?: DomainEventPublisher,
   ) {}
 
   async execute(author: MissionAuthor, missionId: string | undefined, draft: MissionDraft): Promise<Result<MissionRecord, DomainError>> {
@@ -41,7 +44,9 @@ export class SaveMission {
     }
 
     const updated = await this.missions.update(author.id, missionId, draft, { saveSteps: !locked });
-    return updated ? ok(updated) : err(new ForbiddenError("Só quem criou pode editar esta missão."));
+    if (!updated) return err(new ForbiddenError("Só quem criou pode editar esta missão."));
+    if (current.ownerId !== author.id) await this.events?.publish("missions.MissionEditedByAdmin", { missionId, editedBy: author.id });
+    return ok(updated);
   }
 
   /** Todo lugar precisa existir; parceiro (não admin) só usa lugares que administra. */
@@ -75,7 +80,10 @@ const sameGeofence = (a: StepGeofence | null, b: StepGeofence | null) => a?.radi
 
 /** Encerrar tira a missão da lista pública; quem já aceitou não consegue mais concluir etapas. Idempotente. */
 export class ArchiveMission {
-  constructor(private readonly missions: MissionRepository) {}
+  constructor(
+    private readonly missions: MissionRepository,
+    private readonly events?: DomainEventPublisher,
+  ) {}
 
   async execute(author: MissionAuthor, missionId: string): Promise<Result<MissionRecord, DomainError>> {
     const current = await this.missions.findById(missionId);
@@ -84,6 +92,8 @@ export class ArchiveMission {
     if (current.status === "archived") return ok(current);
 
     const archived = await this.missions.archive(author.id, missionId);
-    return archived ? ok(archived) : err(new ForbiddenError("Só quem criou pode encerrar esta missão."));
+    if (!archived) return err(new ForbiddenError("Só quem criou pode encerrar esta missão."));
+    if (current.ownerId !== author.id) await this.events?.publish("missions.MissionArchivedByAdmin", { missionId, archivedBy: author.id });
+    return ok(archived);
   }
 }
