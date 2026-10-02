@@ -1,6 +1,6 @@
 import { ChevronRight, Clock, MapPin, Navigation, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { Badge, Card, LiveBadge } from "@/shared/ui";
+import { Badge, Card, LiveBadge, cn } from "@/shared/ui";
 import { recommendationKindLabel, type RecommendationItem } from "../recommendation-item";
 
 /** Card de uma sugestão: o quê, quando, onde, quanto e POR QUÊ (até 2 motivos). */
@@ -62,13 +62,41 @@ export function RecommendationCard({ item }: { item: RecommendationItem }) {
   );
 }
 
-/** Lista ranqueada (a ordem é a do score). */
-export function RecommendationList({ items, label }: { items: RecommendationItem[]; label: string }) {
+/** Destaque do topo do feed: card grande em azul, para o que está ao vivo agora. */
+export function FeaturedRecommendationCard({ item }: { item: RecommendationItem }) {
+  const meta = [item.categoryLabel, item.distanceLabel, item.timeLabel].filter(Boolean).join(" · ");
+  return (
+    <Link
+      href={item.href}
+      prefetch={false}
+      className="relative flex min-h-48 flex-col justify-end gap-2 overflow-hidden rounded-3xl bg-brand p-5 text-brand-fg shadow-sm transition hover:-translate-y-0.5"
+    >
+      <span
+        aria-hidden
+        className="absolute inset-0 opacity-70 [background:radial-gradient(circle_at_85%_15%,rgb(255_50_50/0.45),transparent_40%),radial-gradient(circle_at_10%_100%,rgb(255_255_255/0.18),transparent_45%)]"
+      />
+      {item.live && <LiveBadge className="absolute top-4 left-4" />}
+      <span className="relative text-xs font-semibold uppercase tracking-wide opacity-85">
+        {recommendationKindLabel(item.kind)}
+        {item.placeName ? ` · ${item.placeName}` : ""}
+      </span>
+      <h3 className="relative text-2xl leading-tight font-bold">{item.title}</h3>
+      {meta && <p className="relative text-sm opacity-90">{meta}</p>}
+    </Link>
+  );
+}
+
+/**
+ * Lista ranqueada (a ordem é a do score). Com `featureLive`, o primeiro item ao vivo sobe para o
+ * destaque, mas continua na mesma lista (leitor de tela ouve a ordem e o total corretos).
+ */
+export function RecommendationList({ items, label, featureLive = false }: { items: RecommendationItem[]; label: string; featureLive?: boolean }) {
+  const featured = featureLive && items[0]?.live ? items[0] : null;
   return (
     <ol aria-label={label} className="grid gap-3 sm:grid-cols-2">
       {items.map((item) => (
-        <li key={item.key}>
-          <RecommendationCard item={item} />
+        <li key={item.key} className={cn(item === featured && "sm:col-span-2")}>
+          {item === featured ? <FeaturedRecommendationCard item={item} /> : <RecommendationCard item={item} />}
         </li>
       ))}
     </ol>

@@ -44,7 +44,7 @@ export function RealtimeFeedSection({ view, invalid, origin }: { view: RealtimeF
           }
         />
       ) : (
-        <RecommendationList items={view.items} label={view.nearMe ? "Agora perto de você" : "Agora em Joinville"} />
+        <RecommendationList items={view.items} label={view.nearMe ? "Agora perto de você" : "Agora em Joinville"} featureLive />
       )}
     </section>
   );
