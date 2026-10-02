@@ -77,7 +77,7 @@ export default async function MeusLugaresPage({ searchParams }: PageProps<"/parc
           <label htmlFor="busca-lugar" className="sr-only">
             Nome do lugar
           </label>
-          <input id="busca-lugar" name="q" defaultValue={query} placeholder="Nome do seu estabelecimento" className="h-11 min-w-0 flex-1 rounded-xl border border-border bg-bg px-4" />
+          <input id="busca-lugar" name="q" defaultValue={query} placeholder="Nome do seu estabelecimento" className="h-11 min-w-0 flex-1 rounded-xl border border-border bg-surface px-4" />
           <Button type="submit" variant="secondary">
             <Search aria-hidden className="size-4" /> Buscar
           </Button>

@@ -132,7 +132,7 @@ export function PartnerDashboardPanel({ view, chart, basePath = "/parceiro/dados
           <label htmlFor="recurso" className="sr-only">
             Lugar, evento ou missão
           </label>
-          <select id="recurso" name="recurso" defaultValue={view.selected ?? ""} className="h-11 min-w-0 rounded-full border border-border bg-bg px-4 text-sm">
+          <select id="recurso" name="recurso" defaultValue={view.selected ?? ""} className="h-11 min-w-0 rounded-full border border-border bg-surface px-4 text-sm">
             <option value="">Todos os recursos</option>
             {view.resources.map((r) => (
               <option key={r.key} value={r.key}>

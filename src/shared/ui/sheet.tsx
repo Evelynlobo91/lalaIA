@@ -35,7 +35,7 @@ export function Sheet({ open, onClose, title, children, className }: SheetProps)
       // Clique no fundo (fora do conteúdo) fecha.
       onClick={(e) => e.target === e.currentTarget && onClose()}
       className={cn(
-        "m-0 mt-auto w-full max-w-none rounded-t-3xl bg-bg p-0 text-fg backdrop:bg-black/50",
+        "m-0 mt-auto w-full max-w-none rounded-t-3xl bg-surface p-0 text-fg backdrop:bg-black/50",
         "md:m-auto md:max-w-lg md:rounded-3xl",
         className,
       )}
