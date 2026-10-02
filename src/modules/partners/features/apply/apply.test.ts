@@ -25,6 +25,7 @@ const application = (patch: Partial<PartnerApplication> = {}): PartnerApplicatio
   description: "x".repeat(20),
   status: "pending",
   rejectionReason: null,
+  suspensionReason: null,
   createdAt: new Date(),
   ...patch,
 });
@@ -34,6 +35,9 @@ const repo = (patch: Partial<PartnerRepository> = {}): PartnerRepository => ({
   submit: vi.fn().mockImplementation(async () => application()),
   listForReview: vi.fn().mockResolvedValue([]),
   review: vi.fn().mockResolvedValue(application({ status: "approved" })),
+  listActive: vi.fn().mockResolvedValue([]),
+  suspend: vi.fn().mockResolvedValue(null),
+  reactivate: vi.fn().mockResolvedValue(null),
   ...patch,
 });
 

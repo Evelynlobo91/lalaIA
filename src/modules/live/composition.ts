@@ -42,7 +42,7 @@ export const controlStream = lazy(() => new ControlStream(streamRepository(), st
 export const endStreamOfCancelledEvent = lazy(() => new EndStreamOfCancelledEvent(streamRepository(), streamRepository(), streamingProvider, domainEvents()));
 export const endStreamsOfDeletedUser = lazy(() => new EndStreamsOfDeletedUser(streamRepository(), streamingProvider, logger().child({ module: "live" })));
 
-export const getLivePlayback = lazy(() => new GetLivePlayback(streamRepository(), streamingProvider));
+export const getLivePlayback = lazy(() => new GetLivePlayback({ findByTarget: (target) => streamRepository().findVisibleByTarget(target) }, streamingProvider));
 export const listActiveStreamsUseCase = lazy(() => new ListActiveStreams(streamRepository()));
 export const getLiveStatus = lazy(() => new GetLiveStatus(getLivePlayback()));
 

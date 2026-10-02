@@ -81,6 +81,7 @@ export class PostgresOfferRepository implements OfferRepository {
     const rows = await this.sql.unsafe<OfferRow[]>(
       `select ${OFFER_COLUMNS} from partners.offers
        where target_type = $1 and target_id = $2 and status = 'active' and ends_at > $3
+         and exists (select 1 from partners.partners p where p.id = partner_id and p.status = 'approved')
        order by starts_at, ends_at, id`,
       [target.type, target.id, now],
     );

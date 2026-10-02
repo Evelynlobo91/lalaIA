@@ -82,3 +82,23 @@ describe("PostgresEventReader.listUpcoming", () => {
     expect(new Set(seen).size).toBe(8);
   });
 });
+
+describe("eventos de parceiro suspenso (#144)", () => {
+  it("somem das listas e dos resumos, e voltam com a reativação", async () => {
+    const visible = async () => ours(await reader.listUpcoming({ now, cursor: null, limit: 500 })).length;
+    const [{ id }] = await db<{ id: string }[]>`select id from events.events where owner_id = ${owner} and title = 'acontecendo'`;
+    const before = await visible();
+    expect(before).toBeGreaterThan(0);
+
+    await db`insert into platform.suspended_owners (owner_id) values (${owner})`;
+    try {
+      expect(await visible()).toBe(0);
+      expect(ours(await reader.listOverlapping(hours(-2), hours(10), 500))).toHaveLength(0);
+      expect(await reader.findByIds([id])).toHaveLength(0);
+    } finally {
+      await db`delete from platform.suspended_owners where owner_id = ${owner}`;
+    }
+    expect(await visible()).toBe(before);
+    expect(await reader.findByIds([id])).toHaveLength(1);
+  });
+});

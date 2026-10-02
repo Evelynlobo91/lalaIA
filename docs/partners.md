@@ -112,3 +112,17 @@ Portal /parceiro/ofertas → "Nova oferta" (lugar que gerencia ou evento que cri
 
 `OffersSection`, `MyRedemptionsCard`, `OfferForm`, `EndOfferButton`, `ValidateCodeForm`, `myRedemptions(userId)`,
 `myOffers(session)`, `offersCreatedBy(userId)`, `offerTargetChoices(session)`, `editableOffer(session, id)`.
+
+## Suspensão de parceiro (#144)
+
+- O admin suspende um parceiro **aprovado**, com motivo obrigatório, e reativa depois, em `/admin/parceiros`.
+- Enquanto suspenso, o parceiro perde o portal (vê o motivo em `/parceiro`) e **o que ele publicou some
+  das telas públicas**: eventos, missões (catálogo, surpresas e aceite), ofertas e lives.
+- **Como some:** uma trigger em `partners.partners` mantém o espelho `platform.suspended_owners` na mesma
+  transação da mudança de status. Os módulos donos filtram as leituras públicas com
+  `not platform.owner_suspended(owner_id)`, sem join entre schemas e sem depender de evento em memória.
+- Reativar devolve tudo, sem recadastro. A fila de revisão não reaprova um parceiro suspenso.
+- Eventos de domínio `partners.PartnerSuspended` e `partners.PartnerReactivated` avisam os interessados
+  (auditoria, notificações).
+- **Limitações:** quem já tinha aceitado uma missão continua vendo o progresso dela; códigos de oferta já
+  emitidos continuam no perfil de quem resgatou.

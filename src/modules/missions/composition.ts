@@ -40,7 +40,7 @@ export const stepCompletionRepository = lazy(() => new PostgresStepCompletionRep
 export const saveMission = lazy(() => new SaveMission(missionRepository(), missionPlaces, userMissionRepository()));
 export const archiveMission = lazy(() => new ArchiveMission(missionRepository()));
 
-export const acceptMission = lazy(() => new AcceptMission(missionRepository(), userMissionRepository()));
+export const acceptMission = lazy(() => new AcceptMission({ findById: (id) => missionRepository().findVisibleById(id) }, userMissionRepository()));
 export const listAvailableMissions = lazy(() => new ListAvailableMissions(missionRepository(), missionPlaces));
 export const listMyMissions = lazy(() => new ListMyMissions(missionRepository(), userMissionRepository(), stepCompletionRepository(), missionPlaces));
 export const missionExploration = lazy(() => new GetMissionExploration(new PostgresMissionExplorationReader(sql())));

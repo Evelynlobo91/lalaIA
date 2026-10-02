@@ -1,4 +1,4 @@
-import { Clock, XCircle } from "lucide-react";
+import { Ban, Clock, XCircle } from "lucide-react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { hasRole, requireUser } from "@/modules/identity";
@@ -43,6 +43,17 @@ export default async function ParceiroPage() {
         </FormAlert>
       )}
 
+      {application?.status === "suspended" && (
+        <FormAlert>
+          <span className="flex items-start gap-2">
+            <Ban aria-hidden className="mt-0.5 size-5 shrink-0" />
+            <span>
+              <strong>Seu acesso ao portal está suspenso.</strong> Motivo: {application.suspensionReason} Enquanto isso, o que você publicou não aparece no app. Fale com o suporte para regularizar.
+            </span>
+          </span>
+        </FormAlert>
+      )}
+
       {application?.status === "approved" && (
         <Card role="status">
           <CardTitle>Cadastro aprovado</CardTitle>
@@ -50,7 +61,7 @@ export default async function ParceiroPage() {
         </Card>
       )}
 
-      {application?.status !== "approved" && (
+      {application?.status !== "approved" && application?.status !== "suspended" && (
         <Card className="flex flex-col gap-4">
           <CardTitle>{application ? "Editar cadastro" : "Cadastro de parceiro"}</CardTitle>
           <ApplyForm current={application} submitLabel={application?.status === "rejected" ? "Enviar de novo" : application ? "Salvar alterações" : "Enviar para análise"} />

@@ -89,6 +89,12 @@ export class PostgresMissionRepository implements MissionRepository {
     return (await withSteps(this.sql, rows))[0] ?? null;
   }
 
+  /** Para aceitar: missão de parceiro suspenso não existe (#144). Quem já aceitou continua vendo a sua. */
+  async findVisibleById(id: string): Promise<MissionRecord | null> {
+    const rows = await this.sql.unsafe<MissionRow[]>(`select ${COLUMNS} from missions.missions where id = $1 and not platform.owner_suspended(owner_id)`, [id]);
+    return (await withSteps(this.sql, rows))[0] ?? null;
+  }
+
   async listByOwner(ownerId: string): Promise<MissionRecord[]> {
     const rows = await this.sql.unsafe<MissionRow[]>(`select ${COLUMNS} from missions.missions where owner_id = $1 order by created_at desc`, [ownerId]);
     return withSteps(this.sql, rows);
@@ -96,7 +102,7 @@ export class PostgresMissionRepository implements MissionRepository {
 
   async listAvailable(now: Date, limit: number): Promise<MissionRecord[]> {
     const rows = await this.sql.unsafe<MissionRow[]>(
-      `select ${COLUMNS} from missions.missions where status = 'active' and not surprise and starts_at <= $1 and ends_at > $1 order by ends_at, id limit $2`,
+      `select ${COLUMNS} from missions.missions where status = 'active' and not surprise and starts_at <= $1 and ends_at > $1 and not platform.owner_suspended(owner_id) order by ends_at, id limit $2`,
       [now, limit],
     );
     return withSteps(this.sql, rows);
@@ -104,7 +110,7 @@ export class PostgresMissionRepository implements MissionRepository {
 
   async listAvailableSurprises(now: Date, limit: number): Promise<MissionRecord[]> {
     const rows = await this.sql.unsafe<MissionRow[]>(
-      `select ${COLUMNS} from missions.missions where status = 'active' and surprise and starts_at <= $1 and ends_at > $1 order by ends_at, id limit $2`,
+      `select ${COLUMNS} from missions.missions where status = 'active' and surprise and starts_at <= $1 and ends_at > $1 and not platform.owner_suspended(owner_id) order by ends_at, id limit $2`,
       [now, limit],
     );
     return withSteps(this.sql, rows);
