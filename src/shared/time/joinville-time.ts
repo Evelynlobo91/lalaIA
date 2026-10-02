@@ -49,6 +49,25 @@ export const formatDateTime = (date: Date) => dateTimeFormatter.format(date);
 /** "20:00" */
 export const formatTime = (date: Date) => timeFormatter.format(date);
 
+/** "2026-10-10": data no calendário de Joinville. */
+export function localDate(date: Date): string {
+  return toLocalInput(date).slice(0, 10);
+}
+
+/** Instante da meia-noite (00:00 em Joinville) do dia "YYYY-MM-DD", somando `plusDays` dias de calendário. */
+export function localMidnight(isoDate: string, plusDays = 0): Date {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  const shifted = new Date(Date.UTC(y, m - 1, d + plusDays));
+  const day = shifted.toISOString().slice(0, 10);
+  return fromLocalInput(`${day}T00:00`)!;
+}
+
+/** Dia da semana (0 = domingo) no calendário de Joinville. */
+export function localWeekday(date: Date): number {
+  const [y, m, d] = localDate(date).split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+}
+
 /** Mesmo dia no calendário de Joinville? */
 export function sameLocalDay(a: Date, b: Date): boolean {
   const x = localParts(a);

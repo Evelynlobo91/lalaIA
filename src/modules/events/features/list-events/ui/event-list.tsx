@@ -32,20 +32,27 @@ export function EventListCard({ event }: { event: EventListItem }) {
 }
 
 /** Lista com "Carregar mais": a primeira página vem do servidor; as próximas, de /api/events. */
-export function EventList({ initial }: { initial: EventListPage }) {
+/** `query`: filtros da URL repassados ao "Carregar mais" (ex.: "quando=hoje"). */
+export function EventList({ initial, query = "", emptyMessage }: { initial: EventListPage; query?: string; emptyMessage?: string }) {
   const [items, setItems] = useState(initial.items);
   const [cursor, setCursor] = useState(initial.nextCursor);
   const [error, setError] = useState(false);
   const [pending, startTransition] = useTransition();
 
   if (items.length === 0) {
-    return <EmptyState icon={CalendarX} title="Nenhum evento por enquanto" description="Quando estabelecimentos e promotores publicarem shows, feiras e festas, eles aparecem aqui." />;
+    return (
+      <EmptyState
+        icon={CalendarX}
+        title="Nenhum evento por enquanto"
+        description={emptyMessage ?? "Quando estabelecimentos e promotores publicarem shows, feiras e festas, eles aparecem aqui."}
+      />
+    );
   }
 
   const loadMore = () =>
     startTransition(async () => {
       setError(false);
-      const res = await fetch(`/api/events?cursor=${encodeURIComponent(cursor!)}`).catch(() => null);
+      const res = await fetch(`/api/events?cursor=${encodeURIComponent(cursor!)}${query ? `&${query}` : ""}`).catch(() => null);
       if (!res?.ok) return setError(true);
       const page = (await res.json()) as EventListPage;
       setItems((current) => [...current, ...page.items]);

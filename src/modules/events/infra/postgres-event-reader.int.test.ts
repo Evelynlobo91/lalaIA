@@ -33,6 +33,13 @@ describe("PostgresEventReader.listUpcoming", () => {
     expect(titles).toEqual(["acontecendo", "futuro 1", "futuro 2", "futuro 3", "futuro 4", "futuro 5", "futuro 6", "futuro 7"]);
   });
 
+  it("filtro de período pega quem se sobrepõe (evento que já começou e ainda vai até o período também entra)", async () => {
+    const window = { from: hours(2.5), to: hours(4.5) };
+    const titles = ours(await reader.listUpcoming({ now, cursor: null, limit: 500, window })).map((c) => c.title);
+    // futuro 2 (2→3) termina dentro; futuro 3 (3→4) e futuro 4 (4→5) estão dentro/atravessam; futuro 1 (1→2) e 5 (5→6) ficam de fora.
+    expect(titles).toEqual(["futuro 2", "futuro 3", "futuro 4"]);
+  });
+
   it("paginando pelo cursor, cada evento aparece uma vez", async () => {
     const seen: string[] = [];
     let cursor: EventCursor | null = null;

@@ -23,6 +23,8 @@ export type EventQuery = {
   now: Date;
   cursor: EventCursor | null;
   limit: number;
+  /** Só eventos que se sobrepõem a este período (filtro de data, RF15). */
+  window?: { from: Date; to: Date };
 };
 
 export interface EventReader {

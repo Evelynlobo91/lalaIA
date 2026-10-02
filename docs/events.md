@@ -21,6 +21,16 @@
   `starts_at, id`), com "Acontecendo" para quem já começou. Terminados e cancelados não aparecem.
 - Nome e bairro dos lugares vêm de `placeSummaries` (API pública de places), numa consulta só por página.
 
+## Filtro por data (#39)
+
+- `/eventos?quando=hoje|amanha|fim-de-semana|AAAA-MM-DD` (e a mesma opção na API). Atalhos e um campo de data,
+  sem JavaScript (links + formulário GET); o filtro fica na URL e vale também para "Carregar mais".
+- Calculado no **calendário de Joinville** (`src/modules/events/domain/date-window.ts`): às 23:30 de segunda
+  ainda é "hoje", mesmo já sendo terça em UTC. "Este fim de semana" = sábado 00:00 até segunda 00:00 (no sábado e
+  no domingo, é o fim de semana corrente).
+- Um evento entra quando **se sobrepõe** ao período (uma feira de 3 dias aparece em cada um dos dias).
+- Data impossível (ex.: 31/02) → aviso na página e 400 na API.
+
 ## Página do evento (#38)
 
 - `/eventos/[id]`: quando, onde (com link para o lugar e endereço), valor, descrição e "Como chegar".

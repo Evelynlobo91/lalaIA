@@ -4,6 +4,7 @@ import { queryRoute } from "@/shared/http/json-route";
 import { cache } from "react";
 import { eventRepository, getEventDetail as eventDetailUseCase, listEvents, placesLookup } from "./composition";
 import { DEFAULT_PAGE_SIZE, listEventsSchema } from "./features/list-events/list-events";
+import { dateFilterValue } from "./domain/date-window";
 import type { EventRecord } from "./domain/event";
 
 export { EventForm, type EventFormValues } from "./features/manage-events/ui/event-form";
@@ -11,6 +12,8 @@ export { CancelEventButton } from "./features/manage-events/ui/cancel-event-butt
 export { EventList, EventListCard, EventListSkeleton } from "./features/list-events/ui/event-list";
 export type { EventListItem, EventListPage } from "./features/list-events/list-events";
 export { EventDetailCard } from "./features/event-detail/ui/event-detail-card";
+export { EventDateFilter } from "./features/list-events/ui/event-date-filter";
+export type { DateFilter } from "./domain/date-window";
 export type { EventDetailView, EventPhase } from "./features/event-detail/event-detail";
 export { formatPrice, type EventRecord, type EventStatus } from "./domain/event";
 
@@ -47,11 +50,18 @@ export async function editableEvent(editor: { id: string; isAdmin: boolean }, ev
   };
 }
 
-/** Primeira página da lista pública (renderizada no servidor). */
-export async function firstEventsPage() {
-  const result = await listEvents().execute({ cursor: null, limit: DEFAULT_PAGE_SIZE });
+/**
+ * Primeira página da lista pública a partir dos parâmetros da URL (renderizada no servidor).
+ * Parâmetro inválido (ex.: data impossível) → `invalid` com a mensagem, sem quebrar a página.
+ */
+export async function firstEventsPage(params: Record<string, string | string[] | undefined> = {}) {
+  const parsed = listEventsSchema.safeParse({ quando: typeof params.quando === "string" ? params.quando : undefined });
+  if (!parsed.success) return { invalid: parsed.error.issues[0]?.message ?? "Filtro inválido.", page: { items: [], nextCursor: null }, query: "" };
+  const result = await listEvents().execute({ ...parsed.data, cursor: null, limit: DEFAULT_PAGE_SIZE });
   if (!result.ok) throw result.error;
-  return result.value;
+  // Mesmos filtros para o "Carregar mais" (API).
+  const query = parsed.data.quando ? `quando=${encodeURIComponent(dateFilterValue(parsed.data.quando))}` : "";
+  return { invalid: null, page: result.value, query, filter: parsed.data.quando };
 }
 
 export const eventsApi = {
