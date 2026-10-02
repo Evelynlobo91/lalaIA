@@ -51,3 +51,19 @@ Em erro 500, o corpo da resposta traz o `requestId` para o suporte localizar o c
 1. Crie um projeto Next.js no Sentry e copie o DSN para `NEXT_PUBLIC_SENTRY_DSN` no `.env.local`.
 2. Reinicie o `npm run dev` e provoque um erro numa rota: ele aparece no Sentry com a tag
    `request_id` igual ao header `x-request-id` da resposta.
+
+## Disponibilidade: health check e monitor (#81)
+
+- **`GET /api/health`** (e `HEAD`): verifica as dependências em paralelo, cada uma com limite de 3 s.
+  - `banco` (**crítica**: `select 1`) e `autenticacao` (Supabase Auth `/auth/v1/health`, não crítica).
+  - Resposta: `{ status: ok | degraded | down, checkedAt, version, checks: [{ name, critical, status, latencyMs }] }`.
+  - **200** para `ok`/`degraded` (o app atende), **503** para `down`. `Cache-Control: no-store`.
+  - O motivo de uma falha vai só para o log estruturado, nunca para a resposta (sem vazar host, usuário ou erro do banco).
+  - Nova dependência = nova classe `HealthCheck` em `src/modules/platform/infra/health-checks.ts` + uma linha na composição.
+- **Página `/status`**: situação geral e de cada serviço, com ícone e texto (fora dos buscadores).
+- **Monitor externo** (`.github/workflows/uptime.yml`): a cada 10 min consulta `vars.HEALTHCHECK_URL` (configure
+  a variável do repositório com a URL de produção). Sem 200 em duas tentativas → abre (ou comenta) uma issue
+  com o rótulo **`incidente`**, e o GitHub notifica quem acompanha o repositório; quando volta, comenta e fecha.
+  Sem a variável, o workflow não roda. Se quiser alertas por telefone, aponte também um monitor como
+  UptimeRobot/Better Stack para o mesmo endpoint.
+
