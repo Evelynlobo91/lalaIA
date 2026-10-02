@@ -57,6 +57,9 @@ export type CtaRecord = {
   buttonLabel: string;
   priority: CtaPriority;
   schedule: CtaSchedule;
+  /** Disparo manual (#181): solta pelo parceiro em `triggeredAt`, fica no ar até `triggeredUntil`. */
+  triggeredAt: Date | null;
+  triggeredUntil: Date | null;
   createdAt: Date;
 };
 
@@ -100,6 +103,12 @@ export function windowAt(schedule: CtaSchedule, now: Date, liveSince: Date | nul
   return windowsBetween(schedule, now, new Date(now.getTime() + 1), liveSince, 1)[0] ?? null;
 }
 
+/** A janela do disparo manual, se ele ainda vale em `now`. */
+export function triggerWindowAt(cta: Pick<CtaRecord, "triggeredAt" | "triggeredUntil">, now: Date): CtaWindow | null {
+  if (!cta.triggeredAt || !cta.triggeredUntil) return null;
+  return cta.triggeredAt <= now && now < cta.triggeredUntil ? { start: cta.triggeredAt, end: cta.triggeredUntil } : null;
+}
+
 /** "sáb., 10 de out., 20:00 até 21:00", "15 min depois de entrar ao vivo, por 10 min", "A cada 30 min, por 5 min". */
 export function describeSchedule(schedule: CtaSchedule): string {
   if (schedule.kind === "absolute") {
@@ -123,7 +132,7 @@ export function agendaOfDay(ctas: CtaRecord[], now: Date, liveSince: Date | null
   const dayStart = localMidnight(localDate(now));
   const dayEnd = localMidnight(localDate(now), 1);
   const timed = ctas
-    .flatMap((cta) => windowsBetween(cta.schedule, dayStart, dayEnd, liveSince, 48).map((w) => ({ ctaId: cta.id, title: cta.title, priority: cta.priority, start: w.start, end: w.end })))
+    .flatMap((cta) => [...windowsBetween(cta.schedule, dayStart, dayEnd, liveSince, 48), ...(cta.triggeredAt && cta.triggeredUntil && cta.triggeredUntil > now ? [{ start: cta.triggeredAt, end: cta.triggeredUntil }] : [])].map((w) => ({ ctaId: cta.id, title: cta.title, priority: cta.priority, start: w.start, end: w.end })))
     .sort((a, b) => a.start.getTime() - b.start.getTime() || a.priority - b.priority);
   const whenLive = liveSince ? [] : ctas.filter((cta) => cta.schedule.kind !== "absolute");
   return { timed, whenLive };

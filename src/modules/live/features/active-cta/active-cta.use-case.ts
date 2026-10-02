@@ -1,4 +1,4 @@
-import { windowAt, type CtaRecord, type CtaType } from "../../domain/cta";
+import { triggerWindowAt, windowAt, type CtaRecord, type CtaType, type CtaWindow } from "../../domain/cta";
 import type { StreamStatus } from "../../domain/stream";
 
 /** Leitura pública dos CTAs de uma transmissão (pelo sistema: o público não lê a tabela). */
@@ -10,14 +10,22 @@ export interface StreamCtaReader {
 export type ActiveCtaView = { id: string; type: CtaType; title: string; body: string | null; buttonLabel: string; href: string; external: boolean; until: string };
 
 /**
- * O CTA que vale em `now`: o de maior prioridade entre os que estão na janela; empate → o mais antigo.
- * Um por vez. Fora da janela de todos, null.
+ * O CTA que vale em `now`. Um por vez: a chamada solta à mão pelo parceiro (#181) passa na frente das
+ * programadas (se houver mais de uma, a solta por último); entre as programadas, a de maior prioridade e, no
+ * empate, a mais antiga. Fora da janela de todos, null.
  */
 export function pickActiveCta(ctas: CtaRecord[], now: Date, liveSince: Date | null): ActiveCtaView | null {
   const running = ctas
-    .map((cta) => ({ cta, window: windowAt(cta.schedule, now, liveSince) }))
-    .filter((c): c is { cta: CtaRecord; window: NonNullable<ReturnType<typeof windowAt>> } => c.window !== null)
-    .sort((a, b) => a.cta.priority - b.cta.priority || a.cta.createdAt.getTime() - b.cta.createdAt.getTime());
+    .map((cta) => {
+      const manual = triggerWindowAt(cta, now);
+      return { cta, manual: manual !== null, window: manual ?? windowAt(cta.schedule, now, liveSince) };
+    })
+    .filter((c): c is { cta: CtaRecord; manual: boolean; window: CtaWindow } => c.window !== null)
+    .sort(
+      (a, b) =>
+        Number(b.manual) - Number(a.manual) ||
+        (a.manual ? b.window.start.getTime() - a.window.start.getTime() : a.cta.priority - b.cta.priority || a.cta.createdAt.getTime() - b.cta.createdAt.getTime()),
+    );
   const first = running[0];
   if (!first) return null;
   const { cta, window } = first;

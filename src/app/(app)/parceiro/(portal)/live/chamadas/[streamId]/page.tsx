@@ -2,7 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CTA_LIMITS, CTA_PRIORITY_LABELS, CTA_TYPE_LABELS, CtaForm, DeleteCtaButton, StreamStatusBadge, describeSchedule, liveCtaPanel, livePortal } from "@/modules/live";
+import { CTA_LIMITS, CTA_PRIORITY_LABELS, CTA_TYPE_LABELS, CtaForm, DeleteCtaButton, StreamStatusBadge, TriggerCtaButton, describeSchedule, liveCtaPanel, livePortal } from "@/modules/live";
 import { requirePartner } from "@/modules/partners";
 import { formatTime } from "@/shared/time/joinville-time";
 import { Badge, ButtonLink, Card, FormAlert } from "@/shared/ui";
@@ -18,6 +18,7 @@ export default async function ChamadasLivePage({ params, searchParams }: PagePro
   if (!panel) notFound();
   const label = portal.targets.find((t) => t.stream?.id === streamId)?.label ?? "Transmissão";
   const { ctas, agenda } = panel;
+  const now = new Date();
 
   return (
     <div className="flex flex-col gap-6">
@@ -85,6 +86,9 @@ export default async function ChamadasLivePage({ params, searchParams }: PagePro
                     </Link>
                     <DeleteCtaButton ctaId={cta.id} title={cta.title} />
                   </div>
+                  {panel.entitled && panel.stream.status !== "ended" && (
+                    <TriggerCtaButton ctaId={cta.id} title={cta.title} live={panel.stream.status === "live"} runningUntil={cta.triggeredUntil && cta.triggeredUntil > now ? cta.triggeredUntil.toISOString() : null} />
+                  )}
                 </Card>
               </li>
             ))}

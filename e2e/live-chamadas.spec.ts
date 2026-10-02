@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { assignPlaceTo, createApprovedPartner, createLiveStream, createTestPlace, isolatedPoint, subscribeToPlan } from "./support/db";
+import { assignPlaceTo, createApprovedPartner, createLiveCta, createLiveStream, createTestPlace, isolatedPoint, subscribeToPlan } from "./support/db";
+import { sendLiveWebhook } from "./support/live";
 import { loginAs } from "./support/session";
 import { createConfirmedUser } from "./support/users";
 
@@ -87,6 +88,43 @@ test.describe("chamadas (CTAs) na live (#93)", () => {
     await page.getByRole("button", { name: "Remover a chamada Cardápio da noite" }).click();
     await expect(page.getByRole("heading", { name: "Chamadas (1 de 20)" })).toBeVisible();
     await expect(page.getByRole("article", { name: "Chamada Cardápio da noite" })).toHaveCount(0);
+  });
+
+  test("disparo manual: com a live no ar, o parceiro solta a chamada e quem assiste vê na hora; depois tira do ar", async ({ page, request, browser }) => {
+    test.setTimeout(120_000);
+    const dono = await createConfirmedUser("Dona do Disparo");
+    await createApprovedPartner(dono, "Bar do Disparo");
+    const placeId = await createTestPlace(`Bar do Disparo ${Date.now()}`, isolatedPoint());
+    await assignPlaceTo(dono, placeId);
+    await subscribeToPlan(dono, "pro");
+    const stream = await createLiveStream(dono, "place", placeId);
+    // Programada só para daqui a duas horas de live: sem o disparo, não apareceria agora.
+    await createLiveCta(stream.id, { title: "Rodada dupla", href: "https://instagram.com/bardodisparo", offsetMinutes: 120, durationMinutes: 10 });
+
+    await loginAs(page, dono, `/parceiro/live/chamadas/${stream.id}`);
+    const chamada = page.getByRole("article", { name: "Chamada Rodada dupla" });
+    const soltar = chamada.getByRole("button", { name: "Soltar agora a chamada Rodada dupla" });
+    await expect(soltar).toBeDisabled();
+    await expect(chamada.getByText("Disponível com a live no ar.")).toBeVisible();
+
+    await sendLiveWebhook(request, stream.providerStreamId, "video.live_stream.active");
+    const context = await browser.newContext();
+    const publico = await context.newPage();
+    await publico.goto(`/lugares/${placeId}`);
+    const cartao = publico.getByRole("complementary", { name: "Chamada do anfitrião" });
+    await expect(publico.getByRole("region", { name: "Transmissão ao vivo" }).locator("video")).toBeVisible();
+    await expect(cartao).toHaveCount(0);
+
+    await page.reload();
+    await soltar.click();
+    await expect(chamada.getByRole("status")).toContainText("No ar até");
+    await expect(page.getByRole("list", { name: "Agenda de hoje" })).toContainText("Rodada dupla");
+    await expect(cartao).toContainText("Rodada dupla", { timeout: 30_000 });
+
+    await chamada.getByRole("button", { name: "Tirar do ar a chamada Rodada dupla" }).click();
+    await expect(soltar).toBeEnabled();
+    await expect(cartao).toHaveCount(0, { timeout: 30_000 });
+    await context.close();
   });
 
   test("parceiro não abre as chamadas da transmissão de outro", async ({ page }) => {

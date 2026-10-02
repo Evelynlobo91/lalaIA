@@ -303,3 +303,11 @@ apagadas.
   nem os controles). Pode ser fechado e não volta na mesma sessão (`sessionStorage`). Link externo abre em nova
   aba; "Quero ir" também registra o clique em `/api/favorites/want-to-go`, como o botão da página.
 - **Falha não derruba a live**: se a leitura das chamadas falhar, o player segue sem cartão e o erro é registrado.
+
+### Disparo manual (#181)
+
+Na lista de chamadas, com a transmissão **ao vivo**, o botão "Soltar agora" põe a chamada no ar por 5, 10 ou 15
+minutos (`TriggerCta`), sem depender do agendamento; "Tirar do ar" encerra antes. A chamada solta à mão passa na
+frente das programadas (se houver duas, fica a solta por último) e chega a quem assiste pelo mesmo status da live.
+Fora do ar o botão fica desabilitado e o caso de uso recusa. O disparo são duas colunas em `live.ctas`
+(`triggered_at`, `triggered_until`, no máximo 60 min), alteradas só pelo dono (RLS).

@@ -39,6 +39,7 @@ export { STATUS_LABELS, type StreamStatus, type StreamEntityType } from "./domai
 // CTAs programados (#93).
 export { CtaForm, type CtaFormValues } from "./features/schedule-cta/ui/cta-form";
 export { DeleteCtaButton } from "./features/schedule-cta/ui/delete-cta-button";
+export { TriggerCtaButton } from "./features/trigger-cta/ui/trigger-cta-button";
 export { CTA_LIMITS, CTA_PRIORITY_LABELS, CTA_TYPE_LABELS, describeSchedule, type CtaRecord } from "./domain/cta";
 export type { CtaPanel } from "./features/schedule-cta/schedule-cta.use-case";
 export type { ActiveCtaView } from "./features/active-cta/active-cta.use-case";

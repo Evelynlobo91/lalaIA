@@ -3,6 +3,7 @@ import type { Sql } from "@/shared/db/sql";
 import type { CtaPriority, CtaRecord, CtaSchedule, CtaType } from "../domain/cta";
 import type { StreamCtaReader } from "../features/active-cta/active-cta.use-case";
 import type { CtaRepository, CtaToSave } from "../features/schedule-cta/schedule-cta.use-case";
+import type { CtaTriggerStore } from "../features/trigger-cta/trigger-cta.use-case";
 
 type CtaRow = {
   id: string;
@@ -22,11 +23,13 @@ type CtaRow = {
   offset_minutes: number | null;
   duration_minutes: number | null;
   interval_minutes: number | null;
+  triggered_at: Date | null;
+  triggered_until: Date | null;
   created_at: Date;
 };
 
 export const CTA_COLUMNS =
-  "id, stream_id, owner_id, type, ref_id, href, external, title, body, button_label, priority, schedule_kind, starts_at, ends_at, offset_minutes, duration_minutes, interval_minutes, created_at";
+  "id, stream_id, owner_id, type, ref_id, href, external, title, body, button_label, priority, schedule_kind, starts_at, ends_at, offset_minutes, duration_minutes, interval_minutes, triggered_at, triggered_until, created_at";
 
 function scheduleOf(r: CtaRow): CtaSchedule {
   if (r.schedule_kind === "absolute") return { kind: "absolute", startsAt: r.starts_at!, endsAt: r.ends_at! };
@@ -47,6 +50,8 @@ export const toCta = (r: CtaRow): CtaRecord => ({
   buttonLabel: r.button_label,
   priority: r.priority as CtaPriority,
   schedule: scheduleOf(r),
+  triggeredAt: r.triggered_at,
+  triggeredUntil: r.triggered_until,
   createdAt: r.created_at,
 });
 
@@ -61,7 +66,7 @@ function scheduleValues(s: CtaSchedule): [Date | null, Date | null, number | nul
 
 const contentValues = (c: CtaToSave) => [c.type, c.refId, c.href, c.external, c.title, c.body, c.buttonLabel, c.priority, c.schedule.kind, ...scheduleValues(c.schedule)];
 
-export class PostgresCtaRepository implements CtaRepository, StreamCtaReader {
+export class PostgresCtaRepository implements CtaRepository, StreamCtaReader, CtaTriggerStore {
   constructor(private readonly sql: Sql) {}
 
   async listByStream(actorId: string, streamId: string): Promise<CtaRecord[]> {
@@ -112,6 +117,15 @@ export class PostgresCtaRepository implements CtaRepository, StreamCtaReader {
   async listForStream(streamId: string): Promise<CtaRecord[]> {
     const rows = await this.sql.unsafe<CtaRow[]>(`select ${CTA_COLUMNS} from live.ctas where stream_id = $1 order by priority, created_at`, [streamId]);
     return rows.map(toCta);
+  }
+
+  async setTrigger(actorId: string, ctaId: string, window: { at: Date; until: Date } | null): Promise<CtaRecord | null> {
+    const [row] = await asUser(
+      actorId,
+      (tx) => tx.unsafe<CtaRow[]>(`update live.ctas set triggered_at = $3, triggered_until = $4 where id = $1 and owner_id = $2 returning ${CTA_COLUMNS}`, [ctaId, actorId, window?.at ?? null, window?.until ?? null]),
+      this.sql,
+    );
+    return row ? toCta(row) : null;
   }
 
   async remove(actorId: string, ctaId: string): Promise<boolean> {

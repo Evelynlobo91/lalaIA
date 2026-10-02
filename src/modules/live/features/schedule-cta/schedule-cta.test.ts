@@ -40,6 +40,8 @@ const cta = (patch: Partial<CtaRecord> = {}): CtaRecord => ({
   buttonLabel: "Abrir",
   priority: 2,
   schedule: { kind: "absolute", startsAt: at("20:00"), endsAt: at("21:00") },
+  triggeredAt: null,
+  triggeredUntil: null,
   createdAt: at("10:00"),
   ...patch,
 });

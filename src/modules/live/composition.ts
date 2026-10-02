@@ -27,6 +27,7 @@ import { ctaLinkDomainsFrom } from "./domain/cta";
 import { GetActiveCta } from "./features/active-cta/active-cta.use-case";
 import { ctaTypeHandlers } from "./features/schedule-cta/cta-types";
 import { DeleteCta, GetCtaPanel, SaveCta, type CtaEntitlement } from "./features/schedule-cta/schedule-cta.use-case";
+import { StopCtaTrigger, TriggerCta } from "./features/trigger-cta/trigger-cta.use-case";
 import { ModuleCtaCatalog } from "./infra/cta-catalog";
 import { PostgresCtaRepository } from "./infra/postgres-cta-repository";
 
@@ -80,3 +81,5 @@ const ctaHandlers = lazy(() => ctaTypeHandlers(new ModuleCtaCatalog(targetDirect
 export const saveCta = lazy(() => new SaveCta(streamRepository(), ctaRepository(), ctaHandlers(), ctaEntitled));
 export const deleteCta = lazy(() => new DeleteCta(ctaRepository()));
 export const getCtaPanel = lazy(() => new GetCtaPanel(streamRepository(), ctaRepository(), ctaHandlers(), ctaEntitled));
+export const triggerCta = lazy(() => new TriggerCta(ctaRepository(), streamRepository(), ctaRepository(), ctaEntitled));
+export const stopCtaTrigger = lazy(() => new StopCtaTrigger(ctaRepository()));
