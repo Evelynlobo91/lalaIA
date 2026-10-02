@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { LOGO_COLORS, LOGO_PIN_PATH, LOGO_VIEWBOX, LOGO_WORDMARK_PATH } from "@/shared/ui";
 import { sharedAchievementOf } from "@/modules/progression";
 
 // Imagem gerada da conquista (#70), na identidade do LalaIA, para o post no Instagram/WhatsApp.
@@ -16,11 +17,10 @@ export default async function Image({ params }: { params: Promise<{ id: string }
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 72, background: "#3b1d8f", color: "#ffffff", fontFamily: "sans-serif" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 20, fontSize: 40, color: "#ffc94d" }}>
-          <svg width="64" height="64" viewBox="0 0 512 512">
-            <path d="M256 92c-70 0-126 55-126 124 0 92 126 204 126 204s126-112 126-204c0-69-56-124-126-124z" fill="#ffc94d" />
-            <path d="M256 150l17 44 46 3-36 29 12 45-39-25-39 25 12-45-36-29 46-3z" fill="#3b1d8f" />
+          <svg height="72" width="125" viewBox={`0 0 ${LOGO_VIEWBOX.width} ${LOGO_VIEWBOX.height}`}>
+            <path d={LOGO_WORDMARK_PATH} fill="#ffffff" fillRule="evenodd" />
+            <path d={LOGO_PIN_PATH} fill={LOGO_COLORS.red} fillRule="evenodd" />
           </svg>
-          LalaIA
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 48 }}>
           <svg width="180" height="180" viewBox="0 0 24 24" fill="none" stroke="#ffc94d" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
