@@ -10,7 +10,7 @@ type CardProps = HTMLAttributes<HTMLElement> & {
 };
 
 export function Card({ as: Tag = "article", className, ...props }: CardProps) {
-  return <Tag className={cn("rounded-2xl border border-border bg-surface p-4", className)} {...props} />;
+  return <Tag className={cn("rounded-2xl border border-border bg-surface p-4 shadow-sm", className)} {...props} />;
 }
 
 /** Título do card. `as` ajusta o nível para manter a hierarquia da página (ex.: h2 logo abaixo do h1). */

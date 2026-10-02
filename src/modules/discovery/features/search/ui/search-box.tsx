@@ -66,7 +66,7 @@ export function SearchBox({ defaultValue, keep = {}, live = false, className }: 
           enterKeyHint="search"
           placeholder="Restaurante, samba, museu..."
           aria-busy={pending || undefined}
-          className="h-12 w-full rounded-xl border border-border bg-bg pr-4 pl-12 text-base text-fg placeholder:text-muted"
+          className="h-12 w-full rounded-xl border border-border bg-surface pr-4 pl-12 text-base text-fg placeholder:text-muted"
         />
       </div>
       {Object.entries(keep).map(([name, value]) => (

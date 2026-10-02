@@ -7,7 +7,7 @@ import { constraintsHref, type ConstraintState } from "../rec-constraints.use-ca
 
 const chip = (active: boolean) =>
   cn(
-    "inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-medium",
+    "inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-full border px-4 text-sm font-medium",
     active ? "border-brand bg-brand text-brand-fg" : "border-border hover:bg-surface",
   );
 

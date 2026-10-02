@@ -96,7 +96,7 @@ export function MissionForm({ initial, placeOptions, submitLabel, stepsLocked = 
           rows={4}
           defaultValue={values.description}
           aria-invalid={errors.description ? true : undefined}
-          className="rounded-xl border border-border bg-bg px-4 py-3 text-base font-normal aria-invalid:border-danger"
+          className="rounded-xl border border-border bg-surface px-4 py-3 text-base font-normal aria-invalid:border-danger"
         />
         {errors.description && <span className="text-sm font-normal text-danger">{errors.description[0]}</span>}
       </label>
@@ -182,7 +182,7 @@ export function MissionForm({ initial, placeOptions, submitLabel, stepsLocked = 
                   value={row.placeId}
                   disabled={stepsLocked}
                   onChange={(e) => update(row.key, { placeId: e.target.value })}
-                  className="h-12 rounded-xl border border-border bg-bg px-3 text-base font-normal"
+                  className="h-12 rounded-xl border border-border bg-surface px-3 text-base font-normal"
                 >
                   <option value="" disabled>
                     Escolha o lugar
@@ -231,7 +231,7 @@ function StepValidationFields({ index, row, locked, onChange }: { index: number;
           value={validation}
           disabled={locked}
           onChange={(e) => onChange({ validation: e.target.value as ValidationKind })}
-          className="h-12 rounded-xl border border-border bg-bg px-3 text-base font-normal"
+          className="h-12 rounded-xl border border-border bg-surface px-3 text-base font-normal"
         >
           {validationKinds.map((kind) => (
             <option key={kind} value={kind}>

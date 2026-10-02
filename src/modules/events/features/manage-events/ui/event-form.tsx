@@ -32,7 +32,7 @@ export function EventForm({ initial, placeField, submitLabel }: { initial?: Even
 
       <label className="flex flex-col gap-1.5 text-sm font-medium">
         Categoria
-        <select name="category" defaultValue={values.category ?? ""} className="h-12 rounded-xl border border-border bg-bg px-3 text-base">
+        <select name="category" defaultValue={values.category ?? ""} className="h-12 rounded-xl border border-border bg-surface px-3 text-base">
           <option value="" disabled>
             Escolha
           </option>
@@ -63,7 +63,7 @@ export function EventForm({ initial, placeField, submitLabel }: { initial?: Even
           rows={5}
           defaultValue={values.description}
           aria-invalid={errors.description ? true : undefined}
-          className="rounded-xl border border-border bg-bg px-4 py-3 text-base font-normal aria-invalid:border-danger"
+          className="rounded-xl border border-border bg-surface px-4 py-3 text-base font-normal aria-invalid:border-danger"
         />
         {errors.description && <span className="text-sm font-normal text-danger">{errors.description[0]}</span>}
       </label>

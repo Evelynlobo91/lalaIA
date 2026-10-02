@@ -29,7 +29,7 @@ export function TextField({ label, errors, hint, trailing, className, id, ...pro
           aria-invalid={hasError || undefined}
           aria-describedby={describedBy}
           className={cn(
-            "h-12 w-full rounded-xl border border-border bg-bg px-4 text-base text-fg placeholder:text-muted",
+            "h-12 w-full rounded-xl border border-border bg-surface px-4 text-base text-fg placeholder:text-muted",
             "aria-invalid:border-danger",
             Boolean(trailing) && "pr-12",
             className,

@@ -28,7 +28,7 @@ export function EditPlaceForm({ place, schedule, simplified }: { place: Editable
 
       <label className="flex flex-col gap-1.5 text-sm font-medium">
         Categoria
-        <select name="category" defaultValue={place.category} className="h-12 rounded-xl border border-border bg-bg px-3 text-base">
+        <select name="category" defaultValue={place.category} className="h-12 rounded-xl border border-border bg-surface px-3 text-base">
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
               {c.label}
@@ -68,7 +68,7 @@ export function EditPlaceForm({ place, schedule, simplified }: { place: Editable
                 aria-label={`${DAY_LABELS[i]}: abre`}
                 disabled={!day.open}
                 onChange={(e) => setDays((d) => d.map((x, j) => (j === i ? { ...x, from: e.target.value } : x)))}
-                className="h-11 rounded-xl border border-border bg-bg px-2 disabled:opacity-40"
+                className="h-11 rounded-xl border border-border bg-surface px-2 disabled:opacity-40"
               />
               <span aria-hidden>–</span>
               <input
@@ -78,7 +78,7 @@ export function EditPlaceForm({ place, schedule, simplified }: { place: Editable
                 aria-label={`${DAY_LABELS[i]}: fecha`}
                 disabled={!day.open}
                 onChange={(e) => setDays((d) => d.map((x, j) => (j === i ? { ...x, to: e.target.value } : x)))}
-                className="h-11 rounded-xl border border-border bg-bg px-2 disabled:opacity-40"
+                className="h-11 rounded-xl border border-border bg-surface px-2 disabled:opacity-40"
               />
               {/* Campos desabilitados não são enviados: mantém o valor para o servidor. */}
               {!day.open && (

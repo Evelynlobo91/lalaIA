@@ -12,7 +12,7 @@ export function BroadcastInstructions({ ingestUrl, simulated }: { ingestUrl: str
       )}
       <div className="flex flex-col gap-1">
         <span className="text-sm font-medium">Servidor (URL RTMP)</span>
-        <code className="block select-all break-all rounded-xl border border-border bg-bg px-3 py-2.5 font-mono text-sm">{ingestUrl}</code>
+        <code className="block select-all break-all rounded-xl border border-border bg-surface px-3 py-2.5 font-mono text-sm">{ingestUrl}</code>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <section aria-label="OBS Studio" className="flex flex-col gap-2">
