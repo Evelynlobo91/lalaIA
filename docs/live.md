@@ -326,3 +326,26 @@ Fora do ar o botão fica desabilitado e o caso de uso recusa. O disparo são dua
 
 Limitações: os números aparecem na lista de chamadas, não no painel "Dados" do promotor; o parceiro não é
 avisado quando a moderação desativa (vê o selo ao abrir a lista); a lista da moderação mostra as 50 mais recentes.
+
+## Chat da live (#95)
+
+Mensagens curtas junto do player, para quem assiste sentir o clima e conversar com o anfitrião.
+
+### Enviar e ler (#187, #188)
+
+- **Onde aparece**: painel "Chat" logo abaixo do player (recolhível), só com a live **ao vivo**. Pausada ou
+  encerrada, o chat fecha e some. Visitante lê; para escrever, "Entre para participar".
+- **Gravação sempre pelo servidor**: `POST /api/live/chat` (`SendChatMessage`). Quem envia vem da sessão. Na ordem:
+  chat aberto → até 200 caracteres → links (só o anfitrião manda) → filtro de conteúdo → 1 mensagem a cada 3 s por
+  pessoa. A RLS repete o essencial (chat aberto, em nome próprio, selo de anfitrião só do dono, resposta só a
+  mensagem da mesma live); o cliente nunca insere direto na tabela.
+- **Portas**: `ContentFilter` (hoje `WordListFilter`, lista pt-BR + `LIVE_CHAT_BLOCKED_WORDS`; amanhã moderação por
+  IA), `ChatRateLimiter` (hoje Postgres; Redis se escalar, #56), `ChatAuthors` (nome, foto e nível pelas APIs
+  públicas de identity e progression) e `ChatEntitlement` (recurso `chat` do plano do dono, com cache de 30 s).
+- **Leitura**: `GET /api/live/chat?streamId=&version=` (`GetChatFeed`), público. Devolve as últimas 50 mensagens e
+  uma `version`; se a tela já tem aquela versão, a resposta vem sem mensagens (uma consulta barata por atualização).
+- **Atualização**: polling de 2,5 s, só com a aba visível, atrás do componente `LiveChat` (mesma estratégia do
+  status da live; o Realtime está desligado no CI de E2E). A mensagem chega aos outros em até ~2,5 s, não em 1 s.
+- **O que a tela recebe**: nome, foto, nível e selo "Anfitrião"; nunca o id nem o e-mail de quem escreveu.
+- **LGPD**: na exclusão da conta as mensagens ficam sem autor ("Usuário removido"). O conteúdo das mensagens não
+  vai para os logs.

@@ -1,7 +1,8 @@
 import "server-only";
 import { TrackView } from "@/modules/analytics";
+import { getCurrentUser } from "@/modules/identity";
 import { errorReporter, logger } from "@/shared/observability";
-import { getActiveCta, getLivePlayback, getStreamContext } from "../../../composition";
+import { chatEntitled, chatRepository, getActiveCta, getLivePlayback, getStreamContext } from "../../../composition";
 import type { LiveTargetInfo, StreamEntityType } from "../../../domain/stream";
 import { liveTargetSchema } from "../player.schema";
 import type { LivePlayback } from "../player.use-case";
@@ -36,6 +37,23 @@ async function contextFor(entityType: StreamEntityType, entityId: string): Promi
 }
 
 /**
+ * Chat da live (#95): só entra na página quando o plano do anfitrião tem chat. Quem está logado (ou não) decide
+ * se a pessoa escreve ou só lê. O chat é um complemento: uma falha aqui não derruba o player.
+ */
+async function chatFor(streamId: string, href: string): Promise<{ viewer: { name: string } | null; loginHref: string } | null> {
+  try {
+    const room = await chatRepository().room(streamId);
+    if (!room || !(await chatEntitled(room.ownerId))) return null;
+    const user = await getCurrentUser();
+    return { viewer: user ? { name: user.displayName } : null, loginHref: `/entrar?next=${encodeURIComponent(href)}` };
+  } catch (error) {
+    logger().error("falha ao carregar o chat da live", { err: error });
+    errorReporter().capture(error);
+    return null;
+  }
+}
+
+/**
  * Server component para o slot `extras` das páginas de lugar e evento: busca a live do lugar/evento e
  * mostra o player com os estados (#51). Sem transmissão → nada. `PlaceDetailCard`/`EventDetailCard` não conhecem o módulo live.
  */
@@ -44,7 +62,8 @@ export async function LivePlayerFor({ entityType, entityId, title }: { entityTyp
   // Sem transmissão, ou encerrada antes de a pessoa chegar: nada na página. "Encerrada" só aparece para quem
   // estava acompanhando (transição ao vivo → encerrada, sem recarregar).
   if (!playback || playback.status === "ended") return null;
-  const [{ info: context, renderedAt }, cta] = await Promise.all([contextFor(entityType, entityId), getActiveCta().execute(playback)]);
+  const href = `${entityType === "place" ? "/lugares" : "/eventos"}/${entityId}`;
+  const [{ info: context, renderedAt }, cta, chat] = await Promise.all([contextFor(entityType, entityId), getActiveCta().execute(playback), chatFor(playback.streamId, href)]);
 
   return (
     <LiveStage
@@ -54,6 +73,7 @@ export async function LivePlayerFor({ entityType, entityId, title }: { entityTyp
       context={context && { entityType: context.entityType, title: context.title, subtitle: context.subtitle, whenLabel: context.whenLabel }}
       renderedAt={renderedAt}
       title={title}
+      chat={chat}
       onWatch={<TrackView kind="live_view" entityType="live" entityId={playback.streamId} />}
     />
   );

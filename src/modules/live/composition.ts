@@ -31,6 +31,11 @@ import { StopCtaTrigger, TriggerCta } from "./features/trigger-cta/trigger-cta.u
 import { GetCtaMetrics } from "./features/cta-metrics/cta-metrics.use-case";
 import { ListCtasForModeration, ModerateCta } from "./features/moderate-cta/moderate-cta.use-case";
 import { ModuleCtaCatalog } from "./infra/cta-catalog";
+import { WordListFilter, blockedWordsFrom } from "./domain/chat";
+import { ChatPresenter, GetChatFeed } from "./features/chat-feed/chat-feed.use-case";
+import { SendChatMessage, type ChatEntitlement } from "./features/send-chat-message/send-chat-message.use-case";
+import { ModuleChatAuthors } from "./infra/chat-authors";
+import { PostgresChatRepository } from "./infra/postgres-chat-repository";
 import { PostgresCtaRepository } from "./infra/postgres-cta-repository";
 
 /** Mux com MUX_TOKEN_ID; senão, o simulado. Criado no primeiro uso (páginas sem live não exigem a configuração). */
@@ -88,3 +93,24 @@ export const stopCtaTrigger = lazy(() => new StopCtaTrigger(ctaRepository()));
 export const getCtaMetrics = lazy(() => new GetCtaMetrics(new AnalyticsInteractionCounter()));
 export const listCtasForModeration = lazy(() => new ListCtasForModeration(ctaRepository()));
 export const moderateCta = lazy(() => new ModerateCta(ctaRepository(), domainEvents()));
+
+// Chat da live (#95). O direito vem do plano do dono da transmissão (recurso `chat`). A resposta do billing é
+// guardada por 30 s por conta: o chat é consultado a cada poucos segundos por cada espectador.
+const CHAT_PLAN_TTL_MS = 30_000;
+const chatPlanCache = new Map<string, { at: number; value: Promise<boolean> }>();
+export const chatEntitled: ChatEntitlement = (ownerId) => {
+  const now = Date.now();
+  const cached = chatPlanCache.get(ownerId);
+  if (cached && now - cached.at < CHAT_PLAN_TTL_MS) return cached.value;
+  const value = hasPlanFeature(ownerId, "chat");
+  chatPlanCache.set(ownerId, { at: now, value });
+  // Falha não fica guardada: a próxima consulta tenta de novo.
+  value.catch(() => chatPlanCache.delete(ownerId));
+  if (chatPlanCache.size > 500) for (const [key, entry] of chatPlanCache) if (now - entry.at >= CHAT_PLAN_TTL_MS) chatPlanCache.delete(key);
+  return value;
+};
+export const chatRepository = lazy(() => new PostgresChatRepository(sql()));
+const chatPresenter = lazy(() => new ChatPresenter(chatRepository(), new ModuleChatAuthors()));
+const chatFilter = lazy(() => new WordListFilter(blockedWordsFrom(process.env.LIVE_CHAT_BLOCKED_WORDS)));
+export const sendChatMessage = lazy(() => new SendChatMessage(chatRepository(), chatRepository(), chatFilter(), chatRepository(), chatEntitled, chatPresenter()));
+export const getChatFeed = lazy(() => new GetChatFeed(chatRepository(), chatRepository(), chatEntitled, chatPresenter()));

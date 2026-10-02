@@ -1,7 +1,8 @@
 // API pública do módulo live (transmissões ao vivo de lugares e eventos).
 import { hasRole, type CurrentUser } from "@/modules/identity";
 import type { ModuleSubscriptions } from "@/shared/events";
-import { getCtaMetrics, getCtaPanel, listCtasForModeration, liveCountsReader } from "./composition";
+import { getChatFeed, getCtaMetrics, getCtaPanel, listCtasForModeration, liveCountsReader, sendChatMessage } from "./composition";
+import { chatFeedRoute, sendChatMessageRoute } from "./features/chat-feed/chat.route";
 import type { CtaMetrics } from "./features/cta-metrics/cta-metrics.use-case";
 import type { CtaModerator } from "./features/moderate-cta/moderate-cta.use-case";
 import { toLocalInput } from "@/shared/time/joinville-time";
@@ -162,6 +163,10 @@ export const liveApi = {
   webhooks: webhooksRoute(handleProviderWebhook),
   /** GET /api/live/status?entityType=&entityId= — status atual para a página trocar de estado sozinha. */
   status: liveStatusRoute(getLiveStatus),
+  /** GET /api/live/chat?streamId=&version= — histórico e atualização do chat (público). */
+  chatFeed: chatFeedRoute(getChatFeed),
+  /** POST /api/live/chat — enviar mensagem (só logado). */
+  chatSend: sendChatMessageRoute(sendChatMessage),
 };
 
 /**
