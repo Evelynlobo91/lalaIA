@@ -116,6 +116,12 @@ export class PostgresSubscriptionStore implements SubscriptionStore, ActivePlans
     return row ? toInvoice(row) : null;
   }
 
+  /** Fatura da assinatura pelo id da cobrança no provedor (o simulador só paga cobranças do próprio dono). */
+  async findInvoiceByGatewayId(subscriptionId: string, gatewayInvoiceId: string): Promise<Invoice | null> {
+    const [row] = await this.sql.unsafe<InvoiceRow[]>(`select ${INVOICE_COLUMNS} from billing.invoices i where i.subscription_id = $1 and i.gateway_invoice_id = $2`, [subscriptionId, gatewayInvoiceId]);
+    return row ? toInvoice(row) : null;
+  }
+
   async dueForRenewal(until: Date, limit: number): Promise<Array<Subscription & { plan: Plan }>> {
     const rows = await this.sql.unsafe<Array<SubscriptionRow & Record<string, unknown>>>(
       `select ${SUBSCRIPTION_COLUMNS}, ${PLAN_AS_P}

@@ -40,3 +40,26 @@ Planos, assinaturas e faturas dos parceiros (Epic #86). As telas do time ficam e
   Mercado Pago ou Stripe) é uma decisão pendente e entra como um novo adaptador, escolhido por `BILLING_PROVIDER`.
 - **Quem grava:** assinaturas e faturas são escritas pelo sistema (a autorização fica nos casos de uso). A RLS só
   libera leitura: o dono lê a própria assinatura e faturas, e o financeiro lê todas.
+
+## Webhooks de pagamento e inadimplência (#154)
+
+- **`POST /api/billing/webhooks`:** recebe os eventos do provedor (pago, vencido, estornado). A assinatura é conferida
+  sobre o corpo cru, em tempo constante e com janela de 5 minutos; sem assinatura válida responde 401. Corpo acima de
+  64 KB responde 413. Sem o segredo configurado a rota responde 503.
+- **Idempotência e log:** cada evento é gravado em `billing.payment_events` (append-only) com o id do provedor;
+  reenvio do mesmo evento não tem efeito. Cobrança desconhecida é registrada e respondida com 200, para o provedor
+  não reenviar. O log guarda só ids e o tipo do evento.
+- **O que cada evento faz:**
+  - **pago:** fatura paga; o plano da fatura passa a valer (primeira assinatura, troca pendente ou renovação), a
+    assinatura fica em dia e o ciclo é o da fatura.
+  - **vencido:** fatura vencida; quem estava em dia entra na **carência** (`past_due`), e o plano continua valendo.
+  - **estornado:** fatura estornada; a assinatura é suspensa na hora.
+- **Ciclo diário** (`POST /api/billing/cycle`, depois da renovação): marca como vencidas as faturas que passaram do
+  vencimento (caso o provedor não avise) e **suspende** quem continua sem pagar depois da carência
+  (`BILLING_GRACE_DAYS`, padrão 5 dias).
+- **Suspensa:** volta a valer o plano padrão. O módulo publica `billing.SubscriptionSuspended`; a live assina esse
+  evento e, se o plano que sobrou não libera a live, encerra as transmissões do dono. O pagamento reativa a
+  assinatura sozinho (`billing.SubscriptionReactivated`); o parceiro ativa a live de novo no portal.
+- **Simulador de pagamento:** com o provedor simulado e `BILLING_FAKE_WEBHOOK_SECRET` (mínimo de 32 caracteres), a
+  página `/pagamento/simulado/<id>` mostra "Simular pagamento", que entrega ao app o mesmo webhook assinado que o
+  provedor entregaria. Só o dono da cobrança consegue simular o próprio pagamento.

@@ -1,6 +1,7 @@
 // Composição do módulo live (interna): usada pelas actions, rotas e pelo index.ts.
 import { hasPlanFeature } from "@/modules/billing";
 import { liveGateWith } from "./features/privacy/live-gate";
+import { EndStreamsWithoutPlan } from "./features/stream-control/plan-suspension";
 import { sql } from "@/shared/db/sql";
 import { logger } from "@/shared/observability";
 import { domainEvents } from "@/shared/events";
@@ -47,6 +48,9 @@ export const handleProviderWebhook = lazy(() => new HandleProviderWebhook(stream
 
 export const controlStream = lazy(() => new ControlStream(streamRepository(), streamRepository(), streamingProvider, domainEvents(), liveGate()));
 export const endStreamOfCancelledEvent = lazy(() => new EndStreamOfCancelledEvent(streamRepository(), streamRepository(), streamingProvider, domainEvents()));
+export const endStreamsWithoutPlan = lazy(
+  () => new EndStreamsWithoutPlan(streamRepository(), streamRepository(), streamingProvider, (ownerId) => hasPlanFeature(ownerId, "live"), logger().child({ module: "live" })),
+);
 export const endStreamsOfDeletedUser = lazy(() => new EndStreamsOfDeletedUser(streamRepository(), streamingProvider, logger().child({ module: "live" })));
 
 export const getLivePlayback = lazy(() => new GetLivePlayback({ findByTarget: (target) => streamRepository().findVisibleByTarget(target) }, streamingProvider));
