@@ -70,6 +70,12 @@ describe("PostgresPlaceReader.listAfter", () => {
     expect(points.find((p) => p.name === "Zebra Bar")).toMatchObject({ lat: -26.3, lon: -48.84, category: "bares" });
   });
 
+  it("pointsByIds: coordenadas só dos ids pedidos; inexistentes e inválidos ficam de fora", async () => {
+    const [{ id }] = await db<{ id: string }[]>`select id from places.places where source_id = ${`${prefix}/0`}`;
+    expect(await reader.pointsByIds([id, id, "00000000-0000-4000-8000-000000000000", "abc"])).toEqual([{ id, name: "Zebra Bar", category: "bares", lat: -26.3, lon: -48.84 }]);
+    expect(await reader.pointsByIds([])).toEqual([]);
+  });
+
   it("nearby: ordena pela distância real, respeita o raio e o próprio ponto fica a 0 m", async () => {
     const origin = { lat: -26.3, lon: -48.84 }; // onde estão os 5 lugares de teste
     const near = await reader.nearby(origin, 1000, 50);

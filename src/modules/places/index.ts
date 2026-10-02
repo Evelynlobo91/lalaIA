@@ -121,6 +121,11 @@ export function placeCandidates(query: PlaceCandidatesQuery): Promise<PlaceCandi
   return findPlaceCandidates().execute(query);
 }
 
+/** Coordenadas de vários lugares numa consulta (ex.: camada Live do mapa). Ids inválidos ou inexistentes ficam de fora. */
+export function placePoints(ids: string[]): Promise<Array<{ id: string; name: string; lat: number; lon: number }>> {
+  return reader().pointsByIds(ids);
+}
+
 /** Resumos de vários lugares numa consulta (ex.: listas de eventos). */
 export function placeSummaries(ids: string[]) {
   return ownership().summaries([...new Set(ids)]);

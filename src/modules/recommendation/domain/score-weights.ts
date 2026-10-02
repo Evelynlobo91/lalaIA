@@ -15,7 +15,7 @@ export const DEFAULT_WEIGHTS: ScoreWeights = {
   preference: 3,
   /** Acontecendo agora (evento) > começando em breve > lugar aberto agora. */
   happeningNow: 2.5,
-  /** Transmissão ao vivo ativa (módulo Live, ainda não existe: porta `LiveStatusReader`). */
+  /** Transmissão ao vivo ativa (módulo Live, pela porta `LiveStatusReader`). */
   live: 3,
   /** Publicado/cadastrado há pouco (decai em 14 dias). */
   novelty: 1.5,

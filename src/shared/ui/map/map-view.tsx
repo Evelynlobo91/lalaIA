@@ -2,10 +2,11 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import { AttributionControl, GeolocateControl, Map as MapLibreMap, NavigationControl, getVersion, setWorkerUrl } from "maplibre-gl";
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { cn } from "../cn";
 import { JOINVILLE_CENTER, baseStyle } from "./base-style";
 import type { MapLayer } from "./map-layer";
+import { MapLayersContext } from "./map-layers-context";
 
 type MapViewProps = {
   layers: MapLayer[];
@@ -24,8 +25,10 @@ type MapViewProps = {
  */
 export function MapView({ layers, center = JOINVILLE_CENTER, zoom = 12, label, className, onReady }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  // Camadas extras de quem envolve o mapa (ex.: Live na página /mapa), desenhadas por cima.
+  const extraLayers = useContext(MapLayersContext);
   // Camadas e callback são lidos na criação do mapa; quem usa deve passá-los estáveis (useMemo).
-  const initial = useRef({ layers, center, zoom, onReady });
+  const initial = useRef({ layers: [...layers, ...extraLayers], center, zoom, onReady });
 
   useEffect(() => {
     if (!containerRef.current) return;

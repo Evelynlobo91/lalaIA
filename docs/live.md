@@ -43,7 +43,7 @@ nenhum ambiente. Páginas sem live não exigem a configuração.
 | Tela | Mascarada por padrão. A chave **não vai no HTML**: só chega ao navegador quando o dono clica em "Revelar" ou "Copiar" (Server Action). |
 | Caso de uso | `RevealStreamKey`/`RotateStreamKey` exigem ser o dono (nem o admin vê). O id vem da sessão (`withUser`). |
 | Banco | A chave fica em `live.stream_credentials`, separada de `live.streams`. RLS: **só o dono** lê e rotaciona; o backend lê com `asUser`. A leitura pública nunca toca nessa tabela. |
-| Column grants | Como usuário, em `live.streams` só a coluna `control` é alterável: dono, vínculo, provedor e sinal não. |
+| Column grants | Como usuário, em `live.streams` só `control` e a situação atual (#53) são alteráveis: dono, vínculo, provedor e sinal não. |
 
 ## Webhooks e ciclo de vida (#48, RNF18)
 
@@ -107,12 +107,12 @@ Botões no card de cada transmissão em `/parceiro/live` (`features/stream-contr
   (e quem tem HLS nativo) tocam direto no `<video>`; nos demais, o `hls.js` (Apache-2.0) é baixado por
   import dinâmico, com **bitrate adaptativo** e `lowLatencyMode`.
 - **Privacidade (RNF16):** sempre começa **mudo**, com `playsInline` (não abre em tela cheia no iPhone).
-  A live stream é criada **sem gravação**. Aviso curto de privacidade no portal (a #55 completa).
+  A live stream é criada **sem gravação**. Aviso curto ao público perto do player e diretrizes no portal (#55).
 - **Analytics:** quando o vídeo começa a tocar, renderiza `<TrackView kind="live_view" entityType="live"
   entityId={streamId}>` (módulo analytics), passado pelo server component.
 - A URL HLS só é entregue quando o status é `live` (pausada/encerrada não expõe a URL).
 - **Para Recomendação e Mapa:** `listActiveStreams(limit?)` devolve `{ streamId, entityType, entityId }`
-  das lives no ar (só ids; quem chama busca os próprios dados).
+  das lives no ar (só ids; quem chama busca os próprios dados). Veja o #52 abaixo.
 
 ## Estados da live (#51, RNF20)
 
@@ -144,6 +144,85 @@ O polling fica atrás do hook `useLiveStatus` (fachada). Para trocar por push:
    (ex.: a cada 60 s) para reconexões.
 
 Ficou para depois porque o Realtime está desligado no CI de E2E (`supabase start -x realtime`).
+
+## Selo "Ao vivo", lista e mapa (#52, RF20/RF24)
+
+`features/live-badge`. As consultas leem `live.streams` pelo índice parcial `streams_live_idx`
+(`status = 'live'`) e buscam nome, lugar, horário e coordenadas pelas APIs públicas de places
+(`placeSummaries`, `placePoints`) e events (`eventSummaries`), no adaptador `ModuleLiveTargetDirectory`.
+Assim são no máximo quatro consultas, qualquer que seja a quantidade de lives.
+
+| Onde | Como |
+|------|------|
+| Cards de lugares e eventos (`/lugares`, `/eventos`) | Os cards renderizam `<LiveNowBadge>` (shared/ui), que lê o `LiveNowContext`. A página envolve a lista com `<LiveNowProvider initial={await liveNowKeys()}>` (módulo live). **places e events não importam live.** Sem provider, nenhum selo aparece. |
+| Detalhe do lugar/evento | Selo no cabeçalho (mesmo `LiveNowBadge`) + o selo do player (`LiveStage`, #51). |
+| Mapa (`/mapa`) | Camada `MapLayer` "lives" (`liveMapLayer`), somada por `<LiveMapLayers>` em volta do `PlacesMap` via `MapLayersContext` (shared/ui/map). Marcador vermelho com "AO VIVO"; o toque abre um resumo com "Ver a live". Dados de `GET /api/live/map` (GeoJSON). |
+| Lista "Com live agora" (`/ao-vivo`) | `liveNow()` → `<LiveNowList>`. Links nas listas de lugares e eventos e no mapa (alternativa acessível ao mapa). |
+| Recomendação | A porta `LiveStatusReader` usa `LiveStreamsStatus` → `listActiveStreams()` (o stub `NoLiveYet` foi removido). |
+
+**Atualização na POC:** polling leve de `GET /api/live/active` (`{ streams: [{ entityType, entityId }] }`)
+a cada **30 s** (`LIVE_NOW_POLL_MS`), só com a aba visível (`pollWhileVisible`, o mesmo do #51). O mapa
+recarrega o GeoJSON no mesmo ritmo. As duas respostas são públicas, iguais para todo mundo e com cache curto
+na CDN (`s-maxage=10`): mil pessoas na lista não viram mil consultas ao banco.
+
+**Evolução: Supabase Realtime.** O `LiveNowProvider` é a fachada: basta assinar mudanças de uma tabela/canal
+público de status (veja "Evolução" no #51) e aplicar no mesmo conjunto, mantendo o polling como reserva.
+
+## Informações contextuais (#53, RF21)
+
+`features/stream-context`. Junto do player (`LiveStage`), a página mostra:
+
+| Informação | De onde vem |
+|------------|-------------|
+| Evento, lugar e horário | `GetStreamContext` → `ModuleLiveTargetDirectory` (APIs públicas de events/places), no servidor |
+| Há quanto tempo está ao vivo | `liveSince` (= `signal_changed_at` enquanto o status é `live`): "Ao vivo há 12 min (desde 21:40)". O primeiro render usa a hora do servidor (sem erro de hidratação); depois atualiza a cada minuto |
+| Situação atual | `live.streams.status_note` (até 80 caracteres, uma linha), editada pelo parceiro no portal ("Show começa 22h", "Casa cheia") |
+
+- A situação e o início vêm no mesmo `GET /api/live/status` do #51 (`note`, `liveSince`): mudam na página
+  sem recarregar. Encerrada → a situação não aparece mais. Também aparece na lista "Com live agora".
+- **Portal:** campo "Situação atual" em cada transmissão não encerrada (`StreamNoteForm`, Server Action
+  `updateStreamNoteAction`). Vazio limpa. Validação com zod (espaços e quebras de linha viram um espaço) e
+  `check` no banco.
+- **Quem altera:** dono ou admin (`UpdateStreamNote` + RLS). Column grants: como usuário, em `live.streams`
+  só `control`, `status_note` e `status_note_updated_at` mudam.
+- "Há quanto tempo" conta desde a última vez que o sinal entrou no ar; pausar e voltar não reinicia a contagem.
+
+## Métricas da transmissão (#54, RF25)
+
+`features/stream-metrics`. No portal (`/parceiro/live`), cada transmissão mostra:
+
+| Métrica | De onde vem |
+|---------|-------------|
+| **Assistiram** (total e últimos 7 dias) | `live_view` com `entityType: "live"` e o id da transmissão: o player registra quando o vídeo começa a tocar, uma vez por aba (#50) |
+| **Acessos à página** (total e últimos 7 dias) | `view` do lugar/evento: a página onde fica o player |
+
+- `GetStreamMetrics` lê as transmissões do próprio parceiro e chama a porta `InteractionCounter`,
+  implementada por `AnalyticsInteractionCounter` com a API pública `interactionTotals` do Analytics
+  (uma consulta agregada pelo índice por entidade). São até seis consultas, em paralelo. A resposta
+  do Analytics é validada com zod.
+- **Sem dados pessoais:** o Analytics não guarda quem fez (LGPD). O portal só mostra contagens e diz isso.
+- Se o Analytics falhar, o portal abre sem métricas (erro logado e reportado).
+- **Pendência:** pico de espectadores simultâneos via API do provedor (Mux Data). Fica para depois da POC.
+
+## Diretrizes de privacidade e enquadramento (#55, RNF16/RNF17)
+
+`features/privacy`. Objetivo: minimizar a exposição de quem está no local.
+
+- **Checklist obrigatório** no portal antes da primeira live (`PrivacyChecklist`): câmera no alto em plano
+  aberto (sem rostos, mesas de perto, caixa ou banheiros), **sem áudio**, **aviso físico** no local e
+  **LGPD** (quem pedir para não aparecer → ajustar o enquadramento ou pausar). Todos os itens são obrigatórios
+  (zod), e o formulário envia a versão que a pessoa leu.
+- **Aceite registrado** em `live.broadcaster_agreements` (`owner_id`, `guidelines_version`, `privacy_ack_at`),
+  um por parceiro. RLS: só parceiro, só em nome próprio; ninguém lê o aceite de outra pessoa. Apagar a conta
+  apaga o aceite. Mudou o texto de forma relevante → nova `LIVE_GUIDELINES_VERSION` → novo aceite.
+- **Trava no caso de uso** (`PrivacyGate`): sem o aceite da versão vigente, `ProvisionStream` (gerar a chave) e
+  `ControlStream` com "Ativar" recusam com `privacy_guidelines_required`. Vale o aceite do **dono**, mesmo quando
+  um admin ativa. Pausar e encerrar continuam livres (são ações de proteção). A tela também desabilita os botões.
+- **Guia de posicionamento de câmera** sempre visível no portal (`CameraGuide`), com o texto sugerido para o
+  cartaz no local.
+- **Público:** aviso curto perto do player (`PublicLiveNotice`): plano aberto, sem áudio, sem gravação e como
+  pedir para não aparecer.
+- Transmissões criadas antes do aceite continuam com o controle que tinham; "Ativar" passa a exigir o aceite.
 
 ## Configurar o Mux
 

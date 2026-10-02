@@ -23,6 +23,7 @@ const stream = (patch: Partial<StreamRecord> = {}): StreamRecord => {
     control: "on",
     signal: "offline",
     status: "waiting",
+    note: null,
     signalChangedAt: t0,
     createdAt: t0,
     ...patch,

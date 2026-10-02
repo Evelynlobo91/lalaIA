@@ -53,6 +53,8 @@ export type StreamRecord = StreamTarget & {
   status: StreamStatus;
   signalChangedAt: Date;
   createdAt: Date;
+  /** Situação atual definida pelo parceiro (#53), ex.: "Casa cheia". */
+  note: string | null;
 };
 
 export type NewStream = StreamTarget & { provider: string; providerStreamId: string; playbackId: string; streamKey: string };
@@ -82,6 +84,14 @@ export const CONTROL_BY_ACTION: Record<StreamAction, { control: StreamControl; k
   pause: { control: "paused", kind: "paused" },
   end: { control: "ended", kind: "ended" },
 };
+
+/** Situação atual (#53): texto curto que o parceiro edita. */
+export const STREAM_NOTE_MAX = 80;
+
+/** Grava a situação atual como o usuário (RLS: dono ou admin). null se o banco não permitir. */
+export interface StreamNoteStore {
+  setNote(actorId: string, streamId: string, note: string | null): Promise<StreamRecord | null>;
+}
 
 /** Muda o controle e registra a ação no log de ciclo de vida, na mesma transação. */
 export interface StreamControlStore {
@@ -121,3 +131,23 @@ export interface StreamTargets {
   /** Opções para o portal, com nome e link da página pública. */
   optionsFor(userId: string): Promise<Array<StreamTarget & { label: string; href: string }>>;
 }
+
+/** O que a Live mostra de um lugar/evento (vem das APIs públicas de places e events). */
+export type LiveTargetInfo = StreamTarget & {
+  /** Nome do lugar ou título do evento. */
+  title: string;
+  /** Lugar do evento, ou bairro do lugar. */
+  subtitle: string | null;
+  /** Horário do evento (ex.: "sáb., 10 de out., 20:00 – 23:30"); null para lugares. */
+  whenLabel: string | null;
+  href: string;
+  /** Coordenadas (o evento usa as do lugar); null se não houver. */
+  location: { lat: number; lon: number } | null;
+};
+
+/** Dados de vários lugares/eventos em lote (poucas consultas, qualquer que seja a quantidade). */
+export interface LiveTargetDirectory {
+  describe(targets: StreamTarget[]): Promise<LiveTargetInfo[]>;
+}
+
+export const targetKey = (t: StreamTarget) => `${t.entityType}:${t.entityId}`;

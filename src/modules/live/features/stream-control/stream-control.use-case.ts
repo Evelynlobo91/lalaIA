@@ -2,6 +2,7 @@ import type { DomainEventPublisher } from "@/shared/events";
 import { BusinessRuleError, ForbiddenError, NotFoundError, err, ok, type DomainError, type Result } from "@/shared/kernel";
 import { CONTROL_BY_ACTION, type LiveActor, type StreamAction, type StreamControlStore, type StreamRecord, type StreamRepository } from "../../domain/stream";
 import type { StreamingProvider } from "../../domain/streaming-provider";
+import type { PrivacyGate } from "../privacy/privacy.use-case";
 
 const notAllowed = () => err(new ForbiddenError("Só o responsável pela transmissão (ou um administrador) pode controlá-la."));
 
@@ -11,6 +12,7 @@ const notAllowed = () => err(new ForbiddenError("Só o responsável pela transmi
  *   (repetir o comando completa). O player some no próximo ciclo de status.
  * - Pausar só oculta o player (status `paused`); a ingestão continua e "ativar" volta na hora.
  * - Ativar uma transmissão encerrada reabilita a chave no provedor.
+ * - Ativar exige que o dono tenha aceitado as diretrizes de privacidade vigentes (#55).
  */
 export class ControlStream {
   constructor(
@@ -18,6 +20,7 @@ export class ControlStream {
     private readonly control: Pick<StreamControlStore, "setControl">,
     private readonly provider: () => StreamingProvider,
     private readonly events: DomainEventPublisher,
+    private readonly privacy: Pick<PrivacyGate, "check">,
   ) {}
 
   async execute(actor: LiveActor, streamId: string, action: StreamAction): Promise<Result<StreamRecord, DomainError>> {
@@ -29,6 +32,11 @@ export class ControlStream {
     if (stream.control === change.control) return ok(stream);
     if (action === "pause" && stream.control === "ended") {
       return err(new BusinessRuleError("stream_ended", "A transmissão está encerrada. Ative de novo antes de pausar."));
+    }
+    if (action === "activate") {
+      // Vale o aceite do dono, mesmo quando é um admin que ativa.
+      const accepted = await this.privacy.check(stream.ownerId, "activate");
+      if (!accepted.ok) return accepted;
     }
 
     if (action === "end") await this.provider().disable(stream.providerStreamId);

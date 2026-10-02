@@ -5,9 +5,16 @@ import { lazy } from "@/shared/kernel";
 import { ListLiveTargets, ProvisionStream, RevealStreamKey, RotateStreamKey } from "./features/stream-key/stream-key.use-case";
 import { GetLivePlayback, ListActiveStreams } from "./features/player/player.use-case";
 import { GetLiveStatus } from "./features/stream-states/stream-states.use-case";
+import { GetActiveStreams, GetLiveNowGeo, ListLiveNow } from "./features/live-badge/live-badge.use-case";
+import { ModuleLiveTargetDirectory } from "./infra/live-target-directory";
+import { GetStreamMetrics } from "./features/stream-metrics/stream-metrics.use-case";
+import { AnalyticsInteractionCounter } from "./infra/analytics-interaction-counter";
+import { GetStreamContext, UpdateStreamNote } from "./features/stream-context/stream-context.use-case";
 import { ControlStream, EndStreamOfCancelledEvent } from "./features/stream-control/stream-control.use-case";
 import { HandleProviderWebhook } from "./features/webhooks/webhooks.use-case";
 import { streamingProviderFrom } from "./infra/live-config";
+import { AcceptLiveGuidelines, PrivacyGate } from "./features/privacy/privacy.use-case";
+import { PostgresPrivacyAgreements } from "./infra/postgres-privacy-agreements";
 import { PostgresStreamLifecycleLog } from "./infra/postgres-stream-lifecycle-log";
 import { PostgresStreamRepository } from "./infra/postgres-stream-repository";
 import { ModuleStreamTargets } from "./infra/stream-targets";
@@ -18,7 +25,11 @@ export const streamingProvider = lazy(() => streamingProviderFrom(process.env));
 export const streamRepository = lazy(() => new PostgresStreamRepository(sql()));
 const streamTargets = new ModuleStreamTargets();
 
-export const provisionStream = lazy(() => new ProvisionStream(streamRepository(), streamTargets, streamingProvider));
+export const privacyAgreements = lazy(() => new PostgresPrivacyAgreements(sql()));
+export const privacyGate = lazy(() => new PrivacyGate(privacyAgreements()));
+export const acceptLiveGuidelines = lazy(() => new AcceptLiveGuidelines(privacyAgreements()));
+
+export const provisionStream = lazy(() => new ProvisionStream(streamRepository(), streamTargets, streamingProvider, privacyGate()));
 export const rotateStreamKey = lazy(() => new RotateStreamKey(streamRepository(), streamingProvider));
 export const revealStreamKey = lazy(() => new RevealStreamKey(streamRepository()));
 export const listLiveTargets = lazy(() => new ListLiveTargets(streamRepository(), streamTargets, streamingProvider));
@@ -26,9 +37,18 @@ export const listLiveTargets = lazy(() => new ListLiveTargets(streamRepository()
 export const lifecycleLog = lazy(() => new PostgresStreamLifecycleLog(sql()));
 export const handleProviderWebhook = lazy(() => new HandleProviderWebhook(streamingProvider, lifecycleLog(), domainEvents()));
 
-export const controlStream = lazy(() => new ControlStream(streamRepository(), streamRepository(), streamingProvider, domainEvents()));
+export const controlStream = lazy(() => new ControlStream(streamRepository(), streamRepository(), streamingProvider, domainEvents(), privacyGate()));
 export const endStreamOfCancelledEvent = lazy(() => new EndStreamOfCancelledEvent(streamRepository(), streamRepository(), streamingProvider, domainEvents()));
 
 export const getLivePlayback = lazy(() => new GetLivePlayback(streamRepository(), streamingProvider));
 export const listActiveStreamsUseCase = lazy(() => new ListActiveStreams(streamRepository()));
 export const getLiveStatus = lazy(() => new GetLiveStatus(getLivePlayback()));
+
+const targetDirectory = new ModuleLiveTargetDirectory();
+export const listLiveNow = lazy(() => new ListLiveNow(streamRepository(), targetDirectory));
+export const getActiveStreams = lazy(() => new GetActiveStreams(listActiveStreamsUseCase()));
+export const getLiveNowGeo = lazy(() => new GetLiveNowGeo(listLiveNow()));
+
+export const updateStreamNote = lazy(() => new UpdateStreamNote(streamRepository(), streamRepository()));
+export const getStreamContext = lazy(() => new GetStreamContext(targetDirectory));
+export const getStreamMetrics = lazy(() => new GetStreamMetrics(streamRepository(), new AnalyticsInteractionCounter()));

@@ -102,6 +102,18 @@ export class PostgresPlaceReader implements PlaceReader, PlaceDetailsReader, Pla
     return rows.filter((r) => isCategoryId(r.category)).map((r) => ({ ...r, category: r.category as CategoryId }));
   }
 
+  /** Coordenadas de vários lugares numa consulta (ex.: camada Live do mapa). Ids inválidos ficam de fora. */
+  async pointsByIds(ids: string[]): Promise<PlacePoint[]> {
+    const valid = [...new Set(ids.filter((id) => UUID.test(id)))];
+    if (valid.length === 0) return [];
+    const rows = await this.sql<{ id: string; name: string; category: string; lat: number; lon: number }[]>`
+      select id, name, category,
+             extensions.st_y(location::extensions.geometry) as lat, extensions.st_x(location::extensions.geometry) as lon
+      from places.places
+      where id in ${this.sql(valid)}`;
+    return rows.filter((r) => isCategoryId(r.category)).map((r) => ({ ...r, category: r.category as CategoryId }));
+  }
+
   async findById(id: string): Promise<PlaceDetails | null> {
     const [r] = await this.sql<DetailsRow[]>`
       select id, name, category, street, house_number, neighborhood, postcode, city, phone, website, opening_hours, source,

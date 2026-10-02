@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { ok } from "@/shared/kernel";
 import { statusOf, type LiveActor, type StreamControl, type StreamRecord } from "../../domain/stream";
 import type { StreamingProvider } from "../../domain/streaming-provider";
 import { streamControlSchema } from "./stream-control.schema";
@@ -22,6 +23,7 @@ function setup(initial: { control?: StreamControl; signal?: "offline" | "live" }
     status: statusOf(control, signal),
     signalChangedAt: new Date(),
     createdAt: new Date(),
+    note: null,
   });
   let current = make(initial.control ?? "on", initial.signal ?? "live");
   const order: string[] = [];
@@ -47,7 +49,7 @@ function setup(initial: { control?: StreamControl; signal?: "offline" | "live" }
     }),
   } as unknown as StreamingProvider;
   const publish = vi.fn(async () => {});
-  const useCase = new ControlStream(streams, control, () => provider, { publish });
+  const useCase = new ControlStream(streams, control, () => provider, { publish }, { check: async () => ok(true as const) });
   return { useCase, streams, control, provider, publish, order, current: () => current };
 }
 

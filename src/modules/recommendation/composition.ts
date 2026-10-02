@@ -2,6 +2,7 @@
 import { eventCandidates } from "@/modules/events";
 import { favoriteKeysOf } from "@/modules/favorites";
 import { userPreferences } from "@/modules/identity";
+import { listActiveStreams } from "@/modules/live";
 import { availableMissions } from "@/modules/missions";
 import { isOpenAt, placeCandidates, placeDistances } from "@/modules/places";
 import { lazy } from "@/shared/kernel";
@@ -17,7 +18,7 @@ import { RecommendNow } from "./features/rec-score/rec-score.use-case";
 import { RecommendationEngine } from "./features/rec-score/recommendation-engine";
 import { EventCandidateSource } from "./infra/event-candidate-source";
 import { MissionCandidateSource } from "./infra/mission-candidate-source";
-import { NoLiveYet } from "./infra/no-live-yet";
+import { LiveStreamsStatus } from "./infra/live-streams-status";
 import { PlaceCandidateSource } from "./infra/place-candidate-source";
 import { TasteProfileFromModules } from "./infra/taste-profile-from-modules";
 import { SurpriseMe } from "./features/surprise-me/surprise-me.use-case";
@@ -46,7 +47,7 @@ const weights = lazy(() => {
 const tasteProfiles = lazy(() => new TasteProfileFromModules({ preferencesOf: (id) => userPreferences().preferencesOf(id), favoriteKeysOf }, log()));
 
 /** Motor determinístico (porta para o "ME SURPREENDA", #74). */
-export const recommendationEngine = lazy(() => new RecommendationEngine(findCandidates(), new NoLiveYet(), new Ranker(defaultSignals, weights()), log()));
+export const recommendationEngine = lazy(() => new RecommendationEngine(findCandidates(), new LiveStreamsStatus(() => listActiveStreams()), new Ranker(defaultSignals, weights()), log()));
 
 export const recommendNow = lazy(() => new RecommendNow(tasteProfiles(), recommendationEngine()));
 

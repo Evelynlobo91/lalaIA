@@ -147,6 +147,16 @@ export function createLiveStream(owner: Pick<TestUser, "email">, entityType: "pl
   );
 }
 
+/** Registra o aceite das diretrizes de privacidade da Live (#55), como se o parceiro tivesse marcado o checklist. */
+export function acceptLiveGuidelines(user: Pick<TestUser, "email">, version = "2026-10") {
+  return withDb(
+    (sql) => sql`
+      insert into live.broadcaster_agreements (owner_id, guidelines_version)
+      select id, ${version} from auth.users where lower(email) = ${user.email.toLowerCase()}
+      on conflict (owner_id) do update set guidelines_version = excluded.guidelines_version, privacy_ack_at = now()`,
+  );
+}
+
 /** Muda o controle da transmissão direto no banco (como se o dono tivesse pausado/encerrado no portal). */
 export function setLiveControl(streamId: string, control: "on" | "paused" | "ended") {
   return withDb((sql) => sql`update live.streams set control = ${control} where id = ${streamId}`);

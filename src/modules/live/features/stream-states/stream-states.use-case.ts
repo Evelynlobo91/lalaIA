@@ -1,17 +1,27 @@
 import { ok, type DomainError, type Result } from "@/shared/kernel";
 import type { StreamStatus, StreamTarget } from "../../domain/stream";
-import type { GetLivePlayback } from "../player/player.use-case";
+import type { GetLivePlayback, LivePlayback } from "../player/player.use-case";
 
-/** Resposta do GET /api/live/status. `none` = o lugar/evento não tem transmissão. */
-export type LiveStatusView = { status: StreamStatus | "none"; streamId: string | null; playbackUrl: string | null };
+/**
+ * Resposta do GET /api/live/status. `none` = o lugar/evento não tem transmissão. `note` (situação atual) e
+ * `liveSince` (ISO, desde quando está no ar) também se atualizam sem recarregar (#53).
+ */
+export type LiveStatusView = { status: StreamStatus | "none"; streamId: string | null; playbackUrl: string | null; note: string | null; liveSince: string | null };
+
+export const NO_STREAM: LiveStatusView = { status: "none", streamId: null, playbackUrl: null, note: null, liveSince: null };
+
+/** O que a página recebe (e o polling devolve), a partir da leitura pública da transmissão. */
+export function liveStatusView(playback: LivePlayback | null): LiveStatusView {
+  if (!playback) return NO_STREAM;
+  return { status: playback.status, streamId: playback.streamId, playbackUrl: playback.playbackUrl, note: playback.note, liveSince: playback.liveSince?.toISOString() ?? null };
+}
 
 /** RNF20 — Status atual da live de um lugar/evento, para a página trocar de estado sem recarregar. */
 export class GetLiveStatus {
   constructor(private readonly playback: Pick<GetLivePlayback, "execute">) {}
 
   async execute(target: StreamTarget): Promise<Result<LiveStatusView, DomainError>> {
-    const current = await this.playback.execute(target);
-    return ok(current ? { status: current.status, streamId: current.streamId, playbackUrl: current.playbackUrl } : { status: "none", streamId: null, playbackUrl: null });
+    return ok(liveStatusView(await this.playback.execute(target)));
   }
 }
 

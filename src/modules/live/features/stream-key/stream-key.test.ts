@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { ok } from "@/shared/kernel";
 import type { LiveActor, NewStream, StreamRecord, StreamRepository, StreamTarget, StreamTargets } from "../../domain/stream";
 import type { StreamingProvider } from "../../domain/streaming-provider";
 import { ListLiveTargets, ProvisionStream, RevealStreamKey, RotateStreamKey } from "./stream-key.use-case";
@@ -9,6 +10,8 @@ const ana: LiveActor = { id: "ana", isPartner: true, isAdmin: false };
 const bia: LiveActor = { id: "bia", isPartner: true, isAdmin: false };
 const admin: LiveActor = { id: "adm", isPartner: false, isAdmin: true };
 const target: StreamTarget = { entityType: "place", entityId: PLACE };
+/** Diretrizes de privacidade já aceitas (#55; a recusa é testada em privacy.test.ts). */
+const accepted = { check: async () => ok(true as const) };
 
 const record = (patch: Partial<StreamRecord> = {}): StreamRecord => ({
   id: "s1",
@@ -22,6 +25,7 @@ const record = (patch: Partial<StreamRecord> = {}): StreamRecord => ({
   status: "waiting",
   signalChangedAt: new Date(),
   createdAt: new Date(),
+  note: null,
   ...patch,
 });
 
@@ -64,7 +68,7 @@ function fakes(opts: { owned?: boolean; existing?: StreamRecord | null } = {}) {
 describe("ProvisionStream (#47)", () => {
   it("cria a transmissão no provedor e guarda a chave para o dono", async () => {
     const { streams, targets, provider, keys } = fakes();
-    const result = await new ProvisionStream(streams, targets, () => provider).execute(ana, target);
+    const result = await new ProvisionStream(streams, targets, () => provider, accepted).execute(ana, target);
     expect(result.ok && result.value.ownerId).toBe("ana");
     expect(provider.createStream).toHaveBeenCalledOnce();
     expect(keys.get("s1")).toBe("chave-secreta-1234567890");
@@ -72,27 +76,27 @@ describe("ProvisionStream (#47)", () => {
 
   it("é idempotente: o dono pedindo de novo recebe a mesma transmissão, sem criar outra", async () => {
     const { streams, targets, provider } = fakes({ existing: record() });
-    const result = await new ProvisionStream(streams, targets, () => provider).execute(ana, target);
+    const result = await new ProvisionStream(streams, targets, () => provider, accepted).execute(ana, target);
     expect(result.ok && result.value.id).toBe("s1");
     expect(provider.createStream).not.toHaveBeenCalled();
   });
 
   it("recusa lugar/evento que não é do parceiro", async () => {
     const { streams, targets, provider } = fakes({ owned: false });
-    const result = await new ProvisionStream(streams, targets, () => provider).execute(bia, target);
+    const result = await new ProvisionStream(streams, targets, () => provider, accepted).execute(bia, target);
     expect(!result.ok && result.error.code).toBe("forbidden");
     expect(provider.createStream).not.toHaveBeenCalled();
   });
 
   it("recusa quem não é parceiro (o papel é conferido de novo aqui)", async () => {
     const { streams, targets, provider } = fakes();
-    const result = await new ProvisionStream(streams, targets, () => provider).execute(admin, target);
+    const result = await new ProvisionStream(streams, targets, () => provider, accepted).execute(admin, target);
     expect(!result.ok && result.error.code).toBe("forbidden");
   });
 
   it("transmissão de outro responsável → conflito", async () => {
     const { streams, targets, provider } = fakes({ existing: record({ ownerId: "outro" }) });
-    const result = await new ProvisionStream(streams, targets, () => provider).execute(ana, target);
+    const result = await new ProvisionStream(streams, targets, () => provider, accepted).execute(ana, target);
     expect(!result.ok && result.error.code).toBe("conflict");
   });
 
@@ -140,7 +144,7 @@ describe("ListLiveTargets (#47)", () => {
     expect(view).toEqual({
       ingestUrl: "rtmps://global-live.mux.com:443/app",
       simulated: true,
-      targets: [{ ...target, label: "Bar do Zé", href: `/lugares/${PLACE}`, stream: { id: "s1", status: "live" } }],
+      targets: [{ ...target, label: "Bar do Zé", href: `/lugares/${PLACE}`, stream: { id: "s1", status: "live", note: null } }],
     });
     expect(JSON.stringify(view)).not.toContain("chave");
   });

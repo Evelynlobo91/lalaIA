@@ -1,20 +1,27 @@
 import { ConflictError, ForbiddenError, NotFoundError, err, ok, type DomainError, type Result } from "@/shared/kernel";
 import type { LiveActor, StreamRecord, StreamRepository, StreamStatus, StreamTarget, StreamTargets } from "../../domain/stream";
 import type { StreamingProvider } from "../../domain/streaming-provider";
+import type { PrivacyGate } from "../privacy/privacy.use-case";
 
 const notYours = () => err(new ForbiddenError("Só o responsável pelo lugar ou pelo evento gera a chave de transmissão."));
 
-/** RF18 — Gerar a chave de transmissão de um lugar/evento do próprio parceiro. Idempotente. */
+/**
+ * RF18 — Gerar a chave de transmissão de um lugar/evento do próprio parceiro. Idempotente.
+ * Exige o aceite das diretrizes de privacidade (#55).
+ */
 export class ProvisionStream {
   constructor(
     private readonly streams: StreamRepository,
     private readonly targets: StreamTargets,
     private readonly provider: () => StreamingProvider,
+    private readonly privacy: Pick<PrivacyGate, "check">,
   ) {}
 
   async execute(actor: LiveActor, target: StreamTarget): Promise<Result<StreamRecord, DomainError>> {
     if (!actor.isPartner) return err(new ForbiddenError("Só parceiros transmitem ao vivo."));
     if (!(await this.targets.owns(actor.id, target))) return notYours();
+    const accepted = await this.privacy.check(actor.id, "provision");
+    if (!accepted.ok) return accepted;
 
     const existing = await this.streams.findByTarget(target);
     if (existing) {
@@ -64,7 +71,7 @@ export class RevealStreamKey {
 export type LiveTargetView = StreamTarget & {
   label: string;
   href: string;
-  stream: { id: string; status: StreamStatus } | null;
+  stream: { id: string; status: StreamStatus; note: string | null } | null;
 };
 
 export type LivePortalView = { ingestUrl: string; simulated: boolean; targets: LiveTargetView[] };
@@ -86,7 +93,7 @@ export class ListLiveTargets {
       simulated: provider.name === "fake",
       targets: options.map((o) => {
         const stream = byTarget.get(`${o.entityType}:${o.entityId}`);
-        return { ...o, stream: stream ? { id: stream.id, status: stream.status } : null };
+        return { ...o, stream: stream ? { id: stream.id, status: stream.status, note: stream.note } : null };
       }),
     };
   }

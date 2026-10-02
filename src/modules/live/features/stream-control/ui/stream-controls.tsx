@@ -8,7 +8,8 @@ import type { StreamRecord, StreamStatus } from "../../../domain/stream";
 import { controlStreamAction } from "../stream-control.actions";
 
 /** Ativar / pausar / encerrar. Encerrar pede confirmação (derruba a transmissão na hora). */
-export function StreamControls({ streamId, status, label }: { streamId: string; status: StreamStatus; label: string }) {
+/** `canActivate`: false sem o aceite das diretrizes de privacidade (#55; o caso de uso também recusa). */
+export function StreamControls({ streamId, status, label, canActivate = true }: { streamId: string; status: StreamStatus; label: string; canActivate?: boolean }) {
   const [state, action, pending] = useActionState<FormState<StreamRecord>, FormData>(controlStreamAction, idleFormState);
   const [confirmingEnd, setConfirmingEnd] = useState(false);
 
@@ -17,7 +18,7 @@ export function StreamControls({ streamId, status, label }: { streamId: string; 
       <input type="hidden" name="streamId" value={streamId} />
       <div className="flex flex-wrap items-center gap-2">
         {(status === "paused" || status === "ended") && (
-          <Button type="submit" name="action" value="activate" size="sm" loading={pending} aria-label={`Ativar a transmissão de ${label}`}>
+          <Button type="submit" name="action" value="activate" size="sm" loading={pending} disabled={!canActivate} aria-label={`Ativar a transmissão de ${label}`}>
             <Play aria-hidden className="size-4" /> Ativar
           </Button>
         )}
@@ -44,6 +45,7 @@ export function StreamControls({ streamId, status, label }: { streamId: string; 
           ))}
       </div>
       {status === "paused" && <p className="text-sm text-muted">Pausada: o público não vê o vídeo, mas o OBS/Larix continua conectado.</p>}
+      {!canActivate && (status === "paused" || status === "ended") && <p className="text-sm text-muted">Aceite as diretrizes de privacidade acima para ativar.</p>}
       {state.status === "error" && (
         <p role="alert" className="text-sm text-danger">
           {state.message ?? "Não foi possível alterar a transmissão."}

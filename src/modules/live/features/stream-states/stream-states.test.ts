@@ -26,22 +26,26 @@ describe("liveViewState (#51: mensagens claras)", () => {
 
 describe("GetLiveStatus", () => {
   it("devolve o status atual, ou none quando não há transmissão", async () => {
-    const live = new GetLiveStatus({ execute: async () => ({ streamId: "s1", status: "live", playbackUrl: "https://hls/x.m3u8" }) });
-    expect(await live.execute({ entityType: "place", entityId: ENTITY })).toEqual({ ok: true, value: { status: "live", streamId: "s1", playbackUrl: "https://hls/x.m3u8" } });
+    const since = new Date("2026-10-01T22:00:00Z");
+    const live = new GetLiveStatus({ execute: async () => ({ streamId: "s1", status: "live", playbackUrl: "https://hls/x.m3u8", note: "Casa cheia", liveSince: since }) });
+    expect(await live.execute({ entityType: "place", entityId: ENTITY })).toEqual({
+      ok: true,
+      value: { status: "live", streamId: "s1", playbackUrl: "https://hls/x.m3u8", note: "Casa cheia", liveSince: "2026-10-01T22:00:00.000Z" },
+    });
     const none = new GetLiveStatus({ execute: async () => null });
-    expect(await none.execute({ entityType: "place", entityId: ENTITY })).toEqual({ ok: true, value: { status: "none", streamId: null, playbackUrl: null } });
+    expect(await none.execute({ entityType: "place", entityId: ENTITY })).toEqual({ ok: true, value: { status: "none", streamId: null, playbackUrl: null, note: null, liveSince: null } });
   });
 });
 
 describe("GET /api/live/status", () => {
-  const execute = vi.fn(async () => ({ streamId: "s1", status: "paused" as const, playbackUrl: null }));
+  const execute = vi.fn(async () => ({ streamId: "s1", status: "paused" as const, playbackUrl: null, note: "Volta às 23h", liveSince: null }));
   const route = liveStatusRoute(() => new GetLiveStatus({ execute }));
 
   it("200 com o status e sem cache", async () => {
     const response = await route(new Request(`http://localhost/api/live/status?entityType=event&entityId=${ENTITY}`));
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("no-store");
-    expect(await response.json()).toEqual({ status: "paused", streamId: "s1", playbackUrl: null });
+    expect(await response.json()).toEqual({ status: "paused", streamId: "s1", playbackUrl: null, note: "Volta às 23h", liveSince: null });
   });
 
   it("400 para parâmetros inválidos", async () => {

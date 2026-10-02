@@ -1,6 +1,6 @@
 import { asUser } from "@/shared/db/as-user";
 import type { Sql } from "@/shared/db/sql";
-import type { NewStream, PublicStreamReader, StreamControl, StreamControlStore, StreamEntityType, StreamRecord, StreamRepository, StreamSignal, StreamStatus, StreamTarget } from "../domain/stream";
+import type { NewStream, PublicStreamReader, StreamControl, StreamControlStore, StreamNoteStore, StreamEntityType, StreamRecord, StreamRepository, StreamSignal, StreamStatus, StreamTarget } from "../domain/stream";
 
 type StreamRow = {
   id: string;
@@ -15,10 +15,11 @@ type StreamRow = {
   status: StreamStatus;
   signal_changed_at: Date;
   created_at: Date;
+  status_note: string | null;
 };
 
 // Nunca inclui a chave: ela mora em live.stream_credentials, que só o dono lê.
-export const STREAM_COLUMNS = "id, owner_id, entity_type, entity_id, provider, provider_stream_id, playback_id, control, signal, status, signal_changed_at, created_at";
+export const STREAM_COLUMNS = "id, owner_id, entity_type, entity_id, provider, provider_stream_id, playback_id, control, signal, status, signal_changed_at, created_at, status_note";
 
 export const toStream = (r: StreamRow): StreamRecord => ({
   id: r.id,
@@ -33,13 +34,14 @@ export const toStream = (r: StreamRow): StreamRecord => ({
   status: r.status,
   signalChangedAt: r.signal_changed_at,
   createdAt: r.created_at,
+  note: r.status_note,
 });
 
 export type { StreamRow };
 
 const UNIQUE_VIOLATION = "23505";
 
-export class PostgresStreamRepository implements StreamRepository, PublicStreamReader, StreamControlStore {
+export class PostgresStreamRepository implements StreamRepository, PublicStreamReader, StreamControlStore, StreamNoteStore {
   constructor(private readonly sql: Sql) {}
 
   async findById(id: string): Promise<StreamRecord | null> {
@@ -112,6 +114,16 @@ export class PostgresStreamRepository implements StreamRepository, PublicStreamR
       },
       this.sql,
     );
+  }
+
+  async setNote(actorId: string, streamId: string, note: string | null): Promise<StreamRecord | null> {
+    // RLS: só o dono ou admin altera (column grants: só controle e situação).
+    const [row] = await asUser(
+      actorId,
+      (tx) => tx.unsafe<StreamRow[]>(`update live.streams set status_note = $2, status_note_updated_at = now() where id = $1 returning ${STREAM_COLUMNS}`, [streamId, note]),
+      this.sql,
+    );
+    return row ? toStream(row) : null;
   }
 
   async endBySystem(streamId: string): Promise<StreamRecord | null> {

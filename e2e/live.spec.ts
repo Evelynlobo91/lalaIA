@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import {
+  acceptLiveGuidelines,
   assignPlaceTo,
   createApprovedPartner,
   createLiveStream,
@@ -28,7 +29,14 @@ test.describe("Live: chave de transmissão (#47)", () => {
     await expect(page.getByText("rtmps://global-live.mux.com:443/app").first()).toBeVisible();
     await expect(page.getByRole("complementary", { name: "Privacidade" })).toBeVisible();
 
+    // Diretrizes de privacidade (#55): sem o aceite, gerar a chave fica bloqueado.
     const card = page.getByRole("listitem").filter({ hasText: placeName });
+    await expect(card.getByRole("button", { name: `Gerar chave de transmissão para ${placeName}` })).toBeDisabled();
+    const checklist = page.getByRole("form", { name: "Diretrizes de privacidade da live" });
+    for (const box of await checklist.getByRole("checkbox").all()) await box.check();
+    await checklist.getByRole("button", { name: "Aceitar as diretrizes" }).click();
+    await expect(page.getByText(/Diretrizes aceitas em/)).toBeVisible();
+
     await card.getByRole("button", { name: `Gerar chave de transmissão para ${placeName}` }).click();
     await expect(card.getByText("Aguardando sinal")).toBeVisible();
 
@@ -61,6 +69,7 @@ test.describe("Live: chave de transmissão (#47)", () => {
     const dono = await createConfirmedUser();
     await createApprovedPartner(dono);
     await assignPlaceTo(dono, placeId);
+    await acceptLiveGuidelines(dono);
     await loginAs(page, dono, "/parceiro/live");
     const card = page.getByRole("listitem").filter({ hasText: placeName });
     await card.getByRole("button", { name: `Gerar chave de transmissão para ${placeName}` }).click();
@@ -86,6 +95,7 @@ test.describe("Live: chave de transmissão (#47)", () => {
     const dono = await createConfirmedUser();
     await createApprovedPartner(dono);
     await assignPlaceTo(dono, placeId);
+    await acceptLiveGuidelines(dono);
     await loginAs(page, dono, "/parceiro/live");
     const card = page.getByRole("listitem").filter({ hasText: placeName });
     await card.getByRole("button", { name: `Gerar chave de transmissão para ${placeName}` }).click();
@@ -140,7 +150,7 @@ test.describe("Live: player na página do lugar e do evento (#50)", () => {
     await sendLiveWebhook(request, stream.providerStreamId, "video.live_stream.active");
     await page.reload();
     const live = page.getByRole("region", { name: "Transmissão ao vivo" });
-    await expect(live.getByText("Ao vivo")).toBeVisible();
+    await expect(live.getByText("Ao vivo", { exact: true })).toBeVisible();
     const video = live.locator("video");
     await expect(video).toHaveJSProperty("muted", true);
     await expect(video).toHaveAttribute("playsinline", "");
@@ -190,7 +200,7 @@ test.describe("Live: estados sem recarregar a página (#51)", () => {
 
     await sendLiveWebhook(request, stream.providerStreamId, "video.live_stream.active");
     await expect(live.locator("video")).toBeVisible(cycle);
-    await expect(live.getByText("Ao vivo")).toBeVisible();
+    await expect(live.getByText("Ao vivo", { exact: true })).toBeVisible();
 
     await setLiveControl(stream.id, "paused");
     await expect(live.getByText("Transmissão pausada")).toBeVisible(cycle);
