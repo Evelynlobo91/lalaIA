@@ -7,13 +7,29 @@ em Joinville, num único app. **Descobrir → Ver → Decidir → Viver.**
 
 ## Rodando localmente
 
-Requer Node.js 22+.
+Requer Node.js 22+ e Docker Desktop aberto.
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
-npm run check      # lint (inclui fronteiras entre módulos) + typecheck + testes
+npm run db:start                 # sobe o Supabase local (1ª vez baixa as imagens)
+cp .env.example .env.local       # preencha a PUBLISHABLE_KEY com a do `npm run db:status`
+npm run dev                      # http://localhost:3000
 ```
+
+| Serviço | URL |
+|---------|-----|
+| App | http://localhost:3000 |
+| Supabase Studio (tabelas, SQL, auth) | http://127.0.0.1:54323 |
+| Mailpit (e-mails de cadastro/login) | http://127.0.0.1:54324 |
+| Postgres | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` |
+
+```bash
+npm run check      # lint (inclui fronteiras entre módulos) + typecheck + testes unitários
+npm run test:int   # testes de integração (precisa do db:start)
+npm run db:reset   # recria o banco do zero a partir das migrations
+```
+
+Veja também [convenções do banco](docs/database.md).
 
 ## Arquitetura
 
