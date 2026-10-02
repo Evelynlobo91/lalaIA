@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { leadsFor, sourceLabel, stageLabel } from "@/modules/crm";
+import { leadsFor, myFollowUps, sourceLabel, stageLabel } from "@/modules/crm";
 import { can, requireCapability } from "@/modules/identity";
 import { Badge, ButtonLink, Card, FormAlert } from "@/shared/ui";
 
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminLeadsPage({ searchParams }: PageProps<"/admin/leads">) {
   const user = await requireCapability("leads:read", "/admin/leads");
   const params = await searchParams;
-  const result = await leadsFor(user);
+  const [result, followUps] = await Promise.all([leadsFor(user), myFollowUps(user)]);
   const leads = result.ok ? result.value : [];
   const canWrite = can(user, "leads:write");
 
@@ -28,6 +28,9 @@ export default async function AdminLeadsPage({ searchParams }: PageProps<"/admin
         {canWrite && <ButtonLink href="/admin/leads/novo">Novo lead</ButtonLink>}
         <ButtonLink href="/admin/leads/funil" variant="secondary">
           Ver funil
+        </ButtonLink>
+        <ButtonLink href="/admin/leads/follow-ups" variant="secondary">
+          Meus follow-ups de hoje ({followUps.length})
         </ButtonLink>
       </div>
 

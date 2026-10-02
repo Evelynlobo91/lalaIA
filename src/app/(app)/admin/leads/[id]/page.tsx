@@ -2,7 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { LeadForm, LeadHistory, MoveLeadForm, editableLead, leadHistory, leadOwnerOptions, stageLabel } from "@/modules/crm";
+import { LeadActivityPanel, LeadForm, LeadHistory, MoveLeadForm, editableLead, leadActivityFor, leadHistory, leadOwnerOptions, leadsToday, stageLabel } from "@/modules/crm";
 import { requireCapability } from "@/modules/identity";
 import { Badge, Card } from "@/shared/ui";
 
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminEditarLeadPage({ params }: PageProps<"/admin/leads/[id]">) {
   const user = await requireCapability("leads:write", "/admin/leads");
   const { id } = await params;
-  const [data, owners, history] = await Promise.all([editableLead(user, id), leadOwnerOptions(), leadHistory(user, id)]);
+  const [data, owners, history, activity] = await Promise.all([editableLead(user, id), leadOwnerOptions(), leadHistory(user, id), leadActivityFor(user, id)]);
   if (!data) notFound();
 
   return (
@@ -36,6 +36,8 @@ export default async function AdminEditarLeadPage({ params }: PageProps<"/admin/
         </Card>
         <LeadHistory changes={history} />
       </section>
+
+      {activity && <LeadActivityPanel leadId={id} activity={activity} today={leadsToday()} />}
 
       <section className="flex flex-col gap-3" aria-labelledby="dados">
         <h2 id="dados" className="text-xl font-semibold">

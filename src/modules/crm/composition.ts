@@ -2,9 +2,12 @@
 import { usersByIds, usersWithCapability } from "@/modules/identity";
 import { sql } from "@/shared/db/sql";
 import { lazy } from "@/shared/kernel";
+import { localDate } from "@/shared/time/joinville-time";
 import type { LeadOwners } from "./domain/lead";
 import { GetLead, ListLeads, SaveLead } from "./features/leads/leads.use-cases";
+import { AddLeadNote, CompleteFollowUp, GetLeadActivity, ListMyFollowUps, SetNextStep } from "./features/follow-ups/follow-ups.use-cases";
 import { GetLeadHistory, MoveLead } from "./features/pipeline/pipeline.use-cases";
+import { PostgresLeadActivity } from "./infra/postgres-lead-activity";
 import { PostgresLeadPipeline } from "./infra/postgres-lead-pipeline";
 import { PostgresLeadRepository } from "./infra/postgres-lead-repository";
 
@@ -23,3 +26,12 @@ const userNames = async (ids: string[]) => new Map((await usersByIds(ids)).map((
 export const leadPipeline = lazy(() => new PostgresLeadPipeline(sql()));
 export const moveLead = lazy(() => new MoveLead(leadRepository(), leadPipeline()));
 export const getLeadHistory = lazy(() => new GetLeadHistory(leadPipeline(), userNames));
+
+// Anotações e follow-ups (#149). "Hoje" é o dia no calendário de Joinville.
+export const crmToday = () => localDate(new Date());
+export const leadActivity = lazy(() => new PostgresLeadActivity(sql()));
+export const addLeadNote = lazy(() => new AddLeadNote(leadActivity()));
+export const setNextStep = lazy(() => new SetNextStep(leadActivity(), crmToday));
+export const completeFollowUp = lazy(() => new CompleteFollowUp(leadActivity()));
+export const getLeadActivity = lazy(() => new GetLeadActivity(leadActivity(), userNames, crmToday));
+export const listMyFollowUps = lazy(() => new ListMyFollowUps(leadActivity(), crmToday));

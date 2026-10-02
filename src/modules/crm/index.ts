@@ -1,6 +1,6 @@
 // API pública do módulo crm (captação de estabelecimentos: leads e funil).
 import type { CurrentUser } from "@/modules/identity";
-import { getLead, getLeadHistory, leadOwners, listLeads } from "./composition";
+import { crmToday, getLead, getLeadActivity, getLeadHistory, leadOwners, listLeads, listMyFollowUps } from "./composition";
 import { crmActor } from "./features/leads/crm-actor";
 import type { LeadStage } from "./domain/lead";
 import type { LeadFormValues } from "./features/leads/ui/lead-form";
@@ -8,6 +8,8 @@ import type { LeadFormValues } from "./features/leads/ui/lead-form";
 export { LeadForm, type LeadFormValues } from "./features/leads/ui/lead-form";
 export { leadSources, leadStages, sourceLabel, stageLabel, type Lead, type LeadSource, type LeadStage } from "./domain/lead";
 export type { LeadListItem } from "./features/leads/leads.use-cases";
+export { LeadActivityPanel, MyFollowUpsList } from "./features/follow-ups/ui/lead-activity";
+export type { LeadActivityView, MyFollowUp } from "./features/follow-ups/follow-ups.use-cases";
 export { LeadBoard } from "./features/pipeline/ui/lead-board";
 export { LeadHistory } from "./features/pipeline/ui/lead-history";
 export { MoveLeadForm } from "./features/pipeline/ui/move-lead-form";
@@ -53,5 +55,21 @@ export async function editableLead(viewer: Viewer, leadId: string): Promise<{ va
 export async function leadHistory(viewer: Viewer, leadId: string) {
   if (!UUID.test(leadId)) return [];
   const result = await getLeadHistory().execute(crmActor(viewer), leadId);
+  return result.ok ? result.value : [];
+}
+
+/** Hoje no calendário de Joinville ("YYYY-MM-DD"), para o campo de data do próximo passo. */
+export const leadsToday = () => crmToday();
+
+/** Próximo passo em aberto e anotações do lead (#149); null se a pessoa não tiver acesso. */
+export async function leadActivityFor(viewer: Viewer, leadId: string) {
+  if (!UUID.test(leadId)) return null;
+  const result = await getLeadActivity().execute(crmActor(viewer), leadId);
+  return result.ok ? result.value : null;
+}
+
+/** "Meus follow-ups de hoje": os de hoje e os atrasados, dos leads sob responsabilidade de quem pergunta. */
+export async function myFollowUps(viewer: Viewer) {
+  const result = await listMyFollowUps().execute(crmActor(viewer));
   return result.ok ? result.value : [];
 }
