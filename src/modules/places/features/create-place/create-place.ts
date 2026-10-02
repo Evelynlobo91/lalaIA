@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { categoryIds, type CategoryId } from "@/shared/catalog/categories";
+import type { DomainEventPublisher } from "@/shared/events";
 import { ForbiddenError, err, ok, type DomainError, type Result } from "@/shared/kernel";
+import "../../domain/events";
 import { safeWebsite } from "../../domain/osm/osm-element";
 import type { Coordinates } from "../../domain/place";
 
@@ -71,10 +73,15 @@ export interface AdminPlaceCreator {
 
 /** Backoffice (#143): admin cadastra um estabelecimento direto, com origem "admin". */
 export class CreatePlaceByAdmin {
-  constructor(private readonly places: AdminPlaceCreator) {}
+  constructor(
+    private readonly places: AdminPlaceCreator,
+    private readonly events?: DomainEventPublisher,
+  ) {}
 
   async execute(admin: { id: string; isAdmin: boolean }, place: NewAdminPlace): Promise<Result<{ placeId: string }, DomainError>> {
     if (!admin.isAdmin) return err(new ForbiddenError("Só administradores cadastram estabelecimentos."));
-    return ok({ placeId: await this.places.createByAdmin(admin.id, place) });
+    const placeId = await this.places.createByAdmin(admin.id, place);
+    await this.events?.publish("places.PlaceCreatedByAdmin", { placeId, createdBy: admin.id });
+    return ok({ placeId });
   }
 }

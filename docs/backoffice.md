@@ -40,3 +40,16 @@ a área responde **404**, o que não revela que ela existe (RNF05).
   A reimportação do OpenStreetMap não o altera.
 - Depois de cadastrar, o admin cai na edição para informar o horário de funcionamento.
 - No banco, só admin insere, só com origem `admin` e em seu próprio nome (RLS + grant por coluna).
+
+## Auditoria (#146)
+
+- `backoffice.audit_log` guarda **quem, o quê, em quê e quando**: só ids, nenhum dado pessoal nem conteúdo.
+  A tabela é append-only (uma trigger recusa UPDATE e DELETE) e fica fora da API.
+- **Como entra:** os módulos não chamam o backoffice. Cada ação administrativa publica um evento de domínio com
+  quem agiu, e o backoffice assina os que estão no catálogo `features/audit-log/audit-events.ts`. Uma ação nova
+  é uma linha nesse catálogo. A gravação é idempotente pelo id do evento.
+- **Hoje são registradas:** aprovar, recusar, suspender e reativar parceiro; aprovar e recusar vínculo com lugar;
+  cadastrar estabelecimento; e editar lugar, editar ou cancelar evento e editar ou encerrar missão **de outra pessoa**.
+- `/admin/auditoria`: filtros por período (7, 30 ou 90 dias), ação e pessoa, com as 100 ações mais recentes.
+- **Limitação:** o bus de eventos é in-process. Se o processo cair entre a ação e a gravação, o registro se perde;
+  a evolução prevista é o outbox (`docs/architecture.md`).

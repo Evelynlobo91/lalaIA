@@ -7,6 +7,7 @@ const modulesWithSubscriptions: Array<() => Promise<ModuleSubscriptions>> = [
   () => import("@/modules/progression").then((m) => m.subscriptions),
   () => import("@/modules/analytics").then((m) => m.subscriptions),
   () => import("@/modules/live").then((m) => m.subscriptions),
+  () => import("@/modules/backoffice").then((m) => m.subscriptions),
 ];
 
 export async function registerSubscriptions(): Promise<void> {

@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { categoryIds } from "@/shared/catalog/categories";
+import type { DomainEventPublisher } from "@/shared/events";
 import { ForbiddenError, NotFoundError, err, ok, type DomainError, type Result } from "@/shared/kernel";
+import "../../domain/events";
 import { safeWebsite } from "../../domain/osm/osm-element";
 import type { EditablePlace, PlaceOwnershipRepository } from "../../domain/place-ownership";
 import { osmFromSchedule, type WeeklySchedule } from "../../domain/weekly-schedule";
@@ -73,7 +75,10 @@ export async function placeForEdit(repo: PlaceOwnershipRepository, editor: Edito
 
 /** RF10 — O dono atualiza os dados do lugar (protegido contra reimportação do OSM). */
 export class EditOwnedPlace {
-  constructor(private readonly repo: PlaceOwnershipRepository) {}
+  constructor(
+    private readonly repo: PlaceOwnershipRepository,
+    private readonly events?: DomainEventPublisher,
+  ) {}
 
   async execute(editor: Editor, input: EditPlaceInput): Promise<Result<{ placeId: string }, DomainError>> {
     const place = await this.repo.findEditable(input.placeId);
@@ -81,6 +86,8 @@ export class EditOwnedPlace {
     if (place.managedBy !== editor.id && !editor.isAdmin) return err(new ForbiddenError("Só o responsável pelo lugar pode editar."));
     // RLS confere de novo no banco (asUser): sem ser dono/admin, nenhuma linha é alterada.
     if (!(await this.repo.update(editor.id, place.id, input.edit))) return err(new ForbiddenError("Só o responsável pelo lugar pode editar."));
+    // Auditoria (#146): só quando o admin mexe num lugar que não é dele.
+    if (place.managedBy !== editor.id) await this.events?.publish("places.PlaceEditedByAdmin", { placeId: place.id, editedBy: editor.id });
     return ok({ placeId: place.id });
   }
 }

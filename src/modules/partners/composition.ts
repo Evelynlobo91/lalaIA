@@ -29,7 +29,7 @@ export const partnerRepository = lazy(() => new PostgresPartnerRepository(sql(),
 export const submitApplication = lazy(() => new SubmitPartnerApplication(partnerRepository()));
 export const listApplications = lazy(() => new ListPartnerApplications(partnerRepository()));
 export const approvePartner = lazy(() => new ApprovePartner(partnerRepository(), identityRoleGranter, domainEvents()));
-export const rejectPartner = lazy(() => new RejectPartner(partnerRepository()));
+export const rejectPartner = lazy(() => new RejectPartner(partnerRepository(), domainEvents()));
 export const listActivePartners = lazy(() => new ListActivePartners(partnerRepository()));
 export const suspendPartner = lazy(() => new SuspendPartner(partnerRepository(), domainEvents()));
 export const reactivatePartner = lazy(() => new ReactivatePartner(partnerRepository(), domainEvents()));
@@ -39,7 +39,7 @@ export const requestClaim = lazy(() => new RequestPlaceClaim(claimRepository(), 
 export const listMyClaims = lazy(() => new ListMyClaims(claimRepository(), placesLookup));
 export const listClaimsForReview = lazy(() => new ListClaimsForReview(claimRepository(), placesLookup));
 export const approveClaim = lazy(() => new ApprovePlaceClaim(claimRepository(), domainEvents()));
-export const rejectClaim = lazy(() => new RejectPlaceClaim(claimRepository()));
+export const rejectClaim = lazy(() => new RejectPlaceClaim(claimRepository(), domainEvents()));
 
 // Descontos e promoções (#30).
 export const offerRepository = lazy(() => new PostgresOfferRepository(sql()));

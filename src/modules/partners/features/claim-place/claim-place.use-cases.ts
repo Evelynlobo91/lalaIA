@@ -78,17 +78,22 @@ export class ApprovePlaceClaim {
       throw error;
     }
     if (!approved) return err(new NotFoundError("Pedido de vínculo"));
-    await this.events.publish("partners.PlaceClaimApproved", { claimId: approved.id, placeId: approved.placeId, userId: approved.ownerId });
+    await this.events.publish("partners.PlaceClaimApproved", { claimId: approved.id, placeId: approved.placeId, userId: approved.ownerId, approvedBy: reviewer.id });
     return ok(approved);
   }
 }
 
 export class RejectPlaceClaim {
-  constructor(private readonly claims: PlaceClaimRepository) {}
+  constructor(
+    private readonly claims: PlaceClaimRepository,
+    private readonly events: DomainEventPublisher,
+  ) {}
 
   async execute(reviewer: Reviewer, claimId: string, reason: string): Promise<Result<PlaceClaim, DomainError>> {
     if (!reviewer.isAdmin) return err(new ForbiddenError());
     const rejected = await this.claims.review(reviewer.id, claimId, { status: "rejected", reason });
-    return rejected ? ok(rejected) : err(new NotFoundError("Pedido de vínculo"));
+    if (!rejected) return err(new NotFoundError("Pedido de vínculo"));
+    await this.events.publish("partners.PlaceClaimRejected", { claimId: rejected.id, placeId: rejected.placeId, userId: rejected.ownerId, rejectedBy: reviewer.id });
+    return ok(rejected);
   }
 }

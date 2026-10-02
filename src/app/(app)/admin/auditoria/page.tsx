@@ -1,11 +1,24 @@
-import { ScrollText } from "lucide-react";
 import type { Metadata } from "next";
-import { requireRole } from "@/modules/identity";
-import { BackofficePlaceholder } from "../backoffice-placeholder";
+import { notFound } from "next/navigation";
+import { AuditLogView, auditLogView } from "@/modules/backoffice";
+import { hasRole, requireRole } from "@/modules/identity";
 
 export const metadata: Metadata = { title: "Auditoria · Backoffice", robots: { index: false } };
+// Registro de trabalho: sempre os dados de agora.
+export const dynamic = "force-dynamic";
 
-export default async function AdminAuditoriaPage() {
-  await requireRole("admin", "/admin/auditoria");
-  return <BackofficePlaceholder icon={ScrollText} title="Auditoria" description="Aqui vai ficar o registro de quem fez o quê e quando no backoffice." />;
+export default async function AdminAuditoriaPage({ searchParams }: PageProps<"/admin/auditoria">) {
+  const admin = await requireRole("admin", "/admin/auditoria");
+  const result = await auditLogView({ isAdmin: hasRole(admin, "admin") }, await searchParams);
+  if (!result.ok) notFound();
+
+  return (
+    <div className="flex flex-col gap-4">
+      <header>
+        <h1 className="text-2xl font-bold">Auditoria</h1>
+        <p className="text-muted">Quem fez o quê e quando no backoffice. O registro não pode ser alterado nem apagado.</p>
+      </header>
+      <AuditLogView view={result.value} />
+    </div>
+  );
 }

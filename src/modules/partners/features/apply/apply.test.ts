@@ -100,14 +100,14 @@ describe("ApprovePartner / RejectPartner", () => {
 
     expect(res.ok).toBe(true);
     expect(roles.grantPartner).toHaveBeenCalledWith("u1", "admin");
-    expect(bus.publish).toHaveBeenCalledWith("partners.PartnerApproved", { partnerId: "p1", userId: "u1" });
+    expect(bus.publish).toHaveBeenCalledWith("partners.PartnerApproved", { partnerId: "p1", userId: "u1", approvedBy: "admin" });
   });
 
   it("quem não é admin não aprova nem recusa (sem tocar no banco)", async () => {
     const partners = repo();
     const roles = { grantPartner: vi.fn() };
     expect((await new ApprovePartner(partners, roles, events()).execute({ id: "u2", isAdmin: false }, "p1")).ok).toBe(false);
-    expect((await new RejectPartner(partners).execute({ id: "u2", isAdmin: false }, "p1", "motivo qualquer")).ok).toBe(false);
+    expect((await new RejectPartner(partners, events()).execute({ id: "u2", isAdmin: false }, "p1", "motivo qualquer")).ok).toBe(false);
     expect(partners.review).not.toHaveBeenCalled();
     expect(roles.grantPartner).not.toHaveBeenCalled();
   });

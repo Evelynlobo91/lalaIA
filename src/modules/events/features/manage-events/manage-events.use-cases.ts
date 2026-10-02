@@ -38,7 +38,9 @@ export class SaveEvent {
     if (current.endsAt < this.now()) return err(new BusinessRuleError("event_finished", "Evento que já terminou não pode ser editado."));
 
     const updated = await this.events.update(organizer.id, eventId, draft);
-    return updated ? ok(updated) : err(new ForbiddenError("Só quem publicou pode editar este evento."));
+    if (!updated) return err(new ForbiddenError("Só quem publicou pode editar este evento."));
+    if (current.ownerId !== organizer.id) await this.bus.publish("events.EventEditedByAdmin", { eventId, editedBy: organizer.id });
+    return ok(updated);
   }
 }
 
@@ -58,6 +60,7 @@ export class CancelEvent {
     const cancelled = await this.events.cancel(organizer.id, eventId);
     if (!cancelled) return err(new ForbiddenError("Só quem publicou pode cancelar este evento."));
     await this.bus.publish("events.EventCancelled", { eventId });
+    if (current.ownerId !== organizer.id) await this.bus.publish("events.EventCancelledByAdmin", { eventId, cancelledBy: organizer.id });
     return ok(cancelled);
   }
 }
