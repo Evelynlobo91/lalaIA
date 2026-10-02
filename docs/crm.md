@@ -13,3 +13,15 @@ Captação de estabelecimentos e promotores (Epic #86). Funil: **lead → contat
   página (404 sem a capacidade), action e banco (RLS em `crm.leads` com `authz.has_capability`).
 - **LGPD:** o lead guarda nome, telefone e e-mail de uma pessoa de contato. O acesso é restrito ao time comercial;
   o prazo de retenção de leads perdidos ainda precisa ser definido com o jurídico.
+
+## Funil e histórico (#148)
+
+- `/admin/leads/funil`: uma coluna por etapa, com a contagem. Para mover, a pessoa escolhe a etapa no próprio card
+  e confirma; não há arrastar, então funciona por teclado e no celular.
+- **Regras** (`domain/pipeline.ts`): etapa aberta (lead, contato, proposta) vai para qualquer outra aberta ou para
+  **perdido**, que exige motivo; perdido pode ser reaberto; ninguém vai para **parceiro ativo** à mão (isso é a
+  conversão, #150); lead ativo não se move.
+- **Histórico** (`crm.lead_stage_history`, append-only): de, para, quem, quando e o motivo da perda. A mudança de
+  etapa e o registro acontecem na mesma transação. Aparece na página do lead.
+- **Duas pessoas ao mesmo tempo:** a mudança só vale se o lead ainda estiver na etapa em que a pessoa o viu; senão,
+  ela recebe um aviso para atualizar a página, em vez de sobrescrever a mudança da outra.

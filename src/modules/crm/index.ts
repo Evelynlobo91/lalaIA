@@ -1,12 +1,17 @@
 // API pública do módulo crm (captação de estabelecimentos: leads e funil).
 import type { CurrentUser } from "@/modules/identity";
-import { getLead, leadOwners, listLeads } from "./composition";
+import { getLead, getLeadHistory, leadOwners, listLeads } from "./composition";
 import { crmActor } from "./features/leads/crm-actor";
+import type { LeadStage } from "./domain/lead";
 import type { LeadFormValues } from "./features/leads/ui/lead-form";
 
 export { LeadForm, type LeadFormValues } from "./features/leads/ui/lead-form";
 export { leadSources, leadStages, sourceLabel, stageLabel, type Lead, type LeadSource, type LeadStage } from "./domain/lead";
 export type { LeadListItem } from "./features/leads/leads.use-cases";
+export { LeadBoard } from "./features/pipeline/ui/lead-board";
+export { LeadHistory } from "./features/pipeline/ui/lead-history";
+export { MoveLeadForm } from "./features/pipeline/ui/move-lead-form";
+export type { StageChangeView } from "./features/pipeline/pipeline.use-cases";
 
 type Viewer = Pick<CurrentUser, "id" | "roles">;
 
@@ -23,13 +28,15 @@ export function leadOwnerOptions() {
 }
 
 /** Lead para o formulário de edição; null se não existir ou a pessoa não tiver acesso. */
-export async function editableLead(viewer: Viewer, leadId: string): Promise<{ values: LeadFormValues; businessName: string } | null> {
+export async function editableLead(viewer: Viewer, leadId: string): Promise<{ values: LeadFormValues; businessName: string; stage: LeadStage; lostReason: string | null } | null> {
   if (!UUID.test(leadId)) return null;
   const result = await getLead().execute(crmActor(viewer), leadId);
   if (!result.ok) return null;
   const lead = result.value;
   return {
     businessName: lead.businessName,
+    stage: lead.stage,
+    lostReason: lead.lostReason,
     values: {
       leadId: lead.id,
       businessName: lead.businessName,
@@ -40,4 +47,11 @@ export async function editableLead(viewer: Viewer, leadId: string): Promise<{ va
       ownerId: lead.ownerId ?? "",
     },
   };
+}
+
+/** Histórico de etapas do lead (#148), com o nome de quem moveu; vazio se a pessoa não tiver acesso. */
+export async function leadHistory(viewer: Viewer, leadId: string) {
+  if (!UUID.test(leadId)) return [];
+  const result = await getLeadHistory().execute(crmActor(viewer), leadId);
+  return result.ok ? result.value : [];
 }
