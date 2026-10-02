@@ -1,7 +1,7 @@
 // API pública do módulo billing (planos, assinaturas e cobrança dos parceiros).
 import type { CurrentUser } from "@/modules/identity";
 import "./domain/events";
-import { getMySubscription } from "./composition";
+import { getFinancePanel, getMySubscription } from "./composition";
 import { enforceOverdue, getPlan, handlePaymentWebhook, listPlans, planEntitlements, planRepository, renewSubscriptions, subscriptionStore } from "./composition";
 import { paymentWebhooksRoute } from "./features/payment-webhooks/payment-webhooks.route";
 import { cycleRoute } from "./features/subscribe/cycle.route";
@@ -16,6 +16,8 @@ export { PlanList } from "./features/plans/ui/plan-list";
 export { PlanPicker, type PlanChoice } from "./features/subscribe/ui/plan-picker";
 export { SimulatePaymentForm } from "./features/payment-webhooks/ui/simulate-payment-form";
 export { InvoiceList, SubscriptionSummary } from "./features/partner-subscription/ui/my-subscription";
+export { FinancePanel } from "./features/finance-panel/ui/finance-panel";
+export type { FinancePanelView } from "./features/finance-panel/finance-panel";
 export type { InvoiceView, MySubscriptionView } from "./features/partner-subscription/partner-subscription";
 export { subscriptionStatusLabels, type SubscriptionStatus } from "./domain/subscription";
 export { featureLabel, formatPlanPrice, planFeatures, type Plan, type PlanFeature } from "./domain/plan";
@@ -103,4 +105,9 @@ export const paymentSimulatorEnabled = () => handlePaymentWebhook() !== null;
 /** Assinatura do parceiro (#155): plano atual, renovação, troca pendente e faturas. `ownerId` vem sempre da sessão. */
 export function mySubscription(ownerId: string) {
   return getMySubscription().execute(ownerId);
+}
+
+/** Painel financeiro do backoffice (#156), para quem tem `billing:read`, com os filtros da URL. */
+export function financePanel(viewer: Viewer, params: Record<string, unknown>) {
+  return getFinancePanel().execute(billingActor(viewer), params);
 }

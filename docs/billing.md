@@ -76,3 +76,16 @@ Planos, assinaturas e faturas dos parceiros (Epic #86). As telas do time ficam e
   tem o link **Pagar**; vencida, **Segunda via** (o mesmo link de pagamento do provedor).
 - A assinatura e as faturas são lidas como o próprio parceiro (`asUser`): a RLS garante que uma conta não vê as
   faturas de outra, mesmo que a consulta esquecesse o filtro por dono.
+
+## Painel financeiro (#156)
+
+`/admin/financeiro` (capacidade `billing:read`) mostra, acima dos planos:
+
+- **Recebimentos** no período (30, 90 ou 365 dias): soma e quantidade das faturas pagas, **MRR** (mensalidades das
+  assinaturas em dia ou na carência), o que está em aberto e o que está vencido hoje, e as assinaturas por situação.
+- **Inadimplentes:** assinaturas na carência ou suspensas com fatura vencida, com o nome e o e-mail de quem paga, o
+  valor vencido e desde quando.
+- **Faturas:** as 50 mais recentes, filtráveis por situação (em aberto, vencidas, pagas, estornadas, canceladas).
+  O período e o filtro ficam na URL.
+
+Tudo é lido como a pessoa do time (`asUser`): sem `billing:read`, a RLS devolve tudo vazio.
