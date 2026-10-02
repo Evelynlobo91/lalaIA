@@ -41,6 +41,9 @@ export type Lead = Omit<LeadData, "ownerId"> & {
   updatedAt: Date;
 };
 
+/** Filtros da lista e do funil (#151). Campo ausente = sem filtro. */
+export type LeadFilter = { stage?: LeadStage; source?: LeadSource; ownerId?: string };
+
 /** Quem age no CRM. As capacidades vêm do papel (#157) e são conferidas de novo em cada caso de uso. */
 export type CrmActor = { id: string; canRead: boolean; canWrite: boolean };
 
@@ -54,7 +57,7 @@ export interface LeadRepository {
   update(actorId: string, leadId: string, data: LeadData): Promise<Lead | null>;
   findById(actorId: string, leadId: string): Promise<Lead | null>;
   /** Mais recentemente atualizados primeiro. */
-  list(actorId: string, limit: number): Promise<Lead[]>;
+  list(actorId: string, limit: number, filter?: LeadFilter): Promise<Lead[]>;
 }
 
 /** Pessoas do time que podem ser responsáveis por leads (API pública do módulo identity). */

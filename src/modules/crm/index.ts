@@ -1,5 +1,7 @@
 // API pública do módulo crm (captação de estabelecimentos: leads e funil).
 import type { CurrentUser } from "@/modules/identity";
+import { getConversionBySource } from "./composition";
+import { leadFilterSchema } from "./features/lead-reports/lead-reports";
 import { crmToday, getInvite, getLead, getLeadActivity, getLeadHistory, inviteStore, leadOwners, listLeads, listMyFollowUps } from "./composition";
 import { crmActor } from "./features/leads/crm-actor";
 import type { LeadStage } from "./domain/lead";
@@ -13,6 +15,8 @@ export type { LeadActivityView, MyFollowUp } from "./features/follow-ups/follow-
 export { AcceptInviteForm } from "./features/convert-lead/ui/accept-invite-form";
 export { ConvertLeadForm } from "./features/convert-lead/ui/convert-lead-form";
 export type { InviteView } from "./features/convert-lead/convert-lead.use-cases";
+export { ConversionTable, LeadFilters } from "./features/lead-reports/ui/lead-reports-ui";
+export { leadFilterQuery, type ConversionView } from "./features/lead-reports/lead-reports";
 export { LeadBoard } from "./features/pipeline/ui/lead-board";
 export { LeadHistory } from "./features/pipeline/ui/lead-history";
 export { MoveLeadForm } from "./features/pipeline/ui/move-lead-form";
@@ -22,9 +26,9 @@ type Viewer = Pick<CurrentUser, "id" | "roles">;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** Leads para /admin/leads (quem tem `leads:read`), com o nome do responsável. */
-export function leadsFor(viewer: Viewer) {
-  return listLeads().execute(crmActor(viewer));
+/** Leads para /admin/leads e para o funil (quem tem `leads:read`), com o nome do responsável e os filtros da URL (#151). */
+export function leadsFor(viewer: Viewer, params: Record<string, unknown> = {}) {
+  return listLeads().execute(crmActor(viewer), leadFilterSchema.parse(params));
 }
 
 /** Pessoas do time que podem ser responsáveis por um lead. */
@@ -87,5 +91,14 @@ export async function openInviteFor(viewer: Viewer, leadId: string) {
 /** O que a pessoa vê ao abrir o link do convite; null se o link não existe. */
 export async function inviteByToken(token: string) {
   const result = await getInvite().execute(token);
+  return result.ok ? result.value : null;
+}
+
+/** Filtros da URL já validados, para a tela mostrar o que está aplicado. */
+export const leadFilterFrom = (params: Record<string, unknown>) => leadFilterSchema.parse(params);
+
+/** Taxa de conversão por origem (#151); null se a pessoa não tiver acesso. */
+export async function conversionBySource(viewer: Viewer, params: Record<string, unknown>) {
+  const result = await getConversionBySource().execute(crmActor(viewer), params);
   return result.ok ? result.value : null;
 }

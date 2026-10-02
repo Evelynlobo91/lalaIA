@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { leadsFor, myFollowUps, sourceLabel, stageLabel } from "@/modules/crm";
+import { LeadFilters, leadFilterFrom, leadFilterQuery, leadOwnerOptions, leadsFor, myFollowUps, sourceLabel, stageLabel } from "@/modules/crm";
 import { can, requireCapability } from "@/modules/identity";
 import { Badge, ButtonLink, Card, FormAlert } from "@/shared/ui";
 
@@ -11,7 +11,9 @@ export const dynamic = "force-dynamic";
 export default async function AdminLeadsPage({ searchParams }: PageProps<"/admin/leads">) {
   const user = await requireCapability("leads:read", "/admin/leads");
   const params = await searchParams;
-  const [result, followUps] = await Promise.all([leadsFor(user), myFollowUps(user)]);
+  const filter = leadFilterFrom(params);
+  const filtered = Boolean(filter.stage || filter.source || filter.ownerId);
+  const [result, followUps, owners] = await Promise.all([leadsFor(user, params), myFollowUps(user), leadOwnerOptions()]);
   const leads = result.ok ? result.value : [];
   const canWrite = can(user, "leads:write");
 
@@ -26,16 +28,21 @@ export default async function AdminLeadsPage({ searchParams }: PageProps<"/admin
 
       <div className="flex flex-wrap gap-2">
         {canWrite && <ButtonLink href="/admin/leads/novo">Novo lead</ButtonLink>}
-        <ButtonLink href="/admin/leads/funil" variant="secondary">
+        <ButtonLink href={`/admin/leads/funil${leadFilterQuery(filter)}`} variant="secondary">
           Ver funil
         </ButtonLink>
         <ButtonLink href="/admin/leads/follow-ups" variant="secondary">
           Meus follow-ups de hoje ({followUps.length})
         </ButtonLink>
+        <ButtonLink href="/admin/leads/conversao" variant="secondary">
+          Conversão por origem
+        </ButtonLink>
       </div>
 
+      <LeadFilters action="/admin/leads" filter={filter} owners={owners} />
+
       {leads.length === 0 ? (
-        <p className="text-muted">Nenhum lead cadastrado ainda.</p>
+        <p className="text-muted">{filtered ? "Nenhum lead com estes filtros." : "Nenhum lead cadastrado ainda."}</p>
       ) : (
         <Card className="p-0">
           <ul className="divide-y divide-border" aria-label="Leads">

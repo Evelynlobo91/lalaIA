@@ -49,3 +49,11 @@ Captação de estabelecimentos e promotores (Epic #86). Funil: **lead → contat
   com a mesma conta não cria um segundo parceiro, e um cadastro suspenso não é reativado por aqui.
 - A aceitação roda como operação do sistema (fora da RLS): quem aceita não é do time, e a autorização é o token.
 - **Limitação:** o app não envia o convite por e-mail; o link é copiado e enviado pela pessoa do comercial.
+
+## Filtros e conversão por origem (#151)
+
+- **Filtros** na lista e no funil: etapa, origem e responsável, combináveis. Ficam na URL (`?etapa=&origem=&responsavel=`),
+  funcionam sem JavaScript e acompanham a pessoa ao alternar entre lista e funil.
+- **Conversão por origem** (`/admin/leads/conversao`): para cada origem, leads, em aberto, perdidos, parceiros ativos e
+  a taxa (parceiros ativos ÷ leads da origem), mais a linha de total. Período: leads cadastrados nos últimos 30, 90 ou
+  365 dias, ou todo o período.
