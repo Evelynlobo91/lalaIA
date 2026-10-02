@@ -235,3 +235,16 @@ export function createRedeemedOffer(owner: Pick<TestUser, "email">, redeemer: Pi
     return code;
   });
 }
+
+/** Assinatura ativa e em dia num plano (por código), como se a fatura do ciclo já estivesse paga. */
+export function subscribeToPlan(user: Pick<TestUser, "email">, planCode = "pro") {
+  return withDb(
+    (sql) => sql`
+      insert into billing.subscriptions (owner_id, plan_id, status, current_period_start, current_period_end)
+      select u.id, p.id, 'active', now() - interval '1 day', now() + interval '29 days'
+      from auth.users u, billing.plans p
+      where lower(u.email) = ${user.email.toLowerCase()} and p.code = ${planCode}
+      on conflict (owner_id) do update set plan_id = excluded.plan_id, pending_plan_id = null, status = 'active',
+        current_period_start = excluded.current_period_start, current_period_end = excluded.current_period_end, cancelled_at = null`,
+  );
+}

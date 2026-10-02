@@ -23,6 +23,11 @@ import { PostgresStreamLifecycleLog } from "./infra/postgres-stream-lifecycle-lo
 import { PostgresLiveCounts } from "./infra/postgres-live-counts";
 import { PostgresStreamRepository } from "./infra/postgres-stream-repository";
 import { ModuleStreamTargets } from "./infra/stream-targets";
+import { ctaLinkDomainsFrom } from "./domain/cta";
+import { ctaTypeHandlers } from "./features/schedule-cta/cta-types";
+import { DeleteCta, GetCtaPanel, SaveCta, type CtaEntitlement } from "./features/schedule-cta/schedule-cta.use-case";
+import { ModuleCtaCatalog } from "./infra/cta-catalog";
+import { PostgresCtaRepository } from "./infra/postgres-cta-repository";
 
 /** Mux com MUX_TOKEN_ID; senão, o simulado. Criado no primeiro uso (páginas sem live não exigem a configuração). */
 export const streamingProvider = lazy(() => streamingProviderFrom(process.env));
@@ -65,3 +70,11 @@ export const getLiveNowGeo = lazy(() => new GetLiveNowGeo(listLiveNow()));
 export const updateStreamNote = lazy(() => new UpdateStreamNote(streamRepository(), streamRepository()));
 export const getStreamContext = lazy(() => new GetStreamContext(targetDirectory));
 export const getStreamMetrics = lazy(() => new GetStreamMetrics(streamRepository(), new AnalyticsInteractionCounter()));
+
+// CTAs programados (#93). O direito vem do plano (recurso `cta`), pela porta pública do módulo billing.
+export const ctaRepository = lazy(() => new PostgresCtaRepository(sql()));
+const ctaEntitled: CtaEntitlement = (ownerId) => hasPlanFeature(ownerId, "cta");
+const ctaHandlers = lazy(() => ctaTypeHandlers(new ModuleCtaCatalog(targetDirectory), ctaLinkDomainsFrom(process.env.LIVE_CTA_LINK_DOMAINS)));
+export const saveCta = lazy(() => new SaveCta(streamRepository(), ctaRepository(), ctaHandlers(), ctaEntitled));
+export const deleteCta = lazy(() => new DeleteCta(ctaRepository()));
+export const getCtaPanel = lazy(() => new GetCtaPanel(streamRepository(), ctaRepository(), ctaHandlers(), ctaEntitled));
