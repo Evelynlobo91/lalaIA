@@ -8,6 +8,9 @@ declare module "@/shared/events/domain-event" {
       entityId: string;
       status: "waiting" | "live" | "paused" | "ended";
     };
+    /** A moderação desativou/reativou uma chamada (CTA) de uma live (#182). */
+    "live.CtaDisabledByAdmin": { ctaId: string; streamId: string; disabledBy: string };
+    "live.CtaEnabledByAdmin": { ctaId: string; streamId: string; enabledBy: string };
   }
 }
 

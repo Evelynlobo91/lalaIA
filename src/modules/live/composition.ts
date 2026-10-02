@@ -28,6 +28,8 @@ import { GetActiveCta } from "./features/active-cta/active-cta.use-case";
 import { ctaTypeHandlers } from "./features/schedule-cta/cta-types";
 import { DeleteCta, GetCtaPanel, SaveCta, type CtaEntitlement } from "./features/schedule-cta/schedule-cta.use-case";
 import { StopCtaTrigger, TriggerCta } from "./features/trigger-cta/trigger-cta.use-case";
+import { GetCtaMetrics } from "./features/cta-metrics/cta-metrics.use-case";
+import { ListCtasForModeration, ModerateCta } from "./features/moderate-cta/moderate-cta.use-case";
 import { ModuleCtaCatalog } from "./infra/cta-catalog";
 import { PostgresCtaRepository } from "./infra/postgres-cta-repository";
 
@@ -83,3 +85,6 @@ export const deleteCta = lazy(() => new DeleteCta(ctaRepository()));
 export const getCtaPanel = lazy(() => new GetCtaPanel(streamRepository(), ctaRepository(), ctaHandlers(), ctaEntitled));
 export const triggerCta = lazy(() => new TriggerCta(ctaRepository(), streamRepository(), ctaRepository(), ctaEntitled));
 export const stopCtaTrigger = lazy(() => new StopCtaTrigger(ctaRepository()));
+export const getCtaMetrics = lazy(() => new GetCtaMetrics(new AnalyticsInteractionCounter()));
+export const listCtasForModeration = lazy(() => new ListCtasForModeration(ctaRepository()));
+export const moderateCta = lazy(() => new ModerateCta(ctaRepository(), domainEvents()));

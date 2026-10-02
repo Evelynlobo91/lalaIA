@@ -20,6 +20,7 @@ const cta = (patch: Partial<CtaRecord> = {}): CtaRecord => ({
   schedule: { kind: "absolute", startsAt: at("20:00"), endsAt: at("21:00") },
   triggeredAt: null,
   triggeredUntil: null,
+  disabledAt: null,
   createdAt: at("10:00"),
   ...patch,
 });

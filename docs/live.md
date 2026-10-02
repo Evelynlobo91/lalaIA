@@ -311,3 +311,18 @@ minutos (`TriggerCta`), sem depender do agendamento; "Tirar do ar" encerra antes
 frente das programadas (se houver duas, fica a solta por último) e chega a quem assiste pelo mesmo status da live.
 Fora do ar o botão fica desabilitado e o caso de uso recusa. O disparo são duas colunas em `live.ctas`
 (`triggered_at`, `triggered_until`, no máximo 60 min), alteradas só pelo dono (RLS).
+
+### Resultado e moderação das chamadas (#182)
+
+- **Impressões e toques**: o cartão envia `cta_impression` (uma vez por aba e por chamada) e `cta_click` para
+  `POST /api/analytics/track`, com a entidade `cta` — só o quê e quando, nunca quem, e respeitando o
+  consentimento de métricas (#25). O endpoint só aceita esses dois tipos para a entidade `cta` (e o banco repete
+  a regra). O parceiro vê "Apareceu" e "Toques" (com a taxa) em cada chamada da lista.
+- **Moderação**: em `/admin/conteudo/chamadas` (capacidade `content:edit`), o time vê as chamadas de toda a
+  plataforma e **desativa** ou **reativa**. Desativada, a chamada não aparece no player nem na agenda, e o
+  parceiro vê "Desativada pela moderação" sem conseguir soltá-la. No banco, um gatilho separa as colunas: só a
+  moderação mexe em `disabled_at`/`disabled_by`, e só o dono altera o conteúdo.
+- **Auditoria**: `live.CtaDisabledByAdmin` e `live.CtaEnabledByAdmin` entram na trilha do backoffice.
+
+Limitações: os números aparecem na lista de chamadas, não no painel "Dados" do promotor; o parceiro não é
+avisado quando a moderação desativa (vê o selo ao abrir a lista); a lista da moderação mostra as 50 mais recentes.

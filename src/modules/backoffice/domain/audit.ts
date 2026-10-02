@@ -1,4 +1,4 @@
-export const auditTargetTypes = ["partner", "place_claim", "place", "event", "mission", "user"] as const;
+export const auditTargetTypes = ["partner", "place_claim", "place", "event", "mission", "user", "live_cta"] as const;
 export type AuditTargetType = (typeof auditTargetTypes)[number];
 
 /** Ação administrativa registrada: quem, o quê, em quê e quando. Só ids (nenhum dado pessoal nem conteúdo). */

@@ -1,8 +1,8 @@
 /** Interações registradas para as métricas (RF25). Nunca guardam QUEM fez (LGPD), só o quê, onde e quando. */
-export const interactionKinds = ["view", "favorite", "quero_ir", "live_view", "checkin"] as const;
+export const interactionKinds = ["view", "favorite", "quero_ir", "live_view", "checkin", "cta_impression", "cta_click"] as const;
 export type InteractionKind = (typeof interactionKinds)[number];
 
-export const interactionEntityTypes = ["place", "event", "mission", "live"] as const;
+export const interactionEntityTypes = ["place", "event", "mission", "live", "cta"] as const;
 export type InteractionEntityType = (typeof interactionEntityTypes)[number];
 
 export type Interaction = {

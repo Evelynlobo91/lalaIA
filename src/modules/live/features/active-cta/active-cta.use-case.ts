@@ -16,6 +16,7 @@ export type ActiveCtaView = { id: string; type: CtaType; title: string; body: st
  */
 export function pickActiveCta(ctas: CtaRecord[], now: Date, liveSince: Date | null): ActiveCtaView | null {
   const running = ctas
+    .filter((cta) => !cta.disabledAt)
     .map((cta) => {
       const manual = triggerWindowAt(cta, now);
       return { cta, manual: manual !== null, window: manual ?? windowAt(cta.schedule, now, liveSince) };

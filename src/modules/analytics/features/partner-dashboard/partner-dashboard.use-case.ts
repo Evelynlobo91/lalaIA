@@ -88,7 +88,8 @@ export class PartnerDashboard {
 
     // De quem é cada entidade consultada (live_view chega pela transmissão; o resto pelo próprio recurso).
     const owner = new Map<string, string>();
-    const refs: Required<EntityRefs> = { place: [], event: [], mission: [], live: [] };
+    // As chamadas das lives (cta) têm números próprios no portal da live; não entram neste painel.
+    const refs: Required<Omit<EntityRefs, "cta">> = { place: [], event: [], mission: [], live: [] };
     for (const r of scope) {
       refs[r.type].push(r.id);
       owner.set(`${r.type}:${r.id}`, keyOf(r));
