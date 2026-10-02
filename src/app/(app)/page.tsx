@@ -1,4 +1,5 @@
 import { CalendarDays, MapPin, Sparkles } from "lucide-react";
+import { Suspense } from "react";
 import { SearchBox } from "@/modules/discovery";
 import { RealtimeFeedSection, realtimeFeedView } from "@/modules/recommendation";
 import { ButtonLink, Card, CardDescription, CardTitle, EmptyState, FormAlert, OsmAttribution } from "@/shared/ui";
@@ -9,7 +10,6 @@ export const dynamic = "force-dynamic";
 export default async function ExplorarPage({ searchParams }: PageProps<"/">) {
   const params = await searchParams;
   const { "bem-vindo": bemVindo, "conta-excluida": contaExcluida } = params;
-  const feed = await realtimeFeedView(params);
 
   return (
     <div className="flex flex-col gap-8">
@@ -34,7 +34,10 @@ export default async function ExplorarPage({ searchParams }: PageProps<"/">) {
         </ButtonLink>
       </Card>
 
-      <RealtimeFeedSection view={feed.view} invalid={feed.invalid} origin={feed.origin} />
+      {/* O feed (recomendação) é a parte lenta: chega por streaming, sem segurar o topo da página (#79). */}
+      <Suspense fallback={<FeedSkeleton />}>
+        <Feed params={params} />
+      </Suspense>
 
       <section className="grid gap-4 md:grid-cols-2">
         <EmptyState
@@ -60,5 +63,23 @@ export default async function ExplorarPage({ searchParams }: PageProps<"/">) {
       </section>
       <OsmAttribution className="text-center" />
     </div>
+  );
+}
+
+async function Feed({ params }: { params: Record<string, string | string[] | undefined> }) {
+  const feed = await realtimeFeedView(params);
+  return <RealtimeFeedSection view={feed.view} invalid={feed.invalid} origin={feed.origin} />;
+}
+
+function FeedSkeleton() {
+  return (
+    <section aria-busy="true" aria-label="Carregando o que está rolando agora" className="flex flex-col gap-3">
+      <div className="h-7 w-56 animate-pulse rounded-lg bg-surface-2" />
+      <div className="grid gap-3 sm:grid-cols-2">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="h-32 animate-pulse rounded-2xl bg-surface-2" />
+        ))}
+      </div>
+    </section>
   );
 }

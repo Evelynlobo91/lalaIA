@@ -23,7 +23,8 @@
     "test:e2e": "npm run build && playwright test",
     "role": "node --env-file-if-exists=.env.local scripts/role.mjs",
     "places:seed": "tsx --conditions=react-server --env-file-if-exists=.env.local src/modules/places/features/import-osm/import-osm.cli.ts",
-    "places:import": "tsx --conditions=react-server --env-file-if-exists=.env.local src/modules/places/features/import-osm/import-osm.cli.ts --live"
+    "places:import": "tsx --conditions=react-server --env-file-if-exists=.env.local src/modules/places/features/import-osm/import-osm.cli.ts --live",
+    "perf": "lhci autorun --config=./lighthouserc.cjs"
   },
   "dependencies": {
     "@sentry/nextjs": "^11.1.0",
@@ -43,6 +44,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^22.20.4",

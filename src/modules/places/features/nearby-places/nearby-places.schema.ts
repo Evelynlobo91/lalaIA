@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { roundCoordinate } from "./coordinates";
+
+export { roundCoordinate };
 
 // Área atendida (mesmos limites do mapa): Joinville e arredores.
 export const SERVICE_AREA = { minLat: -26.9, maxLat: -25.8, minLon: -49.6, maxLon: -48.3 };
@@ -6,8 +9,6 @@ export const SERVICE_AREA = { minLat: -26.9, maxLat: -25.8, minLon: -49.6, maxLo
 export const RADIUS_OPTIONS_M = [1000, 2000, 5000, 10000] as const;
 export const DEFAULT_RADIUS_M = 2000;
 
-/** Arredonda para 4 casas (~10 m): suficiente para distância, sem guardar a posição exata no histórico/links. */
-export const roundCoordinate = (value: number) => Math.round(value * 10_000) / 10_000;
 
 const coordinate = (min: number, max: number) =>
   z.coerce

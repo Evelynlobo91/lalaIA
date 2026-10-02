@@ -1,4 +1,4 @@
-import { Popup, type GeoJSONSource, type Map as MapLibreMap, type MapLayerMouseEvent } from "maplibre-gl";
+import type { GeoJSONSource, Map as MapLibreMap, MapLayerMouseEvent } from "maplibre-gl";
 import { MAP_FONT, type MapLayer } from "@/shared/ui/map";
 import { pollWhileVisible } from "../../stream-states/ui/poll-while-visible";
 import type { LiveFeatureProperties } from "../live-badge.use-case";
@@ -19,7 +19,7 @@ const LIVE = "#d6204e";
 export function liveMapLayer({ dataUrl, pollMs }: { dataUrl: string; pollMs: number }): MapLayer {
   return {
     id: SOURCE,
-    add(map: MapLibreMap) {
+    add(map: MapLibreMap, lib) {
       map.addSource(SOURCE, { type: "geojson", data: dataUrl });
       map.addLayer({
         id: HALO,
@@ -41,7 +41,7 @@ export function liveMapLayer({ dataUrl, pollMs }: { dataUrl: string; pollMs: num
         paint: { "text-color": LIVE, "text-halo-color": "#ffffff", "text-halo-width": 2 },
       });
 
-      const popup = new Popup({ closeButton: true, maxWidth: "260px", offset: 14 });
+      const popup = new lib.Popup({ closeButton: true, maxWidth: "260px", offset: 14 });
       const select = (e: MapLayerMouseEvent) => {
         e.preventDefault();
         const feature = e.features?.[0];

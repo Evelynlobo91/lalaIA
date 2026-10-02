@@ -4,7 +4,7 @@ import { Radio } from "lucide-react";
 import { useMemo, type ReactNode } from "react";
 import { ButtonLink } from "@/shared/ui";
 import { MapLayersContext } from "@/shared/ui/map";
-import { LIVE_NOW_POLL_MS } from "../live-badge.schema";
+import { LIVE_NOW_POLL_MS } from "../live-badge.constants";
 import { liveMapLayer } from "./live-map-layer";
 
 /**

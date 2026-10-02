@@ -1,4 +1,4 @@
-import { Popup, type Map as MapLibreMap, type MapLayerMouseEvent } from "maplibre-gl";
+import type { Map as MapLibreMap, MapLayerMouseEvent } from "maplibre-gl";
 import type { MapLayer } from "@/shared/ui/map";
 import { GAME_STATES, gameStateLabels, type GameState } from "../../../domain/game-map";
 
@@ -19,7 +19,7 @@ export const GAME_COLORS: Record<GameState, string> = {
 export function gameMapLayer({ dataUrl, visible }: { dataUrl: string; visible: ReadonlySet<string> }): MapLayer {
   return {
     id: GAME_SOURCE,
-    add(map: MapLibreMap) {
+    add(map: MapLibreMap, lib) {
       map.addSource(GAME_SOURCE, { type: "geojson", data: dataUrl });
       // Do menos para o mais importante (os de cima são desenhados por último).
       for (const state of [...GAME_STATES].reverse()) {
@@ -41,7 +41,7 @@ export function gameMapLayer({ dataUrl, visible }: { dataUrl: string; visible: R
         });
       }
 
-      const popup = new Popup({ closeButton: true, maxWidth: "260px" });
+      const popup = new lib.Popup({ closeButton: true, maxWidth: "260px" });
       const onClick = (e: MapLayerMouseEvent) => {
         const feature = e.features?.[0];
         if (!feature || e.defaultPrevented) return;

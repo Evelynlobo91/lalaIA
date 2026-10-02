@@ -7,7 +7,12 @@ const nextConfig: NextConfig = {
   // No canto inferior o indicador de dev cobre a barra de navegação do celular.
   devIndicators: { position: "top-right" },
   // Foto de perfil até 2 MB (o limite real é validado no caso de uso); o padrão do Next é 1 MB.
-  experimental: { serverActions: { bodySizeLimit: "3mb" } },
+  experimental: {
+    serverActions: { bodySizeLimit: "3mb" },
+    // Orçamento de performance (#79): CSS (Tailwind, pequeno) dentro do HTML, sem a ida e volta extra do
+    // <link> que bloqueia a renderização. Em 4G com latência alta é o que mais adianta o primeiro paint.
+    inlineCss: true,
+  },
 };
 
 export default withSentryConfig(nextConfig, {
