@@ -22,6 +22,7 @@
     "db:status": "supabase status",
     "test:e2e": "npm run build && playwright test",
     "role": "node --env-file-if-exists=.env.local scripts/role.mjs",
+    "load:live": "node --env-file-if-exists=.env.local scripts/load/live-audience.mjs",
     "places:seed": "tsx --conditions=react-server --env-file-if-exists=.env.local src/modules/places/features/import-osm/import-osm.cli.ts",
     "places:import": "tsx --conditions=react-server --env-file-if-exists=.env.local src/modules/places/features/import-osm/import-osm.cli.ts --live",
     "perf": "lhci autorun --config=./lighthouserc.cjs"

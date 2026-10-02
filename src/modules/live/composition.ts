@@ -46,6 +46,9 @@ import { ListChatReports, ReportChatMessage, ResolveChatReports } from "./featur
 import { PostgresChatReports } from "./infra/postgres-chat-reports";
 import { GetAgentStatus, RecordAgentHeartbeat } from "./features/privacy-heartbeat/privacy-heartbeat.use-case";
 import { PostgresAgentHeartbeats } from "./infra/postgres-agent-heartbeats";
+import { CheckScaleAlerts, GetLiveLoad, scaleLimitsFrom } from "./features/scale/scale.use-case";
+import { PostgresAudienceReader } from "./infra/postgres-audience-reader";
+import { errorReporter } from "@/shared/observability";
 import { publicProfiles } from "@/modules/identity";
 import { PostgresCtaRepository } from "./infra/postgres-cta-repository";
 
@@ -154,3 +157,13 @@ export const resolveChatReports = lazy(() => new ResolveChatReports(chatReports(
 const agentHeartbeats = lazy(() => new PostgresAgentHeartbeats(sql()));
 export const recordAgentHeartbeat = lazy(() => new RecordAgentHeartbeat(agentHeartbeats(), domainEvents(), logger().child({ module: "live" })));
 export const getAgentStatus = lazy(() => new GetAgentStatus(agentHeartbeats()));
+
+// Dimensionamento (#56): carga agora, consumo do mês e alertas contra os limites do ambiente.
+export const getLiveLoad = lazy(() => new GetLiveLoad(new PostgresAudienceReader(sql()), () => scaleLimitsFrom(process.env)));
+export const checkScaleAlerts = lazy(
+  () =>
+    new CheckScaleAlerts(getLiveLoad(), {
+      warn: (message, fields) => logger().child({ module: "live" }).warn(message, fields),
+      capture: (error, context) => errorReporter().capture(error, context),
+    }),
+);
