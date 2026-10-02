@@ -131,5 +131,13 @@ Para reagir a algo que acontece em outro módulo, **assine um evento de domínio
 - **Proteger uma página:** `const user = await requireUser("/rota")`. Sem sessão, o usuário vai para
   `/entrar?next=/rota` e volta depois do login. Para leitura opcional, use `getCurrentUser()`
   (memoizado por requisição).
+- **Server Actions autenticadas:** envolva o handler com `withUser((input, user) => ...)`. O id do
+  usuário vem sempre da sessão, nunca do formulário (anti-IDOR).
+- **Perfil e preferências** (`/perfil/editar`): nome, foto e preferências (categorias do catálogo
+  `shared/catalog/categories.ts`, orçamento, distância, com quem sai). Outros módulos leem com
+  `userPreferences().preferencesOf(userId)`, que sempre devolve preferências completas.
+- **Foto de perfil:** bucket `avatars` do Supabase Storage (público para leitura, até 2 MB, JPG/PNG/WebP).
+  O formato é validado pelos bytes reais do arquivo. As políticas do Storage só deixam cada usuário
+  gravar em `avatars/<seu id>/`, e a foto anterior é apagada ao trocar.
 - Template do e-mail em `supabase/templates/confirmation.html`. Localmente, os e-mails chegam no
   Mailpit (http://127.0.0.1:54324).

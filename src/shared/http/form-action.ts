@@ -13,7 +13,15 @@ export { idleFormState } from "./form-state";
 type Options = {
   /** Campos devolvidos ao formulário em caso de erro para não perder o que foi digitado. Nunca inclua senhas. */
   keepValues?: string[];
+  /** Campos que podem se repetir (ex.: checkboxes com o mesmo name) e devem virar lista. */
+  arrays?: string[];
 };
+
+function formDataToObject(formData: FormData, arrays: string[] = []): Record<string, unknown> {
+  const raw: Record<string, unknown> = Object.fromEntries(formData);
+  for (const key of arrays) raw[key] = formData.getAll(key);
+  return raw;
+}
 
 /**
  * Adaptador de Server Action (para `useActionState`), equivalente ao jsonRoute:
@@ -22,7 +30,7 @@ type Options = {
 export function formAction<S extends z.ZodType, T>(schema: S, handler: (input: z.infer<S>) => Promise<Result<T, DomainError>>, options: Options = {}) {
   return async (_previous: FormState<T>, formData: FormData): Promise<FormState<T>> =>
     runWithRequestContext({ requestId: crypto.randomUUID() }, async () => {
-      const raw = Object.fromEntries(formData);
+      const raw = formDataToObject(formData, options.arrays);
       const values = Object.fromEntries((options.keepValues ?? []).map((key) => [key, String(raw[key] ?? "")]));
 
       const parsed = schema.safeParse(raw);
