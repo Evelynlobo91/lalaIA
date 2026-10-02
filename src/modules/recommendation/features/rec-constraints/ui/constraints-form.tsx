@@ -1,5 +1,6 @@
 import { LocateOff, MapPin } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { NearMeButton } from "@/modules/places";
 import { cn } from "@/shared/ui";
 import { budgetChoices, budgetLabel, experienceTypes, peopleLabel, peopleOptions, timeLabel, timeOptions } from "../../../domain/experience-types";
@@ -8,16 +9,30 @@ import { constraintsHref, type ConstraintState } from "../rec-constraints.use-ca
 const chip = (active: boolean) =>
   cn(
     "inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-full border px-4 text-sm font-medium",
-    active ? "border-brand bg-brand text-brand-fg" : "border-border hover:bg-surface",
+    active ? "border-brand bg-brand text-brand-fg shadow-sm" : "border-border bg-surface hover:border-brand",
   );
 
 type Option<T> = { value: T; label: string };
 
-function ChipGroup<T>({ label, options, isActive, hrefFor }: { label: string; options: Option<T>[]; isActive: (v: T) => boolean; hrefFor: (v: T) => string }) {
+/** Pergunta numerada em card, como no protótipo. */
+function Step({ n, label, children }: { n: number; label: string; children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-2">
-      <h2 className="text-sm font-semibold">{label}</h2>
-      <nav aria-label={label} className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 shadow-sm">
+      <h2 className="flex items-center gap-2 font-semibold">
+        <span aria-hidden className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-fg">
+          {n}
+        </span>
+        {label}
+      </h2>
+      {children}
+    </div>
+  );
+}
+
+function ChipGroup<T>({ n, label, options, isActive, hrefFor }: { n: number; label: string; options: Option<T>[]; isActive: (v: T) => boolean; hrefFor: (v: T) => string }) {
+  return (
+    <Step n={n} label={label}>
+      <nav aria-label={label} className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
         <ul className="flex gap-2 pb-1 sm:flex-wrap">
           {options.map((o) => (
             <li key={o.label}>
@@ -28,7 +43,7 @@ function ChipGroup<T>({ label, options, isActive, hrefFor }: { label: string; op
           ))}
         </ul>
       </nav>
-    </div>
+    </Step>
   );
 }
 
@@ -40,33 +55,36 @@ function ChipGroup<T>({ label, options, isActive, hrefFor }: { label: string; op
 export function ConstraintsForm({ state, basePath = "/sugestoes" }: { state: ConstraintState; basePath?: string }) {
   const href = (change: Partial<ConstraintState>) => constraintsHref(state, change, basePath);
   return (
-    <section aria-label="Suas restrições" className="flex flex-col gap-4">
+    <section aria-label="Suas restrições" className="flex flex-col gap-3">
       <ChipGroup
+        n={1}
         label="Quanto tempo você tem?"
         options={timeOptions.map((v) => ({ value: v, label: timeLabel(v) }))}
         isActive={(v) => v === state.tempo}
         hrefFor={(tempo) => href({ tempo })}
       />
       <ChipGroup
+        n={2}
         label="Quanto quer gastar (no total)?"
         options={budgetChoices.map((v) => ({ value: v, label: budgetLabel(v) }))}
         isActive={(v) => v === state.orcamento}
         hrefFor={(orcamento) => href({ orcamento })}
       />
       <ChipGroup
+        n={3}
         label="Quantas pessoas?"
         options={peopleOptions.map((v) => ({ value: v, label: peopleLabel(v) }))}
         isActive={(v) => v === state.pessoas}
         hrefFor={(pessoas) => href({ pessoas })}
       />
       <ChipGroup
+        n={4}
         label="Que tipo de experiência?"
         options={experienceTypes.map((t) => ({ value: t.id, label: t.label }))}
         isActive={(v) => v === state.tipo}
         hrefFor={(tipo) => href({ tipo })}
       />
-      <div className="flex flex-col gap-2">
-        <h2 className="text-sm font-semibold">Onde você está?</h2>
+      <Step n={5} label="Onde você está?">
         {state.origin ? (
           <p className="flex flex-wrap items-center gap-3 text-sm">
             <span className="inline-flex items-center gap-1 font-medium">
@@ -79,7 +97,7 @@ export function ConstraintsForm({ state, basePath = "/sugestoes" }: { state: Con
         ) : (
           <NearMeButton target={href({ origin: null })} label="Usar minha localização" />
         )}
-      </div>
+      </Step>
     </section>
   );
 }
