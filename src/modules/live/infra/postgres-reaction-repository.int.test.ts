@@ -71,9 +71,9 @@ describe("PostgresReactionRepository (#189, #190, #191)", () => {
     expect((await chat.latest(stream, 50)).find((m) => m.id === message.id)?.likes).toBe(2);
     expect(await repo.toggle(bia, message.id)).toEqual({ liked: false, likes: 1 });
 
-    expect(await repo.mine(ana, stream)).toEqual({ messageIds: [message.id], likedLive: false });
-    expect(await repo.mine(leo, stream)).toEqual({ messageIds: [], likedLive: true });
-    expect(await repo.mine(ana, offline)).toEqual({ messageIds: [], likedLive: false });
+    expect(await repo.mine(ana, stream)).toEqual({ messageIds: [message.id], likedLive: false, ownMessageIds: [] });
+    expect(await repo.mine(leo, stream)).toEqual({ messageIds: [], likedLive: true, ownMessageIds: [message.id] });
+    expect(await repo.mine(ana, offline)).toEqual({ messageIds: [], likedLive: false, ownMessageIds: [] });
   });
 
   it("não curte mensagem apagada, inexistente ou de chat fechado", async () => {

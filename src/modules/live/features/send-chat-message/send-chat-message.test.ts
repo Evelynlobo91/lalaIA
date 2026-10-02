@@ -5,7 +5,7 @@ import { SendChatMessage, sendChatMessageSchema } from "./send-chat-message.use-
 
 const STREAM = "3b0e7c56-4a1f-4c8e-9d2a-7a1c5e6f8b90";
 const now = new Date("2026-10-02T23:30:00Z");
-const room = (patch: Partial<ChatRoom> = {}): ChatRoom => ({ streamId: STREAM, ownerId: "dona", status: "live", chatEnabled: true, ...patch });
+const room = (patch: Partial<ChatRoom> = {}): ChatRoom => ({ streamId: STREAM, ownerId: "dona", status: "live", chatEnabled: true, slowSeconds: 0, ...patch });
 const message = (patch: Partial<ChatMessage> = {}): ChatMessage => ({ id: "m1", seq: 1, streamId: STREAM, userId: "leo", body: "Que som bom!", isHost: false, replyTo: null, likes: 0, createdAt: now, ...patch });
 
 describe("texto da mensagem", () => {
@@ -146,9 +146,9 @@ describe("ChatPresenter / GetChatFeed (#188)", () => {
     expect(JSON.stringify(views)).not.toContain('"userId"');
   });
 
-  const feedDeps = (opts: { room?: ChatRoom | null; entitled?: boolean; version?: string } = {}) => {
+  const feedDeps = (opts: { room?: ChatRoom | null; entitled?: boolean; version?: string; pinned?: ChatMessage | null } = {}) => {
     const latest = vi.fn().mockResolvedValue([message()]);
-    const reader = { version: vi.fn().mockResolvedValue(opts.version ?? "7:0"), latest, byIds: vi.fn().mockResolvedValue([]) };
+    const reader = { version: vi.fn().mockResolvedValue(opts.version ?? "7:0"), latest, byIds: vi.fn().mockResolvedValue([]), pinned: vi.fn().mockResolvedValue(opts.pinned ?? null) };
     const useCase = new GetChatFeed({ room: vi.fn().mockResolvedValue(opts.room === undefined ? room() : opts.room) }, reader, vi.fn().mockResolvedValue(opts.entitled ?? true), new ChatPresenter(reader, authors));
     return { latest, useCase };
   };
@@ -156,14 +156,14 @@ describe("ChatPresenter / GetChatFeed (#188)", () => {
   it("quem entra recebe as últimas 50 mensagens e a versão", async () => {
     const { latest, useCase } = feedDeps();
     const result = await useCase.execute({ streamId: STREAM });
-    expect(result.ok && result.value).toMatchObject({ open: true, reason: null, version: "7:0", messages: [{ id: "m1", body: "Que som bom!" }] });
+    expect(result.ok && result.value).toMatchObject({ open: true, reason: null, version: "7:0:0", messages: [{ id: "m1", body: "Que som bom!" }], pinned: null, slowSeconds: 0 });
     expect(latest).toHaveBeenCalledWith(STREAM, 50);
   });
 
   it("nada mudou desde a versão da tela: responde sem as mensagens (e sem buscá-las)", async () => {
     const { latest, useCase } = feedDeps();
-    const result = await useCase.execute({ streamId: STREAM, version: "7:0" });
-    expect(result.ok && result.value).toEqual({ open: true, reason: null, version: "7:0", messages: null });
+    const result = await useCase.execute({ streamId: STREAM, version: "7:0:0" });
+    expect(result.ok && result.value).toEqual({ open: true, reason: null, version: "7:0:0", messages: null, slowSeconds: 0 });
     expect(latest).not.toHaveBeenCalled();
   });
 

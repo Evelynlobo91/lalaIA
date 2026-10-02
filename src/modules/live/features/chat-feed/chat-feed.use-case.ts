@@ -20,6 +20,8 @@ export interface ChatFeedReader {
   latest(streamId: string, limit: number): Promise<ChatMessage[]>;
   /** Mensagens (visíveis) por id, para a citação das respostas. */
   byIds(ids: string[]): Promise<ChatMessage[]>;
+  /** A mensagem fixada pelo anfitrião (#192), se houver. */
+  pinned(streamId: string): Promise<ChatMessage | null>;
 }
 
 /** Nome, foto e nível de quem escreveu (APIs públicas de identity e progression). */
@@ -30,7 +32,16 @@ export interface ChatAuthors {
 /**
  * `open`: dá para enviar. Fechado: `reason` diz por quê. `messages: null` = nada mudou desde a `version` da tela.
  */
-export type ChatFeedView = { open: boolean; reason: ChatClosedReason | null; version: string; messages: ChatMessageView[] | null };
+export type ChatFeedView = {
+  open: boolean;
+  reason: ChatClosedReason | null;
+  version: string;
+  messages: ChatMessageView[] | null;
+  /** Fixada no topo pelo anfitrião (vem junto das mensagens; sem mudança, a tela mantém a que tem). */
+  pinned?: ChatMessageView | null;
+  /** Modo lento em vigor (segundos entre mensagens de cada pessoa); 0 = desligado. */
+  slowSeconds: number;
+};
 
 /** Autor e citação de cada mensagem, em lote (duas consultas, qualquer que seja a quantidade). */
 export class ChatPresenter implements ChatMessagePresenter {
@@ -81,10 +92,15 @@ export class GetChatFeed {
     const room = await this.rooms.room(input.streamId);
     if (!room) return err(new NotFoundError("Transmissão"));
     const reason: ChatClosedReason | null = !(await this.entitled(room.ownerId)) ? "unavailable" : !room.chatEnabled ? "disabled" : room.status !== "live" ? "not_live" : null;
-    if (reason) return ok({ open: false, reason, version: `closed:${reason}`, messages: [] });
+    if (reason) return ok({ open: false, reason, version: `closed:${reason}`, messages: [], pinned: null, slowSeconds: 0 });
 
-    const version = await this.feed.version(room.streamId);
-    if (version === input.version) return ok({ open: true, reason: null, version, messages: null });
-    return ok({ open: true, reason: null, version, messages: await this.presenter.present(await this.feed.latest(room.streamId, CHAT_LIMITS.history)) });
+    const slowSeconds = room.slowSeconds;
+    const version = `${await this.feed.version(room.streamId)}:${slowSeconds}`;
+    if (version === input.version) return ok({ open: true, reason: null, version, messages: null, slowSeconds });
+    const [latest, pinned] = await Promise.all([this.feed.latest(room.streamId, CHAT_LIMITS.history), this.feed.pinned(room.streamId)]);
+    // A fixada pode estar fora das 50 últimas: é apresentada junto (uma chamada só ao presenter).
+    const views = await this.presenter.present(pinned && !latest.some((m) => m.id === pinned.id) ? [...latest, pinned] : latest);
+    const pinnedView = pinned ? (views.find((v) => v.id === pinned.id) ?? null) : null;
+    return ok({ open: true, reason: null, version, messages: views.slice(0, latest.length), pinned: pinnedView, slowSeconds });
   }
 }

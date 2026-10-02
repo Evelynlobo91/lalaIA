@@ -39,6 +39,6 @@ export const myLikesRoute = (likes: () => Pick<MessageLikeStore, "mine">) =>
   noStore(
     queryRoute(myLikesQuerySchema, async (input) => {
       const user = await getCurrentUser();
-      return ok(user ? await likes().mine(user.id, input.streamId) : { messageIds: [], likedLive: false });
+      return ok(user ? await likes().mine(user.id, input.streamId) : { messageIds: [], likedLive: false, ownMessageIds: [] });
     }),
   );

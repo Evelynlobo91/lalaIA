@@ -8,6 +8,7 @@ import { StreamControls } from "../../stream-control/ui/stream-controls";
 import { StreamKeyField } from "./stream-key-field";
 import { StreamNoteForm } from "../../stream-context/ui/stream-note-form";
 import { StreamMetricsLine } from "../../stream-metrics/ui/stream-metrics-line";
+import { ChatSettingsForm } from "../../moderate-chat/ui/chat-settings-form";
 import type { StreamMetrics } from "../../stream-metrics/stream-metrics.use-case";
 
 export function StreamStatusBadge({ status }: { status: StreamStatus }) {
@@ -23,12 +24,15 @@ export function LiveTargetsList({
   targets,
   metrics = {},
   viewers = {},
+  chat = {},
   canBroadcast = true,
 }: {
   targets: LiveTargetView[];
   metrics?: Record<string, StreamMetrics>;
   /** Quantas abas estão assistindo agora, por id da transmissão (#191). */
   viewers?: Record<string, number>;
+  /** Opções do chat por id da transmissão (#192); ausente quando o plano não tem chat. */
+  chat?: Record<string, { chatEnabled: boolean; slowSeconds: number }>;
   /** false sem o aceite das diretrizes de privacidade (#55): gerar a chave e ativar ficam bloqueados. */
   canBroadcast?: boolean;
 }) {
@@ -72,6 +76,7 @@ export function LiveTargetsList({
                   </p>
                 )}
                 {metrics[t.stream.id] && <StreamMetricsLine metrics={metrics[t.stream.id]!} label={t.label} />}
+                {chat[t.stream.id] && <ChatSettingsForm streamId={t.stream.id} label={t.label} chatEnabled={chat[t.stream.id]!.chatEnabled} slowSeconds={chat[t.stream.id]!.slowSeconds} />}
                 {t.stream.status !== "ended" && (
                   <Link href={`/parceiro/live/chamadas/${t.stream.id}`} className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-medium text-brand underline" aria-label={`Chamadas na live de ${t.label}`}>
                     <Megaphone aria-hidden className="size-4" /> Chamadas na live

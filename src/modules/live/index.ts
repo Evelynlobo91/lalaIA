@@ -5,6 +5,8 @@ import { getChatFeed, getCtaMetrics, getCtaPanel, listCtasForModeration, liveCou
 import { chatFeedRoute, sendChatMessageRoute } from "./features/chat-feed/chat.route";
 import { livePulse, reactionRepository, sendReactions, toggleLiveLike, toggleMessageLike } from "./composition";
 import { PRESENCE_WINDOW_SECONDS } from "./features/live-presence/live-presence.use-case";
+import { chatRepository, listChatRestrictions, moderateChatMessage } from "./composition";
+import { moderateChatRoute } from "./features/moderate-chat/moderate-chat.route";
 import { liveLikeRoute, messageLikeRoute, myLikesRoute, pulseRoute, reactionsRoute } from "./features/react-to-live/reactions.route";
 import type { CtaMetrics } from "./features/cta-metrics/cta-metrics.use-case";
 import type { CtaModerator } from "./features/moderate-cta/moderate-cta.use-case";
@@ -148,6 +150,23 @@ export async function liveViewersNow(user: CurrentUser): Promise<Record<string, 
   }
 }
 
+// Moderação do chat (#192).
+export { ChatSettingsForm } from "./features/moderate-chat/ui/chat-settings-form";
+export { LiftRestrictionButton } from "./features/moderate-chat/ui/lift-restriction-button";
+export type { ChatRestrictionView } from "./features/moderate-chat/moderate-chat.use-case";
+
+/** Pessoas silenciadas ou banidas dos chats do parceiro (o que ainda vale), com o nome de cada uma. */
+export function chatRestrictions(user: CurrentUser) {
+  return listChatRestrictions().execute({ id: user.id });
+}
+
+/** Opções do chat de cada transmissão do parceiro (ligado e modo lento), por id da transmissão. */
+export async function chatSettingsOf(user: CurrentUser): Promise<Record<string, { chatEnabled: boolean; slowSeconds: number }>> {
+  const mine = await streamRepository().listByOwner(user.id);
+  const rooms = await Promise.all(mine.filter((s) => s.status !== "ended").map((s) => chatRepository().room(s.id)));
+  return Object.fromEntries(rooms.flatMap((r) => (r ? [[r.streamId, { chatEnabled: r.chatEnabled, slowSeconds: r.slowSeconds }]] : [])));
+}
+
 /** Transmissões ao vivo agora (para Recomendação e Mapa). Só ids: quem chama busca os próprios dados. */
 export function listActiveStreams(limit?: number): Promise<ActiveStream[]> {
   return listActiveStreamsUseCase().execute(limit);
@@ -193,7 +212,9 @@ export const liveApi = {
   reactions: reactionsRoute(sendReactions),
   /** POST /api/live/chat/likes — curtir uma mensagem (só logado). */
   messageLike: messageLikeRoute(toggleMessageLike),
-  /** GET /api/live/chat/likes?streamId= — o que a pessoa logada já curtiu nesta live. */
+  /** POST /api/live/chat/moderation — apagar, fixar, silenciar e banir (anfitrião, moderação; o autor apaga a própria). */
+  chatModeration: moderateChatRoute(moderateChatMessage),
+  /** GET /api/live/chat/likes?streamId= — o que a pessoa logada já curtiu (e escreveu) nesta live. */
   myLikes: myLikesRoute(reactionRepository),
 };
 

@@ -39,7 +39,7 @@ type Props = {
   /** Hora do render no servidor (ms), para o "há X min" não divergir na hidratação. */
   renderedAt?: number;
   /** Chat da live (#95): presente quando o plano do anfitrião tem chat. `viewer` null = visitante (só lê). */
-  chat?: { viewer: { name: string } | null; loginHref: string } | null;
+  chat?: { viewer: { name: string; canModerate: boolean } | null; loginHref: string } | null;
 };
 
 /**
@@ -114,7 +114,7 @@ export function LiveStage({ entityType, entityId, initial, title, onWatch, conte
         </div>
       )}
       {view.kind !== "ended" && <StreamContextLine info={context} status={status} renderedAt={renderedAt} />}
-      {chat && status.streamId && view.kind === "live" && <LiveChat streamId={status.streamId} viewer={chat.viewer} loginHref={chat.loginHref} likedMessageIds={engagement.likedMessageIds} />}
+      {chat && status.streamId && view.kind === "live" && <LiveChat streamId={status.streamId} viewer={chat.viewer} loginHref={chat.loginHref} likedMessageIds={engagement.likedMessageIds} ownMessageIds={engagement.ownMessageIds} />}
       {watching && onWatch}
     </section>
   );
