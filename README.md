@@ -21,12 +21,14 @@ npm run dev                      # http://localhost:3000
 | App | http://localhost:3000 |
 | Supabase Studio (tabelas, SQL, auth) | http://127.0.0.1:54323 |
 | Mailpit (e-mails de cadastro/login) | http://127.0.0.1:54324 |
+| Catálogo de componentes (dev) | http://localhost:3000/design |
 | Postgres | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` |
 
 ```bash
 npm run check      # lint (inclui fronteiras entre módulos) + typecheck + testes unitários
 npm run test:int   # testes de integração (precisa do db:start)
 npm run db:reset   # recria o banco do zero a partir das migrations
+npm run test:e2e   # testes E2E (Playwright) no build de produção, em 360/768/1280 px
 ```
 
 Veja também [convenções do banco](docs/database.md), [observabilidade](docs/observability.md) e [CI/CD e deploy](docs/deploy.md).
