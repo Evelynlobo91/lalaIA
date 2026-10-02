@@ -121,11 +121,13 @@ sozinho quando a variável existe no projeto; as rotas também aceitam POST (out
 | Rota | Quando | O que faz |
 |---|---|---|
 | `/api/billing/cycle` | todo dia, 09:00 UTC (06:00 em Joinville) | Emite as faturas do próximo ciclo, marca as vencidas e suspende quem passou da carência |
-| `/api/live/scale/check` | a cada 5 minutos | Compara a audiência com os limites; alerta vai para o log e, se crítico, para o Sentry |
+| `/api/live/scale/check` | todo dia, 09:30 UTC (plano Hobby) | Compara a audiência com os limites; alerta vai para o log e, se crítico, para o Sentry |
 
-- **A cadência de 5 minutos exige o plano Pro da Vercel.** No plano Hobby o cron roda no máximo uma vez por dia
-  e o deploy é **recusado** com este `vercel.json`: troque a segunda linha para `"0 9 * * *"` (o alerta de
-  orçamento mensal continua útil; o de simultâneos deixa de ser).
+- **O piloto está no plano Hobby da Vercel**, em que o cron roda no máximo uma vez por dia (e o deploy é recusado
+  com uma cadência menor). Uma vez por dia, a checagem só enxerga um instante: o alerta de **orçamento mensal**
+  continua útil, o de **espectadores simultâneos** praticamente não dispara. O painel do backoffice (Conteúdo →
+  Lives no ar) mostra os dois em tempo real. No plano Pro, volte a segunda linha do `vercel.json` para
+  `"*/5 * * * *"`.
 - O que roda **dentro do banco** (pg_cron) não depende da Vercel: métricas diárias, amostra de audiência e
   retenção do chat.
 

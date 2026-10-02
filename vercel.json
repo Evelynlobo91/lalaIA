@@ -2,6 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     { "path": "/api/billing/cycle", "schedule": "0 9 * * *" },
-    { "path": "/api/live/scale/check", "schedule": "*/5 * * * *" }
+    { "path": "/api/live/scale/check", "schedule": "30 9 * * *" }
   ]
 }
