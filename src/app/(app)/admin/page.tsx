@@ -1,21 +1,21 @@
 import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BACKOFFICE_HOME, backofficeSections } from "@/modules/backoffice";
-import { requireRole } from "@/modules/identity";
+import { BACKOFFICE_HOME, sectionsFor } from "@/modules/backoffice";
+import { can, requireCapability } from "@/modules/identity";
 import { Card, CardDescription, CardTitle } from "@/shared/ui";
 
 export const metadata: Metadata = { title: "Backoffice", robots: { index: false } };
 
 export default async function BackofficeHomePage() {
-  await requireRole("admin", "/admin");
+  const user = await requireCapability("backoffice:access", "/admin");
 
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold">Backoffice</h1>
       <p className="text-muted">Operação interna do LalaIA. O que você precisa fazer?</p>
       <ul className="grid gap-3 md:grid-cols-2" aria-label="Seções do backoffice">
-        {backofficeSections
+        {sectionsFor((capability) => can(user, capability))
           .filter((s) => s.href !== BACKOFFICE_HOME)
           .map(({ href, label, description, icon: Icon }) => (
             <li key={href}>

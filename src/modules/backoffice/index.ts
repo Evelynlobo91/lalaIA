@@ -3,7 +3,7 @@ import type { ModuleSubscriptions } from "@/shared/events";
 import { getPlatformMetrics, listAuditLog, recordAudit } from "./composition";
 import { auditedEventTypes } from "./features/audit-log/audit-events";
 export { BackofficeNav } from "./features/shell/ui/backoffice-nav";
-export { BACKOFFICE_HOME, backofficeSections, type BackofficeSection } from "./features/shell/backoffice-sections";
+export { BACKOFFICE_HOME, backofficeSections, sectionsFor, type BackofficeSection } from "./features/shell/backoffice-sections";
 export { ContentSearch } from "./features/manage-content/ui/content-search";
 export { CONTENT_RETURN, contentHref, contentQuery, contentTabs, type ContentTab } from "./features/manage-content/content-tabs";
 

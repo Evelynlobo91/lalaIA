@@ -2,17 +2,17 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { hasRole, withRole } from "@/modules/identity";
+import { can, withCapability } from "@/modules/identity";
 import { sql } from "@/shared/db/sql";
 import { domainEvents } from "@/shared/events";
 import { formAction, type FormState } from "@/shared/http/form-action";
 import { PostgresPlaceOwnershipRepository } from "../../infra/postgres-place-ownership-repository";
 import { CreatePlaceByAdmin, createPlaceSchema } from "./create-place";
 
-// withRole confere o papel na action; o caso de uso confere de novo; o banco (RLS) por último.
+// withCapability confere a capacidade na action; o caso de uso confere de novo; o banco (RLS) por último.
 const handle = formAction(
   createPlaceSchema,
-  withRole("admin", (input, user) => new CreatePlaceByAdmin(new PostgresPlaceOwnershipRepository(sql()), domainEvents()).execute({ id: user.id, isAdmin: hasRole(user, "admin") }, input)),
+  withCapability("content:edit", (input, user) => new CreatePlaceByAdmin(new PostgresPlaceOwnershipRepository(sql()), domainEvents()).execute({ id: user.id, isAdmin: can(user, "content:edit") }, input)),
   { name: "places.createByAdmin", keepValues: ["name", "category", "street", "houseNumber", "neighborhood", "phone", "website", "lat", "lon"] },
 );
 

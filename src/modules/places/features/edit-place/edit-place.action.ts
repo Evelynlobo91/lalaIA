@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { hasRole, withUser } from "@/modules/identity";
+import { can, withUser } from "@/modules/identity";
 import { sql } from "@/shared/db/sql";
 import { domainEvents } from "@/shared/events";
 import { formAction, type FormState } from "@/shared/http/form-action";
@@ -10,7 +10,7 @@ import { EditOwnedPlace, editPlaceSchema } from "./edit-place";
 
 const handle = formAction(
   editPlaceSchema,
-  withUser((input, user) => new EditOwnedPlace(new PostgresPlaceOwnershipRepository(sql()), domainEvents()).execute({ id: user.id, isAdmin: hasRole(user, "admin") }, input)),
+  withUser((input, user) => new EditOwnedPlace(new PostgresPlaceOwnershipRepository(sql()), domainEvents()).execute({ id: user.id, isAdmin: can(user, "content:edit") }, input)),
   { name: "places.edit", keepValues: ["name", "street", "houseNumber", "neighborhood", "phone", "website"] },
 );
 

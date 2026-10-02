@@ -1,4 +1,4 @@
-// Concede ou revoga papéis (partner/admin) por e-mail.
+// Concede ou revoga papéis (partner, admin, commercial, finance, moderator) por e-mail.
 // Uso: npm run role -- grant admin voce@exemplo.com
 //      npm run role -- revoke partner voce@exemplo.com
 //      npm run role -- list voce@exemplo.com
@@ -6,11 +6,11 @@
 import postgres from "postgres";
 
 const [action, ...args] = process.argv.slice(2);
-const ROLES = ["partner", "admin"];
+const ROLES = ["partner", "admin", "commercial", "finance", "moderator"];
 
 function usage(message) {
   if (message) console.error(`Erro: ${message}\n`);
-  console.error("Uso: npm run role -- grant|revoke <partner|admin> <email>\n     npm run role -- list <email>");
+  console.error(`Uso: npm run role -- grant|revoke <${ROLES.join("|")}> <email>\n     npm run role -- list <email>`);
   process.exit(1);
 }
 
@@ -28,7 +28,7 @@ try {
 
   if (action !== "list") {
     const role = args[0];
-    if (!ROLES.includes(role)) usage(`papel inválido: ${role}. Use partner ou admin.`);
+    if (!ROLES.includes(role)) usage(`papel inválido: ${role}. Use ${ROLES.join(", ")}.`);
     if (action === "grant") {
       await sql`insert into identity.user_roles (user_id, role) values (${user.id}, ${role}) on conflict do nothing`;
     } else {
