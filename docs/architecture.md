@@ -7,6 +7,8 @@
 ```
 src/
 ├─ app/                          # rotas Next.js (App Router), apenas composição
+├─ bootstrap/                    # composição no boot do servidor (assinaturas de eventos)
+├─ instrumentation.ts            # hook do Next que chama o bootstrap
 ├─ shared/                       # kernel genérico: Result, erros, event bus, UI base
 │                                #   (não conhece nenhum módulo)
 └─ modules/
@@ -35,6 +37,38 @@ Há um módulo completo de exemplo em [`docs/templates/module-example`](template
 
 Para reagir a algo que acontece em outro módulo, **assine um evento de domínio**
 (ex.: Progressão escuta `MissionStepCompleted`) em vez de esperar ser chamado diretamente.
+
+## Shared kernel (`src/shared/`)
+
+| Peça | Arquivo | Para que serve |
+|------|---------|----------------|
+| `Result`, `ok`, `err` | `shared/kernel/result.ts` | Casos de uso retornam falhas esperadas como valor, não como exceção |
+| Erros de domínio | `shared/kernel/errors.ts` | `ValidationError` 400, `UnauthorizedError` 401, `ForbiddenError` 403, `NotFoundError` 404, `ConflictError` 409, `BusinessRuleError` 422 |
+| `jsonRoute` / `queryRoute` | `shared/http/json-route.ts` | Valida a entrada com zod, chama o caso de uso e converte `Result` → `Response`. Exceção inesperada vira 500 genérico, sem vazar detalhes |
+| Event bus | `shared/events/` | `DomainEventPublisher` (casos de uso) e `DomainEventSubscriber` (composição); `domainEvents()` é a instância do processo |
+| `lazy` | `shared/kernel/lazy.ts` | Cria dependências no primeiro uso, na composição do módulo |
+| `sql()` | `shared/db/sql.ts` | Conexão Postgres (somente servidor, somente em `infra/`) |
+
+### Eventos de domínio
+
+1. Declare os eventos do módulo em `domain/events.ts` (nome `<modulo>.<Evento>`):
+   ```ts
+   declare module "@/shared/events/domain-event" {
+     interface DomainEventMap {
+       "missions.StepCompleted": { userId: string; missionId: string; stepId: string };
+     }
+   }
+   export {};
+   ```
+2. O caso de uso recebe um `DomainEventPublisher` e chama `publish(...)` **depois** de persistir.
+3. Quem reage exporta `subscriptions: ModuleSubscriptions` no `index.ts` e é registrado em
+   `src/bootstrap/register-subscriptions.ts` (executado no boot por `src/instrumentation.ts`).
+4. Handlers são isolados (a falha de um não afeta os outros nem quem publicou) e devem ser
+   **idempotentes**, usando `event.id` para deduplicar.
+
+> O bus é in-process: eventos não sobrevivem a um restart. Para efeitos críticos (XP, recompensas),
+> o handler grava no banco de forma idempotente. Se precisarmos de garantia de entrega, a evolução
+> natural é um outbox (`platform.outbox`) sem mudar as portas.
 
 ## SOLID na prática
 
