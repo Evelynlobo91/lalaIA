@@ -22,6 +22,8 @@ import type { Coordinates } from "./domain/place";
 import { searchPlacesRoute } from "./features/search-by-name/search-by-name.route";
 import { SearchPlaces, type PlaceSearchCriteria } from "./features/search-places/search-places";
 import { PostgresPlaceSearch } from "./infra/postgres-place-search";
+import { GetPlaceFacets } from "./features/place-facets/place-facets";
+import { PostgresPlaceFacets } from "./infra/postgres-place-facets";
 import { FindPlaceCandidates, type PlaceCandidate, type PlaceCandidatesQuery } from "./features/place-candidates/place-candidates";
 
 export type { PlaceDraft, Address, Coordinates } from "./domain/place";
@@ -164,6 +166,14 @@ export function searchPlaces(criteria: PlaceSearchCriteria) {
 /** Bairros com lugares (opções do filtro de localização). */
 export function placeNeighborhoods() {
   return placeSearchAdapter().neighborhoods();
+}
+
+export type { PlaceFacet } from "./features/place-facets/place-facets";
+const placeFacetsUseCase = lazy(() => new GetPlaceFacets(new PostgresPlaceFacets(sql())));
+
+/** Categoria e bairro de vários lugares numa consulta (ex.: categorias e bairros explorados no progression). */
+export function placeFacets(ids: string[]) {
+  return placeFacetsUseCase().execute(ids);
 }
 
 /** Ids dos lugares de um bairro (ex.: eventos de um bairro, sem join entre schemas). */

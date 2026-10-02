@@ -187,3 +187,16 @@ export function recordInteractions(entityType: "place" | "event" | "mission" | "
       select ${kind}, ${entityType}, ${entityId}, 'ui' from generate_series(1, ${count})`,
   );
 }
+
+/**
+ * Crédito de XP direto no livro-razão (progression), como se viesse de uma etapa de missão.
+ * Não publica eventos: serve para testar o que é derivado do saldo (ex.: nível).
+ */
+export function creditTestXp(user: Pick<TestUser, "email">, amount: number, description = "Etapa concluída · Teste E2E") {
+  return withDb(
+    (sql) => sql`
+      insert into progression.xp_transactions (user_id, amount, reason, source_id, description, event_id)
+      select id, ${amount}, 'mission_step', gen_random_uuid(), ${description}, gen_random_uuid()
+      from auth.users where lower(email) = ${user.email.toLowerCase()}`,
+  );
+}

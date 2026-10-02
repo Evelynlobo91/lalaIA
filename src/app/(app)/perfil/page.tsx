@@ -2,7 +2,7 @@ import { Heart, Lock, Pencil, ShieldCheck, Store } from "lucide-react";
 import type { Metadata } from "next";
 import { LogoutButton, budgetOptions, groupSizes, hasRole, requireUser, userPreferences } from "@/modules/identity";
 import { ActiveMissionsCard, myMissions } from "@/modules/missions";
-import { XpCard, xpOverviewOf } from "@/modules/progression";
+import { AchievementsCard, ExplorerProfileCard, LevelCard, XpCard, achievementsOf, explorerProfileOf, levelOverviewOf, xpOverviewOf } from "@/modules/progression";
 import { categories } from "@/shared/catalog/categories";
 import { Avatar, Badge, ButtonLink, Card, CardDescription, CardTitle } from "@/shared/ui";
 
@@ -10,7 +10,14 @@ export const metadata: Metadata = { title: "Perfil" };
 
 export default async function PerfilPage() {
   const user = await requireUser("/perfil");
-  const [prefs, missions, xp] = await Promise.all([userPreferences().preferencesOf(user.id), myMissions(user.id), xpOverviewOf(user.id)]);
+  const [prefs, missions, xp, level, achievements, explorer] = await Promise.all([
+    userPreferences().preferencesOf(user.id),
+    myMissions(user.id),
+    xpOverviewOf(user.id),
+    levelOverviewOf(user.id),
+    achievementsOf(user.id),
+    explorerProfileOf(user.id),
+  ]);
 
   const labels = prefs.categories.map((id) => categories.find((c) => c.id === id)?.label ?? id);
   const budget = prefs.budgetMax === null ? "Sem limite definido" : budgetOptions.find((b) => b.value === prefs.budgetMax)?.label;
@@ -52,7 +59,13 @@ export default async function PerfilPage() {
         </div>
       </Card>
 
+      <LevelCard overview={level} />
+
+      <ExplorerProfileCard profile={explorer} />
+
       <XpCard overview={xp} />
+
+      <AchievementsCard overview={achievements} />
 
       <ActiveMissionsCard missions={missions} />
 

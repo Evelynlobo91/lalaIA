@@ -33,7 +33,7 @@ npm run test:e2e   # testes E2E (Playwright) no build de produção, em 360/768/
 npm run role -- grant admin voce@exemplo.com   # concede papel (partner/admin) a uma conta
 ```
 
-Veja também [convenções do banco](docs/database.md), [lugares do OpenStreetMap](docs/places-data.md), [parceiros](docs/partners.md), [eventos](docs/events.md), [favoritos](docs/favorites.md), [missões](docs/missions.md), [analytics](docs/analytics.md), [recomendação](docs/recommendation.md), [live](docs/live.md), [privacidade e LGPD](docs/privacy.md), [observabilidade](docs/observability.md) e [CI/CD e deploy](docs/deploy.md).
+Veja também [convenções do banco](docs/database.md), [lugares do OpenStreetMap](docs/places-data.md), [parceiros](docs/partners.md), [eventos](docs/events.md), [favoritos](docs/favorites.md), [missões](docs/missions.md), [analytics](docs/analytics.md), [recomendação](docs/recommendation.md), [live](docs/live.md), [privacidade e LGPD](docs/privacy.md), [progressão](docs/progression.md), [observabilidade](docs/observability.md) e [CI/CD e deploy](docs/deploy.md).
 
 ## Arquitetura
 

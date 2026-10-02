@@ -5,7 +5,7 @@ import { livePrivacyAcceptedAt, liveStreamsOf } from "@/modules/live";
 import { missionsByOwner, myMissions } from "@/modules/missions";
 import { myPartnerApplication } from "@/modules/partners";
 import { placesManagedBy } from "@/modules/places";
-import { xpOverviewOf } from "@/modules/progression";
+import { achievementsOf, explorerProfileOf, levelOverviewOf, xpOverviewOf } from "@/modules/progression";
 
 /**
  * Fontes da exportação de dados pessoais (LGPD, #25): uma por módulo, pelas APIs públicas. Fica no
@@ -16,6 +16,9 @@ export const personalDataSources: PersonalDataSource[] = [
   { name: "favoritos", export: (user) => myFavorites(user) },
   { name: "missoes", export: (user) => myMissions(user.id) },
   { name: "xp", export: (user) => xpOverviewOf(user.id, 10_000) },
+  { name: "nivel", export: (user) => levelOverviewOf(user.id) },
+  { name: "conquistas", export: (user) => achievementsOf(user.id) },
+  { name: "perfilDeExplorador", export: (user) => explorerProfileOf(user.id) },
   { name: "parceiro", export: async (user) => (await myPartnerApplication(user)) ?? null },
   { name: "lugaresQueGerencio", export: (user) => placesManagedBy(user.id) },
   { name: "eventosQueCriei", export: (user) => eventsByOwner(user.id) },

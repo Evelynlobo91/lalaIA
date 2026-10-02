@@ -50,14 +50,17 @@ test("parceiro cria missão → explorador aceita → valida o QR → XP aparece
   // 4. XP no perfil: saldo e histórico.
   await page.goto("/perfil");
   const xp = page.getByRole("article", { name: "Seu XP" });
-  await expect(xp.getByText("60 XP", { exact: true })).toBeVisible();
+  // 60 XP da missão + bônus das conquistas "Primeiro check-in" e "Primeira missão" (#67).
+  await expect(xp.getByText("Conquista · Primeira missão")).toBeVisible();
+  await expect(xp.getByText("Conquista · Primeiro check-in")).toBeVisible();
   const historico = xp.getByRole("list", { name: "Histórico de XP" });
   await expect(historico.getByText(`Etapa concluída · ${titulo}`)).toBeVisible();
   await expect(historico.getByText(`Missão concluída · ${titulo}`)).toBeVisible();
 
-  // Reabrir o QR não credita de novo.
+  // Reabrir o QR não credita de novo: o total continua o mesmo.
+  const total = await xp.getByText(/^\d+ XP$/).first().textContent();
   await page.goto(qrUrl.pathname + qrUrl.search);
   await expect(page.getByText(/já concluiu esta missão|já concluiu esta etapa/)).toBeVisible();
   await page.goto("/perfil");
-  await expect(page.getByRole("article", { name: "Seu XP" }).getByText("60 XP", { exact: true })).toBeVisible();
+  await expect(page.getByRole("article", { name: "Seu XP" }).getByText(/^\d+ XP$/).first()).toHaveText(total!);
 });

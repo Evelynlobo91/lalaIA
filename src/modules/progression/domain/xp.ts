@@ -1,13 +1,13 @@
 // XP como livro-razão append-only (epic #10): nunca um campo somado. O saldo é a soma das transações.
 
-export const xpReasons = ["mission_step", "mission_completed"] as const;
+export const xpReasons = ["mission_step", "mission_completed", "achievement"] as const;
 export type XpReason = (typeof xpReasons)[number];
 
 export type NewXpTransaction = {
   userId: string;
   amount: number;
   reason: XpReason;
-  /** Origem (etapa ou missão). Com `userId` e `reason`, é a chave natural: a mesma origem não credita duas vezes. */
+  /** Origem (etapa, missão ou desbloqueio de conquista). Com `userId` e `reason`, é a chave natural: a mesma origem não credita duas vezes. */
   sourceId: string;
   description: string;
   /** Id do evento de domínio que gerou o crédito (auditoria e deduplicação). */

@@ -21,24 +21,25 @@ function memoryLedger() {
   return { rows, ledger };
 }
 const titles = { titleOf: vi.fn().mockResolvedValue("Rota do Café") };
+const events = () => ({ publish: vi.fn().mockResolvedValue(undefined) });
 
 describe("GrantXp", () => {
   it("credita o XP da etapa com descrição congelada", async () => {
     const { rows, ledger } = memoryLedger();
-    const credited = await new GrantXp(ledger, titles).onStepCompleted({ id: EVT, payload: { userId: ANA, missionId: MISSAO, stepId: ETAPA, xp: 30 } });
+    const credited = await new GrantXp(ledger, titles, events()).onStepCompleted({ id: EVT, payload: { userId: ANA, missionId: MISSAO, stepId: ETAPA, xp: 30 } });
     expect(credited).toBe(true);
     expect(rows).toEqual([{ eventId: EVT, userId: ANA, reason: "mission_step", sourceId: ETAPA, amount: 30, description: "Etapa concluída · Rota do Café" }]);
   });
 
   it("credita o bônus da missão", async () => {
     const { rows, ledger } = memoryLedger();
-    await new GrantXp(ledger, titles).onMissionCompleted({ id: EVT, payload: { userId: ANA, missionId: MISSAO, xp: 25 } });
+    await new GrantXp(ledger, titles, events()).onMissionCompleted({ id: EVT, payload: { userId: ANA, missionId: MISSAO, xp: 25 } });
     expect(rows[0]).toMatchObject({ reason: "mission_completed", sourceId: MISSAO, amount: 25, description: "Missão concluída · Rota do Café" });
   });
 
   it("idempotente: o mesmo evento, ou o mesmo fato republicado com outro id, não credita duas vezes", async () => {
     const { rows, ledger } = memoryLedger();
-    const grant = new GrantXp(ledger, titles);
+    const grant = new GrantXp(ledger, titles, events());
     const payload = { userId: ANA, missionId: MISSAO, stepId: ETAPA, xp: 30 };
     expect(await grant.onStepCompleted({ id: EVT, payload })).toBe(true);
     expect(await grant.onStepCompleted({ id: EVT, payload })).toBe(false);
@@ -46,9 +47,32 @@ describe("GrantXp", () => {
     expect(rows).toHaveLength(1);
   });
 
+  it("publica progression.XpGranted só quando o crédito é novo (depois de gravar)", async () => {
+    const { ledger } = memoryLedger();
+    const bus = events();
+    const grant = new GrantXp(ledger, titles, bus);
+    const payload = { userId: ANA, missionId: MISSAO, stepId: ETAPA, xp: 30 };
+    await grant.onStepCompleted({ id: EVT, payload });
+    await grant.onStepCompleted({ id: EVT, payload });
+    expect(bus.publish).toHaveBeenCalledOnce();
+    expect(bus.publish).toHaveBeenCalledWith("progression.XpGranted", { userId: ANA, amount: 30, reason: "mission_step" });
+  });
+
+  it("credita o bônus da conquista com a origem no desbloqueio; sem bônus, nada", async () => {
+    const { rows, ledger } = memoryLedger();
+    const grant = new GrantXp(ledger, titles, events());
+    const unlockId = crypto.randomUUID();
+    const payload = { userId: ANA, achievementId: "primeira-missao", unlockId, title: "Primeira missão", bonusXp: 25 };
+    expect(await grant.onAchievementUnlocked({ id: EVT, payload })).toBe(true);
+    expect(await grant.onAchievementUnlocked({ id: crypto.randomUUID(), payload })).toBe(false);
+    expect(await grant.onAchievementUnlocked({ id: crypto.randomUUID(), payload: { ...payload, unlockId: crypto.randomUUID(), bonusXp: 0 } })).toBe(false);
+    expect(rows).toEqual([{ eventId: EVT, userId: ANA, reason: "achievement", sourceId: unlockId, amount: 25, description: "Conquista · Primeira missão" }]);
+    expect(titles.titleOf).not.toHaveBeenCalledWith(unlockId);
+  });
+
   it("sem título da missão, usa só o rótulo", async () => {
     const { rows, ledger } = memoryLedger();
-    await new GrantXp(ledger, { titleOf: vi.fn().mockRejectedValue(new Error("fora do ar")) }).onMissionCompleted({ id: EVT, payload: { userId: ANA, missionId: MISSAO, xp: 25 } });
+    await new GrantXp(ledger, { titleOf: vi.fn().mockRejectedValue(new Error("fora do ar")) }, events()).onMissionCompleted({ id: EVT, payload: { userId: ANA, missionId: MISSAO, xp: 25 } });
     expect(rows[0].description).toBe("Missão concluída");
   });
 
@@ -58,13 +82,13 @@ describe("GrantXp", () => {
     ["id inválido", { userId: "x", missionId: MISSAO, stepId: ETAPA, xp: 10 }],
   ])("payload inválido (%s) não credita", async (_, payload) => {
     const { rows, ledger } = memoryLedger();
-    await expect(new GrantXp(ledger, titles).onStepCompleted({ id: EVT, payload })).rejects.toThrow();
+    await expect(new GrantXp(ledger, titles, events()).onStepCompleted({ id: EVT, payload })).rejects.toThrow();
     expect(rows).toHaveLength(0);
   });
 
   it("via event bus: StepCompleted e MissionCompleted viram transações (handlers assinados como no módulo)", async () => {
     const { rows, ledger } = memoryLedger();
-    const grant = new GrantXp(ledger, titles);
+    const grant = new GrantXp(ledger, titles, events());
     const bus = new InMemoryEventBus();
     bus.subscribe("missions.StepCompleted", async (e) => void (await grant.onStepCompleted(e)));
     bus.subscribe("missions.MissionCompleted", async (e) => void (await grant.onMissionCompleted(e)));

@@ -12,6 +12,8 @@ import { PostgresMissionRepository } from "./infra/postgres-mission-repository";
 import { PostgresUserMissionRepository } from "./infra/postgres-user-mission-repository";
 import { PostgresStepCompletionRepository } from "./infra/postgres-step-completion-repository";
 import { GetMissionProgress } from "./features/mission-progress/mission-progress.use-case";
+import { GetMissionExploration } from "./features/exploration/exploration";
+import { PostgresMissionExplorationReader } from "./infra/postgres-mission-exploration-reader";
 import { CompleteStep } from "./features/qr-validation/complete-step.use-case";
 import { QrCodeValidator } from "./features/qr-validation/qr-code-validator";
 import { QrStepValidation } from "./features/qr-validation/qr-validation.use-case";
@@ -32,6 +34,7 @@ export const archiveMission = lazy(() => new ArchiveMission(missionRepository())
 export const acceptMission = lazy(() => new AcceptMission(missionRepository(), userMissionRepository()));
 export const listAvailableMissions = lazy(() => new ListAvailableMissions(missionRepository(), missionPlaces));
 export const listMyMissions = lazy(() => new ListMyMissions(missionRepository(), userMissionRepository(), stepCompletionRepository(), missionPlaces));
+export const missionExploration = lazy(() => new GetMissionExploration(new PostgresMissionExplorationReader(sql())));
 export const getMissionProgress = lazy(() => new GetMissionProgress(missionRepository(), userMissionRepository(), stepCompletionRepository(), missionPlaces));
 
 // Validação de etapa: uma estratégia por tipo (OCP). GPS entra aqui como mais um StepValidator.
