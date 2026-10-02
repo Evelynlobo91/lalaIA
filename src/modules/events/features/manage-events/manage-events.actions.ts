@@ -20,6 +20,8 @@ export async function saveEventAction(previous: FormState<EventRecord>, formData
   const state = await save(previous, formData);
   if (state.status === "success") {
     revalidatePath("/parceiro/eventos");
+    // Edição vinda do backoffice volta para o backoffice (valor fixo: nunca um caminho vindo do formulário).
+    if (formData.get("returnTo") === "admin") redirect(`/admin/conteudo?tipo=eventos&salvo=${state.data.id}`);
     redirect(`/parceiro/eventos?salvo=${state.data.id}`);
   }
   return state;

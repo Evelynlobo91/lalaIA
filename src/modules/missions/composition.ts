@@ -15,6 +15,7 @@ import type { MissionPlaces } from "./domain/mission";
 import { AcceptMission } from "./features/accept-mission/accept-mission.use-case";
 import { ListAvailableMissions, ListMyMissions } from "./features/accept-mission/mission-catalog";
 import { ArchiveMission, SaveMission } from "./features/manage-missions/manage-missions.use-cases";
+import { ListMissionsForAdmin } from "./features/admin-missions/admin-missions";
 import { PostgresMissionRepository } from "./infra/postgres-mission-repository";
 import { PostgresUserMissionRepository } from "./infra/postgres-user-mission-repository";
 import { PostgresStepCompletionRepository } from "./infra/postgres-step-completion-repository";
@@ -39,6 +40,7 @@ export const stepCompletionRepository = lazy(() => new PostgresStepCompletionRep
 
 export const saveMission = lazy(() => new SaveMission(missionRepository(), missionPlaces, userMissionRepository()));
 export const archiveMission = lazy(() => new ArchiveMission(missionRepository()));
+export const listMissionsForAdmin = lazy(() => new ListMissionsForAdmin(missionRepository()));
 
 export const acceptMission = lazy(() => new AcceptMission({ findById: (id) => missionRepository().findVisibleById(id) }, userMissionRepository()));
 export const listAvailableMissions = lazy(() => new ListAvailableMissions(missionRepository(), missionPlaces));

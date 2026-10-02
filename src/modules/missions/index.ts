@@ -7,6 +7,7 @@ import {
   getMissionReward,
   getPartnerRewardPanel,
   listAvailableMissions,
+  listMissionsForAdmin,
   offerSurpriseMission,
   missionExploration,
   listMyMissions,
@@ -59,6 +60,13 @@ export { REWARD_MESSAGES, type MissionRewardView, type PartnerRewardPanel, type 
 export type { MissionReward, MyRewardClaim } from "./domain/reward";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export type { AdminMissionItem } from "./features/admin-missions/admin-missions";
+
+/** Backoffice (#142): todas as missões, por título (vazio = todas). Só admin. */
+export function missionsForAdmin(viewer: { isAdmin: boolean }, text: string) {
+  return listMissionsForAdmin().execute(viewer, text);
+}
 
 /** Missões criadas por alguém (portal do parceiro), da mais recente para a mais antiga. */
 export function missionsByOwner(ownerId: string): Promise<MissionRecord[]> {

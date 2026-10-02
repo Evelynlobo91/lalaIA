@@ -2,6 +2,7 @@ import { asUser, type Tx } from "@/shared/db/as-user";
 import type { Sql } from "@/shared/db/sql";
 import { geofenceFor } from "../domain/geofence";
 import type { MissionDraft, MissionRecord, MissionRepository, MissionStatus, MissionStep, ValidationKind } from "../domain/mission";
+import type { AdminMissionItem, MissionAdminReader } from "../features/admin-missions/admin-missions";
 
 type MissionRow = {
   id: string;
@@ -81,7 +82,7 @@ async function saveSteps(tx: Tx, missionId: string, draft: MissionDraft) {
   await tx`delete from missions.mission_steps where mission_id = ${missionId} and position > ${draft.steps.length}`;
 }
 
-export class PostgresMissionRepository implements MissionRepository {
+export class PostgresMissionRepository implements MissionRepository, MissionAdminReader {
   constructor(private readonly sql: Sql) {}
 
   async findById(id: string): Promise<MissionRecord | null> {
@@ -93,6 +94,13 @@ export class PostgresMissionRepository implements MissionRepository {
   async findVisibleById(id: string): Promise<MissionRecord | null> {
     const rows = await this.sql.unsafe<MissionRow[]>(`select ${COLUMNS} from missions.missions where id = $1 and not platform.owner_suspended(owner_id)`, [id]);
     return (await withSteps(this.sql, rows))[0] ?? null;
+  }
+
+  /** Backoffice: todas as missões (sem filtro de status nem de suspensão). O texto é tratado como literal no `ilike`. */
+  async searchAll(text: string, limit: number): Promise<AdminMissionItem[]> {
+    const pattern = `%${text.replace(/[\\%_]/g, "\\$&")}%`;
+    const rows = await this.sql.unsafe<MissionRow[]>(`select ${COLUMNS} from missions.missions where title ilike $1 order by created_at desc, id limit $2`, [pattern, limit]);
+    return rows.map((r) => ({ id: r.id, title: r.title, status: r.status, startsAt: r.starts_at, endsAt: r.ends_at, ownerId: r.owner_id, surprise: r.surprise }));
   }
 
   async listByOwner(ownerId: string): Promise<MissionRecord[]> {
