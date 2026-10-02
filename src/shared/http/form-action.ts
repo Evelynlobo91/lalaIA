@@ -1,6 +1,6 @@
 import "server-only";
 import { z } from "zod";
-import { DomainError } from "../kernel/errors";
+import { DomainError, ValidationError } from "../kernel/errors";
 import type { Result } from "../kernel/result";
 import { errorReporter } from "../observability/error-reporter";
 import { logger } from "../observability/logger";
@@ -18,6 +18,17 @@ type Options = {
   /** Campos que podem se repetir (ex.: checkboxes com o mesmo name) e devem virar lista. */
   arrays?: string[];
 };
+
+/** Detalhes no formato [{ path: ["campo"], message }] (zod e casos de uso) → erros por campo. */
+function fieldErrorsFrom(details: unknown): FieldErrors | undefined {
+  if (!Array.isArray(details)) return undefined;
+  const out: FieldErrors = {};
+  for (const issue of details as Array<{ path?: unknown[]; message?: string }>) {
+    const key = String(issue.path?.[0] ?? "");
+    if (key && issue.message) (out[key] ??= []).push(issue.message);
+  }
+  return Object.keys(out).length ? out : undefined;
+}
 
 function formDataToObject(formData: FormData, arrays: string[] = []): Record<string, unknown> {
   const raw: Record<string, unknown> = Object.fromEntries(formData);
@@ -52,7 +63,9 @@ export function formAction<S extends z.ZodType, T>(schema: S, handler: (input: z
     try {
       const result = await handler(parsed.data);
       if (result.ok) return { status: "success", data: result.value };
-      return { status: "error", message: result.error.message, values };
+      // Validação feita no caso de uso (ex.: "lugar não encontrado") também marca o campo.
+      const fieldErrors = result.error instanceof ValidationError ? fieldErrorsFrom(result.error.details) : undefined;
+      return { status: "error", message: fieldErrors ? undefined : result.error.message, fieldErrors, values };
     } catch (error) {
       logger().error("erro inesperado em server action", { err: error });
       errorReporter().capture(error);
