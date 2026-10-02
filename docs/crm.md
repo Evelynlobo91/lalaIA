@@ -25,3 +25,12 @@ Captação de estabelecimentos e promotores (Epic #86). Funil: **lead → contat
   etapa e o registro acontecem na mesma transação. Aparece na página do lead.
 - **Duas pessoas ao mesmo tempo:** a mudança só vale se o lead ainda estiver na etapa em que a pessoa o viu; senão,
   ela recebe um aviso para atualizar a página, em vez de sobrescrever a mudança da outra.
+
+## Anotações e follow-ups (#149)
+
+- **Anotações** (`crm.lead_notes`): registro de cada contato, com autor e data. Não são editadas nem apagadas.
+- **Próximo passo** (`crm.lead_follow_ups`): o que fazer e até que dia. Cada lead tem no máximo um em aberto;
+  definir de novo troca o que estava. A data não pode estar no passado.
+- **"Meus follow-ups de hoje"** (`/admin/leads/follow-ups`): os de hoje e os atrasados, dos leads sob a
+  responsabilidade de quem está logado, com atalho para concluir. A contagem aparece no botão da lista de leads.
+- **Datas** são dias de calendário de Joinville (`America/Sao_Paulo`), sem hora: "hoje" muda à meia-noite local.
