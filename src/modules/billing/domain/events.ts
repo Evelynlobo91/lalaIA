@@ -5,6 +5,8 @@ declare module "@/shared/events/domain-event" {
     "billing.SubscriptionSuspended": { subscriptionId: string; ownerId: string };
     /** O pagamento chegou: a assinatura voltou a ficar em dia. */
     "billing.SubscriptionReactivated": { subscriptionId: string; ownerId: string };
+    /** O time financeiro confirmou à mão o pagamento de uma fatura (recebido por fora do provedor). */
+    "billing.PaymentConfirmedManually": { invoiceId: string; ownerId: string; confirmedBy: string };
   }
 }
 

@@ -3,6 +3,7 @@ import { formatDateTime } from "@/shared/time/joinville-time";
 import { Badge, Card, cn, type BadgeVariant } from "@/shared/ui";
 import { invoiceStatusLabels, subscriptionStatusLabels, type InvoiceStatus, type SubscriptionStatus } from "../../../domain/subscription";
 import { financePeriods, type FinancePanelView } from "../finance-panel";
+import { ConfirmPaymentButton } from "../../confirm-payment/ui/confirm-payment-button";
 
 const brl = (cents: number) => (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const int = new Intl.NumberFormat("pt-BR");
@@ -40,7 +41,8 @@ function Stat({ label, value, hint }: { label: string; value: string; hint?: str
 }
 
 /** Painel financeiro (#156): recebimentos do período, MRR, inadimplentes e faturas por situação. */
-export function FinancePanel({ view }: { view: FinancePanelView }) {
+/** `canWrite` (billing:write): mostra "Confirmar pagamento" nas faturas em aberto ou vencidas. */
+export function FinancePanel({ view, canWrite = false }: { view: FinancePanelView; canWrite?: boolean }) {
   const { totals, period, invoiceStatus } = view;
   return (
     <div className="flex flex-col gap-6">
@@ -127,7 +129,7 @@ export function FinancePanel({ view }: { view: FinancePanelView }) {
               <caption className="sr-only">Faturas mais recentes</caption>
               <thead className="border-b border-border text-muted">
                 <tr>
-                  {["Parceiro", "Plano", "Valor", "Vencimento", "Situação"].map((heading) => (
+                  {["Parceiro", "Plano", "Valor", "Vencimento", "Situação", ...(canWrite ? ["Ação"] : [])].map((heading) => (
                     <th key={heading} scope="col" className="px-4 py-3 font-medium">
                       {heading}
                     </th>
@@ -147,6 +149,11 @@ export function FinancePanel({ view }: { view: FinancePanelView }) {
                       <Badge variant={invoiceBadge[invoice.status]}>{invoiceStatusLabels[invoice.status]}</Badge>
                       {invoice.paidAt && <span className="ml-2 text-muted">{formatDateTime(invoice.paidAt)}</span>}
                     </td>
+                    {canWrite && (
+                      <td className="px-4 py-3">
+                        {(invoice.status === "pending" || invoice.status === "overdue") && <ConfirmPaymentButton invoiceId={invoice.id} ownerName={invoice.ownerName} amount={brl(invoice.amountCents)} />}
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
