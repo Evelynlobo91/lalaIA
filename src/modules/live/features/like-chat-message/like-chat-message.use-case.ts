@@ -8,8 +8,8 @@ export const myLikesQuerySchema = z.object({ streamId: z.uuid() });
 export interface MessageLikeStore {
   /** Alterna a curtida como o usuário (RLS: mensagem visível, chat aberto). null se o banco recusar. */
   toggle(userId: string, messageId: string): Promise<{ liked: boolean; likes: number } | null>;
-  /** O que a pessoa curtiu nesta transmissão: mensagens e a própria live. */
-  mine(userId: string, streamId: string): Promise<{ messageIds: string[]; likedLive: boolean }>;
+  /** O que é da pessoa nesta transmissão: mensagens que curtiu, se curtiu a live e as mensagens que escreveu. */
+  mine(userId: string, streamId: string): Promise<{ messageIds: string[]; likedLive: boolean; ownMessageIds: string[] }>;
 }
 
 /** #190 — Curtir (ou descurtir) uma mensagem do chat. Só com o chat aberto e a mensagem visível. */

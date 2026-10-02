@@ -12,7 +12,7 @@ export const CHAT_LIMITS = {
 } as const;
 
 /** Sala do chat: o que o servidor precisa saber da transmissão para abrir, fechar e marcar o anfitrião. */
-export type ChatRoom = { streamId: string; ownerId: string; status: "waiting" | "live" | "paused" | "ended"; chatEnabled: boolean };
+export type ChatRoom = { streamId: string; ownerId: string; status: "waiting" | "live" | "paused" | "ended"; chatEnabled: boolean; /** Modo lento (#192): segundos entre mensagens de cada pessoa; 0 = desligado. */ slowSeconds: number };
 
 export type ChatMessage = {
   id: string;

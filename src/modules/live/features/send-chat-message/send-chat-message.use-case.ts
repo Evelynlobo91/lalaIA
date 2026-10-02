@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { formatTime } from "@/shared/time/joinville-time";
 import { BusinessRuleError, NotFoundError, ValidationError, err, ok, type DomainError, type Result } from "@/shared/kernel";
 import { CHAT_LIMITS, containsLink, tidyMessage, type ChatMessage, type ChatMessageView, type ChatRoom, type ContentFilter } from "../../domain/chat";
 
@@ -26,6 +27,12 @@ export interface ChatRateLimiter {
   lastMessageAt(streamId: string, userId: string): Promise<Date | null>;
 }
 
+/** A pessoa está silenciada nesta transmissão ou banida dos chats do parceiro? (#192) */
+export interface ChatRestrictionReader {
+  /** null = pode escrever. `until` null = sem prazo (a live toda ou banimento). */
+  blocked(streamId: string, userId: string): Promise<{ kind: "mute" | "ban"; until: Date | null } | null>;
+}
+
 /** O plano do dono da transmissão libera o chat? (porta implementada pela API pública do módulo billing) */
 export type ChatEntitlement = (ownerId: string) => Promise<boolean>;
 
@@ -38,8 +45,8 @@ const closed = (message: string) => err(new BusinessRuleError("chat_closed", mes
 
 /**
  * #187 — Enviar mensagem no chat da live. Tudo conferido no servidor, nesta ordem: chat aberto (live no ar, chat
- * ligado e plano com chat) → tamanho → links (só o anfitrião manda) → filtro de conteúdo → intervalo entre
- * mensagens. O id de quem envia vem sempre da sessão.
+ * ligado e plano com chat) → silenciado ou banido (#192) → tamanho → links (só o anfitrião manda) → filtro de
+ * conteúdo → intervalo entre mensagens (3 s, ou o modo lento do anfitrião). O id de quem envia vem sempre da sessão.
  */
 export class SendChatMessage {
   constructor(
@@ -50,6 +57,7 @@ export class SendChatMessage {
     private readonly entitled: ChatEntitlement,
     private readonly presenter: ChatMessagePresenter,
     private readonly now: () => Date = () => new Date(),
+    private readonly restrictions: ChatRestrictionReader = { blocked: async () => null },
   ) {}
 
   async execute(sender: { id: string }, input: { streamId: string; body: string; replyTo?: string | null }): Promise<Result<ChatMessageView, DomainError>> {
@@ -58,16 +66,29 @@ export class SendChatMessage {
     if (room.status !== "live") return closed("O chat fecha quando a live não está no ar.");
     if (!room.chatEnabled || !(await this.entitled(room.ownerId))) return closed("O chat desta live está desligado.");
 
+    const isHost = room.ownerId === sender.id;
+    const blocked = isHost ? null : await this.restrictions.blocked(room.streamId, sender.id);
+    if (blocked) {
+      const message =
+        blocked.kind === "ban"
+          ? "Você não pode participar deste chat."
+          : blocked.until
+            ? `Você foi silenciado neste chat até ${formatTime(blocked.until)}.`
+            : "Você foi silenciado neste chat até o fim da live.";
+      return err(new BusinessRuleError("chat_blocked", message));
+    }
+
     const body = tidyMessage(input.body);
     if (!body) return invalid("Escreva uma mensagem.");
     if (body.length > CHAT_LIMITS.body) return invalid(`Use no máximo ${CHAT_LIMITS.body} caracteres.`);
 
-    const isHost = room.ownerId === sender.id;
     if (!isHost && containsLink(body)) return err(new BusinessRuleError("link_blocked", "Links não são permitidos no chat."));
     if (!this.filter.allows(body)) return err(new BusinessRuleError("content_blocked", "Mensagem bloqueada: mantenha o respeito no chat."));
 
     const last = await this.rate.lastMessageAt(room.streamId, sender.id);
-    const waitMs = last ? CHAT_LIMITS.rateSeconds * 1000 - (this.now().getTime() - last.getTime()) : 0;
+    // Modo lento vale para o público; o anfitrião segue só com o intervalo padrão.
+    const intervalSeconds = isHost ? CHAT_LIMITS.rateSeconds : Math.max(CHAT_LIMITS.rateSeconds, room.slowSeconds);
+    const waitMs = last ? intervalSeconds * 1000 - (this.now().getTime() - last.getTime()) : 0;
     if (waitMs > 0) return err(new BusinessRuleError("rate_limited", `Aguarde ${Math.ceil(waitMs / 1000)} s para enviar outra mensagem.`));
 
     // Resposta a mensagem que sumiu (apagada ou de outra live): envia sem a citação.

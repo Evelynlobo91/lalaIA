@@ -1,6 +1,6 @@
 import "server-only";
 import { TrackView } from "@/modules/analytics";
-import { getCurrentUser } from "@/modules/identity";
+import { can, getCurrentUser } from "@/modules/identity";
 import { errorReporter, logger } from "@/shared/observability";
 import { chatEntitled, chatRepository, getActiveCta, getLivePlayback, getStreamContext } from "../../../composition";
 import type { LiveTargetInfo, StreamEntityType } from "../../../domain/stream";
@@ -40,12 +40,14 @@ async function contextFor(entityType: StreamEntityType, entityId: string): Promi
  * Chat da live (#95): só entra na página quando o plano do anfitrião tem chat. Quem está logado (ou não) decide
  * se a pessoa escreve ou só lê. O chat é um complemento: uma falha aqui não derruba o player.
  */
-async function chatFor(streamId: string, href: string): Promise<{ viewer: { name: string } | null; loginHref: string } | null> {
+async function chatFor(streamId: string, href: string): Promise<{ viewer: { name: string; canModerate: boolean } | null; loginHref: string } | null> {
   try {
     const room = await chatRepository().room(streamId);
     if (!room || !(await chatEntitled(room.ownerId))) return null;
     const user = await getCurrentUser();
-    return { viewer: user ? { name: user.displayName } : null, loginHref: `/entrar?next=${encodeURIComponent(href)}` };
+    // Anfitrião (dono da transmissão) ou moderação da plataforma: vê os controles de moderação no chat.
+    const canModerate = Boolean(user && (room.ownerId === user.id || can(user, "content:edit")));
+    return { viewer: user ? { name: user.displayName, canModerate } : null, loginHref: `/entrar?next=${encodeURIComponent(href)}` };
   } catch (error) {
     logger().error("falha ao carregar o chat da live", { err: error });
     errorReporter().capture(error);

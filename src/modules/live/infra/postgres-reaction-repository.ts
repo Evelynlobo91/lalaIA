@@ -73,7 +73,7 @@ export class PostgresReactionRepository implements LiveReactionStore, MessageLik
     }
   }
 
-  async mine(userId: string, streamId: string): Promise<{ messageIds: string[]; likedLive: boolean }> {
+  async mine(userId: string, streamId: string): Promise<{ messageIds: string[]; likedLive: boolean; ownMessageIds: string[] }> {
     return asUser(
       userId,
       async (tx) => {
@@ -81,7 +81,9 @@ export class PostgresReactionRepository implements LiveReactionStore, MessageLik
           select l.message_id from live.chat_message_likes l
           where l.user_id = ${userId} and live.chat_message_in_stream(l.message_id, ${streamId})`;
         const live = await tx`select 1 from live.stream_likes where stream_id = ${streamId} and user_id = ${userId}`;
-        return { messageIds: messages.map((m) => m.message_id), likedLive: live.length > 0 };
+        // A RLS "autor lê as próprias" já limita às mensagens da pessoa; o filtro é a primeira camada.
+        const own = await tx<{ id: string }[]>`select id from live.chat_messages where stream_id = ${streamId} and user_id = ${userId} and deleted_at is null order by seq desc limit 50`;
+        return { messageIds: messages.map((m) => m.message_id), likedLive: live.length > 0, ownMessageIds: own.map((m) => m.id) };
       },
       this.sql,
     );

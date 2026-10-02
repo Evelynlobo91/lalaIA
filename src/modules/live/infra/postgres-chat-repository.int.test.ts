@@ -39,18 +39,18 @@ afterAll(async () => {
 
 describe("PostgresChatRepository (#187, #188)", () => {
   it("sala do chat: dono, status e se o chat está ligado; transmissão inexistente → null", async () => {
-    expect(await repo.room(stream)).toEqual({ streamId: stream, ownerId: ana, status: "live", chatEnabled: true });
+    expect(await repo.room(stream)).toEqual({ streamId: stream, ownerId: ana, status: "live", chatEnabled: true, slowSeconds: 0 });
     expect(await repo.room(crypto.randomUUID())).toBeNull();
   });
 
   it("espectador envia; a versão muda; o histórico vem da mais antiga para a mais nova", async () => {
-    expect(await repo.version(stream)).toBe("0:0:0");
+    expect(await repo.version(stream)).toBe("0:0:0:0");
     const first = await repo.insert(leo, { streamId: stream, body: "Que som bom!", isHost: false, replyTo: null });
     const second = await repo.insert(ana, { streamId: stream, body: "Bem-vindos!", isHost: true, replyTo: first!.id });
     expect(first).toMatchObject({ userId: leo, body: "Que som bom!", isHost: false, replyTo: null });
     expect(second).toMatchObject({ userId: ana, isHost: true, replyTo: first!.id });
     expect(second!.seq).toBeGreaterThan(first!.seq);
-    expect(await repo.version(stream)).toBe(`${second!.seq}:0:0`);
+    expect(await repo.version(stream)).toBe(`${second!.seq}:0:0:0`);
     expect((await repo.latest(stream, 50)).map((m) => m.body)).toEqual(["Que som bom!", "Bem-vindos!"]);
     expect((await repo.latest(stream, 1)).map((m) => m.body)).toEqual(["Bem-vindos!"]);
     expect(await repo.lastMessageAt(stream, leo)).toBeInstanceOf(Date);
@@ -97,7 +97,7 @@ describe("PostgresChatRepository (#187, #188)", () => {
     await db`update live.chat_messages set deleted_at = now() where id = ${first.id}`;
     expect((await repo.latest(stream, 50)).map((m) => m.id)).toEqual([second.id]);
     expect(await repo.byIds([first.id, second.id])).toHaveLength(1);
-    expect(await repo.version(stream)).toBe(`${second.seq}:1:0`);
+    expect(await repo.version(stream)).toBe(`${second.seq}:1:0:0`);
   });
 
   it("autores: nome, nível e nunca o e-mail; conta excluída fica sem autor", async () => {

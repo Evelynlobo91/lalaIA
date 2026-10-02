@@ -5,7 +5,7 @@ import { EMPTY_PULSE, LivePulse, pulseSchema } from "../live-presence/live-prese
 import { InMemoryRateLimiter, NO_REACTIONS, REACTION_KINDS, SendReactions, ToggleLiveLike, sendReactionsSchema } from "./react-to-live.use-case";
 
 const STREAM = "3b0e7c56-4a1f-4c8e-9d2a-7a1c5e6f8b90";
-const room = (patch: Partial<ChatRoom> = {}): ChatRoom => ({ streamId: STREAM, ownerId: "dona", status: "live", chatEnabled: true, ...patch });
+const room = (patch: Partial<ChatRoom> = {}): ChatRoom => ({ streamId: STREAM, ownerId: "dona", status: "live", chatEnabled: true, slowSeconds: 0, ...patch });
 const rooms = (r: ChatRoom | null = room()) => ({ room: vi.fn().mockResolvedValue(r) });
 const yes = async () => true;
 const no = async () => false;

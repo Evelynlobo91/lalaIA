@@ -2,7 +2,7 @@ import { asUser } from "@/shared/db/as-user";
 import type { Sql } from "@/shared/db/sql";
 import type { ChatMessage, ChatRoom } from "../domain/chat";
 import type { ChatFeedReader } from "../features/chat-feed/chat-feed.use-case";
-import type { ChatMessageWriter, ChatRateLimiter, ChatRoomReader } from "../features/send-chat-message/send-chat-message.use-case";
+import type { ChatMessageWriter, ChatRateLimiter, ChatRestrictionReader, ChatRoomReader } from "../features/send-chat-message/send-chat-message.use-case";
 
 type Row = { id: string; seq: string; stream_id: string; user_id: string | null; body: string; is_host: boolean; reply_to: string | null; likes: number; created_at: Date };
 
@@ -14,14 +14,14 @@ const toMessage = (r: Row): ChatMessage => ({ id: r.id, seq: Number(r.seq), stre
 
 const RLS_VIOLATION = "42501";
 
-export class PostgresChatRepository implements ChatRoomReader, ChatMessageWriter, ChatRateLimiter, ChatFeedReader {
+export class PostgresChatRepository implements ChatRoomReader, ChatMessageWriter, ChatRateLimiter, ChatFeedReader, ChatRestrictionReader {
   constructor(private readonly sql: Sql) {}
 
   // Sistema (sem asUser): quem conversa não lê live.streams. Transmissão de parceiro suspenso não existe (#144).
   async room(streamId: string): Promise<ChatRoom | null> {
-    const [row] = await this.sql<{ id: string; owner_id: string; status: ChatRoom["status"]; chat_enabled: boolean }[]>`
-      select id, owner_id, status, chat_enabled from live.streams where id = ${streamId} and not platform.owner_suspended(owner_id)`;
-    return row ? { streamId: row.id, ownerId: row.owner_id, status: row.status, chatEnabled: row.chat_enabled } : null;
+    const [row] = await this.sql<{ id: string; owner_id: string; status: ChatRoom["status"]; chat_enabled: boolean; chat_slow_seconds: number }[]>`
+      select id, owner_id, status, chat_enabled, chat_slow_seconds from live.streams where id = ${streamId} and not platform.owner_suspended(owner_id)`;
+    return row ? { streamId: row.id, ownerId: row.owner_id, status: row.status, chatEnabled: row.chat_enabled, slowSeconds: row.chat_slow_seconds } : null;
   }
 
   async insert(userId: string, message: { streamId: string; body: string; isHost: boolean; replyTo: string | null }): Promise<ChatMessage | null> {
@@ -57,15 +57,32 @@ export class PostgresChatRepository implements ChatRoomReader, ChatMessageWriter
     return row?.created_at ?? null;
   }
 
-  // A versão muda quando entra uma mensagem (última seq), quando uma some (quantas foram apagadas) ou quando
-  // uma curtida entra ou sai (quantas curtidas as mensagens visíveis têm).
+  // Sistema: silêncio (na transmissão) ou banimento (nos chats do parceiro) que ainda vale. O banimento vem primeiro.
+  async blocked(streamId: string, userId: string): Promise<{ kind: "mute" | "ban"; until: Date | null } | null> {
+    const [row] = await this.sql<{ kind: "mute" | "ban"; expires_at: Date | null }[]>`
+      select r.kind, r.expires_at
+      from live.streams s join live.chat_restrictions r on r.owner_id = s.owner_id
+      where s.id = ${streamId} and r.user_id = ${userId}
+        and (r.stream_id is null or r.stream_id = s.id) and (r.expires_at is null or r.expires_at > now())
+      order by (r.kind = 'ban') desc, r.expires_at desc nulls first limit 1`;
+    return row ? { kind: row.kind, until: row.expires_at } : null;
+  }
+
+  async pinned(streamId: string): Promise<ChatMessage | null> {
+    const [row] = await this.sql.unsafe<Row[]>(`select ${COLUMNS} from live.chat_messages where stream_id = $1 and pinned_at is not null and deleted_at is null`, [streamId]);
+    return row ? toMessage(row) : null;
+  }
+
+  // A versão muda quando entra uma mensagem (última seq), quando uma some (quantas foram apagadas), quando
+  // uma curtida entra ou sai (quantas curtidas as mensagens visíveis têm) ou quando a fixada muda.
   async version(streamId: string): Promise<string> {
-    const [row] = await this.sql<{ last: string; deleted: number; likes: number }[]>`
+    const [row] = await this.sql<{ last: string; deleted: number; likes: number; pinned: string }[]>`
       select coalesce(max(m.seq), 0) as last, count(*) filter (where m.deleted_at is not null)::int as deleted,
              (select count(*) from live.chat_message_likes l join live.chat_messages lm on lm.id = l.message_id
-               where lm.stream_id = ${streamId} and lm.deleted_at is null)::int as likes
+               where lm.stream_id = ${streamId} and lm.deleted_at is null)::int as likes,
+             coalesce(max(m.seq) filter (where m.pinned_at is not null and m.deleted_at is null), 0) as pinned
       from live.chat_messages m where m.stream_id = ${streamId}`;
-    return `${row.last}:${row.deleted}:${row.likes}`;
+    return `${row.last}:${row.deleted}:${row.likes}:${row.pinned}`;
   }
 
   async latest(streamId: string, limit: number): Promise<ChatMessage[]> {

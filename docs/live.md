@@ -370,3 +370,29 @@ Mensagens curtas junto do player, para quem assiste sentir o clima e conversar c
 
 Limitações: o contador de espectadores conta abas, não pessoas; o limite de lotes de reação é por instância do
 servidor; curtidas e reações não entram no tracking do Analytics (os totais ficam nas tabelas da live).
+
+### Moderação do chat pelo anfitrião (#192)
+
+Quem modera: o **anfitrião** (dono da transmissão) e a **moderação da plataforma** (`content:edit`). O autor só
+apaga a própria mensagem.
+
+| Ação | Onde | O que faz |
+| --- | --- | --- |
+| Apagar | menu "⋮" da mensagem | some para todos (fica guardada, apagada, até a retenção) |
+| Fixar / desafixar | menu "⋮" / "x" na fixada | uma mensagem no topo do chat, por transmissão |
+| Silenciar 5 min, 1 h, a live toda | menu "⋮" | quem escreveu não envia naquela transmissão até o prazo |
+| Banir | menu "⋮" | quem escreveu não envia em **nenhum** chat do parceiro, até ser desbanido |
+| Modo lento (10 s / 30 s) | portal → Live → "Chat da live" | intervalo entre mensagens de cada pessoa; o anfitrião não é afetado |
+| Desligar o chat | portal → Live → "Chat da live" | o chat fecha; curtidas e reações continuam |
+
+- `POST /api/live/chat/moderation` (`ModerateChatMessage`): silenciar e banir miram **quem escreveu a mensagem** — a
+  tela nunca recebe o id de ninguém. O anfitrião não pode ser silenciado nem banido do próprio chat.
+- **Conferido no servidor e no banco**: `SendChatMessage` recusa silenciado/banido e aplica o modo lento; a RLS
+  repete (`live.chat_blocked`, `live.moderates_stream`), e um gatilho garante que só quem modera fixa e que
+  mensagem apagada não volta.
+- **Portal**: "Silenciados e banidos do chat" lista quem está restrito (pelo nome) com "Desbanir" / "Tirar o
+  silêncio". Quem foi restrito não lê essa tabela.
+
+Limitações: sem aviso para a pessoa no momento em que é silenciada (ela vê ao tentar enviar); ações de moderação
+do chat não entram na trilha de auditoria do backoffice; a moderação da plataforma modera pelo próprio chat
+(não há tela no backoffice) e não altera as opções do chat de um parceiro.

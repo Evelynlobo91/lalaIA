@@ -40,6 +40,7 @@ export function useLivePulse(streamId: string | null, loggedIn: boolean) {
   const [pulse, setPulse] = useState<LivePulseView>(EMPTY_PULSE);
   const [liked, setLiked] = useState(false);
   const [likedMessageIds, setLikedMessageIds] = useState<string[]>([]);
+  const [ownMessageIds, setOwnMessageIds] = useState<string[]>([]);
   const [floats, setFloats] = useState<FloatingReaction[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
   const known = useRef<LivePulseView["reactions"] | null>(null);
@@ -96,9 +97,10 @@ export function useLivePulse(streamId: string | null, loggedIn: boolean) {
     fetch(`/api/live/chat/likes?${new URLSearchParams({ streamId })}`, { cache: "no-store", signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) return;
-        const mineNow = (await response.json()) as { messageIds: string[]; likedLive: boolean };
+        const mineNow = (await response.json()) as { messageIds: string[]; likedLive: boolean; ownMessageIds: string[] };
         setLiked(mineNow.likedLive);
         setLikedMessageIds(mineNow.messageIds);
+        setOwnMessageIds(mineNow.ownMessageIds);
       })
       .catch(() => undefined);
     return () => controller.abort();
@@ -135,5 +137,5 @@ export function useLivePulse(streamId: string | null, loggedIn: boolean) {
     } else setNotice(result?.message ?? "Sem conexão. Tente de novo.");
   }, [streamId]);
 
-  return { pulse, liked, likedMessageIds, floats, notice, setNotice, react, toggleLike };
+  return { pulse, liked, likedMessageIds, ownMessageIds, floats, notice, setNotice, react, toggleLike };
 }
