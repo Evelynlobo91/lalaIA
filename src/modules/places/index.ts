@@ -20,6 +20,8 @@ import { PostgresPlaceOwnershipRepository } from "./infra/postgres-place-ownersh
 import { scheduleFromOsm } from "./domain/weekly-schedule";
 import type { Coordinates } from "./domain/place";
 import { searchPlacesRoute } from "./features/search-by-name/search-by-name.route";
+import { SearchPlaces, type PlaceSearchCriteria } from "./features/search-places/search-places";
+import { PostgresPlaceSearch } from "./infra/postgres-place-search";
 
 export type { PlaceDraft, Address, Coordinates } from "./domain/place";
 export type { PlaceListItem, PlaceListPage } from "./features/list-places/list-places.use-case";
@@ -130,3 +132,24 @@ export async function editablePlace(editor: Editor, placeId: string) {
 export const subscriptions: ModuleSubscriptions = (bus) => {
   bus.subscribe("partners.PlaceClaimApproved", (event) => new AssignPlaceOwner(ownership()).execute(event.payload.placeId, event.payload.userId));
 };
+
+// Busca (RF04/RF05), consumida pelo módulo discovery.
+export type { PlaceSearchCriteria } from "./features/search-places/search-places";
+export type { Neighborhood } from "./features/search-places/neighborhoods";
+const placeSearchAdapter = lazy(() => new PostgresPlaceSearch(sql()));
+const placeSearch = lazy(() => new SearchPlaces(placeSearchAdapter()));
+
+/** Busca de lugares por texto e filtros, em ordem alfabética e paginada por cursor opaco. */
+export function searchPlaces(criteria: PlaceSearchCriteria) {
+  return placeSearch().execute(criteria);
+}
+
+/** Bairros com lugares (opções do filtro de localização). */
+export function placeNeighborhoods() {
+  return placeSearchAdapter().neighborhoods();
+}
+
+/** Ids dos lugares de um bairro (ex.: eventos de um bairro, sem join entre schemas). */
+export function placeIdsInNeighborhood(neighborhood: string) {
+  return placeSearchAdapter().placeIdsIn(neighborhood);
+}

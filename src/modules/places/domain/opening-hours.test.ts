@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isOpenAt, parseOpeningHours } from "./opening-hours";
+import { isOpenAt, isOpenDuring, momentsWithin, parseOpeningHours } from "./opening-hours";
 
 // Horários em Joinville (UTC-3). 2026-10-05 é segunda-feira.
 const at = (isoLocal: string) => new Date(`${isoLocal}-03:00`);
@@ -71,5 +71,25 @@ describe("isOpenAt", () => {
 
   it("parseOpeningHours devolve regras por dia", () => {
     expect(parseOpeningHours("Mo-We 10:00-12:00")?.[0].days).toEqual(new Set([1, 2, 3]));
+  });
+});
+
+describe("isOpenDuring", () => {
+  const period = (from: string, to: string) => ({ from: at(from), to: at(to) });
+
+  it("abre em algum momento do período (de 15 em 15 min, no horário de Joinville)", () => {
+    const noite = momentsWithin([period("2026-10-07T18:00:00", "2026-10-08T06:00:00")]); // quarta à noite
+    expect(isOpenDuring("Mo-Fr 11:00-14:30", noite)).toBe(false);
+    expect(isOpenDuring("Tu-Su 18:00-02:00", noite)).toBe(true);
+    expect(isOpenDuring("We 22:45-23:00", noite)).toBe(true);
+    expect(isOpenDuring("sem formato", noite)).toBeNull();
+    expect(isOpenDuring(null, noite)).toBeNull();
+  });
+
+  it("período instantâneo (agora) confere só aquele momento; vários períodos valem juntos", () => {
+    expect(momentsWithin([period("2026-10-07T10:00:00", "2026-10-07T10:00:00")])).toEqual([{ day: 3, minute: 600 }]);
+    const fds = momentsWithin([period("2026-10-10T06:00:00", "2026-10-10T12:00:00"), period("2026-10-11T06:00:00", "2026-10-11T12:00:00")]);
+    expect(isOpenDuring("Su 09:00-11:00", fds)).toBe(true);
+    expect(isOpenDuring("Mo-Fr 09:00-11:00", fds)).toBe(false);
   });
 });
