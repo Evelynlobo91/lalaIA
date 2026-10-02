@@ -8,3 +8,4 @@ export { Sheet } from "./sheet";
 export { TextField, Checkbox, FormAlert } from "./field";
 export { Avatar } from "./avatar";
 export { OsmAttribution } from "./osm-attribution";
+export { Logo } from "./logo";

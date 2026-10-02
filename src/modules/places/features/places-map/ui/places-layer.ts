@@ -12,8 +12,8 @@ const CLUSTER_COUNT = "places-cluster-count";
 const POINTS = "places-points";
 
 // Cores fixas (o canvas do mapa não lê variáveis CSS): roxo da marca, borda clara para contraste no mapa.
-const BRAND = "#3b1d8f";
-const ACCENT = "#ffc94d";
+const BRAND = "#1d51cb";
+const ACCENT = "#d93636";
 
 /** Camada de lugares: agrupa marcadores próximos (cluster) e avisa quando um lugar é tocado. */
 export function placesLayer({ dataUrl, onSelect }: { dataUrl: string; onSelect: (place: SelectedPlace) => void }): MapLayer {

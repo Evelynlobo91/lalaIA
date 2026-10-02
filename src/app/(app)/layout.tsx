@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppNav } from "./_components/app-nav";
+import { Logo } from "@/shared/ui";
 
 export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
@@ -13,10 +14,8 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
 
       <header className="sticky top-0 z-30 border-b border-border bg-bg/95 backdrop-blur md:hidden">
         <div className="flex h-14 items-center px-4">
-          <Link href="/" className="flex items-center gap-2 text-lg font-bold text-brand">
-            {/* eslint-disable-next-line @next/next/no-img-element -- SVG estático pequeno */}
-            <img src="/icon.svg" alt="" className="size-7" />
-            LalaIA
+          <Link href="/" className="flex items-center" aria-label="LalaIA, início">
+            <Logo height={28} />
           </Link>
         </div>
       </header>

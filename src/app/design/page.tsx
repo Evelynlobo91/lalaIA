@@ -17,6 +17,11 @@ export default function DesignPage() {
       <header>
         <h1 className="text-3xl font-bold">Design system</h1>
         <p className="text-muted">Componentes base em src/shared/ui. Alterne o tema do sistema para ver o modo escuro.</p>
+        <p className="mt-2">
+          <a href="/design/prototipo" className="font-medium text-brand underline">
+            Protótipo da nova identidade visual (telas)
+          </a>
+        </p>
       </header>
 
       <Section title="Cores (tokens)">

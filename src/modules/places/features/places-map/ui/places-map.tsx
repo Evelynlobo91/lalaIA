@@ -13,7 +13,7 @@ import { PLACES_CLICKABLE_LAYERS, placesLayer, type SelectedPlace } from "./plac
 
 type Point = { lat: number; lon: number };
 
-const BRAND = "#3b1d8f";
+const BRAND = "#1d51cb";
 
 /**
  * Mapa de lugares (RF11): clusters, toque no marcador abre o resumo e `focus` abre já centralizado.

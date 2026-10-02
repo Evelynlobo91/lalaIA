@@ -14,16 +14,16 @@ export default async function Image({ params }: { params: Promise<{ id: string }
 
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 72, background: "#3b1d8f", color: "#ffffff", fontFamily: "sans-serif" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 20, fontSize: 40, color: "#ffc94d" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 72, background: "#1d51cb", color: "#ffffff", fontFamily: "sans-serif" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 20, fontSize: 40, color: "#ffe3e3" }}>
           <svg width="64" height="64" viewBox="0 0 512 512">
-            <path d="M256 92c-70 0-126 55-126 124 0 92 126 204 126 204s126-112 126-204c0-69-56-124-126-124z" fill="#ffc94d" />
-            <path d="M256 150l17 44 46 3-36 29 12 45-39-25-39 25 12-45-36-29 46-3z" fill="#3b1d8f" />
+            <path d="M256 92c-70 0-126 55-126 124 0 92 126 204 126 204s126-112 126-204c0-69-56-124-126-124z" fill="#ffe3e3" />
+            <path d="M256 150l17 44 46 3-36 29 12 45-39-25-39 25 12-45-36-29 46-3z" fill="#1d51cb" />
           </svg>
           LalaIA
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 48 }}>
-          <svg width="180" height="180" viewBox="0 0 24 24" fill="none" stroke="#ffc94d" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="180" height="180" viewBox="0 0 24 24" fill="none" stroke="#ffe3e3" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
             <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
             <path d="M4 22h16" />
@@ -36,7 +36,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             <div style={{ fontSize: title.length > 26 ? 64 : 80, lineHeight: 1.05 }}>{title}</div>
           </div>
         </div>
-        <div style={{ display: "flex", fontSize: 32, color: "#ffc94d" }}>Desbloqueie essa experiência no LalaIA</div>
+        <div style={{ display: "flex", fontSize: 32, color: "#ffe3e3" }}>Desbloqueie essa experiência no LalaIA</div>
       </div>
     ),
     size,

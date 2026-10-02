@@ -1,53 +1,53 @@
 @import "tailwindcss";
 
 /*
- * Design tokens do LalaIA. Cores são semânticas (papel, não tom): use `bg-surface`, `text-muted`,
+ * Design tokens do LalaIA (identidade visual: azul da marca + vermelho do pin do logo). Cores são semânticas (papel, não tom): use `bg-surface`, `text-muted`,
  * `bg-brand text-brand-fg`... Cada par cor/texto é verificado para contraste AA em
  * src/shared/ui/tokens.test.ts, nos dois temas.
  */
 :root {
   --bg: #ffffff;
-  --fg: #1a1530;
-  --surface: #f6f4fb;
-  --surface-2: #ece8f7;
-  --muted: #5b5670;
-  --border: #dcd6ea;
-  --brand: #3b1d8f;
+  --fg: #1b1d23;
+  --surface: #f4f2f6;
+  --surface-2: #ebe7f0;
+  --muted: #565b66;
+  --border: #d9dce3;
+  --brand: #1d51cb;
   --brand-fg: #ffffff;
-  --accent: #ffc94d;
-  --accent-fg: #1a1530;
+  --accent: #d93636;
+  --accent-fg: #ffffff;
   --success: #0f7a3d;
   --success-fg: #ffffff;
-  --warning: #8a5a00;
+  --warning: #8a5d00;
   --warning-fg: #ffffff;
   --danger: #b42318;
   --danger-fg: #ffffff;
   --live: #d92d20;
   --live-fg: #ffffff;
-  --focus: #3b1d8f;
+  --focus: #1d51cb;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0f0c1a;
-    --fg: #f3f1fa;
-    --surface: #1a1629;
-    --surface-2: #241f36;
-    --muted: #a9a3bd;
-    --border: #342d4a;
-    --brand: #b9a4ff;
-    --brand-fg: #1a1530;
-    --accent: #ffc94d;
-    --accent-fg: #1a1530;
+    --bg: #111318;
+    --fg: #f2f3f7;
+    --surface: #1a1d24;
+    --surface-2: #232731;
+    --muted: #a7abb6;
+    --border: #30343f;
+    --brand: #86a8ff;
+    --brand-fg: #0b1530;
+    --accent: #ff7a7a;
+    --accent-fg: #1b0b0b;
     --success: #4ade80;
-    --success-fg: #0f0c1a;
+    --success-fg: #111318;
     --warning: #fbbf24;
-    --warning-fg: #0f0c1a;
+    --warning-fg: #111318;
     --danger: #f87171;
-    --danger-fg: #0f0c1a;
+    --danger-fg: #111318;
     --live: #ff6b5e;
-    --live-fg: #0f0c1a;
-    --focus: #ffc94d;
+    --live-fg: #111318;
+    --focus: #ff7a7a;
   }
 }
 
