@@ -164,3 +164,12 @@ Ficou para depois porque o Realtime está desligado no CI de E2E (`supabase star
 
 Deixe `MUX_TOKEN_ID` vazio e defina `LIVE_FAKE_WEBHOOK_SECRET` (mínimo 32 caracteres) no `.env.local`.
 O portal avisa que o provedor é simulado.
+
+## Borrão de rostos na origem (#97, fase 1)
+
+O vídeo é borrado **antes de sair do estabelecimento**, por um agente de borda em
+[`tools/face-blur-agent`](../tools/face-blur-agent/README.md) (ou pelo OBS com o plugin obs-detect). A
+plataforma nunca recebe o vídeo original. Detecção, nunca reconhecimento; nada é gravado. Se o detector
+falhar, o agente borra o quadro inteiro. A exigência de "modo privacidade confirmado" para ativar a live
+entra no portal junto com o checklist de privacidade (#55).
+
