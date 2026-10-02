@@ -1,5 +1,5 @@
 // Composição do módulo events (interna): usada pelas actions e pelo index.ts.
-import { getPlaceDetail, placeSummaries, placeSummary } from "@/modules/places";
+import { formatDistance, getPlaceDetail, placeDistances, placeSummaries, placeSummary } from "@/modules/places";
 import { domainEvents } from "@/shared/events";
 import { sql } from "@/shared/db/sql";
 import { lazy } from "@/shared/kernel";
@@ -11,6 +11,7 @@ import type { EventPlaceNames } from "./domain/event-card";
 import { ListEvents } from "./features/list-events/list-events";
 import { GetEventDetail, type EventPlaceDetails } from "./features/event-detail/event-detail";
 import { GetEventSummaries } from "./features/event-summaries/event-summaries";
+import { HappeningNow, type EventPlaceDistances } from "./features/happening-now/happening-now.use-case";
 
 const placesLookup: EventPlaceLookup = { summary: placeSummary };
 
@@ -31,3 +32,6 @@ const placeDetails: EventPlaceDetails = {
 };
 export const getEventDetail = lazy(() => new GetEventDetail(eventRepository(), placeDetails));
 export const getEventSummaries = lazy(() => new GetEventSummaries(eventReader(), placeNames));
+
+const distances: EventPlaceDistances = { distances: placeDistances, format: formatDistance };
+export const happeningNow = lazy(() => new HappeningNow(eventReader(), placeNames, distances));

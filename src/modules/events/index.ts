@@ -2,9 +2,10 @@
 import { toLocalInput } from "@/shared/time/joinville-time";
 import { queryRoute } from "@/shared/http/json-route";
 import { cache } from "react";
-import { eventRepository, getEventDetail as eventDetailUseCase, getEventSummaries, listEvents, placesLookup } from "./composition";
+import { eventRepository, getEventDetail as eventDetailUseCase, getEventSummaries, happeningNow, listEvents, placesLookup } from "./composition";
 import { DEFAULT_PAGE_SIZE, listEventsSchema } from "./features/list-events/list-events";
-import { dateFilterValue } from "./domain/date-window";
+import { eventListQuery, noEventFilters } from "./features/list-events/list-filters";
+import { happeningNowSchema } from "./features/happening-now/happening-now.schema";
 import type { EventRecord } from "./domain/event";
 import type { EventSummary } from "./features/event-summaries/event-summaries";
 
@@ -16,6 +17,10 @@ export { EventList, EventListCard, EventListSkeleton } from "./features/list-eve
 export type { EventListItem, EventListPage } from "./features/list-events/list-events";
 export { EventDetailCard } from "./features/event-detail/ui/event-detail-card";
 export { EventDateFilter } from "./features/list-events/ui/event-date-filter";
+export { EventCategoryFilter } from "./features/events-by-category/ui/event-category-filter";
+export { HappeningNowSections } from "./features/happening-now/ui/happening-now-sections";
+export type { HappeningNowView, HappeningItem } from "./features/happening-now/happening-now.use-case";
+export type { EventListFilters } from "./features/list-events/list-filters";
 export type { DateFilter } from "./domain/date-window";
 export type { EventDetailView, EventPhase } from "./features/event-detail/event-detail";
 export { formatPrice, type EventRecord, type EventStatus } from "./domain/event";
@@ -58,14 +63,31 @@ export async function editableEvent(editor: { id: string; isAdmin: boolean }, ev
  * Parâmetro inválido (ex.: data impossível) → `invalid` com a mensagem, sem quebrar a página.
  */
 export async function firstEventsPage(params: Record<string, string | string[] | undefined> = {}) {
-  const parsed = listEventsSchema.safeParse({ quando: typeof params.quando === "string" ? params.quando : undefined });
-  if (!parsed.success) return { invalid: parsed.error.issues[0]?.message ?? "Filtro inválido.", page: { items: [], nextCursor: null }, query: "" };
+  const parsed = listEventsSchema.safeParse({ quando: single(params.quando), categoria: list(params.categoria) });
+  if (!parsed.success) {
+    return { invalid: parsed.error.issues[0]?.message ?? "Filtro inválido.", page: { items: [], nextCursor: null }, query: "", filters: noEventFilters };
+  }
   const result = await listEvents().execute({ ...parsed.data, cursor: null, limit: DEFAULT_PAGE_SIZE });
   if (!result.ok) throw result.error;
+  const filters = { quando: parsed.data.quando, categorias: parsed.data.categoria };
   // Mesmos filtros para o "Carregar mais" (API).
-  const query = parsed.data.quando ? `quando=${encodeURIComponent(dateFilterValue(parsed.data.quando))}` : "";
-  return { invalid: null, page: result.value, query, filter: parsed.data.quando };
+  return { invalid: null, page: result.value, query: eventListQuery(filters), filters };
 }
+
+/**
+ * RF17/RF40 — "Agora" e "Em breve" a partir da URL (lat/lon opcionais, vindos do "Perto de mim").
+ * Localização inválida ou fora de Joinville → `invalid` com a mensagem, e a tela mostra sem distância.
+ */
+export async function happeningNowView(params: Record<string, string | string[] | undefined> = {}) {
+  const parsed = happeningNowSchema.safeParse({ lat: single(params.lat), lon: single(params.lon) });
+  const result = await happeningNow().execute(parsed.success ? parsed.data : { origin: null });
+  if (!result.ok) throw result.error;
+  return { invalid: parsed.success ? null : (parsed.error.issues[0]?.message ?? "Localização inválida."), view: result.value };
+}
+
+const single = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
+/** `categoria=a,b` ou `categoria=a&categoria=b` (formulário) viram "a,b". */
+const list = (v: string | string[] | undefined) => (Array.isArray(v) ? v.join(",") : v);
 
 /**
  * Resumos de vários eventos por id (inclusive terminados e cancelados), numa consulta em lote.
@@ -78,6 +100,8 @@ export function eventSummaries(ids: string[]): Promise<EventSummary[]> {
 export const eventsApi = {
   /** GET /api/events?cursor= */
   list: queryRoute(listEventsSchema, (input) => listEvents().execute(input)),
+  /** GET /api/events/agora?lat=&lon= */
+  happeningNow: queryRoute(happeningNowSchema, (input) => happeningNow().execute(input)),
 };
 
 /** Detalhe do evento ou null. Memoizado por requisição (página + metadados + imagem = uma consulta). */

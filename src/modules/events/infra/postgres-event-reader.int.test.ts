@@ -40,6 +40,20 @@ describe("PostgresEventReader.listUpcoming", () => {
     expect(titles).toEqual(["futuro 2", "futuro 3", "futuro 4"]);
   });
 
+  it("filtro de categorias (RF16): só as pedidas, combinável com o período", async () => {
+    await db`insert into events.events (owner_id, place_id, title, description, category, starts_at, ends_at)
+             values (${owner}, ${crypto.randomUUID()}, 'feira da categoria', 'Evento de teste de categoria.', 'feiras', ${hours(3.1)}, ${hours(3.5)})`;
+    const only = (cards: EventCard[]) => cards.filter((c) => c.title === "feira da categoria" || c.title.startsWith("futuro"));
+
+    const feiras = await reader.listUpcoming({ now, cursor: null, limit: 500, categories: ["feiras"] });
+    expect(feiras.every((c) => c.category === "feiras")).toBe(true);
+    expect(only(feiras).map((c) => c.title)).toEqual(["feira da categoria"]);
+
+    const window = { from: hours(2.5), to: hours(3.2) };
+    const both = await reader.listUpcoming({ now, cursor: null, limit: 500, window, categories: ["shows", "feiras"] });
+    expect(only(both).map((c) => c.title)).toEqual(["futuro 2", "futuro 3", "feira da categoria"]);
+  });
+
   it("findByIds traz qualquer situação (terminado, cancelado) e ignora ids inexistentes ou inválidos", async () => {
     const rows = await db<{ id: string }[]>`select id from events.events where owner_id = ${owner} and title in ('terminou', 'cancelado', 'acontecendo')`;
     const found = await reader.findByIds([...rows.map((r) => r.id), crypto.randomUUID(), "nao-e-um-id"]);

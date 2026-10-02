@@ -14,8 +14,11 @@ const messages: Record<Exclude<Status, "idle" | "locating">, string> = {
   unavailable: "Não foi possível descobrir sua localização agora.",
 };
 
-/** Pede a localização só quando a pessoa toca (consentimento explícito) e não grava nada. */
-export function NearMeButton() {
+/**
+ * Pede a localização só quando a pessoa toca (consentimento explícito) e não grava nada.
+ * `target`: para onde ir com `lat`/`lon` (padrão: lugares perto). Pode já ter outros parâmetros.
+ */
+export function NearMeButton({ target = "/lugares/perto", label = "Perto de mim" }: { target?: string; label?: string }) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>("idle");
 
@@ -29,7 +32,7 @@ export function NearMeButton() {
       ({ coords }) => {
         const lat = roundCoordinate(coords.latitude);
         const lon = roundCoordinate(coords.longitude);
-        router.push(`/lugares/perto?lat=${lat}&lon=${lon}`);
+        router.push(`${target}${target.includes("?") ? "&" : "?"}lat=${lat}&lon=${lon}`);
       },
       (error) => setStatus(error.code === error.PERMISSION_DENIED ? "denied" : "unavailable"),
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 60_000 },
@@ -40,7 +43,7 @@ export function NearMeButton() {
     <div className="flex flex-col items-start gap-2">
       <Button variant="secondary" onClick={locate} loading={status === "locating"}>
         <LocateFixed aria-hidden className="size-5" />
-        Perto de mim
+        {label}
       </Button>
       {(status === "denied" || status === "unavailable") && (
         <p role="status" className="text-sm text-muted">

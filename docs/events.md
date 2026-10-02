@@ -38,7 +38,31 @@
   mostram "Como chegar". Os links já compartilhados continuam funcionando.
 - Open Graph com imagem gerada por evento (título, data e lugar) para Instagram e WhatsApp; cancelados
   ficam fora dos buscadores (`noindex`). 404 real para id inexistente ou inválido.
-- `EventDetailCard` recebe `extras` (favoritar, Live...) sem conhecer esses módulos.
+- `EventDetailCard` recebe `extras` (favoritar, Live...) sem conhecer esses módulos, e `directions`, que
+  substitui o "Como chegar" (ex.: o "Quero ir" de favoritos).
+
+## Filtro por categoria (#40)
+
+- `/eventos?categoria=shows,feiras` (uma ou várias, separadas por vírgula; `GET /api/events` aceita o mesmo).
+  A seleção volta **na ordem do catálogo e sem repetição**, então a mesma escolha gera sempre a mesma URL.
+- Categorias do catálogo único `src/shared/catalog/categories` (as mesmas de lugares). Categoria
+  desconhecida mostra aviso na página e devolve 400 na API.
+- Chips (links, funcionam sem JavaScript; no celular rolam na horizontal): cada um liga/desliga a
+  categoria. "Todas as categorias" limpa. **Data e categoria se combinam**: um filtro preserva o outro
+  (`eventListHref` em `features/list-events/list-filters.ts` monta a URL a partir do estado dos dois).
+- No banco: `category in (...)` na mesma consulta keyset da lista (`EventQuery.categories`).
+
+## Acontecendo agora / em breve (#41)
+
+- `/eventos/agora` (e `GET /api/events/agora?lat=&lon=`): seções **Agora** e **Em breve (próximas 3h)**.
+- Regras puras em `domain/happening.ts`, com testes: `isHappeningAt` (início inclusivo, fim exclusivo),
+  `startsSoon` (janela de 3 h) e os rótulos "Começou há 1 h 20 min" / "Começa em 40 min". A lista,
+  o detalhe (`phaseOf`) e esta tela usam a mesma regra.
+- Uma consulta só: eventos que se sobrepõem a `[agora, agora + 3 h)` (até 60), separados em memória.
+- **Distância (opcional):** botão "Ver distância" (GPS pedido só no toque, coordenada arredondada para
+  ~10 m e não gravada, como no "Perto de mim" de lugares). Com localização, cada seção é ordenada pela
+  mais perto. A distância vem da API pública de places (`placeDistances`, PostGIS `ST_Distance`, uma consulta).
+  Localização inválida ou fora de Joinville → aviso, e a tela continua sem distância.
 
 ## Segurança
 

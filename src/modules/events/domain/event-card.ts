@@ -26,6 +26,8 @@ export type EventQuery = {
   limit: number;
   /** Só eventos que se sobrepõem a este período (filtro de data, RF15). */
   window?: { from: Date; to: Date };
+  /** Só estas categorias (RF16). Vazio ou ausente = todas. */
+  categories?: CategoryId[];
 };
 
 export interface EventReader {

@@ -3,7 +3,7 @@ import { isCategoryId, type CategoryId } from "@/shared/catalog/categories";
 import type { PlaceCard, PlaceCursor, PlaceReader } from "../domain/place-card";
 import type { PlaceDetails, PlaceDetailsReader } from "../domain/place-details";
 import type { PlacePoint, PlacePointsReader } from "../features/places-map/places-geo";
-import type { NearbyPlace, NearbyPlacesReader } from "../features/nearby-places/nearby-places.use-case";
+import type { NearbyPlace, NearbyPlacesReader, PlaceDistanceReader } from "../features/nearby-places/nearby-places.use-case";
 import type { Coordinates } from "../domain/place";
 
 type Row = { id: string; name: string; category: string; neighborhood: string | null; opening_hours: string | null };
@@ -20,8 +20,21 @@ type DetailsRow = Row & {
   lon: number;
 };
 
-export class PostgresPlaceReader implements PlaceReader, PlaceDetailsReader, PlacePointsReader, NearbyPlacesReader {
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export class PostgresPlaceReader implements PlaceReader, PlaceDetailsReader, PlacePointsReader, NearbyPlacesReader, PlaceDistanceReader {
   constructor(private readonly sql: Sql) {}
+
+  async distancesFrom(origin: Coordinates, ids: string[]): Promise<Map<string, number>> {
+    const valid = [...new Set(ids.filter((id) => UUID.test(id)))];
+    if (valid.length === 0) return new Map();
+    const rows = await this.sql<{ id: string; distance: number }[]>`
+      select id, extensions.st_distance(location,
+               extensions.st_setsrid(extensions.st_makepoint(${origin.lon}, ${origin.lat}), 4326)::extensions.geography) as distance
+      from places.places
+      where id in ${this.sql(valid)}`;
+    return new Map(rows.map((r) => [r.id, Number(r.distance)]));
+  }
 
   async nearby(origin: Coordinates, radiusMeters: number, limit: number): Promise<NearbyPlace[]> {
     // ST_DWithin usa o índice GiST (places_location_idx); a ordenação é só sobre o que está no raio.

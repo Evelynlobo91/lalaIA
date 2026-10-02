@@ -109,6 +109,9 @@ Para mapear uma nova tag, adicione uma linha em `src/modules/places/domain/osm/o
 - **Privacidade (LGPD):** a coordenada é arredondada para 4 casas (~10 m) antes de ir para a URL e para a
   consulta. Ela **não é gravada** e **não aparece nos logs** (o log de acesso registra só o caminho, sem a query).
 - Ponto fora de Joinville e arredores → mensagem "Fora da área atendida", em vez de uma lista vazia.
+- **Para outros módulos:** `servicePointShape` (validação de lat/lon na área atendida), `placeDistances(origem, ids)`
+  (distância em lote) e `formatDistance`. O `NearMeButton` aceita `target` para levar a localização a outra tela
+  (ex.: `/eventos/agora`).
 
 ## Licença e atribuição (obrigatória)
 
