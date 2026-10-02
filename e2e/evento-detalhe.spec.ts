@@ -13,7 +13,7 @@ test.describe("detalhe do evento (#38)", () => {
 
     await page.goto(`/eventos/${eventId}`);
     await expect(page.getByRole("heading", { level: 1, name: `Jazz ${tag}` })).toBeVisible();
-    await expect(page.getByRole("region", { name: "Valor" })).toContainText(/A partir de R\$\s?50,00/);
+    await expect(page.getByRole("region", { name: "Entrada" })).toContainText(/A partir de R\$\s?50,00/);
     await expect(page.getByRole("region", { name: "Onde" }).getByRole("link", { name: lugar })).toHaveAttribute("href", `/lugares/${placeId}`);
     await expect(page.getByRole("link", { name: "Como chegar" })).toHaveAttribute("href", /google\.com\/maps\/dir/);
     await expect(page.getByText("Evento criado pelos testes automatizados.")).toBeVisible();

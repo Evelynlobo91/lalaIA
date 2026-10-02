@@ -1,7 +1,7 @@
 import { CalendarDays, MapPin, Navigation, Ticket } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Badge, Card, FormAlert, LiveBadge, LiveNowBadge, buttonClasses } from "@/shared/ui";
+import { Badge, Card, DetailHero, Eyebrow, FormAlert, InfoItem as Info, LiveBadge, LiveNowBadge, buttonClasses } from "@/shared/ui";
 import type { EventDetailView } from "../event-detail";
 
 /**
@@ -13,15 +13,18 @@ import type { EventDetailView } from "../event-detail";
 export function EventDetailCard({ event, extras, directions }: { event: EventDetailView; extras?: ReactNode; directions?: ReactNode }) {
   return (
     <article className="flex flex-col gap-6">
-      <header className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-2">
+      <header className="flex flex-col gap-4">
+        <DetailHero icon={CalendarDays}>
           <LiveNowBadge entityType="event" entityId={event.id} />
-          <Badge variant="brand">{event.categoryLabel}</Badge>
           {event.phase === "happening" && <LiveBadge>Acontecendo agora</LiveBadge>}
           {event.phase === "finished" && <Badge>Encerrado</Badge>}
           {event.phase === "cancelled" && <Badge variant="danger">Cancelado</Badge>}
+          {event.priceLabel === "Grátis" && <Badge variant="success">Grátis</Badge>}
+        </DetailHero>
+        <div className="flex flex-col gap-1">
+          <Eyebrow>{event.categoryLabel}</Eyebrow>
+          <h1 className="text-3xl font-bold leading-tight">{event.title}</h1>
         </div>
-        <h1 className="text-3xl font-bold leading-tight">{event.title}</h1>
       </header>
 
       {event.phase === "cancelled" && <FormAlert>Este evento foi cancelado pelo organizador.</FormAlert>}
@@ -36,10 +39,10 @@ export function EventDetailCard({ event, extras, directions }: { event: EventDet
       ))}
 
       <Card className="flex flex-col divide-y divide-border p-0">
-        <Info icon={<CalendarDays aria-hidden className="size-5" />} label="Quando">
+        <Info icon={<CalendarDays aria-hidden />} label="Quando">
           {event.whenLabel}
         </Info>
-        <Info icon={<MapPin aria-hidden className="size-5" />} label="Onde">
+        <Info icon={<MapPin aria-hidden />} label="Onde">
           {event.place ? (
             <>
               <Link href={`/lugares/${event.place.id}`} prefetch={false} className="font-medium text-brand underline">
@@ -51,7 +54,7 @@ export function EventDetailCard({ event, extras, directions }: { event: EventDet
             <span className="text-muted">Local a confirmar</span>
           )}
         </Info>
-        <Info icon={<Ticket aria-hidden className="size-5" />} label="Valor">
+        <Info icon={<Ticket aria-hidden />} label="Entrada">
           {event.priceLabel}
         </Info>
       </Card>
@@ -66,14 +69,3 @@ export function EventDetailCard({ event, extras, directions }: { event: EventDet
   );
 }
 
-function Info({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
-  return (
-    <section className="flex gap-3 px-4 py-4" aria-label={label}>
-      <span className="mt-0.5 text-brand">{icon}</span>
-      <div className="flex min-w-0 flex-col">
-        <h2 className="text-sm font-medium text-muted">{label}</h2>
-        <div className="flex flex-col">{children}</div>
-      </div>
-    </section>
-  );
-}
