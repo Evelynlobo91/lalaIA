@@ -111,6 +111,18 @@ describe("PostgresCtaRepository (#178)", () => {
     await expect(repo.create(ana, cta(anaStream, { href: "/lugares/x", external: true }))).rejects.toThrow(/ctas_external_href/);
   });
 
+  it("disparo manual (#181): só a dona solta e tira do ar; o banco limita a duração", async () => {
+    const [mine] = await repo.listByStream(ana, anaStream);
+    const at = new Date("2026-10-02T23:30:00Z");
+    const until = new Date("2026-10-02T23:40:00Z");
+    expect(await repo.setTrigger(bia, mine.id, { at, until })).toBeNull();
+    expect(await repo.setTrigger(ana, mine.id, { at, until })).toMatchObject({ id: mine.id, triggeredAt: at, triggeredUntil: until });
+    expect((await repo.listForStream(anaStream)).find((c) => c.id === mine.id)).toMatchObject({ triggeredUntil: until });
+    await expect(repo.setTrigger(ana, mine.id, { at, until: new Date("2026-10-03T01:00:00Z") })).rejects.toThrow(/ctas_trigger_shape/);
+    expect(await repo.setTrigger(bia, mine.id, null)).toBeNull();
+    expect(await repo.setTrigger(ana, mine.id, null)).toMatchObject({ triggeredAt: null, triggeredUntil: null });
+  });
+
   it("remove o próprio CTA; os CTAs somem com a transmissão", async () => {
     const [mine] = await repo.listByStream(ana, anaStream);
     expect(await repo.remove(ana, mine.id)).toBe(true);
