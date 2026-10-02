@@ -99,6 +99,32 @@ describe("PostgresPlaceReader.listAfter", () => {
     expect(await reader.distancesFrom({ lat: -26.3, lon: -48.84 }, [])).toEqual(new Map());
   });
 
+  it("candidates com origem: só no raio e nas categorias, do mais perto; OSM não é novidade", async () => {
+    const found = await reader.candidates({ origin: { lat: -26.3, lon: -48.84 }, radiusMeters: 500, categories: ["bares"], limit: 300 });
+    const ours = found.filter((p) => names.includes(p.name));
+    expect(ours).toHaveLength(names.length);
+    expect(found.every((p) => p.category === "bares" && p.distanceMeters !== null && p.distanceMeters <= 500)).toBe(true);
+    const d = found.map((p) => p.distanceMeters!);
+    expect(d).toEqual([...d].sort((a, b) => a - b));
+    expect(ours.every((p) => p.newSince === null)).toBe(true);
+
+    expect(await reader.candidates({ origin: { lat: -26.3, lon: -48.84 }, radiusMeters: 500, categories: ["infantil"], limit: 300 }).then((r) => r.filter((p) => names.includes(p.name)))).toEqual([]);
+  });
+
+  it("candidates sem origem: sem distância, e lugar de parceiro traz a data de novidade", async () => {
+    const [{ id }] = await db<{ id: string }[]>`
+      insert into places.places (source, name, category, location)
+      values ('partner', ${`Novo Bar ${prefix}`}, 'bares', extensions.st_makepoint(-48.84, -26.3)::extensions.geography) returning id`;
+    try {
+      const found = await reader.candidates({ origin: null, radiusMeters: 0, categories: ["bares"], limit: 300 });
+      const novo = found.find((p) => p.id === id);
+      expect(novo?.distanceMeters).toBeNull();
+      expect(novo?.newSince).toBeInstanceOf(Date);
+    } finally {
+      await db`delete from places.places where id = ${id}`;
+    }
+  });
+
   it("nearby: raio pequeno longe de tudo → vazio", async () => {
     expect(await reader.nearby({ lat: -26.85, lon: -49.5 }, 1000, 10)).toEqual([]);
   });

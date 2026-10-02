@@ -2,6 +2,7 @@ import { isCategoryId, type CategoryId } from "@/shared/catalog/categories";
 import type { Sql } from "@/shared/db/sql";
 import type { EventStatus } from "../domain/event";
 import type { EventCard, EventQuery, EventReader, EventSummaryReader, EventSummaryRow } from "../domain/event-card";
+import type { EventCandidateReader, EventCandidateRow } from "../features/event-candidates/event-candidates";
 
 type Row = { id: string; title: string; category: string; place_id: string; starts_at: Date; ends_at: Date; price_cents: number };
 
@@ -18,7 +19,7 @@ const toCard = (r: Row): EventCard => ({
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Leitura pública (dados abertos): consulta direta, sem asUser. */
-export class PostgresEventReader implements EventReader, EventSummaryReader {
+export class PostgresEventReader implements EventReader, EventSummaryReader, EventCandidateReader {
   constructor(private readonly sql: Sql) {}
 
   async findByIds(ids: string[]): Promise<EventSummaryRow[]> {
@@ -30,6 +31,16 @@ export class PostgresEventReader implements EventReader, EventSummaryReader {
       from events.events
       where id in ${this.sql(valid)}`;
     return rows.filter((r) => isCategoryId(r.category)).map((r) => ({ ...toCard(r), status: r.status }));
+  }
+
+  async listOverlapping(from: Date, to: Date, limit: number): Promise<EventCandidateRow[]> {
+    const rows = await this.sql<Array<Row & { created_at: Date }>>`
+      select id, title, category, place_id, starts_at, ends_at, price_cents, created_at
+      from events.events
+      where status = 'scheduled' and starts_at < ${to} and ends_at > ${from}
+      order by starts_at, id
+      limit ${limit}`;
+    return rows.filter((r) => isCategoryId(r.category)).map((r) => ({ ...toCard(r), createdAt: r.created_at }));
   }
 
   async listUpcoming(q: EventQuery): Promise<EventCard[]> {

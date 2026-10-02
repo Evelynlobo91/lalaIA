@@ -112,6 +112,9 @@ Para mapear uma nova tag, adicione uma linha em `src/modules/places/domain/osm/o
 - **Para outros módulos:** `servicePointShape` (validação de lat/lon na área atendida), `placeDistances(origem, ids)`
   (distância em lote) e `formatDistance`. O `NearMeButton` aceita `target` para levar a localização a outra tela
   (ex.: `/eventos/agora`).
+- **Recomendação:** `placeCandidates({ origin, radiusMeters, categories, limit })` traz lugares no raio (do mais perto)
+  ou, sem origem, os mais recentes, com horário, distância e `newSince` (só lugares de parceiro contam como novidade).
+  Veja [recomendação](recommendation.md).
 
 ## Licença e atribuição (obrigatória)
 

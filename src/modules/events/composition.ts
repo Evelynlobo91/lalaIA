@@ -14,6 +14,7 @@ import { GetEventSummaries } from "./features/event-summaries/event-summaries";
 import { HappeningNow, type EventPlaceDistances } from "./features/happening-now/happening-now.use-case";
 import { SearchEvents } from "./features/search-events/search-events";
 import { PostgresEventSearch } from "./infra/postgres-event-search";
+import { FindEventCandidates } from "./features/event-candidates/event-candidates";
 
 const placesLookup: EventPlaceLookup = { summary: placeSummary };
 
@@ -40,3 +41,4 @@ export const happeningNow = lazy(() => new HappeningNow(eventReader(), placeName
 
 // Busca (RF04/RF05), consumida pelo módulo discovery.
 export const searchEvents = lazy(() => new SearchEvents(new PostgresEventSearch(sql()), placeNames));
+export const findEventCandidates = lazy(() => new FindEventCandidates(eventReader(), placeNames));

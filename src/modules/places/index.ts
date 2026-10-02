@@ -22,6 +22,7 @@ import type { Coordinates } from "./domain/place";
 import { searchPlacesRoute } from "./features/search-by-name/search-by-name.route";
 import { SearchPlaces, type PlaceSearchCriteria } from "./features/search-places/search-places";
 import { PostgresPlaceSearch } from "./infra/postgres-place-search";
+import { FindPlaceCandidates, type PlaceCandidate, type PlaceCandidatesQuery } from "./features/place-candidates/place-candidates";
 
 export type { PlaceDraft, Address, Coordinates } from "./domain/place";
 export type { PlaceListItem, PlaceListPage } from "./features/list-places/list-places.use-case";
@@ -40,6 +41,7 @@ export { formatDistance } from "./features/nearby-places/nearby-places.use-case"
 export { EditPlaceForm } from "./features/edit-place/ui/edit-place-form";
 export { PlacePicker, type PickedPlace } from "./features/search-by-name/ui/place-picker";
 export type { PlaceSummary } from "./domain/place-ownership";
+export type { PlaceCandidate, PlaceCandidatesQuery } from "./features/place-candidates/place-candidates";
 
 const reader = lazy(() => new PostgresPlaceReader(sql()));
 const listPlaces = lazy(() => new ListPlaces(reader()));
@@ -107,6 +109,16 @@ export function placeSummary(id: string) {
 /** Distância (m) de um ponto até cada lugar, numa consulta (ex.: eventos acontecendo agora perto de mim). */
 export function placeDistances(origin: Coordinates, ids: string[]): Promise<Map<string, number>> {
   return reader().distancesFrom(origin, ids);
+}
+
+const findPlaceCandidates = lazy(() => new FindPlaceCandidates(reader()));
+
+/**
+ * Lugares que podem virar sugestão (Recomendação): no raio de uma origem (do mais perto) ou, sem origem,
+ * os mais recentes; filtrados por categoria. Uma consulta (PostGIS). A origem não é gravada.
+ */
+export function placeCandidates(query: PlaceCandidatesQuery): Promise<PlaceCandidate[]> {
+  return findPlaceCandidates().execute(query);
 }
 
 /** Resumos de vários lugares numa consulta (ex.: listas de eventos). */

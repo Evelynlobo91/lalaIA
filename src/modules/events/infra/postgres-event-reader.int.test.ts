@@ -25,7 +25,7 @@ afterAll(async () => {
   await db.end();
 });
 
-const ours = (cards: EventCard[]) => cards.filter((c) => c.title === "acontecendo" || c.title.startsWith("futuro") || c.title === "terminou" || c.title === "cancelado");
+const ours = <T extends EventCard>(cards: T[]) => cards.filter((c) => c.title === "acontecendo" || c.title.startsWith("futuro") || c.title === "terminou" || c.title === "cancelado");
 
 describe("PostgresEventReader.listUpcoming", () => {
   it("traz o que ainda não terminou, por início; sem terminados nem cancelados", async () => {
@@ -60,6 +60,13 @@ describe("PostgresEventReader.listUpcoming", () => {
     expect(found.map((e) => e.title).sort()).toEqual(["acontecendo", "cancelado", "terminou"]);
     expect(found.find((e) => e.title === "cancelado")?.status).toBe("cancelled");
     expect(await reader.findByIds([])).toEqual([]);
+  });
+
+  it("listOverlapping (Recomendação): sobrepostos ao período, sem cancelados/terminados, com a data de publicação", async () => {
+    const rows = ours(await reader.listOverlapping(hours(-0.5), hours(2.5), 500));
+    // acontecendo (-1→2), futuro 1 (1→2) e futuro 2 (2→3); o cancelado (3→4) e o terminado ficam de fora.
+    expect(rows.map((c) => c.title)).toEqual(["acontecendo", "futuro 1", "futuro 2"]);
+    expect(rows.every((r) => r.createdAt instanceof Date)).toBe(true);
   });
 
   it("paginando pelo cursor, cada evento aparece uma vez", async () => {

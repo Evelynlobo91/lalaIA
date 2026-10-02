@@ -50,6 +50,10 @@ Módulo `favorites` (epic #7): lugares e eventos salvos pelo usuário.
   Anônimo é permitido (`userId: null`); nenhum dado pessoal além do id, que vem só da sessão.
 - Para o detalhe do evento (#38): `<WantToGoButton href={rotaDoLugar} entityType="event" entityId={id} />`.
 
+## Para outros módulos
+
+- `favoriteKeysOf(user)`: só as chaves (tipo + id) dos favoritos, numa consulta (usado pela [recomendação](recommendation.md)).
+
 ## Modelo de dados
 
 `favorites.favorites` (schema próprio):
