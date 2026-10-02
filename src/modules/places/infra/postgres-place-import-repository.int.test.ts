@@ -51,9 +51,13 @@ describe("PostgresPlaceImportRepository", () => {
     await expect(repo.upsertMany([draft(4, { website: "javascript:alert(1)" })])).rejects.toThrow(/website/);
   });
 
-  it("schema places não é acessível pelos papéis públicos da API", async () => {
-    const [row] = await db`select has_schema_privilege('anon', 'places', 'usage') as anon, has_schema_privilege('authenticated', 'places', 'usage') as auth`;
-    expect(row).toEqual({ anon: false, auth: false });
+  it("anon não acessa o schema; authenticated (só via asUser) não altera localização nem origem", async () => {
+    const [row] = await db`
+      select has_schema_privilege('anon', 'places', 'usage') as anon,
+             has_column_privilege('authenticated', 'places.places', 'location', 'UPDATE') as location,
+             has_column_privilege('authenticated', 'places.places', 'source_id', 'UPDATE') as source,
+             has_column_privilege('authenticated', 'places.places', 'managed_by', 'UPDATE') as owner`;
+    expect(row).toEqual({ anon: false, location: false, source: false, owner: false });
   });
 });
 

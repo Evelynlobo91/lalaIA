@@ -27,7 +27,7 @@ export default async function InicioPortalPage() {
           .map(({ href, label, icon: Icon }) => (
             <li key={href}>
               <Link href={href} className="block rounded-2xl transition hover:-translate-y-0.5 hover:shadow-sm">
-                <Card className="flex items-center gap-3">
+                <Card as="div" className="flex items-center gap-3">
                   <Icon aria-hidden className="size-6 shrink-0 text-brand" />
                   <div className="min-w-0 flex-1">
                     <CardTitle className="text-base">{label}</CardTitle>

@@ -35,4 +35,22 @@ Tudo isso é coberto por testes de integração (`postgres-partner-repository.in
 ## Próximos slices
 
 - #27 estrutura do portal: ✅ `/parceiro/(inicio|lugares|eventos|live|missoes|dados)`, protegida por `requirePartner` (sem sessão → login; sem papel/cadastro aprovado → `/parceiro`). As seções vivem em `features/portal/portal-sections.ts` (arquivo comum, sem "use client", porque páginas de servidor também usam);
-- #28 reivindicar um lugar importado do OpenStreetMap.
+- #28 reivindicar lugar: ✅ (abaixo).
+
+## Reivindicar e editar um lugar (#28)
+
+```
+/parceiro/lugares → busca o lugar → "É meu" → pedido pendente → admin aprova em /admin/parceiros
+   → evento partners.PlaceClaimApproved → módulo places marca managed_by → parceiro edita em /parceiro/lugares/<id>/editar
+```
+
+- **Pedidos** em `partners.place_claims` (RLS): o parceiro aprovado só vê e pede os próprios; só admin revisa;
+  recusa exige motivo. **Um lugar, um dono**: índice único em `place_id` para pedidos aprovados.
+- **Desacoplamento:** `partners` consulta lugares pela API pública de `places` (busca e resumo). A aprovação
+  publica `partners.PlaceClaimApproved`, e `places` **assina o evento** (registrado em `src/bootstrap`) e
+  marca o responsável. `places` não importa `partners`: a dependência vai num sentido só.
+- **Edição pelo dono:** nome, categoria, endereço, telefone, site e horário (editor dia a dia, convertido
+  para o formato do OSM, agrupando dias iguais). Grava com `asUser` e **RLS em `places.places`**: só o dono
+  ou admin altera, e só as colunas liberadas (localização, origem e `managed_by` não podem ser alteradas).
+  Salvar marca `edited_by_partner_at`, e a reimportação do OSM nunca sobrescreve.
+- Lugar com responsável aparece como "Já tem responsável", sem revelar quem é.

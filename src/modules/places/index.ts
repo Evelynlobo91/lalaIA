@@ -14,6 +14,10 @@ import type { SelectedPlace } from "./features/places-map/ui/places-layer";
 import { FindNearbyPlaces } from "./features/nearby-places/nearby-places.use-case";
 import { nearbyPlacesRoute } from "./features/nearby-places/nearby-places.route";
 import { nearbyPlacesSchema } from "./features/nearby-places/nearby-places.schema";
+import type { ModuleSubscriptions } from "@/shared/events";
+import { AssignPlaceOwner, placeForEdit, type Editor } from "./features/edit-place/edit-place";
+import { PostgresPlaceOwnershipRepository } from "./infra/postgres-place-ownership-repository";
+import { scheduleFromOsm } from "./domain/weekly-schedule";
 
 export type { PlaceDraft, Address, Coordinates } from "./domain/place";
 export type { PlaceListItem, PlaceListPage } from "./features/list-places/list-places.use-case";
@@ -28,6 +32,8 @@ export { NearMeButton } from "./features/nearby-places/ui/near-me-button";
 export { PlaceListCard } from "./features/list-places/ui/place-list-card";
 export type { NearbyPlacesResult, NearbyPlaceItem } from "./features/nearby-places/nearby-places.use-case";
 export { RADIUS_OPTIONS_M, DEFAULT_RADIUS_M } from "./features/nearby-places/nearby-places.schema";
+export { EditPlaceForm } from "./features/edit-place/ui/edit-place-form";
+export type { PlaceSummary } from "./domain/place-ownership";
 
 const reader = lazy(() => new PostgresPlaceReader(sql()));
 const listPlaces = lazy(() => new ListPlaces(reader()));
@@ -75,4 +81,36 @@ export const placesApi = {
   geo: placesGeoRoute(placesGeo),
   /** GET /api/places/nearby */
   nearby: nearbyPlacesRoute(findNearby),
+};
+
+const ownership = lazy(() => new PostgresPlaceOwnershipRepository(sql()));
+
+/** Busca por nome (sem acento), com a informação de se o lugar já tem responsável. */
+export function searchPlacesByName(query: string, limit = 10) {
+  const q = query.trim();
+  return q.length < 2 ? Promise.resolve([]) : ownership().searchByName(q.slice(0, 80), limit);
+}
+
+/** Resumo de um lugar (ou null se não existir). */
+export function placeSummary(id: string) {
+  return ownership().summary(id);
+}
+
+/** Lugares sob responsabilidade do usuário (portal do parceiro). */
+export function placesManagedBy(userId: string) {
+  return ownership().managedBy(userId);
+}
+
+/** Dados para o formulário de edição; null se o usuário não for o dono (nem admin). */
+export async function editablePlace(editor: Editor, placeId: string) {
+  const place = await placeForEdit(ownership(), editor, placeId);
+  return place ? { place, ...scheduleFromOsm(place.openingHours) } : null;
+}
+
+/**
+ * Reações a eventos de outros módulos (registradas no boot, em src/bootstrap).
+ * Vínculo aprovado no módulo partners → este lugar passa a ter um responsável.
+ */
+export const subscriptions: ModuleSubscriptions = (bus) => {
+  bus.subscribe("partners.PlaceClaimApproved", (event) => new AssignPlaceOwner(ownership()).execute(event.payload.placeId, event.payload.userId));
 };

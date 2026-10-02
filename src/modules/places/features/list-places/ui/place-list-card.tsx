@@ -8,7 +8,7 @@ export function PlaceListCard({ place }: { place: PlaceListItem & { distanceLabe
     // Sem prefetch: a página de detalhe é dinâmica e sem loading.tsx (para responder 404 de verdade).
     // O padrão renderizaria no servidor cada card visível (10–20 consultas ao banco só por abrir a lista).
     <Link href={`/lugares/${place.id}`} prefetch={false} className="block rounded-2xl transition hover:-translate-y-0.5 hover:shadow-sm">
-      <Card className="flex items-center gap-3">
+      <Card as="div" className="flex items-center gap-3">
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <div className="flex items-start justify-between gap-3">
             <h2 className="text-base font-semibold leading-snug">{place.name}</h2>
