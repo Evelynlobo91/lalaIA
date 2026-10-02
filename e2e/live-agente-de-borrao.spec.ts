@@ -13,6 +13,11 @@ test.describe("agente de borrão de rostos: heartbeat na plataforma (#198)", () 
     test.skip(testInfo.project.name !== "celular-360", "fluxo do agente roda só no celular");
   });
 
+  test("sem CRON_SECRET no ambiente de teste, a checagem agendada de consumo fica desligada", async ({ request }) => {
+    expect((await request.post("/api/live/scale/check")).status()).toBe(503);
+    expect((await request.post("/api/live/scale/check", { headers: { authorization: "Bearer qualquer" } })).status()).toBe(503);
+  });
+
   test("com o agente protegendo, o público vê 'rostos desfocados'; privacidade desligada pausa a live", async ({ page, request, browser }) => {
     test.setTimeout(120_000);
     const lugar = `Bar com Agente ${Date.now()}`;
@@ -55,6 +60,11 @@ test.describe("agente de borrão de rostos: heartbeat na plataforma (#198)", () 
     await admin.getByRole("link", { name: "Lives no ar" }).click();
     const linha = admin.getByRole("article", { name: `Live de ${lugar}` });
     await expect(linha).toContainText("Rostos desfocados");
+    // Dimensionamento (#56): a mesma tela mostra a carga e o consumo das lives.
+    const carga = admin.getByRole("region", { name: "Carga e consumo das lives" });
+    await expect(carga).toContainText("Lives no ar");
+    await expect(carga).toContainText("Minutos entregues no mês");
+    expect(await admin.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
 
     // O agente avisa que o modo privacidade foi desligado: a plataforma pausa a live.
     const off = await request.post("/api/live/agent/heartbeat", { data: { ...beat, privacy_mode: "off" }, headers: auth });
