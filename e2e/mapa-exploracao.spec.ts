@@ -34,7 +34,7 @@ test.describe("mapa de exploração (#69)", () => {
     expect(state(palco)).toBe("evento");
 
     // Legenda e liga/desliga (estado na URL).
-    const camadas = page.getByRole("group", { name: "Camadas" });
+    const camadas = page.getByRole("group", { name: "Seu mapa de descobertas" });
     await expect(camadas.getByLabel(/Conhecido/)).toBeChecked();
     await camadas.getByLabel(/Não explorado/).uncheck();
     await expect(page).toHaveURL(/camadas=/);
@@ -43,7 +43,7 @@ test.describe("mapa de exploração (#69)", () => {
 
     // Ao recarregar com a URL, a escolha se mantém.
     await page.reload();
-    await expect(page.getByRole("group", { name: "Camadas" }).getByLabel(/Não explorado/)).not.toBeChecked();
+    await expect(page.getByRole("group", { name: "Seu mapa de descobertas" }).getByLabel(/Não explorado/)).not.toBeChecked();
 
     // Alternativa em lista.
     await page.getByText(/Ver em lista/).click();

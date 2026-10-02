@@ -1,7 +1,7 @@
 import { CalendarDays, ChevronRight, MapPin, RadioTower } from "lucide-react";
 import Link from "next/link";
 import { formatTime } from "@/shared/time/joinville-time";
-import { Card, EmptyState, LiveBadge } from "@/shared/ui";
+import { EmptyState, LiveBadge } from "@/shared/ui";
 import type { LiveNowItem } from "../live-badge.use-case";
 
 /** Lista "Com live agora" (RF20): lugares e eventos transmitindo, com link para a página do player. */
@@ -16,34 +16,37 @@ export function LiveNowList({ items }: { items: LiveNowItem[] }) {
     );
   }
   return (
-    <ul className="grid gap-3 md:grid-cols-2" aria-label="Com live agora">
+    <ul className="grid gap-4 md:grid-cols-2" aria-label="Com live agora">
       {items.map((item) => (
         <li key={item.streamId}>
-          {/* Sem prefetch: o detalhe é dinâmico (evita uma consulta por card visível). */}
-          <Link href={item.href} prefetch={false} className="block rounded-2xl transition hover:-translate-y-0.5 hover:shadow-sm">
-            <Card as="div" className="flex items-center gap-3">
-              <div className="flex min-w-0 flex-1 flex-col gap-2">
-                <div className="flex items-start justify-between gap-3">
-                  <h2 className="text-base font-semibold leading-snug">{item.title}</h2>
-                  <LiveBadge className="shrink-0" />
-                </div>
-                {item.whenLabel && <p className="text-sm font-medium">{item.whenLabel}</p>}
-                <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
-                  <span className="inline-flex items-center gap-1">
-                    {item.entityType === "place" ? <MapPin aria-hidden className="size-3.5" /> : <CalendarDays aria-hidden className="size-3.5" />}
-                    {item.entityType === "place" ? "Lugar" : "Evento"}
-                    {item.subtitle ? ` · ${item.subtitle}` : ""}
-                  </span>
-                  <span>No ar desde {formatTime(item.liveSince)}</span>
-                </p>
-                {item.note && (
-                  <p className="text-sm">
-                    <span className="font-semibold">Agora:</span> {item.note}
-                  </p>
-                )}
-              </div>
-              <ChevronRight aria-hidden className="size-5 shrink-0 text-muted" />
-            </Card>
+          {/* Sem prefetch: o detalhe é dinâmico (evita uma consulta por card visível). Card escuro, como a tela de vídeo do protótipo. */}
+          <Link
+            href={item.href}
+            prefetch={false}
+            className="relative flex min-h-52 flex-col justify-end gap-2 overflow-hidden rounded-3xl bg-[#0b1220] p-5 text-white shadow-sm transition hover:-translate-y-0.5"
+          >
+            <span
+              aria-hidden
+              className="absolute inset-0 [background:radial-gradient(circle_at_80%_20%,rgb(200_30_30/0.45),transparent_45%),radial-gradient(circle_at_20%_30%,rgb(2_64_127/0.8),transparent_55%)]"
+            />
+            <RadioTower aria-hidden strokeWidth={1.25} className="absolute top-1/2 left-1/2 size-20 -translate-x-1/2 -translate-y-1/2 opacity-15" />
+            <span className="absolute top-4 left-4 flex items-center gap-2">
+              <LiveBadge />
+              <span className="rounded-full bg-black/40 px-2.5 py-0.5 text-xs font-medium">No ar desde {formatTime(item.liveSince)}</span>
+            </span>
+            <span className="relative inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-white/80">
+              {item.entityType === "place" ? <MapPin aria-hidden className="size-3.5" /> : <CalendarDays aria-hidden className="size-3.5" />}
+              {item.entityType === "place" ? "Lugar" : "Evento"}
+              {item.subtitle ? ` · ${item.subtitle}` : ""}
+            </span>
+            <h2 className="relative text-xl leading-tight font-bold">{item.title}</h2>
+            {item.whenLabel && <p className="relative text-sm text-white/85">{item.whenLabel}</p>}
+            {item.note && (
+              <p className="relative text-sm">
+                <span className="font-semibold">Agora:</span> {item.note}
+              </p>
+            )}
+            <ChevronRight aria-hidden className="absolute right-4 bottom-5 size-5 text-white/70" />
           </Link>
         </li>
       ))}
