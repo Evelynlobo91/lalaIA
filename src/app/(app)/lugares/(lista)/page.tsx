@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PlaceList, firstPlacesPage } from "@/modules/places";
+import { NearMeButton, PlaceList, firstPlacesPage } from "@/modules/places";
 import { OsmAttribution } from "@/shared/ui";
 
 export const metadata: Metadata = { title: "Onde ir", description: "Restaurantes, bares, cultura, parques e passeios em Joinville." };
@@ -16,6 +16,7 @@ export default async function LugaresPage() {
         <h1 className="text-2xl font-bold md:text-3xl">Onde ir</h1>
         <p className="text-muted">Restaurantes, bares, cultura, parques e passeios de Joinville.</p>
       </header>
+      <NearMeButton />
       <PlaceList initial={initial} />
       <OsmAttribution className="text-center" />
     </div>

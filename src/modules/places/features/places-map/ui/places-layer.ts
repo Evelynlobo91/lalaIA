@@ -6,6 +6,8 @@ export type SelectedPlace = PlaceFeatureProperties & { lat: number; lon: number 
 
 const SOURCE = "places";
 const CLUSTERS = "places-clusters";
+// Camadas clicáveis (para saber se um toque caiu num lugar ou num ponto vazio do mapa).
+export const PLACES_CLICKABLE_LAYERS = ["places-clusters", "places-points"];
 const CLUSTER_COUNT = "places-cluster-count";
 const POINTS = "places-points";
 

@@ -3,6 +3,8 @@ import { isCategoryId, type CategoryId } from "@/shared/catalog/categories";
 import type { PlaceCard, PlaceCursor, PlaceReader } from "../domain/place-card";
 import type { PlaceDetails, PlaceDetailsReader } from "../domain/place-details";
 import type { PlacePoint, PlacePointsReader } from "../features/places-map/places-geo";
+import type { NearbyPlace, NearbyPlacesReader } from "../features/nearby-places/nearby-places.use-case";
+import type { Coordinates } from "../domain/place";
 
 type Row = { id: string; name: string; category: string; neighborhood: string | null; opening_hours: string | null };
 
@@ -18,8 +20,32 @@ type DetailsRow = Row & {
   lon: number;
 };
 
-export class PostgresPlaceReader implements PlaceReader, PlaceDetailsReader, PlacePointsReader {
+export class PostgresPlaceReader implements PlaceReader, PlaceDetailsReader, PlacePointsReader, NearbyPlacesReader {
   constructor(private readonly sql: Sql) {}
+
+  async nearby(origin: Coordinates, radiusMeters: number, limit: number): Promise<NearbyPlace[]> {
+    // ST_DWithin usa o índice GiST (places_location_idx); a ordenação é só sobre o que está no raio.
+    const rows = await this.sql<(Row & { distance: number })[]>`
+      with origem as (
+        select extensions.st_setsrid(extensions.st_makepoint(${origin.lon}, ${origin.lat}), 4326)::extensions.geography as ponto
+      )
+      select p.id, p.name, p.category, p.neighborhood, p.opening_hours,
+             extensions.st_distance(p.location, origem.ponto) as distance
+      from places.places p, origem
+      where extensions.st_dwithin(p.location, origem.ponto, ${radiusMeters})
+      order by distance, p.id
+      limit ${limit}`;
+    return rows
+      .filter((r) => isCategoryId(r.category))
+      .map((r) => ({
+        id: r.id,
+        name: r.name,
+        category: r.category as CategoryId,
+        neighborhood: r.neighborhood,
+        openingHours: r.opening_hours,
+        distanceMeters: r.distance,
+      }));
+  }
 
   async allPoints(): Promise<PlacePoint[]> {
     const rows = await this.sql<{ id: string; name: string; category: string; lat: number; lon: number }[]>`
