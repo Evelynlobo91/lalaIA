@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BroadcastInstructions, LiftRestrictionButton, chatRestrictions, chatSettingsOf, LivePrivacyGuidelines, LivePrivacyNotice, LiveTargetsList, liveMetrics, livePortal, livePrivacyAcceptedAt, liveViewersNow } from "@/modules/live";
+import { BroadcastInstructions, agentStatusOf, LiftRestrictionButton, chatRestrictions, chatSettingsOf, LivePrivacyGuidelines, LivePrivacyNotice, LiveTargetsList, liveMetrics, livePortal, livePrivacyAcceptedAt, liveViewersNow } from "@/modules/live";
 import { hasPlanFeature } from "@/modules/billing";
 import { requirePartner } from "@/modules/partners";
 import { formatDateTime } from "@/shared/time/joinville-time";
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export default async function LivePortalPage() {
   const { user } = await requirePartner("/parceiro/live");
-  const [view, metrics, acceptedAt, viewers, hasChat] = await Promise.all([livePortal(user), liveMetrics(user), livePrivacyAcceptedAt(user), liveViewersNow(user), hasPlanFeature(user.id, "chat")]);
+  const [view, metrics, acceptedAt, viewers, hasChat, agents] = await Promise.all([livePortal(user), liveMetrics(user), livePrivacyAcceptedAt(user), liveViewersNow(user), hasPlanFeature(user.id, "chat"), agentStatusOf(user)]);
   // Opções e moderação do chat só para quem tem o recurso no plano.
   const [chat, restrictions] = hasChat ? await Promise.all([chatSettingsOf(user), chatRestrictions(user)]) : [{}, []];
 
@@ -26,7 +26,7 @@ export default async function LivePortalPage() {
         <h2 id="live-transmissoes" className="text-lg font-semibold">
           Seus lugares e eventos
         </h2>
-        <LiveTargetsList targets={view.targets} metrics={metrics} viewers={viewers} chat={chat} canBroadcast={acceptedAt !== null} />
+        <LiveTargetsList targets={view.targets} metrics={metrics} viewers={viewers} chat={chat} agents={agents} canBroadcast={acceptedAt !== null} />
         <p className="text-sm text-muted">
           Métricas: &quot;Assistiram&quot; conta quantas vezes o vídeo começou a tocar (uma vez por aba) e &quot;Acessos à
           página&quot;, as visitas à página do lugar ou evento. Só contagens: não registramos quem assistiu.

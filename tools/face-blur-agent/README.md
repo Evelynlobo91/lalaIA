@@ -44,7 +44,7 @@ python -m face_blur_agent --source 0 --model face_detection_yunet_2023mar.onnx
 | `--margin` | `0.25` | Margem do borrão sobre a caixa do rosto (cabelo, queixo, erro do detector) |
 | `--detect-width` | `640` | Detecção em resolução reduzida; o borrão é aplicado no quadro cheio |
 | `--detect-every` | `3` | Detector a cada N quadros; entre eles, o rastreador mantém o borrão |
-| `--heartbeat-url` | (vazio) | Endpoint de heartbeat da plataforma (quando existir), com `HEARTBEAT_TOKEN` |
+| `--heartbeat-url` | (vazio) | Endpoint de heartbeat da plataforma: `https://<app>/api/live/agent/heartbeat`. `HEARTBEAT_TOKEN` = a chave de transmissão |
 
 ### Proteção contra falha
 
@@ -77,5 +77,6 @@ Cobrem margem e escala das caixas, persistência do rastreador, a proteção con
 ## Fases seguintes (roadmap)
 
 - **Fase 2:** caixinha de borda (Jetson Orin Nano + DeepStream + SCRFD/YOLOv8-face + ByteTrack) entregue
-  configurada, com atualização remota e alerta no portal pelo heartbeat.
+  configurada, com atualização remota. A parte da plataforma já existe: o heartbeat é recebido, aparece no portal
+  e no backoffice, e privacidade desligada pausa a live (veja `docs/live.md`).
 - **Fase 3:** auditoria na plataforma por amostragem de quadros: rosto nítido → pausa automática da live.

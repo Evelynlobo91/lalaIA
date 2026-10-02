@@ -9,6 +9,9 @@ import { chatRepository, listChatRestrictions, moderateChatMessage } from "./com
 import { moderateChatRoute } from "./features/moderate-chat/moderate-chat.route";
 import { listChatReports, reportChatMessage } from "./composition";
 import { reportChatMessageRoute } from "./features/report-chat-message/report-chat-message.route";
+import { getAgentStatus, recordAgentHeartbeat } from "./composition";
+import { agentHeartbeatRoute } from "./features/privacy-heartbeat/privacy-heartbeat.route";
+import type { AgentStatusView } from "./features/privacy-heartbeat/privacy-heartbeat.use-case";
 import type { ReportModerator } from "./features/report-chat-message/report-chat-message.use-case";
 import { liveLikeRoute, messageLikeRoute, myLikesRoute, pulseRoute, reactionsRoute } from "./features/react-to-live/reactions.route";
 import type { CtaMetrics } from "./features/cta-metrics/cta-metrics.use-case";
@@ -153,6 +156,32 @@ export async function liveViewersNow(user: CurrentUser): Promise<Record<string, 
   }
 }
 
+// Agente de borrão de rostos (#198).
+export { AgentStatusLine } from "./features/privacy-heartbeat/ui/agent-status-line";
+export type { AgentStatusView, PrivacyStatus } from "./features/privacy-heartbeat/privacy-heartbeat.use-case";
+
+/** Situação do agente de borrão de cada transmissão do parceiro, por id da transmissão. Falha → sem o status. */
+export async function agentStatusOf(user: CurrentUser): Promise<Record<string, AgentStatusView>> {
+  try {
+    const mine = await streamRepository().listByOwner(user.id);
+    return await getAgentStatus().execute(mine.filter((s) => s.status !== "ended").map((s) => s.id));
+  } catch (error) {
+    logger().error("falha ao carregar o status do agente de borrão", { err: error });
+    errorReporter().capture(error);
+    return {};
+  }
+}
+
+/**
+ * Backoffice: lives no ar agora com a situação do agente de borrão de cada uma, para o time ver quais estão sem
+ * a proteção automática. Quem chama confere a capacidade (`content:edit`).
+ */
+export async function livePrivacyOverview(): Promise<Array<LiveNowItem & { agent: AgentStatusView }>> {
+  const live = await listLiveNow().execute();
+  const agents = await getAgentStatus().execute(live.map((item) => item.streamId));
+  return live.map((item) => ({ ...item, agent: agents[item.streamId]! }));
+}
+
 // Denúncias do chat (#193).
 export { ResolveReportButtons } from "./features/report-chat-message/ui/resolve-report-buttons";
 export { REPORT_REASON_LABELS, type ReportedMessageView } from "./features/report-chat-message/report-chat-message.use-case";
@@ -231,6 +260,8 @@ export const liveApi = {
   messageLike: messageLikeRoute(toggleMessageLike),
   /** POST /api/live/chat/moderation — apagar, fixar, silenciar e banir (anfitrião, moderação; o autor apaga a própria). */
   chatModeration: moderateChatRoute(moderateChatMessage),
+  /** POST /api/live/agent/heartbeat — heartbeat do agente de borrão (Bearer = chave de transmissão). */
+  agentHeartbeat: agentHeartbeatRoute(recordAgentHeartbeat),
   /** POST /api/live/chat/reports — denunciar uma mensagem (só logado). */
   chatReport: reportChatMessageRoute(reportChatMessage),
   /** GET /api/live/chat/likes?streamId= — o que a pessoa logada já curtiu (e escreveu) nesta live. */

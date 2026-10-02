@@ -9,6 +9,8 @@ import { StreamKeyField } from "./stream-key-field";
 import { StreamNoteForm } from "../../stream-context/ui/stream-note-form";
 import { StreamMetricsLine } from "../../stream-metrics/ui/stream-metrics-line";
 import { ChatSettingsForm } from "../../moderate-chat/ui/chat-settings-form";
+import { AgentStatusLine } from "../../privacy-heartbeat/ui/agent-status-line";
+import type { AgentStatusView } from "../../privacy-heartbeat/privacy-heartbeat.use-case";
 import type { StreamMetrics } from "../../stream-metrics/stream-metrics.use-case";
 
 export function StreamStatusBadge({ status }: { status: StreamStatus }) {
@@ -25,6 +27,7 @@ export function LiveTargetsList({
   metrics = {},
   viewers = {},
   chat = {},
+  agents = {},
   canBroadcast = true,
 }: {
   targets: LiveTargetView[];
@@ -33,6 +36,8 @@ export function LiveTargetsList({
   viewers?: Record<string, number>;
   /** Opções do chat por id da transmissão (#192); ausente quando o plano não tem chat. */
   chat?: Record<string, { chatEnabled: boolean; slowSeconds: number }>;
+  /** Situação do agente de borrão por id da transmissão (#198). */
+  agents?: Record<string, AgentStatusView>;
   /** false sem o aceite das diretrizes de privacidade (#55): gerar a chave e ativar ficam bloqueados. */
   canBroadcast?: boolean;
 }) {
@@ -69,6 +74,7 @@ export function LiveTargetsList({
               <>
                 <StreamControls streamId={t.stream.id} status={t.stream.status} label={t.label} canActivate={canBroadcast} />
                 {t.stream.status !== "ended" && <StreamNoteForm streamId={t.stream.id} note={t.stream.note} label={t.label} />}
+                {agents[t.stream.id] && <AgentStatusLine agent={agents[t.stream.id]!} live={t.stream.status === "live"} label={t.label} />}
                 {t.stream.status === "live" && (
                   <p className="flex items-center gap-1.5 text-sm" aria-label={`Assistindo agora a ${t.label}`}>
                     <Users aria-hidden className="size-4" />

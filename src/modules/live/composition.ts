@@ -44,6 +44,8 @@ import { LiftChatRestriction, ListChatRestrictions, ModerateChatMessage, SaveCha
 import { PostgresChatModeration } from "./infra/postgres-chat-moderation";
 import { ListChatReports, ReportChatMessage, ResolveChatReports } from "./features/report-chat-message/report-chat-message.use-case";
 import { PostgresChatReports } from "./infra/postgres-chat-reports";
+import { GetAgentStatus, RecordAgentHeartbeat } from "./features/privacy-heartbeat/privacy-heartbeat.use-case";
+import { PostgresAgentHeartbeats } from "./infra/postgres-agent-heartbeats";
 import { publicProfiles } from "@/modules/identity";
 import { PostgresCtaRepository } from "./infra/postgres-cta-repository";
 
@@ -79,7 +81,7 @@ export const endStreamsOfDeletedUser = lazy(() => new EndStreamsOfDeletedUser(st
 export const getLivePlayback = lazy(() => new GetLivePlayback({ findByTarget: (target) => streamRepository().findVisibleByTarget(target) }, streamingProvider));
 export const listActiveStreamsUseCase = lazy(() => new ListActiveStreams(streamRepository()));
 export const getActiveCta = lazy(() => new GetActiveCta(ctaRepository(), logger().child({ module: "live" })));
-export const getLiveStatus = lazy(() => new GetLiveStatus(getLivePlayback(), getActiveCta()));
+export const getLiveStatus = lazy(() => new GetLiveStatus(getLivePlayback(), getActiveCta(), getAgentStatus()));
 
 const targetDirectory = new ModuleLiveTargetDirectory();
 export const listLiveNow = lazy(() => new ListLiveNow(streamRepository(), targetDirectory));
@@ -147,3 +149,8 @@ const profileNames = async (ids: string[]) => new Map((await publicProfiles(ids)
 export const reportChatMessage = lazy(() => new ReportChatMessage(chatReports()));
 export const listChatReports = lazy(() => new ListChatReports(chatReports(), profileNames));
 export const resolveChatReports = lazy(() => new ResolveChatReports(chatReports(), chatModeration(), domainEvents()));
+
+// Heartbeat do agente de borrão de rostos (#198).
+const agentHeartbeats = lazy(() => new PostgresAgentHeartbeats(sql()));
+export const recordAgentHeartbeat = lazy(() => new RecordAgentHeartbeat(agentHeartbeats(), domainEvents(), logger().child({ module: "live" })));
+export const getAgentStatus = lazy(() => new GetAgentStatus(agentHeartbeats()));
