@@ -25,7 +25,7 @@ test.describe("assinatura do parceiro (#153)", () => {
     await expect(pro.getByRole("list", { name: "Recursos do plano Pro" })).toContainText("Destaque");
 
     // Assina o Pro: fatura gerada, com o link de pagamento.
-    await pro.getByRole("button", { name: "Assinar o plano Pro" }).click();
+    await pro.getByRole("button", { name: "Fazer upgrade para o plano Pro" }).click();
     await expect(pro.getByText("Fatura do plano Pro gerada.")).toBeVisible();
     const pagar = pro.getByRole("link", { name: "Pagar agora" });
     await expect(pagar).toHaveAttribute("href", /^\/pagamento\/simulado\/fake_[0-9a-f]{24}$/);
@@ -37,7 +37,7 @@ test.describe("assinatura do parceiro (#153)", () => {
 
     // De volta: o Pro aguarda pagamento e o Básico continua valendo.
     await page.getByRole("link", { name: "Voltar para a assinatura" }).click();
-    await expect(page.getByText("Aguardando o primeiro pagamento")).toBeVisible();
+    await expect(page.getByRole("article", { name: "Plano atual" }).getByText("Aguardando o primeiro pagamento")).toBeVisible();
     await expect(pro.getByText("Aguardando pagamento", { exact: true })).toBeVisible();
     await expect(basico.getByText("Seu plano", { exact: true })).toBeVisible();
 
@@ -69,7 +69,7 @@ test.describe("pagamento confirmado por webhook (#154)", () => {
     await loginAs(page, dono, "/parceiro/assinatura");
 
     const pro = page.getByRole("article", { name: "Plano Pro" });
-    await pro.getByRole("button", { name: "Assinar o plano Pro" }).click();
+    await pro.getByRole("button", { name: "Fazer upgrade para o plano Pro" }).click();
     await pro.getByRole("link", { name: "Pagar agora" }).click();
     await expect(page.getByRole("heading", { level: 1, name: "Pagamento simulado" })).toBeVisible();
 
@@ -78,7 +78,7 @@ test.describe("pagamento confirmado por webhook (#154)", () => {
     await expect(page.getByText("Pagamento simulado confirmado.")).toBeVisible();
     await page.getByRole("link", { name: "Ver minha assinatura" }).click();
 
-    await expect(page.getByText("Em dia", { exact: true })).toBeVisible();
+    await expect(page.getByRole("article", { name: "Plano atual" }).getByText("Em dia", { exact: true })).toBeVisible();
     await expect(pro.getByText("Seu plano", { exact: true })).toBeVisible();
     await expect(pro.getByRole("button")).toHaveCount(0);
     await expect(page.getByRole("article", { name: "Plano Básico" }).getByText("Seu plano", { exact: true })).toHaveCount(0);
@@ -89,7 +89,7 @@ test.describe("pagamento confirmado por webhook (#154)", () => {
     await createApprovedPartner(dono, "Bar da Cobrança");
     await loginAs(page, dono, "/parceiro/assinatura");
     const pro = page.getByRole("article", { name: "Plano Pro" });
-    await pro.getByRole("button", { name: "Assinar o plano Pro" }).click();
+    await pro.getByRole("button", { name: "Fazer upgrade para o plano Pro" }).click();
     const href = await pro.getByRole("link", { name: "Pagar agora" }).getAttribute("href");
 
     const outra = await createConfirmedUser();
@@ -123,5 +123,56 @@ test.describe("pagamento confirmado por webhook (#154)", () => {
     expect(await accepted.json()).toMatchObject({ received: 1, unknown: 1, applied: 0 });
     // Reenvio do mesmo evento: duplicata, sem efeito.
     expect(await (await post({ "x-billing-signature": signature })).json()).toMatchObject({ duplicate: 1, unknown: 0 });
+  });
+});
+
+test.describe("tela de assinatura: faturas, segunda via e troca de plano (#155)", () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(testInfo.project.name !== "celular-360", "fluxo de assinatura roda só no celular");
+  });
+
+  test("resumo do plano, fatura com link de pagamento, fatura paga, renovação e downgrade", async ({ page }) => {
+    const dono = await createConfirmedUser("Dona das Faturas");
+    await createApprovedPartner(dono, "Bar das Faturas");
+    await loginAs(page, dono, "/parceiro/assinatura");
+
+    const resumo = page.getByRole("article", { name: "Plano atual" });
+    const basico = page.getByRole("article", { name: "Plano Básico" });
+    const pro = page.getByRole("article", { name: "Plano Pro" });
+    await expect(resumo).toContainText("Básico");
+    await expect(resumo).toContainText("Gratuito");
+    await expect(page.getByText("Nenhuma fatura ainda.")).toBeVisible();
+
+    // Upgrade: gera a fatura, que aparece na lista com o link de pagamento.
+    await pro.getByRole("button", { name: "Fazer upgrade para o plano Pro" }).click();
+    await expect(pro.getByText("Fatura do plano Pro gerada.")).toBeVisible();
+    await page.reload();
+    await expect(resumo).toContainText("O plano Pro passa a valer quando o pagamento for confirmado.");
+    const fatura = page.getByRole("list", { name: "Faturas" }).getByRole("listitem");
+    await expect(fatura).toHaveCount(1);
+    await expect(fatura).toContainText("Pro");
+    await expect(fatura).toContainText("149,00");
+    await expect(fatura.getByText("Em aberto", { exact: true })).toBeVisible();
+
+    // Paga pela fatura.
+    await fatura.getByRole("link", { name: /^Pagar: Pro/ }).click();
+    await page.getByRole("button", { name: "Simular pagamento" }).click();
+    await page.getByRole("link", { name: "Ver minha assinatura" }).click();
+    await expect(resumo).toContainText("Pro");
+    await expect(resumo.getByText("Em dia", { exact: true })).toBeVisible();
+    await expect(resumo).toContainText("Próxima renovação em");
+    await expect(resumo).toContainText("Destaque");
+    await expect(fatura.getByText("Paga", { exact: true })).toBeVisible();
+    await expect(fatura).toContainText("Paga em");
+    await expect(fatura.getByRole("link")).toHaveCount(0);
+
+    // Downgrade para o plano gratuito vale na hora.
+    await basico.getByRole("button", { name: "Fazer downgrade para o plano Básico" }).click();
+    await expect(basico.getByText("Pronto: o plano Básico já está valendo.")).toBeVisible();
+    await page.reload();
+    await expect(resumo).toContainText("Básico");
+    await expect(pro.getByRole("button", { name: "Fazer upgrade para o plano Pro" })).toBeVisible();
+    // A fatura paga continua no histórico.
+    await expect(fatura.getByText("Paga", { exact: true })).toBeVisible();
   });
 });

@@ -1,6 +1,7 @@
 // API pública do módulo billing (planos, assinaturas e cobrança dos parceiros).
 import type { CurrentUser } from "@/modules/identity";
 import "./domain/events";
+import { getMySubscription } from "./composition";
 import { enforceOverdue, getPlan, handlePaymentWebhook, listPlans, planEntitlements, planRepository, renewSubscriptions, subscriptionStore } from "./composition";
 import { paymentWebhooksRoute } from "./features/payment-webhooks/payment-webhooks.route";
 import { cycleRoute } from "./features/subscribe/cycle.route";
@@ -14,6 +15,8 @@ export { PlanForm, type PlanFormValues } from "./features/plans/ui/plan-form";
 export { PlanList } from "./features/plans/ui/plan-list";
 export { PlanPicker, type PlanChoice } from "./features/subscribe/ui/plan-picker";
 export { SimulatePaymentForm } from "./features/payment-webhooks/ui/simulate-payment-form";
+export { InvoiceList, SubscriptionSummary } from "./features/partner-subscription/ui/my-subscription";
+export type { InvoiceView, MySubscriptionView } from "./features/partner-subscription/partner-subscription";
 export { subscriptionStatusLabels, type SubscriptionStatus } from "./domain/subscription";
 export { featureLabel, formatPlanPrice, planFeatures, type Plan, type PlanFeature } from "./domain/plan";
 
@@ -69,6 +72,7 @@ export async function subscriptionOverview(ownerId: string): Promise<{ status: S
   // Sem assinatura (ou com ela cancelada/suspensa/aguardando), o que vale é o plano padrão.
   const effective = subscription && (subscription.status === "active" || subscription.status === "past_due") ? subscription.planId : fallback?.id;
   const pending = subscription && subscription.status !== "cancelled" ? (subscription.pendingPlanId ?? (subscription.status === "pending" ? subscription.planId : null)) : null;
+  const currentPrice = plans.find((plan) => plan.id === effective)?.priceCents ?? fallback?.priceCents ?? 0;
   return {
     status: subscription?.status ?? null,
     plans: plans.map((plan) => ({
@@ -78,6 +82,7 @@ export async function subscriptionOverview(ownerId: string): Promise<{ status: S
       priceCents: plan.priceCents,
       features: plan.features,
       state: plan.id === pending ? "pending" : plan.id === effective ? "current" : "available",
+      change: plan.priceCents > currentPrice ? "upgrade" : plan.priceCents < currentPrice ? "downgrade" : "same",
     })),
   };
 }
@@ -94,3 +99,8 @@ export const billingApi = {
 
 /** O simulador de pagamento está ligado neste ambiente? (só com o provedor simulado e o segredo configurado) */
 export const paymentSimulatorEnabled = () => handlePaymentWebhook() !== null;
+
+/** Assinatura do parceiro (#155): plano atual, renovação, troca pendente e faturas. `ownerId` vem sempre da sessão. */
+export function mySubscription(ownerId: string) {
+  return getMySubscription().execute(ownerId);
+}
