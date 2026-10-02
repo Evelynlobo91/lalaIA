@@ -23,6 +23,8 @@ export type ChatMessage = {
   body: string;
   isHost: boolean;
   replyTo: string | null;
+  /** Quantas pessoas curtiram (#190). */
+  likes: number;
   createdAt: Date;
 };
 
@@ -37,6 +39,7 @@ export type ChatMessageView = {
   author: ChatAuthor;
   isHost: boolean;
   replyTo: { id: string; authorName: string; excerpt: string } | null;
+  likes: number;
   createdAt: string;
 };
 

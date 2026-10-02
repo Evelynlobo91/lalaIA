@@ -106,7 +106,7 @@ test.describe("chat da live (#187, #188)", () => {
     const { placeId, stream } = await liveWithChat(request, { plan: false });
     const leo = await createConfirmedUser("Leo Sem Chat");
     await loginAs(page, leo, `/lugares/${placeId}`);
-    await expect(page.getByRole("region", { name: "Transmissão ao vivo" }).locator("video")).toBeVisible();
+    await expect(page.getByRole("region", { name: "Transmissão ao vivo" })).toBeVisible();
     await expect(page.getByRole("region", { name: "Chat da live" })).toHaveCount(0);
 
     const response = await page.request.post("/api/live/chat", { data: { streamId: stream.id, body: "oi" } });

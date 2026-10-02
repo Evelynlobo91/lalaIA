@@ -10,6 +10,8 @@ import { StreamContextLine, type StreamContextInfo } from "../../stream-context/
 import { PublicLiveNotice } from "../../privacy/ui/public-live-notice";
 import { CtaOverlay } from "../../cta-overlay/ui/cta-overlay";
 import { LiveChat } from "../../chat-feed/ui/live-chat";
+import { FloatingReactions, ReactionBar } from "../../react-to-live/ui/reaction-bar";
+import { useLivePulse } from "../../react-to-live/ui/use-live-pulse";
 
 // O player (e o hls.js, quando preciso) só é baixado quando a live está no ar: não pesa a página.
 const HlsPlayer = dynamic(() => import("../../player/ui/hls-player"), {
@@ -52,6 +54,8 @@ export function LiveStage({ entityType, entityId, initial, title, onWatch, conte
 
   // O erro vale para a URL que falhou: se a live voltar com outra URL, tenta de novo sozinho.
   const view = liveViewState(status.status, failedUrl !== null && failedUrl === status.playbackUrl);
+  // Pulso (#189, #191): só com a live no ar e o recurso no plano do anfitrião (mesma condição do chat).
+  const engagement = useLivePulse(chat && view.kind === "live" ? status.streamId : null, Boolean(chat?.viewer));
   if (view.kind === "hidden") return null;
 
   return (
@@ -70,8 +74,21 @@ export function LiveStage({ entityType, entityId, initial, title, onWatch, conte
               onPlaying={() => setWatching(true)}
               onError={() => setFailedUrl(status.playbackUrl)}
             />
+            {chat && <FloatingReactions floats={engagement.floats} />}
             <CtaOverlay cta={status.cta} entityType={entityType} entityId={entityId} />
           </div>
+          {chat && (
+            <ReactionBar
+              pulse={engagement.pulse}
+              liked={engagement.liked}
+              canReact={chat.viewer !== null}
+              loginHref={chat.loginHref}
+              notice={engagement.notice}
+              onLike={() => void engagement.toggleLike()}
+              onReact={engagement.react}
+              onVisitorTap={() => engagement.setNotice("Entre para curtir e reagir.")}
+            />
+          )}
           <PublicLiveNotice />
         </>
       ) : (
@@ -97,7 +114,7 @@ export function LiveStage({ entityType, entityId, initial, title, onWatch, conte
         </div>
       )}
       {view.kind !== "ended" && <StreamContextLine info={context} status={status} renderedAt={renderedAt} />}
-      {chat && status.streamId && view.kind === "live" && <LiveChat streamId={status.streamId} viewer={chat.viewer} loginHref={chat.loginHref} />}
+      {chat && status.streamId && view.kind === "live" && <LiveChat streamId={status.streamId} viewer={chat.viewer} loginHref={chat.loginHref} likedMessageIds={engagement.likedMessageIds} />}
       {watching && onWatch}
     </section>
   );

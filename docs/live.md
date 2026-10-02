@@ -349,3 +349,24 @@ Mensagens curtas junto do player, para quem assiste sentir o clima e conversar c
 - **O que a tela recebe**: nome, foto, nível e selo "Anfitrião"; nunca o id nem o e-mail de quem escreveu.
 - **LGPD**: na exclusão da conta as mensagens ficam sem autor ("Usuário removido"). O conteúdo das mensagens não
   vai para os logs.
+
+### Curtidas, reações e espectadores (#189, #190, #191)
+
+- **Pulso** (`POST /api/live/pulse`, a cada 5 s com a aba visível): a aba avisa que está assistindo e recebe
+  espectadores, curtidas e totais de reação — iguais para todos. Público (visitante também conta).
+- **Espectadores agora**: `live.viewers` (tabela *unlogged*, efêmera) guarda o batimento de cada **aba**, por um id
+  aleatório que não tem relação com a conta (não diz quem assiste). Conta quem bateu nos últimos 15 s. O parceiro
+  vê "N assistindo agora" no portal.
+- **Curtir a live** (`POST /api/live/likes`): uma por pessoa, alterna. RLS: em nome próprio e com a live no ar.
+- **Reações rápidas** (❤️ 🔥 😂 👏 🍻, `POST /api/live/reactions`): o emoji de quem tocou flutua na hora; a tela junta
+  os toques e manda um lote a cada 2 s. O servidor limita o lote (10 por tipo) e o intervalo entre lotes da mesma
+  pessoa (porta `RateLimiter`, em memória; Redis se escalar) e soma em `live.reaction_counters`. Nada é guardado
+  por pessoa. Os emojis dos outros aparecem no pulso seguinte (a diferença entre dois pulsos), no máximo 12 por
+  tipo de cada vez. A camada some com `prefers-reduced-motion`.
+- **Curtir mensagem** (`POST /api/live/chat/likes`): uma por pessoa; o total entra na mensagem e na `version` do
+  chat. `GET /api/live/chat/likes` devolve, uma vez ao entrar, o que a pessoa logada já curtiu.
+- **Chat desligado pelo anfitrião**: curtidas e reações continuam valendo (dependem da live no ar e do recurso
+  `chat` do plano).
+
+Limitações: o contador de espectadores conta abas, não pessoas; o limite de lotes de reação é por instância do
+servidor; curtidas e reações não entram no tracking do Analytics (os totais ficam nas tabelas da live).

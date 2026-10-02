@@ -93,6 +93,16 @@ body {
   outline-offset: 2px;
 }
 
+/* Reações da live (#189): o emoji sobe e some. Com "menos movimento" a camada inteira fica oculta. */
+@keyframes live-reaction-float {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  15% { transform: translateY(-1.5rem) scale(1.1); opacity: 1; }
+  100% { transform: translateY(-9rem) scale(1); opacity: 0; }
+}
+.live-reaction-float {
+  animation: live-reaction-float 2.5s ease-out forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

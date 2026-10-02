@@ -6,7 +6,7 @@ import { SendChatMessage, sendChatMessageSchema } from "./send-chat-message.use-
 const STREAM = "3b0e7c56-4a1f-4c8e-9d2a-7a1c5e6f8b90";
 const now = new Date("2026-10-02T23:30:00Z");
 const room = (patch: Partial<ChatRoom> = {}): ChatRoom => ({ streamId: STREAM, ownerId: "dona", status: "live", chatEnabled: true, ...patch });
-const message = (patch: Partial<ChatMessage> = {}): ChatMessage => ({ id: "m1", seq: 1, streamId: STREAM, userId: "leo", body: "Que som bom!", isHost: false, replyTo: null, createdAt: now, ...patch });
+const message = (patch: Partial<ChatMessage> = {}): ChatMessage => ({ id: "m1", seq: 1, streamId: STREAM, userId: "leo", body: "Que som bom!", isHost: false, replyTo: null, likes: 0, createdAt: now, ...patch });
 
 describe("texto da mensagem", () => {
   it("uma mensagem é uma linha: junta espaços e quebras", () => {
@@ -50,7 +50,7 @@ describe("SendChatMessage (#187)", () => {
   const deps = (opts: { room?: ChatRoom | null; last?: Date | null; entitled?: boolean; inserted?: ChatMessage | null; quoted?: ChatMessage | null } = {}) => {
     const insert = vi.fn(async (userId: string, m: { body: string; isHost: boolean; replyTo: string | null }) => (opts.inserted === undefined ? message({ userId, ...m }) : opts.inserted));
     const findVisible = vi.fn().mockResolvedValue(opts.quoted ?? null);
-    const present = vi.fn(async (list: ChatMessage[]) => list.map((m) => ({ id: m.id, seq: m.seq, body: m.body, author: { name: "Leo", avatarUrl: null, level: 2 }, isHost: m.isHost, replyTo: null, createdAt: m.createdAt.toISOString() })));
+    const present = vi.fn(async (list: ChatMessage[]) => list.map((m) => ({ id: m.id, seq: m.seq, body: m.body, author: { name: "Leo", avatarUrl: null, level: 2 }, isHost: m.isHost, replyTo: null, likes: m.likes, createdAt: m.createdAt.toISOString() })));
     const useCase = new SendChatMessage(
       { room: vi.fn().mockResolvedValue(opts.room === undefined ? room() : opts.room) },
       { insert, findVisible },
