@@ -1,6 +1,7 @@
 import { asUser, type Tx } from "@/shared/db/as-user";
 import type { Sql } from "@/shared/db/sql";
-import type { Lead, LeadData, LeadRepository, LeadSource, LeadStage } from "../domain/lead";
+import type { Lead, LeadData, LeadFilter, LeadRepository, LeadSource, LeadStage } from "../domain/lead";
+import type { LeadReports, SourceCount } from "../features/lead-reports/lead-reports";
 
 type Row = {
   id: string;
@@ -35,7 +36,7 @@ export const toLead = (r: Row): Lead => ({
 export type { Row as LeadRow };
 
 /** Todas as operações rodam como o usuário da sessão (asUser): as políticas RLS por capacidade valem também aqui. */
-export class PostgresLeadRepository implements LeadRepository {
+export class PostgresLeadRepository implements LeadRepository, LeadReports {
   constructor(private readonly sql: Sql) {}
 
   private as<T>(actorId: string, fn: (tx: Tx) => Promise<T>) {
@@ -69,8 +70,26 @@ export class PostgresLeadRepository implements LeadRepository {
     return row ? toLead(row) : null;
   }
 
-  async list(actorId: string, limit: number): Promise<Lead[]> {
-    const rows = await this.as(actorId, (tx) => tx.unsafe<Row[]>(`select ${LEAD_COLUMNS} from crm.leads order by updated_at desc, id limit $1`, [limit]));
+  async list(actorId: string, limit: number, filter: LeadFilter = {}): Promise<Lead[]> {
+    // Filtro ausente vira null, e a condição deixa passar tudo.
+    const rows = await this.as(actorId, (tx) =>
+      tx.unsafe<Row[]>(
+        `select ${LEAD_COLUMNS} from crm.leads
+         where ($2::text is null or stage = $2) and ($3::text is null or source = $3) and ($4::uuid is null or owner_id = $4)
+         order by updated_at desc, id limit $1`,
+        [limit, filter.stage ?? null, filter.source ?? null, filter.ownerId ?? null],
+      ),
+    );
     return rows.map(toLead);
+  }
+
+  async countsBySource(actorId: string, since: Date | null): Promise<SourceCount[]> {
+    return this.as(actorId, (tx) =>
+      tx.unsafe<SourceCount[]>(
+        `select source, count(*)::int as total, count(*) filter (where stage = 'ativo')::int as active, count(*) filter (where stage = 'perdido')::int as lost
+         from crm.leads where ($1::timestamptz is null or created_at >= $1) group by source`,
+        [since],
+      ),
+    );
   }
 }

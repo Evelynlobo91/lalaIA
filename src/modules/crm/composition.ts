@@ -5,6 +5,7 @@ import { sql } from "@/shared/db/sql";
 import { lazy } from "@/shared/kernel";
 import { localDate } from "@/shared/time/joinville-time";
 import type { LeadOwners } from "./domain/lead";
+import { GetConversionBySource } from "./features/lead-reports/lead-reports";
 import { GetLead, ListLeads, SaveLead } from "./features/leads/leads.use-cases";
 import { AcceptInvite, GetInvite, StartConversion } from "./features/convert-lead/convert-lead.use-cases";
 import { AddLeadNote, CompleteFollowUp, GetLeadActivity, ListMyFollowUps, SetNextStep } from "./features/follow-ups/follow-ups.use-cases";
@@ -45,3 +46,6 @@ export const inviteStore = lazy(() => new PostgresInviteStore(sql()));
 export const startConversion = lazy(() => new StartConversion(leadRepository(), inviteStore(), inviteTokens));
 export const getInvite = lazy(() => new GetInvite(inviteStore(), inviteTokens));
 export const acceptInvite = lazy(() => new AcceptInvite(inviteStore(), inviteTokens, { activate: activatePartner }));
+
+// Relatório de conversão por origem (#151).
+export const getConversionBySource = lazy(() => new GetConversionBySource(leadRepository()));

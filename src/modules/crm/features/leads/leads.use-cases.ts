@@ -1,5 +1,5 @@
 import { ForbiddenError, NotFoundError, ValidationError, err, ok, type DomainError, type Result } from "@/shared/kernel";
-import type { CrmActor, Lead, LeadData, LeadOwners, LeadRepository } from "../../domain/lead";
+import type { CrmActor, Lead, LeadData, LeadFilter, LeadOwners, LeadRepository } from "../../domain/lead";
 
 export const LEADS_LIST_LIMIT = 200;
 
@@ -31,9 +31,9 @@ export class ListLeads {
     private readonly owners: LeadOwners,
   ) {}
 
-  async execute(actor: CrmActor): Promise<Result<LeadListItem[], DomainError>> {
+  async execute(actor: CrmActor, filter: LeadFilter = {}): Promise<Result<LeadListItem[], DomainError>> {
     if (!actor.canRead) return err(new ForbiddenError());
-    const [leads, owners] = await Promise.all([this.leads.list(actor.id, LEADS_LIST_LIMIT), this.owners.list()]);
+    const [leads, owners] = await Promise.all([this.leads.list(actor.id, LEADS_LIST_LIMIT, filter), this.owners.list()]);
     const names = new Map(owners.map((o) => [o.id, o.name]));
     // Conta excluída → sem responsável; quem saiu do time comercial continua aparecendo, sem nome.
     return ok(leads.map((lead) => ({ ...lead, ownerName: lead.ownerId === null ? "Sem responsável" : (names.get(lead.ownerId) ?? "Fora do time") })));

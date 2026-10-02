@@ -85,7 +85,7 @@ describe("ListLeads / GetLead", () => {
   it("lista com o nome do responsável; quem saiu do time e conta excluída têm rótulo próprio", async () => {
     const leads = { list: vi.fn().mockResolvedValue([lead(), lead({ id: "outro", ownerId: "saiu" }), lead({ id: "orfao", ownerId: null })]) };
     const result = await new ListLeads(leads, owners).execute(reader);
-    expect(leads.list).toHaveBeenCalledWith("bia", LEADS_LIST_LIMIT);
+    expect(leads.list).toHaveBeenCalledWith("bia", LEADS_LIST_LIMIT, {});
     expect(result.ok && result.value.map((l) => l.ownerName)).toEqual(["Ana Comercial", "Fora do time", "Sem responsável"]);
   });
 
