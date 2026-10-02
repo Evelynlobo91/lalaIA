@@ -2,15 +2,18 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { publicEnv } from "@/shared/config/public-env";
+import { sessionCookieOptions } from "./session-cookies";
 
 /**
  * Cliente Supabase por requisição (lê e grava os cookies de sessão).
  * Uso restrito a Auth: dados de negócio vão por SQL nos adaptadores (ADR 0002).
  */
 export async function createSupabaseServerClient() {
-  const env = publicEnv();
+  // cookies() primeiro: marca a rota como dinâmica antes de qualquer outra coisa (sem prerender no build).
   const store = await cookies();
+  const env = publicEnv();
   return createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
+    cookieOptions: sessionCookieOptions,
     cookies: {
       getAll: () => store.getAll(),
       setAll(cookiesToSet) {

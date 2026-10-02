@@ -69,6 +69,8 @@ jobs:
             echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$PUBLISHABLE_KEY"
             echo "NEXT_PUBLIC_SITE_URL=http://localhost:3100"
             echo "MAILPIT_URL=$MAILPIT_URL"
+            # Chave admin do Supabase LOCAL do CI (efêmero), usada só pelos testes para criar usuários.
+            echo "E2E_SUPABASE_SECRET_KEY=$SECRET_KEY"
           } >> "$GITHUB_ENV"
       - run: npm run test:e2e
         env:
