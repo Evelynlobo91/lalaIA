@@ -72,6 +72,8 @@ jobs:
             # Chave admin do Supabase LOCAL do CI (efêmero), usada só pelos testes para criar usuários.
             echo "E2E_SUPABASE_SECRET_KEY=$SECRET_KEY"
           } >> "$GITHUB_ENV"
+      # Lugares reais de Joinville (snapshot do OpenStreetMap) para as telas de "Onde ir".
+      - run: npm run places:seed
       - run: npm run test:e2e
         env:
           NEXT_TELEMETRY_DISABLED: 1

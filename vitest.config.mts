@@ -26,6 +26,8 @@ export default defineConfig({
         test: {
           name: "int",
           include: ["src/**/*.int.test.ts"],
+          // Todos compartilham o mesmo banco: arquivos em paralelo interferem nas contagens uns dos outros.
+          fileParallelism: false,
           env: { DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:54322/postgres" },
         },
       },
