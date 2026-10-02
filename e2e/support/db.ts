@@ -222,3 +222,16 @@ export function unlockTestAchievement(user: Pick<TestUser, "email">, achievement
     return row.id;
   });
 }
+
+/** Oferta ativa do parceiro já resgatada por alguém (#158): devolve o código para validar no balcão. */
+export function createRedeemedOffer(owner: Pick<TestUser, "email">, redeemer: Pick<TestUser, "email">, title: string, code: string): Promise<string> {
+  return withDb(async (sql) => {
+    const [offer] = await sql<{ id: string }[]>`
+      insert into partners.offers (partner_id, target_type, target_id, title, description, starts_at, ends_at)
+      select p.id, 'place', gen_random_uuid(), ${title}, 'Oferta de teste do balcão.', now() - interval '1 hour', now() + interval '1 day'
+      from partners.partners p join auth.users u on u.id = p.owner_id where lower(u.email) = ${owner.email.toLowerCase()} returning id`;
+    await sql`insert into partners.offer_redemptions (offer_id, user_id, code)
+              select ${offer.id}, id, ${code} from auth.users where lower(email) = ${redeemer.email.toLowerCase()}`;
+    return code;
+  });
+}

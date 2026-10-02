@@ -1,4 +1,4 @@
-import { BarChart3, CalendarDays, CreditCard, Home, MapPin, Megaphone, Radio, Target, TicketPercent, type LucideIcon } from "lucide-react";
+import { BarChart3, CalendarDays, CreditCard, Home, MapPin, Megaphone, Radio, Target, TicketPercent, Users, type LucideIcon } from "lucide-react";
 
 export type PortalSection = { href: string; label: string; icon: LucideIcon };
 
@@ -13,5 +13,6 @@ export const portalSections: PortalSection[] = [
   { href: "/parceiro/ofertas", label: "Ofertas", icon: TicketPercent },
   { href: "/parceiro/destaque", label: "Destaque", icon: Megaphone },
   { href: "/parceiro/dados", label: "Dados", icon: BarChart3 },
+  { href: "/parceiro/equipe", label: "Equipe", icon: Users },
   { href: "/parceiro/assinatura", label: "Assinatura", icon: CreditCard },
 ];

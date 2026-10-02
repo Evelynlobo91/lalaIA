@@ -8,6 +8,7 @@ import {
   endSponsorshipsWithoutPlan,
   listMySponsorships,
   sponsorshipRepository,
+  teamRepository,
   approvedPartnerIdOf,
   listActivePartners,
   listApplications,
@@ -125,6 +126,20 @@ export async function mySponsorships({ user, partner }: PartnerSession) {
 /** Lugares e eventos com destaque valendo agora, como chaves `place:<id>` / `event:<id>` (para a Recomendação). */
 export function sponsoredKeysNow(): Promise<string[]> {
   return sponsorshipRepository().activeKeys(new Date());
+}
+
+// Equipe do parceiro (#158).
+export { InviteMemberForm, RemoveMemberButton } from "./features/team-members/ui/team-forms";
+export { MAX_TEAM_MEMBERS, type Membership, type TeamMember } from "./features/team-members/team-members.use-case";
+
+/** Equipe do parceiro logado (só o dono chega aqui: a sessão do portal exige o cadastro aprovado). */
+export function myTeam({ user, partner }: PartnerSession) {
+  return teamRepository().list(user.id, partner.id);
+}
+
+/** Equipes em que a pessoa atende como membro (acesso só ao balcão). Vazio para quem não foi convidado. */
+export function myTeamMemberships(user: CurrentUser) {
+  return teamRepository().membershipsOf(user.id);
 }
 
 /**
