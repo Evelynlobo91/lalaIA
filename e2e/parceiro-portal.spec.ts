@@ -3,7 +3,7 @@ import { createApprovedPartner } from "./support/db";
 import { loginAs } from "./support/session";
 import { createConfirmedUser } from "./support/users";
 
-const secoes = ["Meus lugares", "Eventos", "Live", "Missões", "Ofertas", "Dados", "Início"];
+const secoes = ["Meus lugares", "Eventos", "Live", "Missões", "Ofertas", "Dados", "Assinatura", "Início"];
 
 test.describe("portal do parceiro (#27)", () => {
   test("parceiro aprovado entra no portal e navega pelas seções", async ({ page }, testInfo) => {

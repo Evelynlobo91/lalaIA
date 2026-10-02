@@ -74,8 +74,13 @@ describe("PostgresPlanRepository (#152)", () => {
     expect((await repo.defaultPlan())?.code).toBe(`${tag}-novo`);
   });
 
-  it("quem não é do financeiro não lê nem altera planos (RLS)", async () => {
-    expect(await repo.list(commercial)).toHaveLength(0);
+  it("quem não é do financeiro só vê o catálogo de planos ativos e não altera nada (RLS)", async () => {
+    // O catálogo ativo é visível a qualquer conta logada (o parceiro escolhe um plano, #153); plano inativo não.
+    const inactive = await repo.create(finance, data({ code: `${tag}-inativo`, active: false }));
+    const visible = (await repo.list(commercial)).map((p) => p.id);
+    expect(visible).not.toContain(inactive!.id);
+    expect((await repo.list(commercial)).every((p) => p.active)).toBe(true);
+    expect((await repo.list(finance)).map((p) => p.id)).toContain(inactive!.id);
     await expect(repo.create(commercial, data({ code: `${tag}-x` }))).rejects.toThrow(/row-level security/);
     const [mine] = (await repo.list(finance)).filter((p) => p.code === `${tag}-pro`);
     expect(await repo.update(commercial, mine.id, data({ name: "Invadido" }))).toBeNull();
