@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/shared/ui";
+import { cn, Logo } from "@/shared/ui";
 import { isActive, navItems } from "./nav-items";
 
 /** Navegação principal: barra inferior no celular, barra lateral a partir do tablet. */
@@ -17,10 +17,8 @@ export function AppNav() {
         "md:inset-y-0 md:left-0 md:right-auto md:w-60 md:border-r md:border-t-0 md:pb-0",
       )}
     >
-      <Link href="/" className="hidden items-center gap-2 px-6 py-6 text-xl font-bold text-brand md:flex">
-        {/* eslint-disable-next-line @next/next/no-img-element -- SVG estático pequeno */}
-        <img src="/icon.svg" alt="" className="size-8" />
-        LalaIA
+      <Link href="/" className="hidden items-center px-6 py-6 md:flex">
+        <Logo className="h-9" />
       </Link>
       <ul className="mx-auto flex max-w-lg items-stretch justify-around md:mx-0 md:max-w-none md:flex-col md:gap-1 md:px-3">
         {navItems.map(({ href, label, icon: Icon, highlight }) => {

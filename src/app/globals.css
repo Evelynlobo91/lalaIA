@@ -25,6 +25,7 @@
   --live: #d92d20;
   --live-fg: #ffffff;
   --focus: #3b1d8f;
+  --logo: #02407f;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -48,6 +49,7 @@
     --live: #ff6b5e;
     --live-fg: #0f0c1a;
     --focus: #ffc94d;
+    --logo: #ffffff;
   }
 }
 
@@ -71,6 +73,7 @@
   --color-live: var(--live);
   --color-live-fg: var(--live-fg);
   --color-focus: var(--focus);
+  --color-logo: var(--logo);
   --font-sans: var(--font-geist-sans);
 }
 
