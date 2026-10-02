@@ -28,5 +28,7 @@ export function useLiveStatus(entityType: "place" | "event", entityId: string, i
 }
 
 function sameStatus(a: LiveStatusView, b: LiveStatusView): boolean {
-  return (Object.keys(b) as Array<keyof LiveStatusView>).every((k) => a[k] === b[k]);
+  // A chamada (objeto) é comparada pelo que a identifica na tela: qual é e até quando fica.
+  const ctaKey = (s: LiveStatusView) => (s.cta ? `${s.cta.id}@${s.cta.until}@${s.cta.title}@${s.cta.href}` : "");
+  return (Object.keys(b) as Array<keyof LiveStatusView>).every((k) => (k === "cta" ? ctaKey(a) === ctaKey(b) : a[k] === b[k]));
 }

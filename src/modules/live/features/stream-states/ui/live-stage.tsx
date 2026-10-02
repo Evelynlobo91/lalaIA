@@ -8,6 +8,7 @@ import { liveViewState, type LiveStatusView, type LiveViewKind } from "../stream
 import { useLiveStatus } from "./use-live-status";
 import { StreamContextLine, type StreamContextInfo } from "../../stream-context/ui/stream-context-line";
 import { PublicLiveNotice } from "../../privacy/ui/public-live-notice";
+import { CtaOverlay } from "../../cta-overlay/ui/cta-overlay";
 
 // O player (e o hls.js, quando preciso) só é baixado quando a live está no ar: não pesa a página.
 const HlsPlayer = dynamic(() => import("../../player/ui/hls-player"), {
@@ -58,13 +59,16 @@ export function LiveStage({ entityType, entityId, initial, title, onWatch, conte
             <LiveBadge />
             <span className="text-sm text-muted">{view.message}</span>
           </div>
-          <HlsPlayer
-            key={`${status.playbackUrl}#${attempt}`}
-            src={status.playbackUrl}
-            title={`Ao vivo: ${title}`}
-            onPlaying={() => setWatching(true)}
-            onError={() => setFailedUrl(status.playbackUrl)}
-          />
+          <div className="relative">
+            <HlsPlayer
+              key={`${status.playbackUrl}#${attempt}`}
+              src={status.playbackUrl}
+              title={`Ao vivo: ${title}`}
+              onPlaying={() => setWatching(true)}
+              onError={() => setFailedUrl(status.playbackUrl)}
+            />
+            <CtaOverlay cta={status.cta} entityType={entityType} entityId={entityId} />
+          </div>
           <PublicLiveNotice />
         </>
       ) : (

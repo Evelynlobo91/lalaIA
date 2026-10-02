@@ -290,3 +290,16 @@ transmissão do portal).
 Limitações: sem imagem na chamada; o destino é resolvido ao salvar (se a oferta mudar de lugar depois, é preciso
 salvar a chamada de novo); quem perde o recurso no plano não cria novas chamadas, mas as já programadas não são
 apagadas.
+
+### A chamada no player (#179, #180)
+
+- **Sem job**: a chamada ativa é calculada na leitura (`GetActiveCta` + `pickActiveCta`) e vai no mesmo
+  `GET /api/live/status` que a página já consulta a cada 12 s (`cta` no `LiveStatusView`). Aparece e some com esse
+  atraso, bem abaixo do 1 min pedido. Quando o status migrar para o Supabase Realtime, a chamada vai junto.
+- **Só ao vivo**: aguardando sinal, pausada ou encerrada → `cta: null`.
+- **Uma por vez**: entre as que estão na janela, vence a maior prioridade; no empate, a mais antiga.
+- **O cliente também confere a janela**: o status traz `until` e o cartão some no fim, mesmo sem nova consulta.
+- **Cartão** (`CtaOverlay`): abaixo do vídeo no celular e no canto de cima em telas maiores (não cobre o centro
+  nem os controles). Pode ser fechado e não volta na mesma sessão (`sessionStorage`). Link externo abre em nova
+  aba; "Quero ir" também registra o clique em `/api/favorites/want-to-go`, como o botão da página.
+- **Falha não derruba a live**: se a leitura das chamadas falhar, o player segue sem cartão e o erro é registrado.

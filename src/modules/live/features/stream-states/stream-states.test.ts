@@ -30,10 +30,27 @@ describe("GetLiveStatus", () => {
     const live = new GetLiveStatus({ execute: async () => ({ streamId: "s1", status: "live", playbackUrl: "https://hls/x.m3u8", note: "Casa cheia", liveSince: since }) });
     expect(await live.execute({ entityType: "place", entityId: ENTITY })).toEqual({
       ok: true,
-      value: { status: "live", streamId: "s1", playbackUrl: "https://hls/x.m3u8", note: "Casa cheia", liveSince: "2026-10-01T22:00:00.000Z" },
+      value: { status: "live", streamId: "s1", playbackUrl: "https://hls/x.m3u8", note: "Casa cheia", liveSince: "2026-10-01T22:00:00.000Z", cta: null },
     });
     const none = new GetLiveStatus({ execute: async () => null });
-    expect(await none.execute({ entityType: "place", entityId: ENTITY })).toEqual({ ok: true, value: { status: "none", streamId: null, playbackUrl: null, note: null, liveSince: null } });
+    expect(await none.execute({ entityType: "place", entityId: ENTITY })).toEqual({ ok: true, value: { status: "none", streamId: null, playbackUrl: null, note: null, liveSince: null, cta: null } });
+  });
+});
+
+describe("GetLiveStatus com a chamada do anfitrião (#179)", () => {
+  const cta = { id: "c1", type: "link" as const, title: "Siga o bar", body: null, buttonLabel: "Abrir", href: "https://instagram.com/bar", external: true, until: "2026-10-01T23:00:00.000Z" };
+  const playback = (status: "live" | "paused") => ({ streamId: "s1", status, playbackUrl: null, note: null, liveSince: status === "live" ? new Date("2026-10-01T22:00:00Z") : null });
+
+  it("ao vivo: o status leva a chamada da vez", async () => {
+    const activeCta = { execute: vi.fn(async () => cta) };
+    const result = await new GetLiveStatus({ execute: async () => playback("live") }, activeCta).execute({ entityType: "place", entityId: ENTITY });
+    expect(result.ok && result.value.cta).toEqual(cta);
+    expect(activeCta.execute).toHaveBeenCalledWith(expect.objectContaining({ streamId: "s1", status: "live" }));
+  });
+
+  it("pausada: nunca leva chamada, mesmo que a leitura devolva uma", async () => {
+    const result = await new GetLiveStatus({ execute: async () => playback("paused") }, { execute: async () => cta }).execute({ entityType: "place", entityId: ENTITY });
+    expect(result.ok && result.value.cta).toBeNull();
   });
 });
 
@@ -45,7 +62,7 @@ describe("GET /api/live/status", () => {
     const response = await route(new Request(`http://localhost/api/live/status?entityType=event&entityId=${ENTITY}`));
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("no-store");
-    expect(await response.json()).toEqual({ status: "paused", streamId: "s1", playbackUrl: null, note: "Volta às 23h", liveSince: null });
+    expect(await response.json()).toEqual({ status: "paused", streamId: "s1", playbackUrl: null, note: "Volta às 23h", liveSince: null, cta: null });
   });
 
   it("400 para parâmetros inválidos", async () => {

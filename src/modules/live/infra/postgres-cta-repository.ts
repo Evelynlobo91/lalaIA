@@ -1,6 +1,7 @@
 import { asUser } from "@/shared/db/as-user";
 import type { Sql } from "@/shared/db/sql";
 import type { CtaPriority, CtaRecord, CtaSchedule, CtaType } from "../domain/cta";
+import type { StreamCtaReader } from "../features/active-cta/active-cta.use-case";
 import type { CtaRepository, CtaToSave } from "../features/schedule-cta/schedule-cta.use-case";
 
 type CtaRow = {
@@ -60,7 +61,7 @@ function scheduleValues(s: CtaSchedule): [Date | null, Date | null, number | nul
 
 const contentValues = (c: CtaToSave) => [c.type, c.refId, c.href, c.external, c.title, c.body, c.buttonLabel, c.priority, c.schedule.kind, ...scheduleValues(c.schedule)];
 
-export class PostgresCtaRepository implements CtaRepository {
+export class PostgresCtaRepository implements CtaRepository, StreamCtaReader {
   constructor(private readonly sql: Sql) {}
 
   async listByStream(actorId: string, streamId: string): Promise<CtaRecord[]> {
@@ -105,6 +106,12 @@ export class PostgresCtaRepository implements CtaRepository {
       this.sql,
     );
     return row ? toCta(row) : null;
+  }
+
+  // Sistema (sem asUser): leitura pública para resolver a chamada ativa. O público não lê a tabela.
+  async listForStream(streamId: string): Promise<CtaRecord[]> {
+    const rows = await this.sql.unsafe<CtaRow[]>(`select ${CTA_COLUMNS} from live.ctas where stream_id = $1 order by priority, created_at`, [streamId]);
+    return rows.map(toCta);
   }
 
   async remove(actorId: string, ctaId: string): Promise<boolean> {
