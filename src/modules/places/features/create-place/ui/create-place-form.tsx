@@ -20,7 +20,7 @@ export function CreatePlaceForm() {
 
       <label className="flex flex-col gap-1.5 text-sm font-medium">
         Categoria
-        <select name="category" defaultValue={values.category ?? categories[0].id} className="h-12 rounded-xl border border-border bg-surface px-3 text-base">
+        <select key={values.category ?? ""} name="category" defaultValue={values.category ?? categories[0].id} className="h-12 rounded-xl border border-border bg-surface px-3 text-base">
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
               {c.label}

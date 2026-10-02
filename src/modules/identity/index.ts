@@ -25,6 +25,7 @@ export { confirmEmailRoute } from "./features/confirm-email/confirm-email.route"
 export { getCurrentUser, requireUser, withUser } from "./features/session/current-user";
 export { hasRole, requireCapability, requireRole, withCapability, withRole } from "./features/authorization/authorization";
 export { can, capabilities, internalRoleDescriptions, internalRoleLabels, internalRoles, type Capability, type InternalRole } from "./domain/capabilities";
+import { internalRoles as allInternalRoles, roleCapabilities, type Capability as Cap } from "./domain/capabilities";
 export { CURRENT_TERMS_VERSION } from "./domain/terms";
 export type { CurrentUser } from "./domain/session";
 export type { Role, UserSummary } from "./domain/roles";
@@ -52,6 +53,11 @@ const directory = lazy(() => new PostgresRoleRepository(sql()));
 /** Nome e e-mail de usuários por id (ex.: fila de revisão de parceiros). Uso restrito a telas de admin/dono. */
 export function usersByIds(ids: string[]) {
   return directory().byIds([...new Set(ids)]);
+}
+
+/** Pessoas do time que têm a capacidade (ex.: quem pode ser responsável por um lead). Só id e nome. */
+export function usersWithCapability(capability: Cap) {
+  return directory().withAnyRole(allInternalRoles.filter((role) => roleCapabilities[role].includes(capability)));
 }
 
 /** Contagens de contas (criadas num período e total), para as métricas gerais do backoffice (#145). */

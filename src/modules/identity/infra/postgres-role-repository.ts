@@ -49,4 +49,14 @@ export class PostgresRoleRepository implements RoleRepository, UserDirectory, Te
   async revoke(userId: string, role: TeamRole): Promise<void> {
     await this.sql`delete from identity.user_roles where user_id = ${userId} and role = ${role}`;
   }
+
+  /** Pessoas com pelo menos um dos papéis, por nome (sem repetição). */
+  async withAnyRole(roles: readonly Role[]): Promise<Array<{ id: string; displayName: string }>> {
+    if (roles.length === 0) return [];
+    return this.sql<{ id: string; displayName: string }[]>`
+      select distinct p.user_id as id, p.display_name as "displayName"
+      from identity.user_roles r join identity.profiles p on p.user_id = r.user_id
+      where r.role in ${this.sql([...roles])}
+      order by p.display_name, p.user_id`;
+  }
 }
