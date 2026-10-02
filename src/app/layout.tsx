@@ -8,6 +8,8 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
+  // Base para URLs absolutas nos metadados (Open Graph exige URL completa para o card aparecer).
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: { default: "LalaIA", template: "%s · LalaIA" },
   description: "O que eu posso fazer agora, em Joinville, que combina comigo?",
   applicationName: "LalaIA",

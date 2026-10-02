@@ -1,11 +1,43 @@
 import type { Sql } from "@/shared/db/sql";
 import { isCategoryId, type CategoryId } from "@/shared/catalog/categories";
 import type { PlaceCard, PlaceCursor, PlaceReader } from "../domain/place-card";
+import type { PlaceDetails, PlaceDetailsReader } from "../domain/place-details";
 
 type Row = { id: string; name: string; category: string; neighborhood: string | null; opening_hours: string | null };
 
-export class PostgresPlaceReader implements PlaceReader {
+type DetailsRow = Row & {
+  street: string | null;
+  house_number: string | null;
+  postcode: string | null;
+  city: string;
+  phone: string | null;
+  website: string | null;
+  source: "osm" | "partner";
+  lat: number;
+  lon: number;
+};
+
+export class PostgresPlaceReader implements PlaceReader, PlaceDetailsReader {
   constructor(private readonly sql: Sql) {}
+
+  async findById(id: string): Promise<PlaceDetails | null> {
+    const [r] = await this.sql<DetailsRow[]>`
+      select id, name, category, street, house_number, neighborhood, postcode, city, phone, website, opening_hours, source,
+             extensions.st_y(location::extensions.geometry) as lat, extensions.st_x(location::extensions.geometry) as lon
+      from places.places where id = ${id}`;
+    if (!r || !isCategoryId(r.category)) return null;
+    return {
+      id: r.id,
+      name: r.name,
+      category: r.category,
+      address: { street: r.street, houseNumber: r.house_number, neighborhood: r.neighborhood, postcode: r.postcode, city: r.city },
+      phone: r.phone,
+      website: r.website,
+      openingHours: r.opening_hours,
+      location: { lat: r.lat, lon: r.lon },
+      source: r.source,
+    };
+  }
 
   async listAfter(cursor: PlaceCursor | null, limit: number): Promise<PlaceCard[]> {
     // Keyset pagination: compara (nome, id) com o último item visto. Usa o índice places_name_id_idx.

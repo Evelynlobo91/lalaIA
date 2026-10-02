@@ -61,6 +61,22 @@ Para mapear uma nova tag, adicione uma linha em `src/modules/places/domain/osm/o
   Feriados (`PH`) são ignorados. Quando não reconhece o formato, devolve `null` e a tela **não mostra**
   nada, em vez de arriscar um "aberto" errado. Hoje reconhece 54 de 56 horários reais de Joinville.
 
+## Página do lugar
+
+- `/lugares/[id]` mostra só os campos existentes: endereço, telefones (um link `tel:` por número),
+  site (`rel="noopener noreferrer nofollow"`) e horário da semana em português ("Seg 11:00–14:30").
+  Horário não reconhecido aparece como veio da fonte, sem "aberto agora".
+- **Como chegar:** URL universal do Google Maps (`/maps/dir/?api=1&destination=lat,lon`), que abre o
+  app de mapas do celular. Sem chave de API e sem custo. "Ver no mapa" abre o OpenStreetMap.
+- **Compartilhamento:** metadados Open Graph/Twitter com URL absoluta (`metadataBase` =
+  `NEXT_PUBLIC_SITE_URL`) e imagem 1200×630 gerada por lugar (`opengraph-image.tsx`), para o card
+  aparecer bonito no Instagram e no WhatsApp.
+- **404 de verdade** para id inválido ou inexistente: o `loading.tsx` fica só na lista
+  (`lugares/(lista)/`), porque um skeleton acima do detalhe faria a resposta começar com 200.
+- **Sem prefetch** nos cards: o detalhe é dinâmico, e o prefetch padrão renderizaria cada card visível
+  no servidor (10–20 consultas só por abrir a lista). O detalhe abre em ~340ms após o toque.
+- **Ponto de extensão:** `PlaceDetailCard` recebe `extras` (ex.: selo e player da Live, eventos do lugar).
+
 ## Licença e atribuição (obrigatória)
 
 Os dados do OpenStreetMap são © OpenStreetMap contributors, sob a licença
