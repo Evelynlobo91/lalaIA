@@ -13,6 +13,7 @@ const descriptions: Record<string, string> = {
   "/parceiro/missoes": "Crie missões e recompensas para atrair exploradores.",
   "/parceiro/ofertas": "Ofereça descontos e valide os códigos no balcão.",
   "/parceiro/dados": "Veja quem se interessou pelo que você publica.",
+  "/parceiro/assinatura": "Veja o seu plano e os recursos que ele libera.",
 };
 
 export default async function InicioPortalPage() {
