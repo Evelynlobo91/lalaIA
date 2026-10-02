@@ -12,7 +12,7 @@ export type Address = {
 
 /** Lugar pronto para ser gravado (ainda sem id do banco). */
 export type PlaceDraft = {
-  source: "osm" | "partner";
+  source: "osm" | "partner" | "admin";
   sourceId: string;
   name: string;
   category: CategoryId;

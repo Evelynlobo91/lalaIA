@@ -2,6 +2,7 @@ import { categories, isCategoryId, type CategoryId } from "@/shared/catalog/cate
 import { asUser } from "@/shared/db/as-user";
 import type { Sql } from "@/shared/db/sql";
 import type { EditablePlace, PlaceEdit, PlaceOwnershipRepository, PlaceSummary } from "../domain/place-ownership";
+import type { AdminPlaceCreator, NewAdminPlace } from "../features/create-place/create-place";
 
 const labels = new Map<string, string>(categories.map((c) => [c.id, c.label]));
 
@@ -14,7 +15,7 @@ const toSummary = (r: SummaryRow): PlaceSummary => ({
   managed: r.managed_by !== null,
 });
 
-export class PostgresPlaceOwnershipRepository implements PlaceOwnershipRepository {
+export class PostgresPlaceOwnershipRepository implements PlaceOwnershipRepository, AdminPlaceCreator {
   constructor(private readonly sql: Sql) {}
 
   async searchByName(query: string, limit: number): Promise<PlaceSummary[]> {
@@ -79,5 +80,19 @@ export class PostgresPlaceOwnershipRepository implements PlaceOwnershipRepositor
       this.sql,
     );
     return rows.length > 0;
+  }
+
+  async createByAdmin(actorId: string, p: NewAdminPlace): Promise<string> {
+    // RLS: só admin insere, com origem 'admin' e em seu próprio nome. Marcado como editado: é dado da plataforma, não do OSM.
+    const [row] = await asUser(
+      actorId,
+      (tx) => tx<{ id: string }[]>`
+        insert into places.places (source, source_id, name, category, street, house_number, neighborhood, phone, website, location, edited_by_partner_at, created_by)
+        values ('admin', ${`admin/${crypto.randomUUID()}`}, ${p.name}, ${p.category}, ${p.address.street}, ${p.address.houseNumber}, ${p.address.neighborhood},
+                ${p.phone}, ${p.website}, extensions.st_makepoint(${p.location.lon}, ${p.location.lat})::extensions.geography, now(), ${actorId})
+        returning id`,
+      this.sql,
+    );
+    return row.id;
   }
 }

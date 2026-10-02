@@ -41,6 +41,7 @@ export type { NearbyPlacesResult, NearbyPlaceItem } from "./features/nearby-plac
 export { RADIUS_OPTIONS_M, DEFAULT_RADIUS_M, servicePointShape } from "./features/nearby-places/nearby-places.schema";
 export { formatDistance } from "./features/nearby-places/nearby-places.use-case";
 export { EditPlaceForm } from "./features/edit-place/ui/edit-place-form";
+export { CreatePlaceForm } from "./features/create-place/ui/create-place-form";
 export { PlacePicker, type PickedPlace } from "./features/search-by-name/ui/place-picker";
 export type { PlaceSummary } from "./domain/place-ownership";
 export type { PlaceCandidate, PlaceCandidatesQuery } from "./features/place-candidates/place-candidates";

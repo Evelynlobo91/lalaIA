@@ -31,3 +31,12 @@ a área responde **404**, o que não revela que ela existe (RNF05).
   Eventos cancelados ou encerrados e missões encerradas não são editáveis, como no portal do parceiro.
 - Depois de salvar, o formulário volta para o backoffice (`returnTo="admin"`, um valor fixo, nunca um caminho
   vindo do formulário).
+
+## Cadastrar estabelecimento (#143)
+
+- `/admin/conteudo/lugares/novo`: nome, categoria, endereço, contato e coordenada (latitude e longitude, dentro
+  de Joinville; aceita vírgula decimal). O lugar entra na lista pública e no mapa na hora.
+- O lugar nasce com origem `admin` e `created_by`, sem responsável: um parceiro pode reivindicá-lo depois (#28).
+  A reimportação do OpenStreetMap não o altera.
+- Depois de cadastrar, o admin cai na edição para informar o horário de funcionamento.
+- No banco, só admin insere, só com origem `admin` e em seu próprio nome (RLS + grant por coluna).
