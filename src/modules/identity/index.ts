@@ -9,6 +9,8 @@ import type { Role } from "./domain/roles";
 import { DefaultingPreferencesReader } from "./features/preferences-reader/preferences-reader";
 import { PostgresPreferencesRepository } from "./infra/postgres-preferences-repository";
 import { PostgresRoleRepository } from "./infra/postgres-role-repository";
+import { PostgresConsentRepository } from "./infra/postgres-consent-repository";
+import { GetConsents } from "./features/lgpd/lgpd.use-case";
 
 export { RegisterForm } from "./features/register/ui/register-form";
 export { LoginForm } from "./features/login/ui/login-form";
@@ -47,3 +49,26 @@ const directory = lazy(() => new PostgresRoleRepository(sql()));
 export function usersByIds(ids: string[]) {
   return directory().byIds([...new Set(ids)]);
 }
+
+// ---------------------------------------------------------------------------------------------------
+// LGPD (#25): consentimentos, exportação e exclusão de conta
+// ---------------------------------------------------------------------------------------------------
+
+export { ConsentsForm } from "./features/lgpd/ui/consents-form";
+export { DeleteAccountForm } from "./features/lgpd/ui/delete-account-form";
+export { exportPersonalDataRoute } from "./features/lgpd/lgpd.route";
+export type { PersonalDataSource, PersonalDataExport } from "./features/lgpd/lgpd.use-case";
+export { CONSENT_COOKIES, type Consents } from "./domain/consents";
+
+const getConsents = lazy(() => new GetConsents(new PostgresConsentRepository(sql())));
+
+/** Consentimentos da pessoa (com os padrões, se nunca escolheu). O id vem sempre da sessão. */
+export function consentsOf(userId: string) {
+  return getConsents().execute(userId);
+}
+
+/** Usado pelo Analytics antes de contar uma interação ligada a alguém (ex.: favoritar). */
+export async function allowsAnalytics(userId: string): Promise<boolean> {
+  return (await getConsents().execute(userId)).analytics;
+}
+

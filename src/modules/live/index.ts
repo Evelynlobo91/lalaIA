@@ -1,7 +1,7 @@
 // API pública do módulo live (transmissões ao vivo de lugares e eventos).
 import { hasRole, type CurrentUser } from "@/modules/identity";
 import type { ModuleSubscriptions } from "@/shared/events";
-import { endStreamOfCancelledEvent, getActiveStreams, getStreamMetrics, privacyGate, getLiveNowGeo, getLiveStatus, handleProviderWebhook, listActiveStreamsUseCase, listLiveNow, listLiveTargets, streamRepository } from "./composition";
+import { endStreamOfCancelledEvent, endStreamsOfDeletedUser, getActiveStreams, getStreamMetrics, privacyGate, getLiveNowGeo, getLiveStatus, handleProviderWebhook, listActiveStreamsUseCase, listLiveNow, listLiveTargets, streamRepository } from "./composition";
 import { liveNowRoute } from "./features/live-badge/live-badge.route";
 import type { LiveNowItem } from "./features/live-badge/live-badge.use-case";
 import { errorReporter, logger } from "@/shared/observability";
@@ -103,5 +103,8 @@ export const subscriptions: ModuleSubscriptions = (bus) => {
   bus.subscribe("events.EventCancelled", async (event) => {
     const parsed = eventCancelledSchema.safeParse(event.payload);
     if (parsed.success) await endStreamOfCancelledEvent().execute(parsed.data.eventId);
+  });
+  bus.subscribe("identity.UserDeleted", async (event) => {
+    await endStreamsOfDeletedUser().execute(event.payload.userId);
   });
 };

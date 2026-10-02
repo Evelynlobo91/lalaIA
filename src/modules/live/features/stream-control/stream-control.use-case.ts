@@ -70,3 +70,26 @@ export class EndStreamOfCancelledEvent {
     }
   }
 }
+
+/**
+ * LGPD (#25) — A pessoa excluiu a conta: desliga no provedor todas as transmissões dela antes que os
+ * registros saiam em cascata (senão a chave continuaria aceitando vídeo). Melhor-esforço por transmissão.
+ */
+export class EndStreamsOfDeletedUser {
+  constructor(
+    private readonly streams: Pick<StreamRepository, "listByOwner">,
+    private readonly provider: () => StreamingProvider,
+    private readonly log: { warn(message: string, fields?: Record<string, unknown>): void },
+  ) {}
+
+  async execute(userId: string): Promise<void> {
+    const mine = await this.streams.listByOwner(userId);
+    await Promise.all(
+      mine.map((s) =>
+        this.provider()
+          .disable(s.providerStreamId)
+          .catch((error: unknown) => this.log.warn("não foi possível desligar a transmissão no provedor (conta excluída)", { streamId: s.id, err: error })),
+      ),
+    );
+  }
+}

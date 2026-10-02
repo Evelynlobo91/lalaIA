@@ -8,12 +8,13 @@ export const dynamic = "force-dynamic";
 
 export default async function ExplorarPage({ searchParams }: PageProps<"/">) {
   const params = await searchParams;
-  const { "bem-vindo": bemVindo } = params;
+  const { "bem-vindo": bemVindo, "conta-excluida": contaExcluida } = params;
   const feed = await realtimeFeedView(params);
 
   return (
     <div className="flex flex-col gap-8">
       {bemVindo && <FormAlert variant="success">E-mail confirmado! Sua conta está ativa. Bem-vindo(a) ao LalaIA.</FormAlert>}
+      {contaExcluida && <FormAlert variant="success">Sua conta e seus dados foram excluídos. Obrigado por ter explorado Joinville com a gente.</FormAlert>}
 
       <section className="flex flex-col gap-2">
         <p className="text-sm font-medium text-muted">Joinville agora</p>

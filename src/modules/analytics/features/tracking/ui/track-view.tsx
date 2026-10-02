@@ -10,6 +10,8 @@ type Props = { kind?: "view" | "live_view"; entityType: "place" | "event" | "liv
  */
 export function TrackView({ kind = "view", entityType, entityId }: Props) {
   useEffect(() => {
+    // Consentimento (#25): "métricas de uso" desligadas neste navegador → não envia nada.
+    if (/(?:^|;\s*)lalaia-analytics=0(?:;|$)/.test(document.cookie)) return;
     const key = `lalaia:track:${kind}:${entityType}:${entityId}`;
     try {
       if (sessionStorage.getItem(key)) return;

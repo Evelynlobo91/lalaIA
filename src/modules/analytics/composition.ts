@@ -1,4 +1,5 @@
 // Composição do módulo analytics (interna): usada pelo index.ts.
+import { allowsAnalytics } from "@/modules/identity";
 import { sql } from "@/shared/db/sql";
 import { lazy } from "@/shared/kernel";
 import { TrackInteraction } from "./features/tracking/tracking.use-case";
@@ -9,7 +10,9 @@ import { PostgresInteractionTotals } from "./infra/postgres-interaction-totals";
 import { GetDailyMetrics } from "./features/aggregations/aggregations.use-case";
 import { PostgresDailyMetrics } from "./infra/postgres-daily-metrics";
 
-export const trackInteraction = lazy(() => new TrackInteraction(new PostgresInteractionStore(sql()), new AfterResponseRunner()));
+export const trackInteraction = lazy(
+  () => new TrackInteraction(new PostgresInteractionStore(sql()), new AfterResponseRunner(), undefined, { allows: allowsAnalytics }),
+);
 
 export const interactionTotalsUseCase = lazy(() => new GetInteractionTotals(new PostgresInteractionTotals(sql())));
 
